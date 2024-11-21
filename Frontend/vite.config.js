@@ -4,7 +4,6 @@ import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
 import compressPlugin from 'vite-plugin-compression'
 
-// https://vitejs.dev/config/
 export default defineConfig({
     resolve: {
       alias: {
