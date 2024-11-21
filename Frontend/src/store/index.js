@@ -1,11 +1,6 @@
-import Vue from 'vue';
-import Vuex from 'vuex';
+import { createStore } from 'vuex';
 
-// 使用 Vuex
-Vue.use(Vuex);
-
-// 导出 Vuex Store 实例
-export default new Vuex.Store({
+export default createStore({
   // 状态对象，包含应用的所有状态
   state: {
     // 用户信息
