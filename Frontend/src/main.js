@@ -1,5 +1,5 @@
-// 从 'vue' 模块中导入 Vue 构造函数
-import Vue from 'vue';
+// // 从 'vue' 模块中导入 Vue 构造函数
+import Vue from 'vue';  
 
 // 从 './App.vue' 模块中导入 App 组件
 import App from './App.vue';
