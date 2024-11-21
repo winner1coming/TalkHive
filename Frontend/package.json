@@ -1,107 +1,53 @@
 {
-  // 项目名称
-  "name": "Frontend",
-
-  // 项目版本号
+  "name": "TalkHive",
   "version": "1.0.0",
-
-  // 项目描述
   "description": "A web-based chat application built with Vue.js",
-
-  // 项目作者信息
-  "author": "Your Name <your.email@example.com>",
-
-  // 设置为 true，表示这是一个私有项目
+  "author": "",
   "private": true,
-
-  // 脚本命令
   "scripts": {
-    // 启动开发服务器
     "serve": "vue-cli-service serve",
-
-    // 构建生产环境代码
     "build": "vue-cli-service build",
-
-    // 运行代码检查
     "lint": "vue-cli-service lint"
   },
-
-  // 项目运行时所需的依赖项
   "dependencies": {
-    // 用于发送 HTTP 请求的库
     "axios": "^0.21.1",
-
-    // JavaScript 的 polyfill 库
     "core-js": "^3.6.5",
-
-    // Vue.js 核心库
     "vue": "^2.6.11",
-
-    // Vue.js 的路由库
     "vue-router": "^3.2.0",
-
-    // Vue.js 的状态管理库
     "vuex": "^3.4.0"
   },
-
-  // 开发环境所需的依赖项
   "devDependencies": {
-    // Vue CLI 的 Babel 插件
     "@vue/cli-plugin-babel": "~4.5.0",
-
-    // Vue CLI 的 ESLint 插件
     "@vue/cli-plugin-eslint": "~4.5.0",
-
-    // Vue CLI 的服务工具
     "@vue/cli-service": "~4.5.0",
-
-    // 用于 ESLint 的 Babel 解析器
     "babel-eslint": "^10.1.0",
-
-    // 代码检查工具
     "eslint": "^6.7.2",
-
-    // 用于 Vue.js 的 ESLint 插件
     "eslint-plugin-vue": "^6.2.2",
-
-    // Vue 模板编译器
     "vue-template-compiler": "^2.6.11"
   },
 
-  // ESLint 配置
   "eslintConfig": {
-    // 设置为 true，表示这是根配置文件
-    "root": true,
 
-    // 设置环境变量，这里启用了 Node.js 环境
+    "root": true,
     "env": {
       "node": true
     },
 
-    // 继承的 ESLint 配置
     "extends": [
       "plugin:vue/essential",
       "eslint:recommended"
     ],
 
-    // 解析器选项，这里使用了 babel-eslint 解析器
     "parserOptions": {
       "parser": "babel-eslint"
     },
 
-    // 自定义的 ESLint 规则
     "rules": {}
   },
 
-  // 指定项目支持的浏览器列表
   "browserslist": [
-    // 市场份额大于 1% 的浏览器
     "> 1%",
-
-    // 每个浏览器的最后两个版本
     "last 2 versions",
-
-    // 不包括已经停止维护的浏览器
     "not dead"
   ]
 }
