@@ -1,4 +1,4 @@
- <!-- 聊天框,上半部分为历史记录，下半部分为输入区-->
+<!-- 聊天框,上半部分为历史记录，下半部分为输入区-->
 <template>
     <div class="chat-box">
       <ChatHeader :chat="selectedChat" />
@@ -12,15 +12,15 @@
       </div>
       <MessageInput @send-message="sendMessage" />
     </div>
+
   </template>
   
   <script>
-  import ChatHeader from './ChatHeader.vue';
   import MessageItem from './MessageItem.vue';
   import MessageInput from './MessageInput.vue';
   
   export default {
-    components: { ChatHeader, MessageItem, MessageInput },
+    components: {MessageItem, MessageInput },
     props: ['selectedChat', 'messages'], // 当前选中的聊天信息和聊天记录
     methods: {
       sendMessage(content) {
@@ -48,4 +48,3 @@
     background-color: #f0f0f0;
   }
   </style>
-  

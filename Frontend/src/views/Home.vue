@@ -1,7 +1,7 @@
 <template>
   <div class="home">
     <h1>欢迎来到聊天室</h1>
-    <router-link to="/messages">消息列表</router-link>
+    <router-link to="/chat">消息列表</router-link>
     <router-link to="/friends">好友列表</router-link>
     <router-link to="/groups">群聊列表</router-link>
     <router-link to="/notes">笔记</router-link>
