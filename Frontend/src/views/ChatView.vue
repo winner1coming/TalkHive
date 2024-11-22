@@ -43,7 +43,7 @@
       return {
         chatsList: [{
           id: 0,
-          avatar: '',
+          avatar: new URL('cat.png', import.meta.url).href,
           name: 'Alice',
           lastMessage: 'hi',
           lastMessageTime: '10:00',
@@ -52,26 +52,26 @@
         },
         {
           id: 1,
-          avatar: '',
+          avatar: new URL('cat.png', import.meta.url).href,
           name: 'Bob',
           lastMessage: 'hello',
           lastMessageTime: '11:00',
           unreadCount: 0,
           tags: ['unread'],
-        }], // 消息列表（从后端获取）
+        }], // 聊天列表（从后端获取）
         selectedChat: null, // 当前选中的聊天
         messages: [{
           id: 0,
           content: 'Hello',
           sender: 'Alice',
-          timestamp: new Date(),
+          timestamp: '11:00',
           
         },
         {
           id: 1,
           content: 'Hi',
           sender: 'Bob',
-          timestamp: new Date(),
+          timestamp: '12:00',
           
         }], // 消息列表，格式：{ chatId: [{...}, {...}] }
         showGroupManagement: false, // 是否显示群聊管理弹窗
@@ -142,6 +142,7 @@
   <style scoped>
   .chat-view {
     display: flex;
+    align-items: flex-start;
     height: 100%;
   }
   .chat-details {

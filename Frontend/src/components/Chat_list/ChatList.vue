@@ -30,8 +30,8 @@
           <div class="chat-last-chat">{{ chat.lastMessage }}</div>
         </div>
         <div class="chat-meta">
-          <span class="chat-time">{{ chat.lastMessageTime }}</span>
-          <span v-if="chat.unreadCount" class="unread-count">{{ chat.unreadCount }}</span>   <!--todo-->
+          <div class="chat-time">{{ chat.lastMessageTime }}</div>
+          <div v-if="chat.unreadCount" class="unread-count">{{ chat.unreadCount }}</div>   <!--todo-->
         </div>
       </li>
     </ul>
@@ -129,16 +129,35 @@ export default {
   border-radius: 50%;
 }
 .chat-info {
-  flex: 1;
+  flex: 5;
   margin-left: 10px;
+  text-align: left;
+}
+.chat-name{
+  font-weight: bold;
+}
+.chat-last-chat {
+  color: #888;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .chat-meta {
   text-align: right;
+  flex: 1;
+}
+.chat-time {
+  color: #888;
+  font-size: 0.8rem;
 }
 .unread-count {
   background-color: #ff0000;
   color: white;
+  width: 15px;
+  height: 20px;
+  display: inline-block;
   padding: 2px 5px;
   border-radius: 50%;
+  text-align: center;
 }
 </style>

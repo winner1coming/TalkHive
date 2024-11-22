@@ -1,12 +1,13 @@
 <!-- 聊天框,上半部分为历史记录，下半部分为输入区-->
 <template>
     <div class="chat-box">
-      <ChatHeader :chat="selectedChat" />
+      <!-- <ChatHeader :chat="selectedChat" /> -->
       <div class="messages" ref="messages">
         <MessageItem 
           v-for="message in messages" 
           :key="message.id" 
           :message="message"
+          :avatar="selectedChat.avatar"
           @message-action="handleMessageAction"
         />
       </div>
