@@ -8,12 +8,12 @@
   
       <!-- 右侧聊天详情 -->
       <div v-if="selectedChat" class="chat-details">
-        <!-- 顶部：显示聊天信息 -->
-        <ChatHeader :chat="selectedChat" @manage-group="openGroupManagement" />
+        <!-- 顶部：显示聊天信息
+        <ChatHeader :chat="selectedChat" @manage-group="openGroupManagement" /> -->
         <!-- 消息历史 -->
         <ChatBox 
           :selectedChat="selectedChat" 
-          :chats="chats[selectedChat.id] || []" 
+          :messages="messages" 
           @send-message="sendMessage"
           @message-action="handleMessageAction"
         />
@@ -34,17 +34,46 @@
   
   <script>
   import ChatList from '@/components/Chat_list/ChatList.vue';
-  import ChatHeader from './ChatHeader.vue';
-  import ChatBox from './ChatBox.vue';
-  import GroupManagement from './GroupManagement.vue';
+  import ChatBox from '@/components/Chat_list/ChatBox.vue';
+  // import GroupManagement from './GroupManagement.vue';
   
   export default {
-    components: { ChatList, ChatHeader, ChatBox, GroupManagement },
+    components: { ChatList, ChatBox },
     data() {
       return {
-        chatsList: [], // 消息列表（从后端获取）
+        chatsList: [{
+          id: 0,
+          avatar: new URL('cat.png', import.meta.url).href,
+          name: 'Alice',
+          lastMessage: 'hi',
+          lastMessageTime: '10:00',
+          unreadCount: 1,
+          tags: ['unread','pinned'],
+        },
+        {
+          id: 1,
+          avatar: new URL('cat.png', import.meta.url).href,
+          name: 'Bob',
+          lastMessage: 'hello',
+          lastMessageTime: '11:00',
+          unreadCount: 0,
+          tags: ['unread'],
+        }], // 聊天列表（从后端获取）
         selectedChat: null, // 当前选中的聊天
-        messages: {}, // 消息列表，格式：{ chatId: [{...}, {...}] }
+        messages: [{
+          id: 0,
+          content: 'Hello',
+          sender: 'Alice',
+          timestamp: '11:00',
+          
+        },
+        {
+          id: 1,
+          content: 'Hi',
+          sender: 'Bob',
+          timestamp: '12:00',
+          
+        }], // 消息列表，格式：{ chatId: [{...}, {...}] }
         showGroupManagement: false, // 是否显示群聊管理弹窗
       };
     },
@@ -56,9 +85,13 @@
       async selectChat(chat) {
         this.selectedChat = chat;
   
-        // 如果消息为空，加载消息历史
-        if (!this.messages[chat.id]) {
-          this.messages[chat.id] = await this.apiGet(`/messages/${chat.id}`);
+        // 如果消息为空，加载消息历史   todo debug（应该不管是否为空都要加载）
+        if (!this.messages) {
+          this.messages = await this.apiGet(`/messages/${chat.id}`);
+        }else{
+          this.messages.forEach(message => {
+            // message.read = true;
+          });
         }
       },
       async sendMessage(content) {
@@ -109,6 +142,7 @@
   <style scoped>
   .chat-view {
     display: flex;
+    align-items: flex-start;
     height: 100%;
   }
   .chat-details {
