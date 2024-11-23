@@ -145,13 +145,16 @@
     display: flex;
     align-items: flex-start;
     height: 100%;
+    width: 100%;
   }
   .chat-details {
+    height: 100%;
     flex: 3;
     display: flex;
     flex-direction: column;
   }
   .welcome-message {
+    height: 100%;
     flex: 3;
     display: flex;
     align-items: center;

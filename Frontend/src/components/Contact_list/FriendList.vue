@@ -1,22 +1,34 @@
 <template>
-  <div class="friend-list">
-    <h2>好友列表</h2>
-    <ul>
-      <li v-for="friend in friends" :key="friend.id">
-        {{ friend.name }}
-      </li>
-    </ul>
+  <div class="main">
+    <div class="contact-header">
+        好友列表
+    </div>
+    <itemList :items="items" :type="type" :tags="tags" />
   </div>
 </template>
 
 <script>
 import { getFriends } from '@/services/api.js';
+import itemList from './itemList.vue';
 
 export default {
-  name: 'FriendList',
+  components: {
+    itemList,
+  },
   data() {
     return {
-      friends: [],
+      type: 'friendList',  // friendList, groupList
+        tags: ['家人', '朋友', '同事'],
+        items: [
+          {
+            avatar: '',
+            account_id: '1',
+            remark: 'John',   // 好友备注
+            status: 'online',   // online, offline
+            signature: '爱拼才会赢',
+            tag: '家人',
+          },
+        ],
     };
   },
   methods: {
@@ -31,8 +43,7 @@ export default {
 };
 </script>
 
+<style scoped src="@/assets/css/contactList.css"></style>
 <style scoped>
-.friend-list {
-  padding: 20px;
-}
+
 </style>

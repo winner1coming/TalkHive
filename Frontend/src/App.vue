@@ -31,7 +31,12 @@ export default {
   /* 设置文本颜色 */
   color: #2c3e50;
 
-  /* 设置顶部外边距 */
-  margin-top: 60px;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+* {
+  margin: 0;
+  padding: 0;
 }
 </style>
