@@ -1,43 +1,70 @@
 <template>
-  <div class="message-item" @contextmenu.prevent="showContextMenu($event)">
-    <div class="avatar">
-      <img :src="avatar" alt="avatar" />
-    </div>
-    <div class="message-content-wrapper">
-      <div class="message-header">
-        <span class="message-sender">{{ message.sender }}</span>
-        <span class="message-time">{{ message.timestamp }}</span>
+  <div class="message-item" 
+    
+  >
+    <div v-if="this.$store.state.user.id === message.id" class="friend-message">
+      <div class="avatar">
+        <img :src="avatar" alt="avatar" />
       </div>
-      <div class="message-content" v-html="message.content"></div>
+      <div class="message-content-wrapper">
+        <div class="message-header">
+          <span class="message-sender">{{ message.sender }}</span>
+          <span class="message-time">{{ message.timestamp }}</span>
+        </div>
+        <div class="message-content" 
+             v-html="message.content" 
+             @contextmenu.prevent="showContextMenu($event)">
+        </div>
+      </div>
     </div>
-    <div v-if="showMenu" class="context-menu" :style="{ top: menuPosition.y + 'px', left: menuPosition.x + 'px' }">
+
+    <div v-else class="my-message">
+      <div class="message-content-wrapper">
+        <div class="message-header">
+          <span class="message-sender">{{ message.sender }}</span>
+          <span class="message-time">{{ message.timestamp }}</span>
+        </div>
+        <div class="message-content" 
+             v-html="message.content" 
+             @contextmenu.prevent="showContextMenu($event)">
+        </div>
+      </div>
+      <div class="avatar">
+        <img :src="avatar" alt="avatar" />
+      </div>
+    </div>
+    
+    <div v-show="showMenu" 
+      class="context-menu" 
+      :style="{ top: `${axis.y}px`, left: `${axis.x}px` }"
+    >
+      <button @click="handleAction('reply')">回复</button>
+      <button @click="handleAction('forward')">转发</button>
       <button @click="handleAction('delete')">删除</button>
-      <button @click="handleAction('copy')">复制</button>
-      <button @click="handleAction('select')">多选</button>
     </div>
   </div>
 </template>
 
 <script>
 export default {
-  props: {message: {
-      type: Object,
-      required: true
-    },
-    avatar: {
-      type: String,
-      required: true
-    }
-  },
+  props: ['message', 'avatar'],
   data() {
     return {
       showMenu: false,
-      menuPosition: { x: 0, y: 0 }
+      axis: {
+        x: 0,
+        y: 0
+      },
     };
   },
   methods: {
     showContextMenu(event) {
-      this.menuPosition = { x: event.clientX, y: event.clientY };
+      var x = event.clientX;
+      var y = event.clientY;
+      this.axis = {
+        x,
+        y
+      };
       this.showMenu = true;
       document.addEventListener('click', this.hideContextMenu);
       document.addEventListener('contextmenu', this.hideContextMenu);
@@ -65,13 +92,25 @@ export default {
 
 <style scoped>
 .message-item {
-  display: flex;
-  align-items: flex-start;
+  min-height: 50px;
   padding: 5px;
   position: relative;
 }
-.avatar {
-  align-self:flex-end;
+.friend-message {
+  float: left;
+  display: flex;
+  align-items: flex-start;
+}
+.my-message {
+  float: right;
+  display: flex;
+  align-items: flex-end;
+}
+.friend-message .avatar {
+  align-self: flex-start;
+}
+.my-message .avatar {
+  align-self: flex-end;
 }
 .avatar img {
   width: 40px;
@@ -79,7 +118,6 @@ export default {
   border-radius: 50%;
 }
 .message-content-wrapper {
-  flex: 1;
   max-width: 250px;
   display: inline-flex;
   flex-direction: column;

@@ -10,7 +10,7 @@
 </template>
 
 <script>
-import { getFriends } from '../services/api';
+import { getFriends } from '@/services/api.js';
 
 export default {
   name: 'FriendList',

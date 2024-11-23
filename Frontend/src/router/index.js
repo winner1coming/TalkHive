@@ -5,6 +5,7 @@ import Home from '@/views/Home.vue';
 import Login from '@/components/Login.vue';
 import Register from '@/components/Register.vue';
 import ChatView from '@/views/ChatView.vue';
+import ContactView from '@/views/ContactView.vue';
 // import GroupChat from '@/components/GroupChat.vue';
 // import Profile from '@/components/Profile.vue';
 // import GroupManagement from '@/components/GroupManagement.vue';
@@ -24,6 +25,7 @@ const routes = [
   { path: '/login', component: Login },
   { path: '/register', component: Register },
   { path: '/chat', component: ChatView },
+  { path: '/contact', component: ContactView },
   // { path: '/profile', component: Profile },
   // { path: '/group-management', component: GroupManagement },
   // { path: '/contacts', component: ContactList },

@@ -1,7 +1,15 @@
 <!-- 聊天框,上半部分为历史记录，下半部分为输入区-->
 <template>
     <div class="chat-box">
-      <!-- <ChatHeader :chat="selectedChat" /> -->
+      <div class="chat-header">
+        <div class="chat-avatar">
+          <img :src="selectedChat.avatar" alt="avatar" />
+        </div>
+        <div class="chat-name">{{ selectedChat.name }}</div>
+        <div style="margin-left: auto;" v-if="selectedChat.is_groupchat">
+          <button class="group-button" @click="clickGroupManagement">···</button>
+        </div>
+      </div>
       <div class="messages" ref="messages">
         <MessageItem 
           v-for="message in messages" 
@@ -32,6 +40,10 @@
         // 处理消息的各种操作
         this.$emit('message-action', action, message);
       },
+      clickGroupManagement() {
+        // 打开群聊管理弹窗
+        this.$emit('clickGroupManagement');
+      }
     },
   };
   </script>
@@ -42,10 +54,30 @@
     flex-direction: column;
     height: 100%;
   }
+  .chat-header {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background-color: #687aec91;
+  }
+  .chat-avatar img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+  }
+  .chat-name {
+    margin-left: 10px;
+    font-weight: bold;
+  }
+  .group-button {
+    background-color:transparent;
+    border: none;
+    cursor: pointer;
+  }
   .messages {
     flex: 1;
-    overflow-y: auto;
     padding: 10px;
     background-color: #f0f0f0;
+    display: block;
   }
   </style>

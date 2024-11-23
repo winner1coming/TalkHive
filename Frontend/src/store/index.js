@@ -6,7 +6,7 @@ export default createStore({
     // 用户信息
     user: {
       username: '', // 用户名
-      id: '', // 用户ID
+      id: '1', // 用户ID  debug
     },
     // 消息列表
     messages: [],

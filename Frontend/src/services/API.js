@@ -28,6 +28,29 @@ export const sendMessage = (content) => {
   return apiClient.post('/messages', { content });
 };
 
+// 通讯录部分
+
+//
+export const getFriendRequests = () =>{
+  return apiClient.get('/friendRequests');
+} 
+export const acceptFriendRequest = (requestId) => {
+  return apiClient.post(`/friendRequests/${requestId}/accept`);
+};
+export const rejectFriendRequest = (requestId) => {
+  return apiClient.post(`/friendRequests/${requestId}/reject`);
+}
+
+export const getGroupRequests = () =>{
+  return apiClient.get('/groupRequests');
+}
+export const acceptGroupRequest = (requestId) => {
+  return apiClient.post(`/groupRequests/${requestId}/accept`);
+}
+export const rejectGroupRequest = (requestId) => {
+  return apiClient.post(`/groupRequests/${requestId}/reject`);
+}
+
 // 获取群聊列表接口
 export const getGroups = () => {
   return apiClient.get('/groups');
@@ -36,6 +59,11 @@ export const getGroups = () => {
 // 创建群聊接口
 export const createGroup = (name) => {
   return apiClient.post('/groups', { name });
+};
+
+// 删除群聊接口
+export const deleteGroup = (groupId) => {
+  return apiClient.delete(`/groups/${groupId}`);
 };
 
 // 获取好友列表接口
