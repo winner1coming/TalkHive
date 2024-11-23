@@ -13,10 +13,7 @@
       placeholder="输入消息..." 
       @keydown.enter.prevent="sendMessage"
     ></textarea>
-    <div class="actions">
-      <button @click="send">发送</button>
-      
-    </div>
+    <button class="send-button" @click="sendMessage">发送</button>
   </div>
 </template>
 
@@ -66,13 +63,36 @@ export default {
 .message-input {
   display: flex;
   flex-direction: column;
-}
-.input-toolbar {
-  display: flex;
-  justify-content: space-around;
+  padding: 10px;
+  background-color: #f5f5f5;
 }
 textarea {
   flex: 1;
   resize: none;
+  padding-right: 50px;
+  border:none;
+  background-color: #f5f5f5;
+  outline: none;
 }
+button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 0 15px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+button:hover {
+  background-color: #0056b3;
+}
+.input-toolbar {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+.send-button{
+  margin-left: auto;
+  width: auto;
+}
+
 </style>

@@ -10,7 +10,7 @@
 </template>
 
 <script>
-import { getGroups } from '../services/api';
+import { getGroups } from '@/services/api.js';
 
 export default {
   name: 'GroupList',

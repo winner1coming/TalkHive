@@ -80,7 +80,6 @@ export default {
     // 选中tag筛选消息
     filterChats(tagName) {
       this.activeTag = tagName;
-      console.log('tag selected:', tagName);  // debug
     },
     // 选中消息，切换到对应的聊天
     selectChat(chat) {

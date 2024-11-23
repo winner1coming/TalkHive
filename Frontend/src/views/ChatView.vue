@@ -8,12 +8,11 @@
   
       <!-- 右侧聊天详情 -->
       <div v-if="selectedChat" class="chat-details">
-        <!-- 顶部：显示聊天信息
-        <ChatHeader :chat="selectedChat" @manage-group="openGroupManagement" /> -->
         <!-- 消息历史 -->
         <ChatBox 
           :selectedChat="selectedChat" 
           :messages="messages" 
+          @clickGroupManagement="clickGroupManagement"
           @send-message="sendMessage"
           @message-action="handleMessageAction"
         />
@@ -35,10 +34,10 @@
   <script>
   import ChatList from '@/components/Chat_list/ChatList.vue';
   import ChatBox from '@/components/Chat_list/ChatBox.vue';
-  // import GroupManagement from './GroupManagement.vue';
+  import GroupManagement from '@/components/Chat_list/GroupManagement.vue';
   
   export default {
-    components: { ChatList, ChatBox },
+    components: { ChatList, ChatBox, GroupManagement },
     data() {
       return {
         chatsList: [{
@@ -49,6 +48,7 @@
           lastMessageTime: '10:00',
           unreadCount: 1,
           tags: ['unread','pinned'],
+          is_groupchat: false,
         },
         {
           id: 1,
@@ -58,17 +58,18 @@
           lastMessageTime: '11:00',
           unreadCount: 0,
           tags: ['unread'],
+          is_groupchat: true,
         }], // 聊天列表（从后端获取）
         selectedChat: null, // 当前选中的聊天
         messages: [{
-          id: 0,
+          id: '0',  // 发送者id
           content: 'Hello',
           sender: 'Alice',
           timestamp: '11:00',
           
         },
         {
-          id: 1,
+          id: '1',
           content: 'Hi',
           sender: 'Bob',
           timestamp: '12:00',
@@ -105,9 +106,9 @@
         // 处理消息的各种操作（复制、删除、多选等）
         console.log(`Action: ${action}`, message);
       },
-      openGroupManagement() {
-        if (this.selectedChat && this.selectedChat.type === 'group') {
-          this.showGroupManagement = true;
+      clickGroupManagement() {
+        if (this.selectedChat && this.selectedChat.is_groupchat) {
+          this.showGroupManagement = !this.showGroupManagement;
         }
       },
       closeGroupManagement() {

@@ -13,7 +13,7 @@
 </template>
 
 <script>
-import { getGroups, createGroup, deleteGroup } from '../services/api';
+import { getGroups, createGroup, deleteGroup } from '@/services/api.js';
 
 export default {
   name: 'GroupManagement',
