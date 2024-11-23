@@ -8,6 +8,17 @@ const apiClient = axios.create({
   },
 });
 
+// 添加请求拦截器（请求头中有id，后端可通过headers['User-ID']来获取id）
+apiClient.interceptors.request.use(config => {
+  const userId = store.state.user.id; // 从 Vuex 存储中获取用户 ID
+  if (userId) {
+    config.headers['User-ID'] = userId; // 在请求头中添加用户 ID
+  }
+  return config;
+}, error => {
+  return Promise.reject(error);
+});
+
 // 登录接口
 export const login = (username, password) => {
   return apiClient.post('/login', { username, password });
@@ -28,28 +39,36 @@ export const sendMessage = (content) => {
   return apiClient.post('/messages', { content });
 };
 
-// 通讯录部分
 
-//
+
+// 通讯录部分
 export const getFriendRequests = () =>{
   return apiClient.get('/friendRequests');
 } 
 export const acceptFriendRequest = (requestId) => {
-  return apiClient.post(`/friendRequests/${requestId}/accept`);
+  return apiClient.post(`/friendRequests/accept/${requestId}`);
 };
 export const rejectFriendRequest = (requestId) => {
-  return apiClient.post(`/friendRequests/${requestId}/reject`);
+  return apiClient.post(`/friendRequests/reject/${requestId}`);
 }
-
 export const getGroupRequests = () =>{
   return apiClient.get('/groupRequests');
 }
-export const acceptGroupRequest = (requestId) => {
-  return apiClient.post(`/groupRequests/${requestId}/accept`);
+export const acceptGroupInvitationRequest = (accountId,groupId) => {
+  return apiClient.post(`/groupRequests/acceptInvite/${accountId}/${groupId}`);
 }
-export const rejectGroupRequest = (requestId) => {
-  return apiClient.post(`/groupRequests/${requestId}/reject`);
+export const rejectGroupInvitationRequest = (accountId,groupId) => {
+  return apiClient.post(`/groupRequests/rejectInvite/${accountId}/${groupId}`);
 }
+export const acceptGroupApplyRequest = (accountId,groupId) => {
+  return apiClient.post(`/groupRequests/acceptApply/${accountId}/${groupId}`);
+}
+export const rejectGroupApplyRequest = (accountId,groupId) => {
+  return apiClient.post(`/groupRequests/rejectApply/${accountId}/${groupId}`);
+}
+
+
+
 
 // 获取群聊列表接口
 export const getGroups = () => {

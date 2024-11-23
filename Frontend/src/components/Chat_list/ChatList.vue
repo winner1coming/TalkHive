@@ -93,6 +93,7 @@ export default {
 /* 消息列表页面的样式 */
 .chat-list {
   width: 30%;
+  height: 100%;
   background-color: #f5f5f5;
   padding: 10px;
 }
