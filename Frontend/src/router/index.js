@@ -2,16 +2,18 @@ import { createRouter, createWebHistory } from 'vue-router';
 
 // 导入各个视图组件
 import Home from '@/views/Home.vue';
-import Login from '@/components/Login.vue';
+import Login from '@/components/AccountLogin.vue';
+import SmsLogin from '@/components/SmsLogin.vue';
 import Register from '@/components/Register.vue';
 import ChatView from '@/views/ChatView.vue';
 import ContactView from '@/views/ContactView.vue';
-// import GroupChat from '@/components/GroupChat.vue';
-// import Profile from '@/components/Profile.vue';
-// import GroupManagement from '@/components/GroupManagement.vue';
-// import ContactList from '@/components/ContactList.vue';
-// import FriendList from '@/components/FriendList.vue';
-// import GroupList from '@/components/GroupList.vue';
+import ForgetPassword from '@/components/ForgetPassword.vue';
+//import GroupChat from '@/components/GroupChat.vue';
+//import Profile from '@/components/Profile.vue';
+//import GroupManagement from '@/components/GroupManagement.vue';
+//import ContactList from '@/components/ContactList.vue';
+//import FriendList from '@/components/FriendList.vue';
+//import GroupList from '@/components/GroupList.vue';
 // import FriendRequest from '@/components/FriendRequest.vue';
 // import GroupRequest from '@/components/GroupRequest.vue';
 // import PersonalHomepage from '@/components/PersonalHomepage.vue';
@@ -22,15 +24,16 @@ import ContactView from '@/views/ContactView.vue';
 // 定义路由配置
 const routes = [
   { path: '/', component: Home },
-  { path: '/login', component: Login },
+  { path: '/accountlogin', component: Login },
+  {path: '/smslogin',component:SmsLogin},
   { path: '/register', component: Register },
   { path: '/chat', component: ChatView },
   { path: '/contact', component: ContactView },
-  // { path: '/profile', component: Profile },
-  // { path: '/group-management', component: GroupManagement },
-  // { path: '/contacts', component: ContactList },
+  {path:'/forgetpassword',component:ForgetPassword}
+  //{ path: '/profile', component: Profile },
+   //{ path: '/group-management', component: GroupManagement },
   // { path: '/friends', component: FriendList },
-  // { path: '/groups', component: GroupList },
+ // { path: '/groups', component: GroupList },
   // { path: '/friend-requests', component: FriendRequest },
   // { path: '/group-requests', component: GroupRequest },
   // { path: '/personal-homepage', component: PersonalHomepage },

@@ -21,12 +21,49 @@ apiClient.interceptors.request.use(config => {
 
 // 登录接口
 export const login = (username, password) => {
-  return apiClient.post('/login', { username, password });
+  return apiClient.post('/acoountlogin', { username, password })
+  .then(response => {
+    return response.data;
+  })
+  .catch(error => {
+    throw error.response?.data || error.message;
+  });
+};
+//短信接收码的接口
+export const sendSmsCode = (phoneNumber) => {
+  return apiClient.post('/sendSmsCode', { phoneNumber })
+    .then(response => {
+      return response.data;
+    })
+    .catch(error => {
+      throw error.response?.data || error.message;
+    });
+};
+
+export const sendVerificationCode = (phoneNumber) => {
+  return apiClient.post('/sendVerificationCode', { phoneNumber })
+    .then(response => {
+      return response.data;
+    })
+    .catch(error => {
+      throw error.response?.data || error.message;
+    });
 };
 
 // 注册接口
 export const register = (username, password) => {
   return apiClient.post('/register', { username, password });
+};
+
+// 重置密码接口
+export const resetPassword = (data) => {
+  return apiClient.post('/resetPassword', data)
+    .then(response => {
+      return response.data;
+    })
+    .catch(error => {
+      throw error.response?.data || error.message;
+    });
 };
 
 // 获取消息列表接口
