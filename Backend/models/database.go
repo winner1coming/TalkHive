@@ -80,7 +80,7 @@ type Notes struct {
 // Favorites 表示收藏表
 type Favorites struct {
 	TableName string `gorm:"primaryKey" json:"table_name"`
-	ID        uint   `gorm:"primaryKey" json:"id"`
+	ID        uint   `json:"id"`
 	AccountID uint   `json:"account_id"`
 }
 

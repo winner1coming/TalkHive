@@ -9,6 +9,7 @@ func SetupRouter() *gin.Engine {
 	r := gin.Default()
 
 	// 用户账号相关
+	// 路由路径 处理函数
 	r.POST("/register", controllers.Register)               // 用户注册
 	r.POST("/login", controllers.Login)                     // 用户登录
 	r.GET("/profile/:id", controllers.GetProfile)           // 获取用户资料
