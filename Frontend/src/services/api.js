@@ -1,5 +1,5 @@
 import axios from 'axios';
-
+import store from '@/store'; 
 // 创建 axios 实例
 const apiClient = axios.create({
   baseURL: 'http://your-api-url.com', // 后端 API 的基础 URL
@@ -46,28 +46,32 @@ export const getFriendRequests = () =>{
   return apiClient.get('/friendRequests');
 } 
 export const acceptFriendRequest = (requestId) => {
-  return apiClient.post(`/friendRequests/accept/${requestId}`);
+  return apiClient.post(`/friendRequests/accept`,{requestId});
 };
 export const rejectFriendRequest = (requestId) => {
-  return apiClient.post(`/friendRequests/reject/${requestId}`);
+  return apiClient.post(`/friendRequests/reject`,{requestId});
 }
 export const getGroupRequests = () =>{
   return apiClient.get('/groupRequests');
 }
 export const acceptGroupInvitationRequest = (accountId,groupId) => {
-  return apiClient.post(`/groupRequests/acceptInvite/${accountId}/${groupId}`);
+  return apiClient.post('/groupRequests/acceptInvite', { accountId, groupId });
 }
 export const rejectGroupInvitationRequest = (accountId,groupId) => {
-  return apiClient.post(`/groupRequests/rejectInvite/${accountId}/${groupId}`);
+  return apiClient.post('/groupRequests/rejectInvite', { accountId, groupId });
 }
 export const acceptGroupApplyRequest = (accountId,groupId) => {
-  return apiClient.post(`/groupRequests/acceptApply/${accountId}/${groupId}`);
+  return apiClient.post('/groupRequests/acceptApply', { accountId, groupId });
 }
 export const rejectGroupApplyRequest = (accountId,groupId) => {
-  return apiClient.post(`/groupRequests/rejectApply/${accountId}/${groupId}`);
+  return apiClient.post('/groupRequests/rejectApply', { accountId, groupId });
 }
-
-
+export const removeFromBlackList = (accountId) => {
+  return apiClient.post('/blackList/remove', { accountId });
+}
+export const getBlackList = () => {
+  return apiClient.get('/blackList');
+}
 
 
 // 获取群聊列表接口
@@ -94,6 +98,8 @@ export const getFriends = () => {
 export const addFriend = (friendId) => {
   return apiClient.post('/friends', { friendId });
 };
+
+
 
 // 获取笔记列表接口
 export const getNotes = () => {

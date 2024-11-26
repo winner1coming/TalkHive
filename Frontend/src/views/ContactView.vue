@@ -17,7 +17,7 @@ import FriendRequests from "@/components/Contact_list/FriendRequests.vue";
 import GroupNotifications from "@/components/Contact_list/GroupNotifications.vue";
 import FriendList from "@/components/Contact_list/FriendList.vue";
 import GroupList from "@/components/Contact_list/GroupList.vue";
-// import Blacklist from "@/components/Contact_list/Blacklist.vue";
+import Blacklist from "@/components/Contact_list/Blacklist.vue";
 
 export default {
   components: {
@@ -26,6 +26,7 @@ export default {
     GroupNotifications,
     FriendList,
     GroupList,
+    Blacklist,
   },
   data() {
     return {
