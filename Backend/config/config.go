@@ -1,41 +1,50 @@
 package config
 
 import (
-	"gopkg.in/yaml.v3"
-	"io/ioutil"
-	"os"
+	"github.com/spf13/viper"
+	"log"
 )
 
-// Config 结构体用于存储配置信息
+// Config 用于存储应用的整体配置
 type Config struct {
-	Database DatabaseConfig `yaml:"database"`
+	App struct {
+		Name string
+		Port string
+	}
+	Database struct {
+		Dsn          string
+		MaxIdleConns int
+		MaxOpenConns int
+	}
+	Redis struct {
+		Addr     string
+		DB       int
+		Password string
+	}
 }
 
-// DatabaseConfig 存储数据库连接配置信息
-type DatabaseConfig struct {
-	DSN string `yaml:"dsn"`
-}
+// AppConfig 全局配置变量
+var AppConfig *Config
 
-// LoadConfig 从 YAML 文件加载配置
-func LoadConfig(configPath string) (*Config, error) {
-	config := &Config{}
+// InitConfig 初始化配置文件
+func InitConfig() {
+	// 设置配置文件名称、类型和路径
+	viper.SetConfigName("config")   // 配置文件名称为 config
+	viper.SetConfigType("yaml")     // 配置文件类型为 yaml
+	viper.AddConfigPath("./config") // 配置文件路径
 
-	// 检查配置文件是否存在
-	if _, err := os.Stat(configPath); os.IsNotExist(err) {
-		return nil, err
+	// 读取并解析配置文件
+	if err := viper.ReadInConfig(); err != nil {
+		log.Fatalf("配置文件读取失败: %v", err)
 	}
 
-	// 读取配置文件
-	data, err := ioutil.ReadFile(configPath)
-	if err != nil {
-		return nil, err
+	// 创建配置实例
+	AppConfig = &Config{}
+
+	// 将配置文件解析到 AppConfig
+	if err := viper.Unmarshal(AppConfig); err != nil {
+		log.Fatalf("配置文件解析失败: %v", err)
 	}
 
-	// 解析 YAML 内容
-	err = yaml.Unmarshal(data, config)
-	if err != nil {
-		return nil, err
-	}
-
-	return config, nil
+	log.Println("配置文件解析成功")
 }
