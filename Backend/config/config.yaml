@@ -1,2 +1,13 @@
 database:
   dsn: "root:123456@tcp(127.0.0.1:3306)/talkhive?charset=utf8mb4&parseTime=True&loc=Local"
+  max_idle_conns: 10  # 数据库最大空闲连接数
+  max_open_conns: 100 # 数据库最大打开连接数
+
+app:
+  name: TalkHive
+  port: ":3000"
+
+redis:
+  addr: "localhost:6379"
+  db: 0
+  password: ""
