@@ -10,13 +10,20 @@ import (
 var DB *gorm.DB
 
 // InitDB 初始化数据库连接
-func InitDB() {
-	// 数据库连接配置
-	dsn := "user:password@tcp(127.0.0.1:3306)/chatroom?charset=utf8mb4&parseTime=True&loc=Local"
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+func InitDB(configPath string) {
+	// 调用 LoadConfig 时处理 error
+	config, err := LoadConfig(configPath)
+	log.Println("解析成功")
+	if err != nil {
+		log.Fatalf("Failed to load config: %v", err)
+	}
+
+	// 使用 GORM 连接 MySQL
+	db, err := gorm.Open(mysql.Open(config.Database.DSN), &gorm.Config{})
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
+
 	DB = db
 	log.Println("Database connected successfully!")
 
@@ -43,7 +50,6 @@ func InitDB() {
 	if err != nil {
 		log.Fatalf("Failed to migrate database tables: %v", err)
 	}
-	log.Println("Database tables migrated successfully!")
 }
 
 // GetDB 返回数据库实例
