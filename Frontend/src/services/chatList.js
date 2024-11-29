@@ -1,5 +1,4 @@
-import apiClient from './api';
-// 聊天部分
+import apiClient from '@/services/api';
 // 获取聊天列表接口
 export const getChatList = () => {
   return apiClient.get('/chatlist');
@@ -45,6 +44,7 @@ export const blockChat = (friendId) => {
 export const unblockChat = (friendId) => {
   return apiClient.post(`/chatlist/unblock`,{friendId});
 };
+
 
 // 获取聊天消息
 export const getMessages = (friendId) => {

@@ -25,7 +25,7 @@
 </template>
 
 <script>
-import { getFriendRequests, acceptFriendRequest, rejectFriendRequest } from '@/services/api.js';
+import { getFriendRequests, acceptFriendRequest, rejectFriendRequest } from '@/services/contactList';
 
 export default {
   name: 'FriendRequest',

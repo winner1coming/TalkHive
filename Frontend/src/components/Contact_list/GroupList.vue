@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import { getFriends } from '@/services/api.js';
+import { getFriends } from '@/services/contactList';
 import itemList from './itemList.vue';
 
 export default {

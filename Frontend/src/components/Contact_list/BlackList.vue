@@ -17,7 +17,7 @@
   </template>
   
   <script>
-  import { removeFromBlackList, getBlackList } from '@/services/api.js';
+  import { removeFromBlackList, getBlackList } from '@/services/contactList';
   
   export default {
     data() {

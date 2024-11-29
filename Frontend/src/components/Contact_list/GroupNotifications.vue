@@ -41,7 +41,7 @@
 
 <script>
 import { getGroupRequests, acceptGroupInvitationRequest, rejectGroupInvitationRequest, 
-          acceptGroupApplyRequest,  rejectGroupApplyRequest} from '@/services/api.js';
+          acceptGroupApplyRequest,  rejectGroupApplyRequest} from '@/services/contactList';
 import ToggleContent from '@/components/base/ToggleContent.vue';
 
 export default {

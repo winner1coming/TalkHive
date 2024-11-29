@@ -1,5 +1,5 @@
 <template>
-    <div class="search-bar">
+    <div v-if="isImmidiate" class="search-bar" >
       <input
         type="text"
         v-model="query"
@@ -10,10 +10,23 @@
       />
       <button @click="buttonClick">+</button>
     </div>
+    <div v-else class="search-bar">
+      <input
+        type="text"
+        v-model="query"
+        placeholder="搜索..."
+        @compositionstart="isComposing = true"
+        @compositionend="isComposing = false;triggerSearch()"
+        @keydown.enter="triggerSearch"
+      />
+      <button @click="triggerSearch">搜索</button>
+    </div>
+
   </template>
   
   <script>
   export default {
+    props:['isImmidiate'],
     data() {
       return {
         query: "", // 搜索关键词
