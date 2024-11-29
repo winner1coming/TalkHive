@@ -31,66 +31,15 @@ export const register = (username, password) => {
   return apiClient.post('/register', { username, password });
 };
 
-// 通讯录部分
-export const getFriendRequests = () =>{
-  return apiClient.get('/friendRequests');
-} 
-export const acceptFriendRequest = (requestId) => {
-  return apiClient.post(`/friendRequests/accept`,{requestId});
+// chat和contact
+// 搜索好友/群聊（key可能是id或者昵称）
+export const searchFriendGroup = (key) => {
+  return apiClient.get('/search/Stranger', { key });  
 };
-export const rejectFriendRequest = (requestId) => {
-  return apiClient.post(`/friendRequests/reject`,{requestId});
-}
-export const getGroupRequests = () =>{
-  return apiClient.get('/groupRequests');
-}
-export const acceptGroupInvitationRequest = (accountId,groupId) => {
-  return apiClient.post('/groupRequests/acceptInvite', { accountId, groupId });
-}
-export const rejectGroupInvitationRequest = (accountId,groupId) => {
-  return apiClient.post('/groupRequests/rejectInvite', { accountId, groupId });
-}
-export const acceptGroupApplyRequest = (accountId,groupId) => {
-  return apiClient.post('/groupRequests/acceptApply', { accountId, groupId });
-}
-export const rejectGroupApplyRequest = (accountId,groupId) => {
-  return apiClient.post('/groupRequests/rejectApply', { accountId, groupId });
-}
-export const getBlackList = () => {
-  return apiClient.get('/blackList');
-}
-export const removeFromBlackList = (accountId) => {
-  return apiClient.post('/blackList/remove', { accountId });
-}
-
-// 获取好友列表接口
-export const getFriends = () => {
-  return apiClient.get('/friends');
+// 添加好友/群聊
+export const addFriendGroup = (id) => {
+  return apiClient.post('/add/Stranger', { id });
 };
-
-// 添加好友接口
-export const addFriend = (friendId) => {
-  return apiClient.post('/friends', { friendId });
-};
-
-
-// 获取群聊列表接口
-export const getGroups = () => {
-  return apiClient.get('/groups');
-};
-
-// 创建群聊接口
-export const createGroup = (name) => {
-  return apiClient.post('/groups', { name });
-};
-
-// 删除群聊接口
-export const deleteGroup = (groupId) => {
-  return apiClient.delete(`/groups/${groupId}`);
-};
-
-
-
 
 
 // 获取笔记列表接口

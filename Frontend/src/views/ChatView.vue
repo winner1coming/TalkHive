@@ -34,7 +34,7 @@
   import ChatList from '@/components/Chat_list/ChatList.vue';
   import ChatBox from '@/components/Chat_list/ChatBox.vue';
   import GroupManagement from '@/components/Chat_list/GroupManagement.vue';
-  import {getMessages} from '@/services/api.js';
+  import {getMessages} from '@/services/chatList';
   import { EventBus } from '@/components/base/EventBus';
   
   export default {
