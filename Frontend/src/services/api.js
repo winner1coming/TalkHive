@@ -1,5 +1,5 @@
 import axios from 'axios';
-
+import store from '@/store'; 
 // 创建 axios 实例
 const apiClient = axios.create({
   baseURL: 'http://your-api-url.com', // 后端 API 的基础 URL
@@ -18,6 +18,8 @@ apiClient.interceptors.request.use(config => {
 }, error => {
   return Promise.reject(error);
 });
+
+export default apiClient;
 
 // 登录接口
 export const login = async (payload) => {
@@ -56,6 +58,7 @@ export const register = (username, password) => {
   return apiClient.post('/register', { username, password });
 };
 
+
 // 重置密码接口
 export const resetPassword = (data) => {
   return apiClient.post('/resetPassword', data)
@@ -70,68 +73,17 @@ export const resetPassword = (data) => {
 // 获取消息列表接口
 export const getMessages = () => {
   return apiClient.get('/messages');
+
+// chat和contact
+// 搜索好友/群聊（key可能是id或者昵称）
+export const searchFriendGroup = (key) => {
+  return apiClient.get('/search/Stranger', { key });  
+};
+// 添加好友/群聊
+export const addFriendGroup = (id) => {
+  return apiClient.post('/add/Stranger', { id });
 };
 
-// 发送消息接口
-export const sendMessage = (content) => {
-  return apiClient.post('/messages', { content });
-};
-
-
-
-// 通讯录部分
-export const getFriendRequests = () =>{
-  return apiClient.get('/friendRequests');
-} 
-export const acceptFriendRequest = (requestId) => {
-  return apiClient.post(`/friendRequests/accept/${requestId}`);
-};
-export const rejectFriendRequest = (requestId) => {
-  return apiClient.post(`/friendRequests/reject/${requestId}`);
-}
-export const getGroupRequests = () =>{
-  return apiClient.get('/groupRequests');
-}
-export const acceptGroupInvitationRequest = (accountId,groupId) => {
-  return apiClient.post(`/groupRequests/acceptInvite/${accountId}/${groupId}`);
-}
-export const rejectGroupInvitationRequest = (accountId,groupId) => {
-  return apiClient.post(`/groupRequests/rejectInvite/${accountId}/${groupId}`);
-}
-export const acceptGroupApplyRequest = (accountId,groupId) => {
-  return apiClient.post(`/groupRequests/acceptApply/${accountId}/${groupId}`);
-}
-export const rejectGroupApplyRequest = (accountId,groupId) => {
-  return apiClient.post(`/groupRequests/rejectApply/${accountId}/${groupId}`);
-}
-
-
-
-
-// 获取群聊列表接口
-export const getGroups = () => {
-  return apiClient.get('/groups');
-};
-
-// 创建群聊接口
-export const createGroup = (name) => {
-  return apiClient.post('/groups', { name });
-};
-
-// 删除群聊接口
-export const deleteGroup = (groupId) => {
-  return apiClient.delete(`/groups/${groupId}`);
-};
-
-// 获取好友列表接口
-export const getFriends = () => {
-  return apiClient.get('/friends');
-};
-
-// 添加好友接口
-export const addFriend = (friendId) => {
-  return apiClient.post('/friends', { friendId });
-};
 
 // 获取笔记列表接口
 export const getNotes = () => {

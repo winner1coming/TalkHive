@@ -2,7 +2,6 @@
     <div class="chat-view">
       <!-- 左侧聊天列表 -->
       <ChatList 
-        :chats="chatsList" 
         @chat-selected="selectChat"
       />
   
@@ -35,72 +34,40 @@
   import ChatList from '@/components/Chat_list/ChatList.vue';
   import ChatBox from '@/components/Chat_list/ChatBox.vue';
   import GroupManagement from '@/components/Chat_list/GroupManagement.vue';
+  import {getMessages} from '@/services/chatList';
+  import { EventBus } from '@/components/base/EventBus';
   
   export default {
     components: { ChatList, ChatBox, GroupManagement },
     data() {
       return {
-        chatsList: [{
-          id: 0,
-          avatar: new URL('cat.png', import.meta.url).href,
-          name: 'Alice',
-          lastMessage: 'hi',
-          lastMessageTime: '10:00',
-          unreadCount: 1,
-          tags: ['unread','pinned'],
-          is_groupchat: false,
-        },
-        {
-          id: 1,
-          avatar: new URL('cat.png', import.meta.url).href,
-          name: 'Bob',
-          lastMessage: 'hello',
-          lastMessageTime: '11:00',
-          unreadCount: 0,
-          tags: ['unread'],
-          is_groupchat: true,
-        }], // 聊天列表（从后端获取）
         selectedChat: null, // 当前选中的聊天
         messages: [{
-          id: '0',  // 发送者id
+          send_account_id: '0',  // 发送者的id
           content: 'Hello',
-          sender: 'Alice',
-          timestamp: '11:00',
-          
+          sender: 'Alice',   // 发送者的备注
+          timestamp: '11:00',   // 发送时间
         },
         {
-          id: '1',
+          send_account_id: '1',
           content: 'Hi',
           sender: 'Bob',
           timestamp: '12:00',
-          
-        }], // 消息列表，格式：{ chatId: [{...}, {...}] }
+        }], 
         showGroupManagement: false, // 是否显示群聊管理弹窗
       };
     },
     methods: {
-      async fetchChatList() {
-        // 从后端获取聊天列表
-        this.chatList = await this.apiGet('/chats');
-      },
       async selectChat(chat) {
         this.selectedChat = chat;
-  
-        // 如果消息为空，加载消息历史   todo debug（应该不管是否为空都要加载）
-        if (!this.messages) {
-          this.messages = await this.apiGet(`/messages/${chat.id}`);
-        }else{
-          this.messages.forEach(message => {
-            // message.read = true;
-          });
-        }
+        // 加载消息历史   
+        this.messages = await getMessages(chat.id);
       },
-      async sendMessage(content) {
+      async sendMessage(content) {   // todo 目前只有发送文字的功能
         if (!this.selectedChat) return;
-  
         // 发送消息到后端
         const newMessage = await this.apiPost(`/messages/${this.selectedChat.id}`, { content });
-        this.messages[this.selectedChat.id].push(newMessage);
+        // this.messages[this.selectedChat.id].push(newMessage);  todo 消息发送后，是否需要接收自己发送的消息
       },
       handleMessageAction(action, message) {
         // 处理消息的各种操作（复制、删除、多选等）
@@ -123,20 +90,19 @@
           this.selectedChat = updatedGroup;
         }
       },
-      async apiGet(url) {
-        // 模拟后端请求
-        console.log(`GET ${url}`);
-        return [];
-      },
-      async apiPost(url, data) {
-        // 模拟后端请求
-        console.log(`POST ${url}`, data);
-        return { id: Date.now(), content: data.content, sender: 'You', timestamp: new Date() };
+      handleNewMessage(message) {  // todo
+        // 处理新消息
+        if (this.selectedChat && this.selectedChat.id === message.chatId) {
+          this.messages.push(message);
+        }
       },
     },
-    mounted() {
-      this.fetchChatList(); // 初始化加载聊天列表
+    created() {
+      EventBus.on('new-message', (message)=>{this.handleNewMessage(message)});
     },
+    beforeDestroy() {
+      EventBus.off('new-message');
+    }
   };
   </script>
   

@@ -1,10 +1,13 @@
 <template>
-    <ToggleContent  :previewText="'tag'">
-        <div v-for="item in items" :key="items.account_id" class="item">
+    <ToggleContent v-for="tag in tags" :previewText="tag">
+        <div v-for="item in filteredItemsByTag(tag)" :key="items.account_id" class="item">
             <img :src="item.avatar" alt="avatar" width="50" height="50" />
             <div v-if="this.type === 'friendList'" class="left">
                 <p class="name">{{ item.remark }}</p>
                 <p class="remark">{{ (`[${item.status}]签名：${item.signature}`) }}</p>
+            </div>
+            <div v-else class="left">
+                <p class="name">{{ item.remark }}</p>
             </div>
         </div>
     </ToggleContent>
@@ -24,6 +27,9 @@
             };
         },
         methods: {
+            filteredItemsByTag(tag) {
+                return this.items.filter(item => item.tag === tag);
+            },
             async fetchFriends() {
             const response = await getFriends();
             this.friends = response.data;

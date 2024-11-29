@@ -9,7 +9,7 @@
       <button @click="sendPoll">群投票</button>
     </div>
     <textarea 
-      v-model="inputText" 
+      v-model="content" 
       placeholder="输入消息..." 
       @keydown.enter.prevent="sendMessage"
     ></textarea>

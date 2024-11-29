@@ -1,38 +1,49 @@
 <template>
-  <div class="group-list">
-    <h2>群聊列表</h2>
-    <ul>
-      <li v-for="group in groups" :key="group.id">
-        {{ group.name }}
-      </li>
-    </ul>
+  <div class="main">
+    <div class="contact-header">
+        群聊列表
+    </div>
+    <itemList :items="items" :type="type" :tags="tags" />
   </div>
 </template>
 
 <script>
-import { getGroups } from '@/services/api.js';
+import { getFriends } from '@/services/contactList';
+import itemList from './itemList.vue';
 
 export default {
-  name: 'GroupList',
+  components: {
+    itemList,
+  },
   data() {
     return {
-      groups: [],
+      type: 'groupList',  // friendList, groupList
+      tags: ['家人', '朋友', '同事'],  // 从后端获取
+      items: [   // 从后端获取
+        {
+          avatar: '',
+          account_id: '1',
+          remark: 'John',   // 好友备注
+          status: 'online',   // online, offline
+          signature: '爱拼才会赢',
+          tag: '家人',
+        },
+      ],
     };
   },
   methods: {
-    async fetchGroups() {
-      const response = await getGroups();
-      this.groups = response.data;
+    async fetchFriends() {
+      const response = await getFriends();
+      this.friends = response.data;
     },
   },
   created() {
-    this.fetchGroups();
+    this.fetchFriends();
   },
 };
 </script>
 
+<style scoped src="@/assets/css/contactList.css"></style>
 <style scoped>
-.group-list {
-  padding: 20px;
-}
+
 </style>

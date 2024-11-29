@@ -6,14 +6,13 @@
           <img :src="selectedChat.avatar" alt="avatar" />
         </div>
         <div class="chat-name">{{ selectedChat.name }}</div>
-        <div style="margin-left: auto;" v-if="selectedChat.is_groupchat">
+        <div style="margin-left: auto;" v-if="selectedChat.tags.includes('group')">
           <button class="group-button" @click="clickGroupManagement">···</button>
         </div>
       </div>
       <div class="messages" ref="messages">
         <MessageItem 
           v-for="message in messages" 
-          :key="message.id" 
           :message="message"
           :avatar="selectedChat.avatar"
           @message-action="handleMessageAction"

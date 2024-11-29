@@ -1,10 +1,7 @@
 <template>
   <div class="home">
+
     <h1>欢迎来到聊天室</h1>
-    <!--<router-link to="/accountlogin">登录</router-link>
-    <router-link to="/smslogin">短信登录</router-link>
-    <router-link to ="/register">注册</router-link>
-    <router-link to = "/forgetpassword">忘记密码</router-link>-->
     <router-link to = "/loginth">登录</router-link>
     <router-link to="/chat">聊天</router-link>
     <router-link to="/contact">通讯录</router-link>
@@ -12,6 +9,9 @@
     <router-link to="/notes">笔记</router-link>
     <router-link to="/favorites">收藏</router-link>
     <router-link to="/ddls">DDL</router-link>
+  </div>
+  <div>
+      <component :is="currentTabComponent" />
   </div>
 </template>
 
