@@ -19,6 +19,8 @@ apiClient.interceptors.request.use(config => {
   return Promise.reject(error);
 });
 
+export default apiClient;
+
 // 登录接口
 export const login = (username, password) => {
   return apiClient.post('/login', { username, password });
@@ -28,18 +30,6 @@ export const login = (username, password) => {
 export const register = (username, password) => {
   return apiClient.post('/register', { username, password });
 };
-
-// 获取消息列表接口
-export const getMessages = () => {
-  return apiClient.get('/messages');
-};
-
-// 发送消息接口
-export const sendMessage = (content) => {
-  return apiClient.post('/messages', { content });
-};
-
-
 
 // 通讯录部分
 export const getFriendRequests = () =>{
@@ -66,12 +56,22 @@ export const acceptGroupApplyRequest = (accountId,groupId) => {
 export const rejectGroupApplyRequest = (accountId,groupId) => {
   return apiClient.post('/groupRequests/rejectApply', { accountId, groupId });
 }
-export const removeFromBlackList = (accountId) => {
-  return apiClient.post('/blackList/remove', { accountId });
-}
 export const getBlackList = () => {
   return apiClient.get('/blackList');
 }
+export const removeFromBlackList = (accountId) => {
+  return apiClient.post('/blackList/remove', { accountId });
+}
+
+// 获取好友列表接口
+export const getFriends = () => {
+  return apiClient.get('/friends');
+};
+
+// 添加好友接口
+export const addFriend = (friendId) => {
+  return apiClient.post('/friends', { friendId });
+};
 
 
 // 获取群聊列表接口
@@ -89,15 +89,7 @@ export const deleteGroup = (groupId) => {
   return apiClient.delete(`/groups/${groupId}`);
 };
 
-// 获取好友列表接口
-export const getFriends = () => {
-  return apiClient.get('/friends');
-};
 
-// 添加好友接口
-export const addFriend = (friendId) => {
-  return apiClient.post('/friends', { friendId });
-};
 
 
 

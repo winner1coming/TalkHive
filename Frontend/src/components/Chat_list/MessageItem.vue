@@ -2,7 +2,7 @@
   <div class="message-item" 
     
   >
-    <div v-if="this.$store.state.user.id === message.id" class="friend-message">
+    <div v-if="this.$store.state.user.id === message.send_account_id" class="friend-message">
       <div class="avatar">
         <img :src="avatar" alt="avatar" />
       </div>

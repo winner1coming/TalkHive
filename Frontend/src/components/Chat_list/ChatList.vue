@@ -1,6 +1,8 @@
 <template>
   <!-- 消息列表页面容器 -->
   <div class="chat-list">
+    <!-- 搜索框-->
+    <SearchBar @search="handleSearch" @button-click="showNewContextMenu($event)"/>
     <!-- 筛选标签-->
     <div class="chat-list-header">
       <div class="chat-tag">
@@ -20,31 +22,57 @@
       <li 
         v-for="chat in filteredChats" 
         :key="chat.id"
+        @contextmenu.prevent="showRightContextMenu($event, chat)"
         @click = selectChat(chat)
       >
         <div class="chat-avatar">   <!-- 头像-->
           <img :src="chat.avatar" alt="avatar" />
         </div>
-        <div class="chat-info">
+        <div class="chat-info">   <!-- 信息-->
           <div class="chat-name">{{ chat.name }}</div>
           <div class="chat-last-chat">{{ chat.lastMessage }}</div>
         </div>
-        <div class="chat-meta">
+        <div class="chat-meta">   <!-- 时间和未读-->
           <div class="chat-time">{{ chat.lastMessageTime }}</div>
           <div v-if="chat.unreadCount" class="unread-count">{{ chat.unreadCount }}</div>   <!--todo-->
         </div>
       </li>
     </ul>
+    <ContextMenu ref="contextMenu"  @select-item="handleMenuSelect" />
   </div>
 </template>
 
 <script>
+import SearchBar from '@/components/base/SearchBar.vue';
+import ContextMenu from '@/components/base/ContextMenu.vue';
+import { getChatList, searchChats, pinChat } from '@/services/api.js';
 export default {
-  // 从父组件中接收到消息列表
-  props:['chats'],
+  components: {
+    SearchBar,
+    ContextMenu,
+  },
   // 组件的 data 函数，返回一个对象，包含组件的响应式数据
   data() {
     return {
+      // 消息列表（从后端获取）
+      chats: [{
+          id: 0,   // 好友的tid
+          avatar: new URL('cat.png', import.meta.url).href,
+          name: 'Alice',  // 好友的备注 remark
+          lastMessage: 'hi',
+          lastMessageTime: '10:00',
+          unreadCount: 1,
+          tags: ['unread','pinned'],   // friend, group, unread, pinned, blocked
+        },
+        {
+          id: 1,
+          avatar: new URL('cat.png', import.meta.url).href,
+          name: 'Bob',
+          lastMessage: 'hello',
+          lastMessageTime: '11:00',
+          unreadCount: 0,
+          tags: ['unread', 'group'],
+        }], 
       // 消息标签
       tags: [
         { name: 'all', label: '全部' },
@@ -54,12 +82,6 @@ export default {
         { name: 'pinned', label: '置顶' },
         { name: 'blocked', label: '屏蔽' },
       ],
-      // // 消息列表数据，每个消息包含 id 和 title 属性
-      // chats: [
-      //   { id: 1, title: '消息1' },
-      //   { id: 2, title: '消息2' },
-      //   // 更多消息
-      // ],
       activeTag: 'all',
     };
   },
@@ -74,9 +96,14 @@ export default {
       // 将置顶的消息排在前面
       return chats.sort((a, b) => b.pinned - a.pinned);
     },
+
   },
 
   methods: {
+    async fetchChatList() {
+      // 从后端获取聊天列表
+      this.chats = await getChatList();
+    },
     // 选中tag筛选消息
     filterChats(tagName) {
       this.activeTag = tagName;
@@ -85,6 +112,60 @@ export default {
     selectChat(chat) {
       this.$emit('chat-selected', chat);
     },
+    // 搜索消息
+    async handleSearch(keyword) {
+      // 搜索聊天列表
+      this.chatList = await searchChats(keyword);
+    },
+    // 显示新建消息的菜单
+    showNewContextMenu(event) {
+      console.log(event);
+      const items = [
+        '添加好友',
+        '新建群聊',
+      ];
+      this.$refs.contextMenu.show(event, event.clientX, event.clientY, items, null);
+    },
+    // 右键菜单
+    showRightContextMenu(event, obj) {
+      let items = [];
+      if(obj.tags.includes('unread')) {
+        items.push('标记为已读');
+      } else {
+        items.push('标记为未读');
+      }
+      if(obj.tags.includes('pinned')) {
+        items.push('取消置顶');
+      } else {
+        items.push('置顶');
+      }
+      items.push('删除');
+      if(obj.tags.includes('mute')) {
+        items.push('取消消息免打扰');
+      } else {
+        items.push('消息免打扰');
+      }
+      if(obj.tags.includes('blocked')) {
+        items.push('取消屏蔽');
+      } else {
+        items.push('屏蔽');
+      }
+      this.$refs.contextMenu.show(event, event.clientX, event.clientY, items, obj);
+    },
+
+    // 处理菜单的点击事件
+    async handleMenuSelect(item, obj) {
+      if(item === '置顶') {
+        // 告知服务器修改消息的置顶状态（并且本地更新）
+        // 置顶聊天
+        chat.tags.push('pinned');
+        // 告知服务器
+        await pinChat(obj.id);
+      }
+    },
+  },
+  mounted() {
+    this.fetchChatList();
   },
 };
 </script>
