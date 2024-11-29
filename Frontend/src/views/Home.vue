@@ -1,5 +1,8 @@
 <template>
   <div class="home">
+
+    <h1>欢迎来到聊天室</h1>
+    <router-link to = "/loginth">登录</router-link>
     <router-link to="/chat">聊天</router-link>
     <router-link to="/contact">通讯录</router-link>
     <router-link to="/groups">群聊列表</router-link>

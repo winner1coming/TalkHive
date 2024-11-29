@@ -22,14 +22,57 @@ apiClient.interceptors.request.use(config => {
 export default apiClient;
 
 // 登录接口
-export const login = (username, password) => {
-  return apiClient.post('/login', { username, password });
+export const login = async (payload) => {
+  try {
+    const response = await apiClient.post('/login', payload);
+    return response.data;
+  } catch (error) {
+    throw error.response ? error.response.data : error.message;
+  }
+};
+//短信接收码的接口
+export const sendSmsCode = async (phoneNumber) => {
+  try {
+    const response = await axios.post('/sendSmsCode', {
+      command: 'SendSmsCode',
+      phoneNumber,
+    });
+    return response.data;
+  } catch (error) {
+    throw error.response ? error.response.data : error.message;
+  }
+};
+
+export const sendVerificationCode = (phoneNumber) => {
+  return apiClient.post('/sendVerificationCode', { phoneNumber })
+    .then(response => {
+      return response.data;
+    })
+    .catch(error => {
+      throw error.response?.data || error.message;
+    });
 };
 
 // 注册接口
 export const register = (username, password) => {
   return apiClient.post('/register', { username, password });
 };
+
+
+// 重置密码接口
+export const resetPassword = (data) => {
+  return apiClient.post('/resetPassword', data)
+    .then(response => {
+      return response.data;
+    })
+    .catch(error => {
+      throw error.response?.data || error.message;
+    });
+};
+
+// 获取消息列表接口
+export const getMessages = () => {
+  return apiClient.get('/messages');
 
 // chat和contact
 // 搜索好友/群聊（key可能是id或者昵称）
