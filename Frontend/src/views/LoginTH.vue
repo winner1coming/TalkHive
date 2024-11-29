@@ -2,19 +2,18 @@
     <div class="loginth">
       <!-- 页面标题 -->
       <h2>登录界面</h2>
-      
       <!-- 登录选项 -->
-      <div class="login-options">
-        <button :class="{ active: loginType === 'account' }" @click="loginType = 'account'">账号登录</button>
-        <button :class="{ active: loginType === 'sms' }" @click="loginType = 'sms'">短信登录</button>
-      </div>
-      <div class = "select">
-      <!-- 账号登录表单 -->
-      <AccountLogin v-if="loginType === 'account'" />
-      
-      <!-- 短信登录表单 -->
-      <SmsLogin v-if="loginType === 'sms'" />
-      </div>
+        <div class="login-options">
+          <button :class="{ active: loginType === 'account' }" @click="loginType = 'account'">账号登录</button>
+          <button :class="{ active: loginType === 'sms' }" @click="loginType = 'sms'">短信登录</button>
+        </div>
+        <div class = "select">
+        <!-- 账号登录表单 -->
+        <AccountLogin v-if="loginType === 'account'" />
+        
+        <!-- 短信登录表单 -->
+        <SmsLogin v-if="loginType === 'sms'" />
+        </div>
     </div>
   </template>
   
