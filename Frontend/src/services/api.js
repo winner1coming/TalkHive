@@ -73,7 +73,7 @@ export const resetPassword = (data) => {
 // 获取消息列表接口
 export const getMessages = () => {
   return apiClient.get('/messages');
-
+}
 // chat和contact
 // 搜索好友/群聊（key可能是id或者昵称）
 export const searchFriendGroup = (key) => {

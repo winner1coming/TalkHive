@@ -1,21 +1,24 @@
 <template>
   <div class="accountlogin">
-      <h2> Login</h2>
+    <h2> Login</h2>
+      <img  class="avatar" src = '@/assets/images/avatar.jpg'/>
     <div class="input-group">
+
       <label for="account">账号:</label>
+
       <input id="account" type="text" v-model="account" placeholder="请输入账号" />
     </div>
     <div class="input-group">
       <label for="password">密码:</label>
       <input id="password" type="password" v-model="password" placeholder="请输入密码" />
     </div>
-    <button class="login-button" @click="login">登录</button>
+      <button class="login-button" @click="login">登录</button>
     <div class = "link">
       <!-- 注册链接 -->
       <p>没有账号？<router-link to = "/register">注册</router-link></p>
       <p>忘记密码？<router-link to = "/forgetpassword">忘记密码</router-link></p>
     </div>
-      </div>
+    </div>
 </template>
 
 <script>
@@ -70,6 +73,13 @@ export default {
     color: black;
     margin-bottom: 20px;
     margin-left: 20px;
+}
+
+.avatar{
+  width: 100px;
+  height: 100px;
+  margin-bottom: 10px;
+  border-radius: 100%;
 }
 
 .input-group {
