@@ -1,4 +1,5 @@
 import { createStore } from 'vuex';
+import { EventBus } from '@/components/base/EventBus';
 
 export default createStore({
   // 状态对象，包含应用的所有状态
@@ -8,13 +9,18 @@ export default createStore({
       username: '', // 用户名
       id: '1', // 用户ID  debug
     },
-    // 消息列表
+    // 聊天列表
+    chatlist: [],
+    // 选中的聊天对象的id
+    selectedChatID: null,
+    // 消息历史
     messages: [],
     // 系统设置
     settings: {
       theme: '', // 主题颜色
       fontSize: '', // 字体大小
     },
+    socket: null,
   },
   
   // 同步修改状态的方法
@@ -27,9 +33,15 @@ export default createStore({
     SET_MESSAGES(state, messages) {
       state.messages = messages;
     },
+    ADD_MESSAGE(state, message) {
+      state.messages.push(message);
+    },
     // 设置系统设置
     SET_SETTINGS(state, settings) {
       state.settings = settings;
+    },
+    SET_SOCKET(state, socket) {
+      state.socket = socket;
     },
   },
   
@@ -46,7 +58,27 @@ export default createStore({
       // 注册逻辑
       commit('SET_USER', { username, id: '12345' }); // 提交 SET_USER mutation
     },
-    
+
+    connectWebSocket({ commit, state }) {
+      const socket = new WebSocket(`ws://your-websocket-url.com/${state.user.id}`);   // todo
+      socket.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        // 除了对应内容外还需要type字段   todo todo
+        if (data.type === 'message') {    // chatlist怎么办
+          // 新增contact_id字段，原message内容被封装在message字段中
+          if(data.contact_id===state.selectedChatID){
+            EventBus.$emit('new-message', data.message);
+          }
+        } else if (data.type === 'notification') { // todo
+          commit('ADD_NOTIFICATION', data);
+        }
+      };
+      socket.onclose = () => {
+        console.log('WebSocket connection closed');
+      };
+      commit('SET_SOCKET', socket);
+    },
+
     // 发送消息操作
     sendMessage({ commit, state }, { content }) {
       // 发送消息逻辑

@@ -1,16 +1,24 @@
 <template>
   <!-- 应用的根元素 -->
   <div id="app">
-    <!-- 路由视图，用于渲染当前路由对应的组件 -->
-    <router-view></router-view>
+      <!-- 路由视图，用于渲染当前路由对应的组件 -->
+      <router-view></router-view>
   </div>
 </template>
 
 <script>
+import { mapActions } from 'vuex';
 export default {
   // 组件名称
   name: 'App',
-};
+  created() {
+    // this.connectWebSocket();
+  },
+  methods: {
+    ...mapActions(['connectWebSocket']),
+  },
+}
+
 </script>
 
 <style>
