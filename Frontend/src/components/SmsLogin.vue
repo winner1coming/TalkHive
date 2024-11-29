@@ -10,6 +10,11 @@
         <button class="send-sms-button" @click="sendSmsCode">发送验证码</button>
       </div>
       <button class="login-button" @click="login">登录</button>
+      <div class = "link">
+      <!-- 注册链接 -->
+      <p>没有账号？<router-link to = "/register">注册</router-link></p>
+      <p>忘记密码？<router-link to = "/forgetpassword">忘记密码</router-link></p>
+    </div>
     </div>
   </template>
   
@@ -28,7 +33,11 @@
       // 登录方法
       async login() {
         try {
-          const response = await login(this.phoneNumber, this.smsCode);
+          const response = await login({
+            "command" : "SmsLogin",
+            "acoount" : this.phoneNumber,
+            "password" : this.smsCode
+          });
           if (response.success) {
             this.$router.push('/');
           } else {
@@ -116,5 +125,14 @@
   
   .login-button:hover {
     background-color: #369f6e;
+  }
+
+  .link {
+    display: flex;
+    flex-direction: column;
+    color:#42b983;
+    align-items: center;
+    width: 100%;
+    max-width: 400px;
   }
   </style>

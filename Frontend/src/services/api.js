@@ -20,24 +20,25 @@ apiClient.interceptors.request.use(config => {
 });
 
 // 登录接口
-export const login = (username, password) => {
-  return apiClient.post('/acoountlogin', { username, password })
-  .then(response => {
+export const login = async (payload) => {
+  try {
+    const response = await apiClient.post('/login', payload);
     return response.data;
-  })
-  .catch(error => {
-    throw error.response?.data || error.message;
-  });
+  } catch (error) {
+    throw error.response ? error.response.data : error.message;
+  }
 };
 //短信接收码的接口
-export const sendSmsCode = (phoneNumber) => {
-  return apiClient.post('/sendSmsCode', { phoneNumber })
-    .then(response => {
-      return response.data;
-    })
-    .catch(error => {
-      throw error.response?.data || error.message;
+export const sendSmsCode = async (phoneNumber) => {
+  try {
+    const response = await axios.post('/sendSmsCode', {
+      command: 'SendSmsCode',
+      phoneNumber,
     });
+    return response.data;
+  } catch (error) {
+    throw error.response ? error.response.data : error.message;
+  }
 };
 
 export const sendVerificationCode = (phoneNumber) => {

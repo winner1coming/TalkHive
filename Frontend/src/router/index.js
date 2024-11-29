@@ -2,8 +2,9 @@ import { createRouter, createWebHistory } from 'vue-router';
 
 // 导入各个视图组件
 import Home from '@/views/Home.vue';
-import Login from '@/components/AccountLogin.vue';
-import SmsLogin from '@/components/SmsLogin.vue';
+import LoginTH from '@/views/LoginTH.vue';
+//import Login from '@/components/AccountLogin.vue';
+//import SmsLogin from '@/components/SmsLogin.vue';
 import Register from '@/components/Register.vue';
 import ChatView from '@/views/ChatView.vue';
 import ContactView from '@/views/ContactView.vue';
@@ -24,8 +25,9 @@ import ForgetPassword from '@/components/ForgetPassword.vue';
 // 定义路由配置
 const routes = [
   { path: '/', component: Home },
-  { path: '/accountlogin', component: Login },
-  {path: '/smslogin',component:SmsLogin},
+  {path:'/loginth',component:LoginTH},
+  //{ path: '/accountlogin', component: Login },
+  //{path: '/smslogin',component:SmsLogin},
   { path: '/register', component: Register },
   { path: '/chat', component: ChatView },
   { path: '/contact', component: ContactView },

@@ -10,6 +10,11 @@
       <input id="password" type="password" v-model="password" placeholder="请输入密码" />
     </div>
     <button class="login-button" @click="login">登录</button>
+    <div class = "link">
+      <!-- 注册链接 -->
+      <p>没有账号？<router-link to = "/register">注册</router-link></p>
+      <p>忘记密码？<router-link to = "/forgetpassword">忘记密码</router-link></p>
+    </div>
       </div>
 </template>
 
@@ -28,7 +33,12 @@ export default {
     // 登录方法
     async login() {
       try {
-        const response = await login(this.account, this.password);
+        const response = await login(
+          {
+            command: 'AccountLogin',
+            acoount: this.account,
+            password: this.password
+          });
         if (response.success) {
           this.$router.push('/');
         } else {
@@ -102,6 +112,14 @@ export default {
 .login-button:hover {
   background-color: #369f6e;
 }
+
+.link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 400px;
+  }
 
 p {
   margin-top: 10px;
