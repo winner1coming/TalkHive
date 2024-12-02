@@ -1,8 +1,8 @@
 package controllers
 
 import (
-	"chatroom/config"
-	"chatroom/models"
+	"TalkHive/config"
+	"TalkHive/models"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
