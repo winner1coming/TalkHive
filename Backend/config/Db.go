@@ -1,7 +1,7 @@
 package config
 
 import (
-	"chatroom/models"
+	"TalkHive/models"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"log"

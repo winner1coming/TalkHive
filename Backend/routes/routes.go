@@ -1,10 +1,13 @@
 package routes
 
 import (
-	"chatroom/controllers"
+	"TalkHive/controllers"
 	"github.com/gin-gonic/gin"
 )
 
+// 路由会把 HTTP 请求指向不同的控制器函数
+// 例如 controllers.Register、controllers.Login
+// 这些控制器函数将包含具体的业务逻辑，比如数据库操作、数据验证、响应生成等
 func SetupRouter() *gin.Engine {
 	r := gin.Default()
 
