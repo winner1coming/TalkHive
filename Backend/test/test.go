@@ -40,7 +40,6 @@ func RunRouteTests(router *gin.Engine) {
 			Body:       nil,
 			StatusCode: http.StatusOK,
 		},
-		// 更多测试案例可以根据你的路由需求添加
 	}
 
 	for _, test := range tests {
