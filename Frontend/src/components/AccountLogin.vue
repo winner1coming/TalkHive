@@ -1,24 +1,27 @@
 <template>
   <div class="accountlogin">
-    <h2> Login</h2>
+    <div class = "all">
       <img  class="avatar" src = '@/assets/images/avatar.jpg'/>
-    <div class="input-group">
+      
+      <div class="input-group">
+        <label for="account">账号:</label>
+        <input id="account" type="text" v-model="account" placeholder="请输入账号" />
+      </div>
+      
+      <div class="input-group">
+        <label for="password">密码:</label>
+        <input id="password" type="password" v-model="password" placeholder="请输入密码" />
+      </div>
 
-      <label for="account">账号:</label>
-
-      <input id="account" type="text" v-model="account" placeholder="请输入账号" />
-    </div>
-    <div class="input-group">
-      <label for="password">密码:</label>
-      <input id="password" type="password" v-model="password" placeholder="请输入密码" />
-    </div>
       <button class="login-button" @click="login">登录</button>
-    <div class = "link">
-      <!-- 注册链接 -->
-      <p>没有账号？<router-link to = "/register">注册</router-link></p>
-      <p>忘记密码？<router-link to = "/forgetpassword">忘记密码</router-link></p>
+      
+      <div class = "link">
+        <!-- 注册链接 -->
+        <router-link to = "/register" class = "register">注册</router-link>
+        <router-link to = "/forgetpassword" class ="reset">忘记密码</router-link>
+      </div>
     </div>
-    </div>
+  </div>
 </template>
 
 <script>
@@ -38,7 +41,6 @@ export default {
       try {
         const response = await login(
           {
-            command: 'AccountLogin',
             acoount: this.account,
             password: this.password
           });
@@ -62,29 +64,35 @@ export default {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 100vh; /* 设置高度为视口高度 */
-    background-color:rgb(236, 245, 245);
-    padding: 20px;
+    height: 60vh; /* 设置高度为视口高度 */
+    padding: 10px;
     box-sizing: border-box;
 }
 
-.accountlogin h2{
-    font-size:36px;
-    color: black;
-    margin-bottom: 20px;
-    margin-left: 20px;
+.all {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 350px;
+  padding: 20px;
+  box-sizing: border-box;
 }
+
 
 .avatar{
   width: 100px;
   height: 100px;
-  margin-bottom: 10px;
+  margin-top: 10px;
+  margin-bottom: 20px;
+  margin-left: 45px;
   border-radius: 100%;
 }
 
 .input-group {
   display: flex;
+  margin-left: 20px;
   margin-bottom: 20px;
+  align-items: center;
   width: 100%;
   max-width: 300px;
   box-sizing: border-box;
@@ -93,6 +101,7 @@ export default {
 .input-group label {
   margin-right: 15px;
   font-size: 14px;
+  align-items: center;
   color: #666;
   white-space: nowrap; /* 防止标签换行 */
 }
@@ -124,12 +133,30 @@ export default {
 }
 
 .link {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-    max-width: 400px;
-  }
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  width: 100%;
+  margin-top: 20px;
+}
+
+.register {
+  text-decoration: none;
+  justify-items: start;
+  color: #42b983;
+  font-size: 14px;
+}
+
+.reset {
+  text-decoration: none;
+  color: #42b983;
+  font-size: 14px;
+}
+
+.register:hover, .reset:hover {
+  text-decoration: underline;
+}
+
 
 p {
   margin-top: 10px;

@@ -31,20 +31,17 @@ export const login = async (payload) => {
   }
 };
 //短信接收码的接口
-export const sendSmsCode = async (phoneNumber) => {
+export const sendSmsCode = async (data) => {
   try {
-    const response = await axios.post('/sendSmsCode', {
-      command: 'SendSmsCode',
-      phoneNumber,
-    });
+    const response = await axios.post('/sendSmsCode',data);
     return response.data;
   } catch (error) {
     throw error.response ? error.response.data : error.message;
   }
 };
 
-export const sendVerificationCode = (phoneNumber) => {
-  return apiClient.post('/sendVerificationCode', { phoneNumber })
+export const smsLogin = (phoneNumber) => {
+  return apiClient.post('/smslogin', { phoneNumber})
     .then(response => {
       return response.data;
     })
@@ -54,14 +51,42 @@ export const sendVerificationCode = (phoneNumber) => {
 };
 
 // 注册接口
-export const register = (username, password) => {
-  return apiClient.post('/register', { username, password });
+export const Register = (data) => {
+  return apiClient.post('/register', data)
+    .then(response => {
+      return response.data;
+    })
+    .catch(error => {
+      throw error.response?.data || error.message;
+    });
 };
 
 
 // 重置密码接口
-export const resetPassword = (data) => {
-  return apiClient.post('/resetPassword', data)
+export const resetPassword = (msg) => {
+  return apiClient.post('/resetPassword', msg)
+    .then(response => {
+      return response.data;
+    })
+    .catch(error => {
+      throw error.response?.data || error.message;
+    });
+};
+
+// 获取用户信息接口
+export const getProfile = () => {
+  return apiClient.get('/profile')
+    .then(response => {
+      return response.data;
+    })
+    .catch(error => {
+      throw error.response?.data || error.message;
+    });
+};
+
+// 更新用户信息接口
+export const updateProfile = (profile) => {
+  return apiClient.put('/profile', profile)
     .then(response => {
       return response.data;
     })

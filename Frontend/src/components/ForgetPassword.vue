@@ -1,6 +1,7 @@
 <template>
     <!-- 找回密码页面容器 -->
     <div class="forgotpassword">
+      <div class="container">
       <!-- 页面标题 -->
       <h2>找回密码</h2>
       
@@ -29,7 +30,7 @@
       <div class="input-group">
         <label for="verificationCode">验证码:</label>
         <input id="verificationCode" type="text" v-model="verificationCode" placeholder="验证码" @blur="validateVerificationCode" />
-        <button class="send-verification-code" @click="sendVerificationCode">获取验证码</button>
+        <button class="send-verification-code" @click="sendSmsCode">获取</button>
       </div>
       <p v-if="errors.verificationCode" class="error">{{ errors.verificationCode }}</p>
       
@@ -41,11 +42,12 @@
         <p>{{ successMessage }}</p>
         <button class="confirm-button" @click="goToLogin">确定</button>
       </div>
+      </div>
     </div>
   </template>
   
   <script>
-  import { sendVerificationCode, resetPassword } from '@/services/api'; // 导入发送验证码和重置密码 API
+  import { sendSmsCode, resetPassword } from '@/services/api'; // 导入发送验证码和重置密码 API
   
   export default {
     data() {
@@ -108,13 +110,18 @@
       },
       
       // 发送验证码
-      async sendVerificationCode() {
+      async sendSmsCode() {
         if (!this.validatePhoneNumber()) {
           return;
         }
         
         try {
-          const response = await sendVerificationCode(this.phoneNumber);
+          const response = await sendSmsCode(
+            {
+              command:'resetPassword',
+              phoneNumber:this.phoneNumber,
+            }
+          );
           if (response.success) {
             alert('验证码已发送');
           } else {
@@ -139,8 +146,7 @@
         try {
           const response = await resetPassword({
             phoneNumber: this.phoneNumber,
-            newPassword: this.newPassword,
-            verificationCode: this.verificationCode,
+            password: this.newPassword,
           });
           
           if (response.success) {
@@ -163,68 +169,85 @@
   
   <style scoped>
   .forgotpassword {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+    align-items: center;
+    justify-items: center;
+    height: 80vh;
+    padding: 10px;
+    box-sizing: border-box;
+  }
+
+  .container {
+    display:flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 100vh;
-    background-color: #f9f9f9;
-    padding: 20px;
-    box-sizing: border-box;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 添加阴影效果 */
+    border-radius: 8px; /* 添加圆角效果 */
+    background-color: #fff; /* 添加背景色 */
+    padding: 20px; /* 添加内边距 */
+    margin-top: 120px;
   }
-  
+
   h2 {
-    margin-bottom: 20px;
+    margin-bottom: 30px;
+    align-items: center;
     font-size: 24px;
     color: #333;
   }
-  
+
   .input-group {
     display: flex;
+    grid-template-columns: 100px 1fr;
+    gap: 10px;
     align-items: center;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
     width: 100%;
-    max-width: 300px;
-    box-sizing: border-box;
+    max-width: 400px;
   }
-  
+
   .input-group label {
-    width: 100px;
-    margin-right: 10px;
     font-size: 14px;
     color: #666;
-    text-align: right;
+    text-align: left;
+    width: 89px;
   }
-  
+
   .input-group input {
-    flex: 1;
     padding: 10px;
     font-size: 16px;
     border: 1px solid #ccc;
     border-radius: 4px;
+    width: 100%;
+    flex: 1;
   }
-  
+
   .send-verification-code {
     padding: 10px;
+    width: 20%;
     font-size: 14px;
     color: #fff;
     background-color: #42b983;
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    margin-left: 10px;
+    margin-left: 0px;
   }
-  
+
   .error {
     color: red;
     font-size: 12px;
     margin-top: 5px;
-    margin-left: 110px;
+    text-align: left;
+    width: 100%;
+    max-width: 400px;
   }
-  
+
   .submit-button {
     width: 100%;
-    max-width: 300px;
+    max-width: 100px;
     padding: 10px;
     font-size: 16px;
     color: #fff;
@@ -234,22 +257,22 @@
     cursor: pointer;
     margin-top: 10px;
   }
-  
+
   .submit-button:hover {
     background-color: #369f6e;
   }
-  
+
   .success-message {
     margin-top: 20px;
     text-align: center;
   }
-  
+
   .success-message p {
     font-size: 16px;
     color: #333;
     margin-bottom: 10px;
   }
-  
+
   .confirm-button {
     padding: 10px;
     font-size: 16px;
@@ -259,7 +282,7 @@
     border-radius: 4px;
     cursor: pointer;
   }
-  
+
   .confirm-button:hover {
     background-color: #369f6e;
   }
