@@ -7,6 +7,9 @@ import (
 	"net/http"
 )
 
+// 获取数据库连接
+var DB = config.GetDB()
+
 // Register 用户注册
 func Register(c *gin.Context) {
 	var account models.AccountInfo
