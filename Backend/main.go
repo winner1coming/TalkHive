@@ -16,10 +16,7 @@ func main() {
 	config.InitDB()
 	config.InitRedis()
 
-	//// 设置路由
-	//r := routes.SetupRouter()
-	//
-	//// 运行路由测试
+	// 运行路由测试
 	//log.Println("开始运行路由测试...")
 	//tests.RunRouteTests(r)
 

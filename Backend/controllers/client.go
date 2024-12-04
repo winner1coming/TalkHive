@@ -37,6 +37,8 @@ func Register(c *gin.Context) {
 }
 
 // Login 用户登录
+// 账户密码登录
+// 手机验证码登录
 func Login(c *gin.Context) {
 	var loginRequest struct {
 		ID       string `json:"id"`
