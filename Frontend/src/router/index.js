@@ -7,7 +7,8 @@ import Register from '@/components/Register.vue';
 import ChatView from '@/views/ChatView.vue';
 import ContactView from '@/views/ContactView.vue';
 import ForgetPassword from '@/components/ForgetPassword.vue';
-import Edit from '@/components/Settings_list/EditProfile.vue';
+import SecuritySettings from '@/components/Settings_list/SecuritySettings.vue';
+import Profile from '@/components/Settings_list/Profile.vue';
 
 //import GroupChat from '@/components/GroupChat.vue';
 //import Profile from '@/components/Profile.vue';
@@ -26,7 +27,8 @@ import Edit from '@/components/Settings_list/EditProfile.vue';
 const routes = [
   { path: '/', component: Home },
   {path:'/loginth',component:LoginTH},
-  {path:'/edit',component:Edit},
+  {path:'/profile',component:Profile},
+  {path:'/security',component:SecuritySettings},
   { path: '/register', component: Register },
   { path: '/chat', component: ChatView },
   { path: '/contact', component: ContactView },
