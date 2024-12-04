@@ -1,6 +1,7 @@
 package config
 
 import (
+	"TalkHive/global"
 	"TalkHive/models"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -42,6 +43,7 @@ func InitDB() {
 	if err != nil {
 		log.Fatalf("自动迁移表失败: %v", err)
 	}
+	global.Db = DB
 }
 
 // autoMigrateTables 自动迁移数据库表结构

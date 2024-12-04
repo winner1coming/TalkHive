@@ -2,13 +2,14 @@ package controllers
 
 import (
 	"TalkHive/config"
+	"TalkHive/global"
 	"TalkHive/models"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
 // 获取数据库连接
-var DB = config.GetDB()
+var DB = global.Db
 
 // Register 用户注册
 func Register(c *gin.Context) {

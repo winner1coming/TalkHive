@@ -1,7 +1,7 @@
 package workSpace
 
 import (
-	"TalkHive/config"
+	"TalkHive/global"
 	"TalkHive/models"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -9,7 +9,7 @@ import (
 )
 
 // DB 获取数据库连接
-var DB = config.GetDB()
+var DB = global.Db
 
 // 我的代码！！！
 
