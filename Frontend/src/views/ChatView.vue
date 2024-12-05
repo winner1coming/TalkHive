@@ -12,7 +12,7 @@
           :selectedChat="selectedChat" 
           :messages="messages" 
           @clickGroupManagement="clickGroupManagement"
-          @send-message="sendMessage"
+          @send-message="sendNewMessage"
           @message-action="handleMessageAction"
         />
       </div>
@@ -34,7 +34,7 @@
   import ChatList from '@/components/Chat_list/ChatList.vue';
   import ChatBox from '@/components/Chat_list/ChatBox.vue';
   import GroupManagement from '@/components/Chat_list/GroupManagement.vue';
-  import {getMessages} from '@/services/chatList';
+  import {getMessages, sendMessage} from '@/services/chatList';
   import { EventBus } from '@/components/base/EventBus';
   
   export default {
@@ -46,7 +46,8 @@
           send_account_id: '0',  // 发送者的id
           content: 'Hello',
           sender: 'Alice',   // 发送者的备注
-          timestamp: '11:00',   // 发送时间
+          create_time: '11:00',   // 发送时间
+          type: 'text',   // 消息类型
         },
         {
           send_account_id: '1',
@@ -63,10 +64,10 @@
         // 加载消息历史   
         this.messages = await getMessages(chat.id);
       },
-      async sendMessage(content) {   // todo 目前只有发送文字的功能
+      async sendNewMessage(content) {   // todo 目前只有发送文字的功能
         if (!this.selectedChat) return;
         // 发送消息到后端
-        const newMessage = await this.apiPost(`/messages/${this.selectedChat.id}`, { content });
+        await sendMessage(this.selectedChat.id, content);
         // this.messages[this.selectedChat.id].push(newMessage);  todo 消息发送后，是否需要接收自己发送的消息
       },
       handleMessageAction(action, message) {

@@ -1,26 +1,30 @@
 <template>
   <div class="modal-overlay" @click.self="close">
     <div class="modal-content">
-      <h2>加好友/群</h2>
-      <SearchBar :isImmidiate="false" @search="search" @button-click="search"/>
-      <ul class="items">
-      <!-- 每个消息项 -->
-      <li 
-        v-for="result in results" 
-        :key="result.tid"
-      >
-        <div class="avatar">   <!-- 头像-->
-          <img :src="result.avatar" alt="avatar" />
-        </div>
-        <div class="info">   <!-- 信息-->
-          <div class="name">{{ result.nickname }}</div>
-          <div class="remark">{{ result.id }}</div>
-        </div>
-        <div >   
-          <button @click="add(result.tid)">添加</button>
-        </div>
-      </li>
-    </ul>
+      <div>
+        <SearchBar :isImmidiate="false" @search="search" @button-click="search"/>
+        <ul class="items">
+          <!-- 每个消息项 -->
+          <li 
+            v-for="result in results" 
+            :key="result.tid"
+          >
+            <div class="avatar">   <!-- 头像-->
+              <img :src="result.avatar" alt="avatar" />
+            </div>
+            <div class="info">   <!-- 信息-->
+              <div class="name">{{ result.remark }}</div>
+            </div>
+            <div >   
+              <button @click="">+</button>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <!-- 已选中部分-->
+    <div>
+      
     </div>
   </div>
 </template>
@@ -34,7 +38,7 @@ export default {
   },
   data() {
     return {
-      results:[
+      results:[ 
         {
           tid: '13872132',   // 若为群聊，则为群号
           id: '13872132',

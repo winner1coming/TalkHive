@@ -25,8 +25,8 @@ export default {
             account_id: '1',
             remark: 'John',   // 好友备注
             status: 'online',   // online, offline
-            signature: '爱拼才会赢',
-            tag: '家人',
+            signature: '爱拼才会赢',    // 签名
+            tag: '家人',   
           },
         ],
     };

@@ -9,7 +9,7 @@
       <div class="message-content-wrapper">
         <div class="message-header">
           <span class="message-sender">{{ message.sender }}</span>
-          <span class="message-time">{{ message.timestamp }}</span>
+          <span class="message-time">{{ message.create_time }}</span>
         </div>
         <div class="message-content" 
              v-html="message.content" 
@@ -22,7 +22,7 @@
       <div class="message-content-wrapper">
         <div class="message-header">
           <span class="message-sender">{{ message.sender }}</span>
-          <span class="message-time">{{ message.timestamp }}</span>
+          <span class="message-time">{{ message.create_time }}</span>
         </div>
         <div class="message-content" 
              v-html="message.content" 
