@@ -8,10 +8,11 @@ import ChatView from '@/views/ChatView.vue';
 import ContactView from '@/views/ContactView.vue';
 import ForgetPassword from '@/components/ForgetPassword.vue';
 import SecuritySettings from '@/components/Settings_list/SecuritySettings.vue';
-import Profile from '@/components/Settings_list/Profile.vue';
+import SystemSettings from '../components/Settings_list/SystemSettings.vue';
+import ShowList from '@/views/SettingView.vue';
 
 //import GroupChat from '@/components/GroupChat.vue';
-//import Profile from '@/components/Profile.vue';
+//import Profile from '@/components/Profile.vue';w
 //import GroupManagement from '@/components/GroupManagement.vue';
 //import ContactList from '@/components/ContactList.vue';
 //import FriendList from '@/components/FriendList.vue';
@@ -27,8 +28,9 @@ import Profile from '@/components/Settings_list/Profile.vue';
 const routes = [
   { path: '/', component: Home },
   {path:'/loginth',component:LoginTH},
-  {path:'/profile',component:Profile},
   {path:'/security',component:SecuritySettings},
+  {path:'/system',component:SystemSettings},
+  {path:'/setlist',component:ShowList},
   { path: '/register', component: Register },
   { path: '/chat', component: ChatView },
   { path: '/contact', component: ContactView },

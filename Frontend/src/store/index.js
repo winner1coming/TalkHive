@@ -25,6 +25,10 @@ export default createStore({
   
   // 同步修改状态的方法
   mutations: {
+    SET_THEME(state,theme){
+      state.settings.theme = theme;
+      localStorage.setItem('them',theme);
+    },
     // 设置用户信息
     SET_USER(state, user) {
       state.user = user;
@@ -47,6 +51,9 @@ export default createStore({
   
   // 异步操作和提交 mutations 的方法
   actions: {
+    setTheme({commit},theme){
+      commit('SET_THEME',theme);
+    },
     // 登录操作
     login({ commit }, { username, password }) {
       // 登录逻辑

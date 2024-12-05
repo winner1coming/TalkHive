@@ -57,12 +57,13 @@
 
 <script>
 import { getProfile, updateProfile } from '@/services/api';
+import avatar from '@/assets/images/avatar.jpg';
 
 export default {
   // 组件的 data 函数，返回一个对象，包含组件的响应式数据
   data() {
     return {
-      avatar: '',
+      avatar,
       // 用户名输入框的值
       username: '',
       // ID 输入框的值
