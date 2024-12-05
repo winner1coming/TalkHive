@@ -3,8 +3,9 @@
 
     <h1>欢迎来到聊天室</h1>
     <router-link to = "/loginth">登录</router-link>
-    <router-link to = "/security">设置</router-link>
-    <router-link to = "/profile">主页</router-link>
+    <router-link to = "/security">安全设置</router-link>
+    <router-link to = "/system">系统设置</router-link>
+    <router-link to="/setlist">设置</router-link>
     <router-link to="/chat">聊天</router-link>
     <router-link to="/contact">通讯录</router-link>
     <router-link to="/groups">群聊列表</router-link>
