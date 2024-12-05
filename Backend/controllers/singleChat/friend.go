@@ -1,7 +1,7 @@
 package singleChat
 
 import (
-	"TalkHive/config"
+	"TalkHive/global"
 	"TalkHive/models"
 	"errors"
 	"github.com/gin-gonic/gin"
@@ -10,7 +10,7 @@ import (
 )
 
 // 获取数据库连接
-var db = config.GetDB()
+var db = global.Db
 
 // GetFriendInfo 查看好友个人信息
 func GetFriendInfo(c *gin.Context) {
