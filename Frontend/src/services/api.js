@@ -8,11 +8,11 @@ const apiClient = axios.create({
   },
 });
 
-// 添加请求拦截器（请求头中有id，后端可通过headers['User-ID']来获取id）
+// 添加请求拦截器（请求头中有id，后端可通过headers['tid']来获取id）
 apiClient.interceptors.request.use(config => {
   const userId = store.state.user.id; // 从 Vuex 存储中获取用户 ID
   if (userId) {
-    config.headers['User-ID'] = userId; // 在请求头中添加用户 ID
+    config.headers['tid'] = userId; // 在请求头中添加用户 ID
   }
   return config;
 }, error => {
@@ -36,9 +36,13 @@ export const register = (username, password) => {
 export const searchFriendGroup = (key) => {
   return apiClient.get('/search/Stranger', { key });  
 };
-// 添加好友/群聊
+// 添加好友/群聊（id为tid，若为群聊，则为群号）
 export const addFriendGroup = (id) => {
   return apiClient.post('/add/Stranger', { id });
+};
+// 新建群聊(tids为成员id列表，其中没有用户自己的)
+export const createGroup = (tids) => {
+  return apiClient.post('/create/Group', { tids });
 };
 
 

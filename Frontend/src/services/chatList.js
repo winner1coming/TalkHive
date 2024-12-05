@@ -9,48 +9,48 @@ export const searchChats = (keyword) => {
 };
 
 // 置顶聊天
-export const pinChat = (friendId) => {
-  return apiClient.post(`/chatlist/pin`,{friendId});
+export const pinChat = (tid) => {
+  return apiClient.post(`/chatlist/pin`,{tid});
 };
 // 取消置顶聊天
-export const unpinChat = (friendId) => {
-  return apiClient.post(`/chatlist/unpin`,{friendId});
+export const unpinChat = (tid) => {
+  return apiClient.post(`/chatlist/unpin`,{tid});
 };
 // 标记为已读消息
-export const readMessages = (friendId) => {
-  return apiClient.post(`/messages/read`,{friendId});
+export const readMessages = (tid) => {
+  return apiClient.post(`/messages/read`,{tid});
 }
 // 标记为未读消息
-export const unreadMessages = (friendId) => {
-  return apiClient.post(`/messages/unread`,{friendId});
+export const unreadMessages = (tid) => {
+  return apiClient.post(`/messages/unread`,{tid});
 }
 // 删除聊天
-export const deleteChat = (friendId) => {
-  return apiClient.delete(`/chatlist/${friendId}`);
+export const deleteChat = (tid) => {
+  return apiClient.delete(`/chatlist/${tid}`);
 };
 // 设置免打扰
-export const setMute = (friendId) => {
-  return apiClient.post(`/chatlist/mute`,{friendId});
+export const setMute = (tid) => {
+  return apiClient.post(`/chatlist/mute`,{tid});
 };
 // 取消免打扰
-export const cancelMute = (friendId) => {
-  return apiClient.post(`/chatlist/unmute`,{friendId});
+export const cancelMute = (tid) => {
+  return apiClient.post(`/chatlist/unmute`,{tid});
 };
 // 屏蔽聊天
-export const blockChat = (friendId) => {
-  return apiClient.post(`/chatlist/block`,{friendId});
+export const blockChat = (tid) => {
+  return apiClient.post(`/chatlist/block`,{tid});
 };
 // 取消屏蔽聊天
-export const unblockChat = (friendId) => {
-  return apiClient.post(`/chatlist/unblock`,{friendId});
+export const unblockChat = (tid) => {
+  return apiClient.post(`/chatlist/unblock`,{tid});
 };
 
 
 // 获取聊天消息
-export const getMessages = (friendId) => {
-  return apiClient.get(`/messages/${friendId}`);
+export const getMessages = (tid) => {
+  return apiClient.get(`/messages/${tid}`);
 }
 // 发送消息接口
-export const sendMessage = (content) => {
-  return apiClient.post('/messages', { content });
+export const sendMessage = (tid, content) => {
+  return apiClient.post(`/messages/${tid}/send`, { content });
 };

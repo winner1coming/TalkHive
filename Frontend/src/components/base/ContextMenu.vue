@@ -21,7 +21,6 @@ export default {
     },
     methods: {
         show(event, x, y, items, obj) {
-            console.log('show');
             this.x = x;
             this.y = y;
             this.items = items;

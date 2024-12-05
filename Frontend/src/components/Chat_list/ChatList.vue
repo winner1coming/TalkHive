@@ -44,9 +44,15 @@
     </ul>
     <!-- 添加好友弹窗 -->
     <AddFriendGroup
-      v-if="isAddFriendModalVisible"
-      @close="isAddFriendModalVisible = false"
+      v-if="isAddModalVisible"
+      @close="isAddModalVisible = false"
       @add-friend="handleAddFriend"
+    />
+    <!-- 新建群聊弹窗 -->
+    <BuildGroup
+      v-if="isBuildModalVisible"
+      @close="isBuildModalVisible = false"
+      @build-group="handleBuildGroup"
     />
     <ContextMenu ref="contextMenu"  @select-item="handleMenuSelect" />
   </div>
@@ -56,13 +62,15 @@
 import SearchBar from '@/components/base/SearchBar.vue';
 import ContextMenu from '@/components/base/ContextMenu.vue';
 import * as chatListAPI from '@/services/chatList';
-import { addFriendGroup } from '@/services/api';
+import { addFriendGroup, createGroup } from '@/services/api';
 import AddFriendGroup from '@/components/base/AddFriendGroup.vue';
+import BuildGroup from '@/components/base/BuildGroup.vue';
 export default {
   components: {
     SearchBar,
     ContextMenu,
     AddFriendGroup,
+    BuildGroup,
   },
   // 组件的 data 函数，返回一个对象，包含组件的响应式数据
   data() {
@@ -96,7 +104,8 @@ export default {
         { name: 'blocked', label: '屏蔽' },
       ],
       activeTag: 'all',
-      isAddFriendModalVisible: false,
+      isAddModalVisible: false,
+      isBuildModalVisible: false,
     };
   },
 
@@ -169,10 +178,10 @@ export default {
     // 处理新建消息的菜单点击事件
     async handleNewMenu(option) {
       if(option === '添加好友') {
-        this.isAddFriendModalVisible = true;
-      }else if(option === '发起群聊') {
-        // 新建群聊
-        // todo
+        this.isAddModalVisible = true;
+      }else if(option === '新建群聊') {
+        
+        this.isBuildModalVisible = true;
       }
     },
     // 处理聊天列表的菜单点击事件
@@ -241,6 +250,10 @@ export default {
         console.error('添加失败:', error);
         alert('添加失败，请重试。');
       }
+    },
+    // 处理新建群聊的逻辑
+    async handleBuildGroup(tids) {
+      await createGroup(tids);
     },
   },
   mounted() {
