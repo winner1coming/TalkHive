@@ -28,7 +28,7 @@ func main() {
 	routes.SetupGroupChatRoutes(r)    // 群聊模块
 	routes.SetupMessageListRoutes(r)  // 消息列表模块
 	routes.SetupPersonalHomeRoutes(r) // 个人主页模块
-	routes.SetupRouter()              // 用户账号相关模块
+	routes.SetupRouter(r)             // 用户账号相关模块
 	routes.SetupSingleChatRoutes(r)   // 单聊模块
 	routes.SetupWorkspaceRoutes(r)    // 工作区模块
 

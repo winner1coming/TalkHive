@@ -27,11 +27,3 @@ func InitRedis() {
 	global.RedisDB = RedisClient
 	log.Println("连接Redis成功")
 }
-
-// GetRedis 返回全局数据库实例
-func GetRedis() *redis.Client {
-	if RedisClient == nil {
-		log.Fatal("Redis实例为空")
-	}
-	return RedisClient
-}
