@@ -100,17 +100,21 @@ export const getMessages = () => {
   return apiClient.get('/messages');
 }
 // chat和contact
+// 资料卡片
+export const getProfileCard = (tid) => {
+  return apiClient.get('/profileCard', { tid });
+};
 // 搜索好友/群聊（key可能是id或者昵称）
 export const searchFriendGroup = (key) => {
-  return apiClient.get('/search/Stranger', { key });  
+  return apiClient.get('/Stranger/search', { key });  
 };
 // 添加好友/群聊（id为tid，若为群聊，则为群号）
 export const addFriendGroup = (id) => {
-  return apiClient.post('/add/Stranger', { id });
+  return apiClient.post('/Stranger/add', { id });
 };
 // 新建群聊(tids为成员id列表，其中没有用户自己的)
 export const createGroup = (tids) => {
-  return apiClient.post('/create/Group', { tids });
+  return apiClient.post('/GroupList/create', { tids });
 };
 
 

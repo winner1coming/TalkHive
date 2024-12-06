@@ -1,6 +1,6 @@
 <template>
     <ToggleContent v-for="tag in tags" :previewText="tag">
-        <div v-for="item in filteredItemsByTag(tag)" :key="items.account_id" class="item">
+        <div v-for="item in filteredItemsByTag(tag)" :key="items.account_id" class="item" @click="showProfileCard($event, item.account_id)">
             <img :src="item.avatar" alt="avatar" width="50" height="50" />
             <div v-if="this.type === 'friendList'" class="left">
                 <p class="name">{{ item.remark }}</p>
@@ -31,9 +31,12 @@
                 return this.items.filter(item => item.tag === tag);
             },
             async fetchFriends() {
-            const response = await getFriends();
-            this.friends = response.data;
+                const response = await getFriends();
+                this.friends = response.data;
             },
+            showProfileCard(event, tid){
+                this.$emit('show-profile-card', event, tid);
+            }
         },
         created() {
             this.fetchFriends();

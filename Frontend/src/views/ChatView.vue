@@ -2,6 +2,7 @@
     <div class="chat-view">
       <!-- 左侧聊天列表 -->
       <ChatList 
+        ref="chatList"
         @chat-selected="selectChat"
       />
   
@@ -13,7 +14,7 @@
           :messages="messages" 
           @clickGroupManagement="clickGroupManagement"
           @send-message="sendNewMessage"
-          @message-action="handleMessageAction"
+          @go-to-chat="goToChat"
         />
       </div>
   
@@ -42,19 +43,20 @@
     data() {
       return {
         selectedChat: null, // 当前选中的聊天
-        messages: [{
-          send_account_id: '0',  // 发送者的id
-          content: 'Hello',
-          sender: 'Alice',   // 发送者的备注
-          create_time: '11:00',   // 发送时间
-          type: 'text',   // 消息类型
-        },
-        {
-          send_account_id: '1',
-          content: 'Hi',
-          sender: 'Bob',
-          timestamp: '12:00',
-        }], 
+        // messages: [{
+        //   message_id: '0',  // 消息编号
+        //   send_account_id: '0',  // 发送者的id
+        //   content: 'Hello',
+        //   sender: 'Alice',   // 发送者的备注
+        //   create_time: '11:00',   // 发送时间
+        //   type: 'text',   // 消息类型
+        // },
+        // {
+        //   send_account_id: '1',
+        //   content: 'Hi',
+        //   sender: 'Bob',
+        //   timestamp: '12:00',
+        // }], 
         showGroupManagement: false, // 是否显示群聊管理弹窗
       };
     },
@@ -70,9 +72,10 @@
         await sendMessage(this.selectedChat.id, content);
         // this.messages[this.selectedChat.id].push(newMessage);  todo 消息发送后，是否需要接收自己发送的消息
       },
-      handleMessageAction(action, message) {
-        // 处理消息的各种操作（复制、删除、多选等）
-        console.log(`Action: ${action}`, message);
+      async goToChat(tid) {
+        // 跳转到指定聊天
+        const chat = this.$ref.chatList.chats.find(chat => chat.id === tid);
+        this.$refs.selectChat(chat, tid);
       },
       clickGroupManagement() {
         if (this.selectedChat && this.selectedChat.is_groupchat) {
@@ -115,13 +118,16 @@
     width: 100%;
   }
   .chat-details {
+    padding-left: 20px;
     height: 100%;
+    width: 100%;
     flex: 3;
     display: flex;
     flex-direction: column;
   }
   .welcome-message {
     height: 100%;
+    width: 100%;
     flex: 3;
     display: flex;
     align-items: center;

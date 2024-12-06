@@ -9,14 +9,16 @@
 </template>
 
 <script>
+import { EventBus } from '@/components/base/EventBus';
 export default {
+    
     data() {
         return {
-        visible: false,
-        x: 0,
-        y: 0,
-        items: [],
-        obj: null,  // 当前触发菜单的对象
+            visible: false,
+            x: 0,
+            y: 0,
+            items: [],
+            obj: null,  // 当前触发菜单的对象
         };
     },
     methods: {
@@ -26,20 +28,27 @@ export default {
             this.items = items;
             this.visible = true;
             this.obj = obj;
-            // 使用 setTimeout 延迟添加点击监听器（防止使用点击触发菜单时，菜单被直接隐藏）
-            setTimeout(() => {
-                document.addEventListener('click', this.hide);
-            }, 0);
+            EventBus.emit('float-component-opened', this); // 通知其他组件
         },
         hide() {
+            console.log('hide1');
             this.visible = false;
-            document.removeEventListener('click', this.hide);
         },
-        // 选中某个选项
+        // 选中某个选项（item是选中的选项的string，obj是指是谁触发的菜单）
         handleClick(item) {
             this.$emit('select-item', item, this.obj);
             this.hide();
         },
+    },
+    mounted() {
+        EventBus.on('float-component-opened', (component) => {
+            if (component !== this) {
+                this.hide();
+            }
+        });
+        EventBus.on('hide-float-component', () => {
+            this.hide();
+        });
     },
 };
 </script>
