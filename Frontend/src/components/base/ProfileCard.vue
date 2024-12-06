@@ -44,7 +44,6 @@ export default {
       EventBus.emit('float-component-opened', this); // 通知其他组件
     },
     hide() {
-      console.log('hidePro');
       this.visible = false;
       document.removeEventListener('click', this.hide);
     },

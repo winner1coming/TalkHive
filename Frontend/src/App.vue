@@ -15,17 +15,22 @@ export default {
   
   methods: {
     ...mapActions(['connectWebSocket']),
-    hide(component) {
-      EventBus.emit('hide-float-component', component); // 通知其他组件
+    hideClick() {
+      EventBus.emit('hide-float-component'); // 通知其他组件
+    },
+    hideContext(event) {
+      event.preventDefault();
+      EventBus.emit('hide-float-component'); // 通知其他组件
     },
   },
   created() {
     // this.connectWebSocket();
-    document.addEventListener('click', this.hide, true); // 使用 capture 选项
-    EventBus.on('float-component-opened', (component)=>{this.hide(component);});
+    window.addEventListener('click', this.hideClick, true); // 使用 capture 选项
+    window.addEventListener('contextmenu', this.hideContext, true); // 使用 capture 选项
   },
   beforeUnmount() {
-    document.removeEventListener('click', this.hide, true); // 使用 capture 选项
+    window.removeEventListener('click', this.hideClick, true); 
+    window.removeEventListener('contextmenu', this.hideContext, true); 
   },
 }
 

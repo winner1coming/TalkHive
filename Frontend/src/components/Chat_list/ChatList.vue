@@ -76,24 +76,25 @@ export default {
   data() {
     return {
       // 消息列表（从后端获取）
-      chats: [{
-          id: '0',   // 好友的tid
-          avatar: new URL('@/assets/images/avatar.jpg', import.meta.url).href,
-          name: 'Alice',  // 好友的备注 remark
-          lastMessage: 'hi',
-          lastMessageTime: '10:00',
-          unreadCount: 1,
-          tags: ['unread','pinned'],   // friend, group, unread, pinned, blocked
-        },
-        {
-          id: '1',
-          avatar: new URL('@/assets/images/avatar.jpg', import.meta.url).href,
-          name: 'Bob',
-          lastMessage: 'hello',
-          lastMessageTime: '11:00',
-          unreadCount: 0,
-          tags: ['unread', 'group'],
-        }], 
+      chats: [],
+      // chats: [{
+      //     id: '0',   // 好友的tid
+      //     avatar: new URL('@/assets/images/avatar.jpg', import.meta.url).href,
+      //     name: 'Alice',  // 好友的备注 remark
+      //     lastMessage: 'hi',
+      //     lastMessageTime: '10:00',
+      //     unreadCount: 1,
+      //     tags: ['unread','pinned'],   // friend, group, unread, pinned, blocked
+      //   },
+      //   {
+      //     id: '1',
+      //     avatar: new URL('@/assets/images/avatar.jpg', import.meta.url).href,
+      //     name: 'Bob',
+      //     lastMessage: 'hello',
+      //     lastMessageTime: '11:00',
+      //     unreadCount: 0,
+      //     tags: ['unread', 'group'],
+      //   }], 
       // 选中的聊天
       selectedChat: null,
       // 消息标签
@@ -115,9 +116,13 @@ export default {
   computed: {
     // 过滤后的消息列表
     filteredChats() {
+      console.log(this.chats);
       let chats = this.chats;
       if (this.activeTag !== 'all') {
         chats = chats.filter(chat => chat.tags.includes(this.activeTag));
+      }
+      if(!chats) {
+        return chats;
       }
       // 将置顶的消息排在前面
       return chats.sort((a, b) => b.pinned - a.pinned);
@@ -128,7 +133,14 @@ export default {
   methods: {
     async fetchChatList() {
       // 从后端获取聊天列表
-      this.chats = await chatListAPI.getChatList();
+      let response = await chatListAPI.getChatList();
+      if(response.status === 200) {
+        this.chats = response.data;
+      }
+      else{
+        console.error('获取聊天列表失败:', response.data);
+      }
+      console.log(this.chats);
     },
     // 选中tag筛选消息
     filterChats(tagName) {
@@ -265,7 +277,7 @@ export default {
       await createGroup(tids);
     },
   },
-  mounted() {
+  created () {
     this.fetchChatList();
   },
 };
@@ -277,7 +289,6 @@ export default {
   width: 30%;
   height: 100%;
   background-color: #f5f5f5;
-  padding: 10px;
 }
 .chat-header button {
   margin-right: 10px;

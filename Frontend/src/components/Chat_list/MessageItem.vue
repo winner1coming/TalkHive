@@ -56,7 +56,6 @@ export default {
       this.$emit('show-context-menu',event, message);
     },
     showProfileCard(event){
-      console.log('showProfileCard');
       this.$emit('show-profile-card', event, this.message.send_account_id);
     }
     
