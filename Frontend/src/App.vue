@@ -8,14 +8,24 @@
 
 <script>
 import { mapActions } from 'vuex';
+import { EventBus } from '@/components/base/EventBus';
 export default {
   // 组件名称
   name: 'App',
-  created() {
-    // this.connectWebSocket();
-  },
+  
   methods: {
     ...mapActions(['connectWebSocket']),
+    hide(component) {
+      EventBus.emit('hide-float-component', component); // 通知其他组件
+    },
+  },
+  created() {
+    // this.connectWebSocket();
+    document.addEventListener('click', this.hide, true); // 使用 capture 选项
+    EventBus.on('float-component-opened', (component)=>{this.hide(component);});
+  },
+  beforeUnmount() {
+    document.removeEventListener('click', this.hide, true); // 使用 capture 选项
   },
 }
 

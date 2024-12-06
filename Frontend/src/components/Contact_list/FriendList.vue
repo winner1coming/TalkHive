@@ -34,7 +34,7 @@ export default {
   methods: {
     async fetchFriends() {
       const response = await getFriends();
-      this.friends = response.data;
+      this.items = response.data;
     },
   },
   created() {

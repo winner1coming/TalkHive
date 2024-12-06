@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import { getFriends } from '@/services/contactList';
+import { getGroups } from '@/services/contactList';
 import itemList from './itemList.vue';
 
 export default {
@@ -32,13 +32,13 @@ export default {
     };
   },
   methods: {
-    async fetchFriends() {
-      const response = await getFriends();
-      this.friends = response.data;
+    async fetchGroups() {
+      const response = await getGroups();
+      this.items = response.data;
     },
   },
   created() {
-    this.fetchFriends();
+    this.fetchGroups();
   },
 };
 </script>

@@ -1,0 +1,135 @@
+<template>
+  <div v-if="visible" class="profile-card" :style="{ top: `${y}px`, left: `${x}px` }">
+    <div class="avatar">
+      <img :src="profile.avatar" alt="avatar" />
+    </div>
+    <div class="info">
+      <div class="name">{{ profile.remark }}</div>
+      <div class="nickname">昵称: {{ profile.nickname }}</div>
+      <div class="group-nickname" v-if="profile.groupNickname">群昵称: {{ profile.groupNickname }}</div>
+      <div class="tag">
+        分组:{{ profile.tag }}
+      </div>
+      <div class="signature">个性签名: {{ profile.signature }}</div>
+    </div>
+    <button @click="sendMessage">发信息</button>
+  </div>
+</template>
+
+<script>
+import { EventBus } from '@/components/base/EventBus';
+export default {
+  data() {
+    return {
+      visible: false,
+      x: 0,
+      y: 0,
+      profile: null,
+    };
+  },
+  methods: {
+    show(event, profile) {
+      console.log('show');
+      EventBus.emit('float-component-opened', this); // 通知其他组件
+      // 使得资料卡在chatbox内显示
+      const chatBoxRect = this.$parent.$el.getBoundingClientRect();
+      const cardWidth = 200;
+      const cardHeight = 400;
+      const x = event.clientX + cardWidth > chatBoxRect.right ? event.clientX - cardWidth : event.clientX;
+      const y = event.clientY + cardHeight > chatBoxRect.bottom ? chatBoxRect.bottom - cardHeight : event.clientY;
+      this.x = x;
+      this.y = y;
+      this.profile = profile;
+      this.visible = true;
+      EventBus.emit('float-component-opened', this); // 通知其他组件
+    },
+    hide() {
+      console.log('hidePro');
+      this.visible = false;
+      document.removeEventListener('click', this.hide);
+    },
+    sendMessage() {
+      this.$emit('go-to-chat', this.profile.tid);
+    },
+  },
+  mounted() {
+    EventBus.on('float-component-opened', (component) => {
+      console.log(component);
+      if (component !== this) {
+        this.hide();
+      }
+    });
+    EventBus.on('hide-float-component', () => {
+      this.hide();
+    });
+  },
+};
+</script>
+
+<style scoped>
+.profile-card {
+  position: absolute;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  width: 200px;
+  background-color: #fff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.avatar img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+}
+
+.info {
+  margin-top: 10px;
+  text-align: center;
+}
+
+.name {
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.nickname,
+.group-nickname,
+.signature {
+  margin-top: 5px;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.tag {
+  margin-top: 5px;
+}
+
+.tag {
+  display: inline-block;
+  background-color: #007bff;
+  color: #fff;
+  padding: 2px 5px;
+  border-radius: 3px;
+  margin-right: 5px;
+  font-size: 0.8rem;
+}
+
+button {
+  margin-top: 10px;
+  padding: 5px 10px;
+  border: none;
+  background-color: #007bff;
+  color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+</style>

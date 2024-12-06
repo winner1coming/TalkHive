@@ -77,8 +77,8 @@ export default {
     return {
       // 消息列表（从后端获取）
       chats: [{
-          id: 0,   // 好友的tid
-          avatar: new URL('cat.png', import.meta.url).href,
+          id: '0',   // 好友的tid
+          avatar: new URL('@/assets/images/avatar.jpg', import.meta.url).href,
           name: 'Alice',  // 好友的备注 remark
           lastMessage: 'hi',
           lastMessageTime: '10:00',
@@ -86,14 +86,16 @@ export default {
           tags: ['unread','pinned'],   // friend, group, unread, pinned, blocked
         },
         {
-          id: 1,
-          avatar: new URL('cat.png', import.meta.url).href,
+          id: '1',
+          avatar: new URL('@/assets/images/avatar.jpg', import.meta.url).href,
           name: 'Bob',
           lastMessage: 'hello',
           lastMessageTime: '11:00',
           unreadCount: 0,
           tags: ['unread', 'group'],
         }], 
+      // 选中的聊天
+      selectedChat: null,
       // 消息标签
       tags: [
         { name: 'all', label: '全部' },
@@ -106,6 +108,7 @@ export default {
       activeTag: 'all',
       isAddModalVisible: false,
       isBuildModalVisible: false,
+      menuType: '',
     };
   },
 
@@ -132,7 +135,12 @@ export default {
       this.activeTag = tagName;
     },
     // 选中消息，切换到对应的聊天
-    selectChat(chat) {
+    async selectChat(chat, tid=null) {
+      if (!chat) {
+        chat = await chatListAPI.generateNewChat(tid);
+        this.chats.unshift(chat);
+      }
+      this.selectedChat = chat;   // todo 滚动到chat
       this.$emit('chat-selected', chat);
     },
     // 搜索消息
@@ -142,7 +150,7 @@ export default {
     },
     // 显示新建消息的菜单
     showNewContextMenu(event) {
-      console.log(event);
+      this.menuType = 'new';
       const items = [
         '添加好友',
         '新建群聊',
@@ -151,6 +159,7 @@ export default {
     },
     // 右键聊天列表后的菜单
     showChatMenu(event, obj) {
+      this.menuType = 'chat';
       let items = [];
       if(obj.tags.includes('unread')) {
         items.push('标记为已读');
@@ -237,8 +246,8 @@ export default {
     },
     // 处理菜单的点击事件
     handleMenuSelect(item, obj) {
-      this.handleChatMenu(item, obj);  
-      this.handleNewMenu(item);
+      if(this.menuType === 'new') this.handleNewMenu(item);
+      if(this.menuType === 'chat') this.handleChatMenu(item, obj);
     },
     // 处理添加好友/群聊的逻辑
     async handleAddFriendGroup(key) {

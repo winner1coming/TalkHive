@@ -45,6 +45,11 @@ export const unblockChat = (tid) => {
   return apiClient.post(`/chatlist/unblock`,{tid});
 };
 
+// 产生新聊天
+export const generateNewChat = (tid) => {  
+  // 创建一个新的聊天，后端需要返回新的chat，chat的格式同getChatList中的元素
+  return apiClient.post(`/chatlist/createChat`,{tid});
+};
 
 // 获取聊天消息
 export const getMessages = (tid) => {
