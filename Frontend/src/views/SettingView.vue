@@ -2,16 +2,10 @@
     <div class="setting">
       <div class="top-panel">
         <button
-          :class="{ active: activeComponent === 'Profile' }"
-          @click="setActiveComponent('Profile')"
-        >
-          个人主页
-        </button>
-        <button
           :class="{ active: activeComponent === 'EditProfile' }"
           @click="setActiveComponent('EditProfile')"
         >
-          资料编辑
+          个人主页
         </button>
         <button
           :class="{ active: activeComponent === 'SecuritySettings' }"
@@ -44,21 +38,19 @@
   </template>
   
   <script>
-  import Profile from '@/components/Settings_list/Profile.vue';
   import EditProfile from '@/components/Settings_list/EditProfile.vue';
   import SecuritySettings from '@/components/Settings_list/SecuritySettings.vue';
   import SystemSettings from '@/components/Settings_list/SystemSettings.vue';
   
   export default {
     components: {
-      Profile,
       EditProfile,
       SecuritySettings,
       SystemSettings,
     },
     data() {
       return {
-        activeComponent: 'Profile', // 默认显示个人主页
+        activeComponent: '', // 默认显示个人主页
         showConfirmation: false,
       };
     },
