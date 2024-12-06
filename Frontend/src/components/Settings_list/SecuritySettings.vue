@@ -23,10 +23,7 @@
       </div>
     </div>
     <div class="right-panel">
-      <div v-if="activeComponent !== 'Profile'" class="back-button" @click="setActiveComponent('Profile')">
-        <i class="fas fa-arrow-left"></i> 返回
-      </div>
-      <component :is="activeComponent" @updateUser="updateUser" @cancel="setActiveComponent('')"></component>
+      <component :is="activeComponent" @updateUser="updateUser"></component>
     </div>
     <div v-if="showConfirmation" class="confirmation-modal">
       <div class="modal-content">
@@ -47,7 +44,6 @@ import ChangeID from './ChangeID.vue';
 import ChangePassword from './ChangePassword.vue';
 import FriendPermission from './FriendPermission.vue';
 import ChangePhone from './ChangePhone.vue';
-import Profile from './Profile.vue';
 
 export default {
   components: {
@@ -55,7 +51,6 @@ export default {
     ChangePassword,
     FriendPermission,
     ChangePhone,
-    Profile,
   },
   data() {
     return {
@@ -68,7 +63,7 @@ export default {
     };
   },
   mounted(){
-    this.setActiveComponent('Profile');
+    this.setActiveComponent('');
   },
   methods: {
     setActiveComponent(component) {

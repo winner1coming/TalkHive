@@ -7,7 +7,7 @@ export default createStore({
     // 用户信息
     user: {
       username: '', // 用户名
-      id: '1', // 用户ID  debug
+      id: '1', // 用户TID  debug
     },
     // 聊天列表
     chatlist: [],
