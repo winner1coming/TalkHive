@@ -29,7 +29,7 @@ type Contacts struct {
 	Divide      string `json:"divide"`
 	IsMute      bool   `json:"is_mute"`
 	IsBlocked   bool   `json:"is_blocked"`
-	IsGroupChat bool   `json:"is_groupchat"`
+	IsGroupChat bool   `json:"is_group_chat"`
 	Remark      string `json:"remark"`
 }
 
@@ -44,11 +44,13 @@ type SystemSetting struct {
 
 // ApplyInfo 表示申请通知表
 type ApplyInfo struct {
-	ApplyType string `gorm:"primaryKey" json:"apply_type"`
-	AccountID uint   `json:"account_id"`
-	GroupID   uint   `json:"group_id"`
-	Status    string `json:"status"`
-	Reason    string `json:"reason"`
+	ApplyID    string `gorm:"primaryKey" json:"apply_id"`
+	ApplyType  string `json:"apply_type"`
+	SenderID   uint   `json:"sender_id"`
+	ReceiverID uint   `json:"receiver_id"`
+	GroupID    uint   `json:"group_id"`
+	Status     string `json:"status"`
+	Reason     string `json:"reason"`
 }
 
 // GroupChatInfo 表示群聊总表

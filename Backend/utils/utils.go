@@ -4,16 +4,18 @@ import (
 	"errors"
 	"github.com/golang-jwt/jwt"
 	"golang.org/x/crypto/bcrypt"
+	"math/rand"
+	"regexp"
 	"time"
 )
 
-// 哈希化密码
+// HashPassword 哈希化密码
 func HashPassword(pwd string) (string, error) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(pwd), 12)
 	return string(hash), err
 }
 
-// 生成JWT
+// GenerateJWT 生成JWT
 func GenerateJWT(username string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"username": username,
@@ -24,13 +26,13 @@ func GenerateJWT(username string) (string, error) {
 	return "Bearer " + signedToken, err
 }
 
-// 检查密码
+// CheckPassword 检查密码
 func CheckPassword(password string, hash string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 	return err == nil
 }
 
-// 解析JWT
+// ParseJWT 解析JWT
 func ParseJWT(tokenString string) (string, error) {
 	// 正确的Token带有Bearer前缀
 	if len(tokenString) > 7 && tokenString[:7] == "Bearer " {
@@ -57,4 +59,21 @@ func ParseJWT(tokenString string) (string, error) {
 	}
 
 	return "", err
+}
+
+// RandomCode 产生6位随机验证码
+func RandomCode(length int) string {
+	rand.Seed(time.Now().UnixNano())
+	digits := "0123456789"
+	code := make([]byte, length)
+	for i := range code {
+		code[i] = digits[rand.Intn(len(digits))]
+	}
+	return string(code)
+}
+
+// ValidatePhone 格式校验：手机号必须是以 1 开头的 11 位数字
+func ValidatePhone(phone string) bool {
+	phoneRegex := regexp.MustCompile(`^1[0-9]{10}$`)
+	return phoneRegex.MatchString(phone)
 }
