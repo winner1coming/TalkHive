@@ -28,10 +28,9 @@ export default {
             this.items = items;
             this.visible = true;
             this.obj = obj;
-            EventBus.emit('float-component-opened', this); // 通知其他组件
+            EventBus.emit('open-float-component', this); // 通知其他组件
         },
         hide() {
-            console.log('hide1');
             this.visible = false;
         },
         // 选中某个选项（item是选中的选项的string，obj是指是谁触发的菜单）
@@ -41,13 +40,10 @@ export default {
         },
     },
     mounted() {
-        EventBus.on('float-component-opened', (component) => {
+        EventBus.on('hide-float-component', (component) => {
             if (component !== this) {
                 this.hide();
             }
-        });
-        EventBus.on('hide-float-component', () => {
-            this.hide();
         });
     },
 };

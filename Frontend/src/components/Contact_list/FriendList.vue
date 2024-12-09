@@ -22,16 +22,17 @@ export default {
     return {
       type: 'friendList',  // friendList, groupList
         tags: ['家人', '朋友', '同事'],
-        items: [
-          {
-            avatar: '',
-            account_id: '1',
-            remark: 'John',   // 好友备注
-            status: 'online',   // online, offline
-            signature: '爱拼才会赢',    // 签名
-            tag: '家人',   
-          },
-        ],
+        // items: [
+        //   {
+        //     avatar: '',
+        //     account_id: '1',
+        //     remark: 'John',   // 好友备注
+        //     status: 'online',   // online, offline
+        //     signature: '爱拼才会赢',    // 签名
+        //     tag: '家人',   
+        //   },
+        // ],
+        items: [],
     };
   },
   methods: {

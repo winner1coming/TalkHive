@@ -5,14 +5,9 @@ export const getFriendRequests = () => {
   return apiClient.get('/contactList/friendRequests');
 };
 
-// 接受好友请求接口
-export const acceptFriendRequest = (account_id) => {
-  return apiClient.post('/contactList/friendRequests/accept', { account_id });
-};
-
-// 拒绝好友请求接口
-export const rejectFriendRequest = (account_id) => {
-  return apiClient.post('/contactList/friendRequests/reject', { account_id });
+// 处理好友请求接口
+export const friendRequestPend = (account_id, accept) => {
+  return apiClient.post('/contactList/friendRequests/pend', { account_id, accept});
 };
 
 // 获取群聊请求列表接口
@@ -20,24 +15,15 @@ export const getGroupRequests = () => {
   return apiClient.get('/contactList/groupRequests');
 };
 
-// 接受群聊邀请请求接口
-export const acceptGroupInvitationRequest = (account_id, group_id) => {
-  return apiClient.post('/contactList/groupRequests/acceptInvite', { account_id, group_id });
+// 处理群聊邀请请求接口
+export const groupInvitationRequestPend = (account_id, group_id, accept) => {
+  return apiClient.post('/contactList/groupRequests/invitationPend', { account_id, group_id, accept });
 };
 
-// 拒绝群聊邀请请求接口
-export const rejectGroupInvitationRequest = (account_id, group_id) => {
-  return apiClient.post('/contactList/groupRequests/rejectInvite', { account_id, group_id });
-};
 
-// 接受群聊申请请求接口
-export const acceptGroupApplyRequest = (account_id, group_id) => {
-  return apiClient.post('/contactList/groupRequests/acceptApply', { account_id, group_id });
-};
-
-// 拒绝群聊申请请求接口
-export const rejectGroupApplyRequest = (account_id, group_id) => {
-  return apiClient.post('/contactList/groupRequests/rejectApply', { account_id, group_id });
+// 处理群聊申请请求接口
+export const groupApplyRequestPend = (account_id, group_id, accept) => {
+  return apiClient.post('/contactList/groupRequests/applyPend', { account_id, group_id, accept });
 };
 
 // 获取黑名单列表接口

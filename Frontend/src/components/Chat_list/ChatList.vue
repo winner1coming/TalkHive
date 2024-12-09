@@ -34,7 +34,7 @@
         </div>
         <div class="chat-info">   <!-- 信息-->
           <div class="chat-name">{{ chat.name }}</div>
-          <div class="chat-last-chat">{{ chat.lastMessage }}</div>
+          <div class="chat-last-chat">{{chat.lastMessage.length > this.maxChars ? chat.lastMessage.slice(0, this.maxChars) + '...' : chat.lastMessage}}</div>
         </div>
         <div class="chat-meta">   <!-- 时间和未读-->
           <div class="chat-time">{{ chat.lastMessageTime }}</div>
@@ -72,6 +72,7 @@ export default {
     AddFriendGroup,
     BuildGroup,
   },
+  props:['chatListWidth'],
   // 组件的 data 函数，返回一个对象，包含组件的响应式数据
   data() {
     return {
@@ -116,7 +117,6 @@ export default {
   computed: {
     // 过滤后的消息列表
     filteredChats() {
-      console.log(this.chats);
       let chats = this.chats;
       if (this.activeTag !== 'all') {
         chats = chats.filter(chat => chat.tags.includes(this.activeTag));
@@ -127,7 +127,9 @@ export default {
       // 将置顶的消息排在前面
       return chats.sort((a, b) => b.pinned - a.pinned);
     },
-
+    maxChars(){  // 可以显示的字体个数
+      return Math.floor((this.chatListWidth - 30) / 12);
+    },
   },
 
   methods: {
@@ -140,7 +142,6 @@ export default {
       else{
         console.error('获取聊天列表失败:', response.data);
       }
-      console.log(this.chats);
     },
     // 选中tag筛选消息
     filterChats(tagName) {
@@ -212,12 +213,12 @@ export default {
         // 置顶聊天
         chat.tags.push('pinned');
         // 告知服务器
-        await chatListAPI.pinChat(chat.id);
+        await chatListAPI.pinChat(chat.id, true);
       }else if(option === '取消置顶') {
         // 取消置顶聊天
         chat.tags = chat.tags.filter(tag => tag !== 'pinned');
         // 告知服务器
-        await chatListAPI.unpinChat(chat.id);
+        await chatListAPI.pinChat(chat.id, false);
       }else if(option === '删除') {
         // 删除聊天
         // 告知服务器
@@ -228,32 +229,32 @@ export default {
         // 标记为已读
         chat.tags = chat.tags.filter(tag => tag !== 'unread');
         // 告知服务器
-        await chatListAPI.readMessages(chat.id);
+        await chatListAPI.readMessages(chat.id, true);
       }else if(option === '标记为未读') {
         // 标记为未读
         chat.tags.push('unread');
         // 告知服务器
-        await chatListAPI.unreadMessages(chat.id);
+        await chatListAPI.readMessages(chat.id, false);
       }else if(option === '消息免打扰') {
         // 消息免打扰
         chat.tags.push('mute');
         // 告知服务器
-        await chatListAPI.setMute(chat.id);
+        await chatListAPI.setMute(chat.id, true);
       }else if(option === '取消消息免打扰') {
         // 取消消息免打扰
         chat.tags = chat.tags.filter(tag => tag !== 'mute');
         // 告知服务器
-        await chatListAPI.cancelMute(chat.id);
+        await chatListAPI.setMute(chat.id, false);
       }else if(option === '屏蔽') {
         // 屏蔽
         chat.tags.push('blocked');
         // 告知服务器
-        await chatListAPI.blockChat(chat.id);
+        await chatListAPI.blockChat(chat.id, true);
       }else if(option === '取消屏蔽') {
         // 取消屏蔽
         chat.tags = chat.tags.filter(tag => tag !== 'blocked');
         // 告知服务器
-        await chatListAPI.unblockChat(chat.id);
+        await chatListAPI.blockChat(chat.id, false);
       }
     },
     // 处理菜单的点击事件
@@ -307,6 +308,7 @@ export default {
   display: flex;
   align-items: center;
   padding: 10px;
+  padding-bottom: 0px;
   border-bottom: 1px solid #ddd;
   cursor: pointer;
 }

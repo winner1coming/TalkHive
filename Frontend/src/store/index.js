@@ -7,14 +7,9 @@ export default createStore({
     // 用户信息
     user: {
       username: '', // 用户名
-      id: '1', // 用户ID  debug
+      id: '1', // 用户tID 
     },
-    // 聊天列表
-    chatlist: [],
-    // 选中的聊天对象的id
-    selectedChatID: null,
-    // 消息历史
-    messages: [],
+    hasFloatComponent: false,
     // 系统设置
     settings: {
       theme: '', // 主题颜色
