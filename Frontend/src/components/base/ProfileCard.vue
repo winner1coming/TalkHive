@@ -29,7 +29,6 @@ export default {
   },
   methods: {
     show(event, profile) {
-      console.log('show');
       EventBus.emit('float-component-opened', this); // 通知其他组件
       // 使得资料卡在chatbox内显示
       const chatBoxRect = this.$parent.$el.getBoundingClientRect();
@@ -41,7 +40,7 @@ export default {
       this.y = y;
       this.profile = profile;
       this.visible = true;
-      EventBus.emit('float-component-opened', this); // 通知其他组件
+      EventBus.emit('open-float-component', this); // 通知其他组件
     },
     hide() {
       this.visible = false;
@@ -52,14 +51,10 @@ export default {
     },
   },
   mounted() {
-    EventBus.on('float-component-opened', (component) => {
-      console.log(component);
+    EventBus.on('hide-float-component', (component) => {
       if (component !== this) {
         this.hide();
       }
-    });
-    EventBus.on('hide-float-component', () => {
-      this.hide();
     });
   },
 };

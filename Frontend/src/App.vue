@@ -15,18 +15,31 @@ export default {
   
   methods: {
     ...mapActions(['connectWebSocket']),
-    hideClick() {
-      EventBus.emit('hide-float-component'); // 通知其他组件
+    hideClick(component=null) {
+      if(this.$store.hasFloatCompoent){
+        EventBus.emit('hide-float-component', component); // 通知其他组件
+        if(component===null){
+          this.$store.hasFloatCompoent = false;
+        }
+      }
+      
     },
     hideContext(event) {
       event.preventDefault();
-      EventBus.emit('hide-float-component'); // 通知其他组件
+      if(this.$store.hasFloatCompoent){
+        EventBus.emit('hide-float-component'); // 通知其他组件
+        this.$store.hasFloatCompoent = false;
+      }
     },
   },
   created() {
     // this.connectWebSocket();
     window.addEventListener('click', this.hideClick, true); // 使用 capture 选项
     window.addEventListener('contextmenu', this.hideContext, true); // 使用 capture 选项
+    EventBus.on('open-float-component', (component) => {
+      this.$store.hasFloatCompoent = true;
+      hideClick(component);
+    });
   },
   beforeUnmount() {
     window.removeEventListener('click', this.hideClick, true); 

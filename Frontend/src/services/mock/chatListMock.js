@@ -4,18 +4,18 @@ const baseURL = 'http://your-api-url.com';
 // chatlist
 const chats = Mock.mock({
   'chats|5-10': [{
-    'id|1': /[0-9]{10}/,
-    'avatar': '@image("200x200", "#50B347", "#FFF", "Mock.js")',
-    'name': '@name',
-    'lastMessage': '@sentence',
-    'lastMessageTime': '@time("HH:mm")',
-    'unreadCount|0-10': 1,
-    'tags': function() {
-        return Mock.mock({
-          'array|1-3': ['@pick(["friend", "group", "unread", "pinned", "blocked"])']
-        }).array;
-      },
-  }]
+  'id|1': /[0-9]{10}/,
+  'avatar': '@image("200x200", "#50B347", "#FFF", "Mock.js")',
+  'name': '@name',
+  'lastMessage': '@sentence',
+  'lastMessageTime': '@time("HH:mm")',
+  'unreadCount|0-10': 1,
+  'tags': function() {
+      return Mock.mock({
+        'array|1-3': ['@pick(["friend", "group", "unread", "pinned", "blocked"])']
+      }).array;
+    },
+}]
 });
 const messages = Mock.mock({
   'messages|5-10': [{
@@ -27,10 +27,12 @@ const messages = Mock.mock({
     'type': 'text',
   }]
 });
+
 Mock.mock(`${baseURL}/chatlist`, 'get', () => {
+
   return chats.chats;   // 失败时返回 reason: 失败原因
 });
-Mock.mock(`${baseURL}/chatlist/createChat`, 'post', (req) => {
+Mock.mock(`${baseURL}/chatlist/createChat`, 'post', () => {
   const chat = Mock.mock({
     'chat': {
       'id|1': /[0-9]{10}/,

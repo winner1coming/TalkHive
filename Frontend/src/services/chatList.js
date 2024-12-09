@@ -35,8 +35,6 @@ export const blockChat = (tid, is_blocked) => {
   return apiClient.post(`/chatlist/block`,{tid, is_blocked});
 };
 
-
-
 // 获取聊天消息
 export const getMessages = (tid) => {
   return apiClient.get(`/messages/${tid}`);
