@@ -74,6 +74,7 @@ export default {
       confirmPassword: '',
       verificationCode: '',
       errors: {
+        avatar:'',
         id: '',
         nickname: '',
         phoneNumber: '',
@@ -81,6 +82,7 @@ export default {
         confirmPassword: '',
         verificationCode: '',
       },
+      Code:'',
     };
   },
   
@@ -161,6 +163,19 @@ export default {
         this.errors.verificationCode = '';
       }
     },
+
+    async validateCode(){
+        if(Code){
+          if(Code !== this.verificationCode){
+              alert('验证码错误');
+              return;
+          }
+        }
+        else{
+          alter('请先获取验证码！');
+          return;
+        }
+      },
     
     // 发送验证码
     async sendSmsCode() {
@@ -175,6 +190,7 @@ export default {
         });
         if (response.success) {
           alert('验证码已发送');
+          this.Code = response.code;
         } else {
           alert(response.message || '发送验证码失败');
         }
@@ -182,9 +198,6 @@ export default {
         alert(error || '发送验证码失败');
       }
     },
-
-    //验证发送过来的验证码是否正确
-
     
     // 注册方法
     async register() {
@@ -198,6 +211,8 @@ export default {
       if (Object.values(this.errors).some(error => error)) {
         return;
       }
+
+      this.validateCode();
       
       try {
         const response = await Register({
@@ -209,7 +224,8 @@ export default {
         });
         
         if (response.success) {
-          this.$router.push('/login');
+          alter(response.message);
+          this.$router.push('/loginth');
         } else {
           alert(response.message || '注册失败');
         }

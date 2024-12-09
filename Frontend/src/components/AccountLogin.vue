@@ -5,7 +5,7 @@
       
       <div class="input-group">
         <label for="account">账号:</label>
-        <input id="account" type="text" v-model="account" placeholder="请输入账号" />
+        <input id="account" type="text" v-model="phone" placeholder="请输入账号" />
       </div>
       
       <div class="input-group">
@@ -30,7 +30,7 @@ import { login } from '@/services/api'; // 导入登录 API
 export default {
   data() {
     return {
-      account: '',
+      phone: '',
       password: '',
     };
   },
@@ -41,8 +41,8 @@ export default {
       try {
         const response = await login(
           {
-            acoount: this.account,
-            password: this.password
+            phone: this.phone,
+            password: this.password,
           });
         if (response.success) {
           this.$router.push('/');
