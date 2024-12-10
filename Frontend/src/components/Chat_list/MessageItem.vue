@@ -1,8 +1,6 @@
 <template>
-  <div class="message-item" 
-    
-  >
-    <div v-if="this.$store.state.user.id === message.send_account_id" class="friend-message">
+  <div class="message-item" >
+    <div v-if="this.$store.state.user.id !== message.send_account_id" class="friend-message">
       <div class="avatar">
         <img :src="avatar" alt="avatar" @click="showProfileCard($event)"/>
       </div>
@@ -33,8 +31,6 @@
         <img :src="avatar" alt="avatar" @click="showProfileCard($event)"/>
       </div>
     </div>
-
-    
   </div>
 </template>
 
@@ -65,19 +61,24 @@ export default {
 
 <style scoped>
 .message-item {
-  min-height: 50px;
+  display: flex;
   padding: 5px;
   position: relative;
+  width: 100%;
 }
 .friend-message {
-  float: left;
+  align-self: flex-start; 
   display: flex;
   align-items: flex-start;
+  justify-content: flex-start;
+  width: 100%;
 }
 .my-message {
-  float: right;
+  align-self: flex-end;
   display: flex;
   align-items: flex-end;
+  justify-content: flex-end;
+  width: 100%;
 }
 .friend-message .avatar {
   align-self: flex-start;

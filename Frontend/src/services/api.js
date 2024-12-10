@@ -99,10 +99,12 @@ export const updateProfile = (profile) => {
 export const getMessages = () => {
   return apiClient.get('/messages');
 }
+
+
 // chat和contact
 // 资料卡片
-export const getProfileCard = (tid) => {
-  return apiClient.get('/profileCard', { tid });
+export const getProfileCard = (tid, group_id=null) => {
+  return apiClient.get(`/profileCard/${tid}`, {group_id});
 };
 // 搜索好友/群聊（key可能是id或者昵称）
 export const searchFriendGroup = (key) => {

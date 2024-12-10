@@ -2,12 +2,10 @@
 	<ToggleContent v-for="tag in tags" :previewText="tag">
 		<div v-for="item in filteredItemsByTag(tag)" :key="items.account_id" class="item" @click="showProfileCard($event, item.account_id)">
 			<img :src="item.avatar" alt="avatar" width="50" height="50" />
-			<div v-if="this.type === 'friendList'" class="left">
+			<div class="left">
 				<p class="name">{{ item.remark }}</p>
-				<p class="remark">{{ (`[${item.status}]签名：${item.signature}`) }}</p>
-			</div>
-			<div v-else class="left">
-				<p class="name">{{ item.remark }}</p>
+				<p class="remark" v-if="this.type === 'friendList'">{{ (`[${item.status}]签名：${item.signature}`) }}</p>
+				<p class="remark" v-else>{{ item.signature }}</p>
 			</div>
 		</div>
 	</ToggleContent>
@@ -22,6 +20,7 @@ export default {
 	props:['items','type','tags'],
 	methods: {
 		filteredItemsByTag(tag) {
+			console.log(this.items);
 			return this.items.filter(item => item.tag === tag);
 		},
 		showProfileCard(event, tid){
