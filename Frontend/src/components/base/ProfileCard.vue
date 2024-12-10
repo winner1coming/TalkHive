@@ -4,13 +4,13 @@
       <img :src="profile.avatar" alt="avatar" />
     </div>
     <div class="info">
-      <div class="name">{{ profile.remark }}</div>
-      <div class="nickname">昵称: {{ profile.nickname }}</div>
-      <div class="group-nickname" v-if="profile.groupNickname">群昵称: {{ profile.groupNickname }}</div>
-      <div class="tag">
+      <div class="name">{{ profile.remark }}</div>    <!--我的备注-->
+      <div class="remark">昵称: {{ profile.nickname }}</div>   
+      <div class="remark" v-show="profile.groupNickname">群昵称: {{ profile.groupNickname }}</div>
+      <div class="remark">
         分组:{{ profile.tag }}
       </div>
-      <div class="signature">个性签名: {{ profile.signature }}</div>
+      <div class="remark">个性签名: {{ profile.signature }}</div>
     </div>
     <button @click="sendMessage">发信息</button>
   </div>
@@ -18,6 +18,7 @@
 
 <script>
 import { EventBus } from '@/components/base/EventBus';
+import { getChat } from '@/services/chatList';
 export default {
   data() {
     return {
@@ -25,17 +26,16 @@ export default {
       x: 0,
       y: 0,
       profile: null,
+      type: 'friend',  // 'friend' or 'group'
     };
   },
   methods: {
-    show(event, profile) {
+    show(event, profile, boundD, boundR) {  // boundD, boundR 为边界的坐标
       EventBus.emit('float-component-opened', this); // 通知其他组件
-      // 使得资料卡在chatbox内显示
-      const chatBoxRect = this.$parent.$el.getBoundingClientRect();
       const cardWidth = 200;
       const cardHeight = 400;
-      const x = event.clientX + cardWidth > chatBoxRect.right ? event.clientX - cardWidth : event.clientX;
-      const y = event.clientY + cardHeight > chatBoxRect.bottom ? chatBoxRect.bottom - cardHeight : event.clientY;
+      const x = event.clientX + cardWidth > boundR ? event.clientX - cardWidth : event.clientX;
+      const y = event.clientY + cardHeight > boundD ? boundD - cardHeight : event.clientY;
       this.x = x;
       this.y = y;
       this.profile = profile;
@@ -44,10 +44,12 @@ export default {
     },
     hide() {
       this.visible = false;
-      document.removeEventListener('click', this.hide);
     },
-    sendMessage() {
-      this.$emit('go-to-chat', this.profile.tid);
+    async sendMessage() {
+      this.hide();
+      const response = await getChat(this.profile.tid);
+      this.$store.dispatch('setChat', response.data);
+      this.$router.push({name: 'chat'});
     },
   },
   mounted() {
@@ -67,7 +69,8 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 20px;
+  padding-top: 10px;
+  padding-left: 10px;
   border: 1px solid #ddd;
   border-radius: 8px;
   width: 200px;
@@ -91,26 +94,10 @@ export default {
   font-size: 1.2rem;
 }
 
-.nickname,
-.group-nickname,
-.signature {
+.remark {
   margin-top: 5px;
   font-size: 0.9rem;
   color: #666;
-}
-
-.tag {
-  margin-top: 5px;
-}
-
-.tag {
-  display: inline-block;
-  background-color: #007bff;
-  color: #fff;
-  padding: 2px 5px;
-  border-radius: 3px;
-  margin-right: 5px;
-  font-size: 0.8rem;
 }
 
 button {

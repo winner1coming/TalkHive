@@ -38,7 +38,7 @@ export default {
     window.addEventListener('contextmenu', this.hideContext, true); // 使用 capture 选项
     EventBus.on('open-float-component', (component) => {
       this.$store.hasFloatCompoent = true;
-      hideClick(component);
+      this.hideClick(component);
     });
   },
   beforeUnmount() {

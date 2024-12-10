@@ -131,7 +131,16 @@ export default {
       return Math.floor((this.chatListWidth - 30) / 12);
     },
   },
-
+  watch:{
+    '$store.state.currentChat': {
+      handler: function(val) {
+        if(val){
+          this.selectChat(val);
+        }
+      },
+      immediate: true,
+    }
+  },
   methods: {
     async fetchChatList() {
       // 从后端获取聊天列表
@@ -150,11 +159,13 @@ export default {
     // 选中消息，切换到对应的聊天
     async selectChat(chat, tid=null) {
       if (!chat) {
-        chat = await chatListAPI.generateNewChat(tid);
+        const response = await chatListAPI.getChat(tid);
+        chat = response.data;
         this.chats.unshift(chat);
       }
       this.selectedChat = chat;   // todo 滚动到chat
-      this.$emit('chat-selected', chat);
+      this.$store.dispatch('setChat', chat);
+      
     },
     // 搜索消息
     async handleSearch(keyword) {

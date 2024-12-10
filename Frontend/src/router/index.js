@@ -32,7 +32,7 @@ const routes = [
   {path:'/system',component:SystemSettings},
   {path:'/setlist',component:ShowList},
   { path: '/register', component: Register },
-  { path: '/chat', component: ChatView },
+  { path: '/chat', name: 'chat', component: ChatView },
   { path: '/contact', component: ContactView },
   {path:'/forgetpassword',component:ForgetPassword}
   //{ path: '/profile', component: Profile },
