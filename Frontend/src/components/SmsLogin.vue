@@ -45,7 +45,7 @@
             phoneNumber : this.phoneNumber,
           });
           if(response.success){
-            this.$router.push('/');
+            this.$router.push('/home');
           }
           else {
             alert(response.message || '登录失败');

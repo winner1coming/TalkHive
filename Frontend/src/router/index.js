@@ -7,12 +7,11 @@ import Register from '@/components/Register.vue';
 import ChatView from '@/views/ChatView.vue';
 import ContactView from '@/views/ContactView.vue';
 import ForgetPassword from '@/components/ForgetPassword.vue';
-import SecuritySettings from '@/components/Settings_list/SecuritySettings.vue';
-import SystemSettings from '../components/Settings_list/SystemSettings.vue';
 import ShowList from '@/views/SettingView.vue';
+import Workspace from '@/views/Workspace.vue';
 
 //import GroupChat from '@/components/GroupChat.vue';
-//import Profile from '@/components/Profile.vue';w
+//import Profile from '@/components/Profile.vue';
 //import GroupManagement from '@/components/GroupManagement.vue';
 //import ContactList from '@/components/ContactList.vue';
 //import FriendList from '@/components/FriendList.vue';
@@ -26,15 +25,20 @@ import ShowList from '@/views/SettingView.vue';
 
 // 定义路由配置
 const routes = [
-  { path: '/', component: Home },
   {path:'/loginth',component:LoginTH},
-  {path:'/security',component:SecuritySettings},
-  {path:'/system',component:SystemSettings},
-  {path:'/setlist',component:ShowList},
   { path: '/register', component: Register },
-  { path: '/chat', name: 'chat', component: ChatView },
-  { path: '/contact', component: ContactView },
-  {path:'/forgetpassword',component:ForgetPassword}
+  {path:'/forgetpassword',component:ForgetPassword},
+  { 
+    path: '/home', 
+    component: Home,
+    meta:{requiresAuth:true},
+    children:[
+      { path: '/chat', component: ChatView },
+      { path: '/contact', component: ContactView },
+      {path:'/setlist',component:ShowList},
+      {path:'/workspace',component:Workspace},
+    ]
+  },
   //{ path: '/profile', component: Profile },
    //{ path: '/group-management', component: GroupManagement },
   // { path: '/friends', component: FriendList },
@@ -52,5 +56,21 @@ const router = createRouter({
   history: createWebHistory(),
   routes,
 });
+
+/*router.beforeEach((to, from, next) => {
+    const isLoggedIn = localStorage.getItem(('isLoggedIn')==='true');
+
+    if(to.meta.requiresAuth){
+      if(isLoggedIn){
+        next();
+      }
+      else{
+        next('/loginth');
+      }
+    }
+    else{
+      next();
+    }
+});*/
 
 export default router;
