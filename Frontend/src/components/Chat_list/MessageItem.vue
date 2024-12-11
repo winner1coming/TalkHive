@@ -1,19 +1,17 @@
 <template>
-  <div class="message-item" 
-    
-  >
-    <div v-if="this.$store.state.user.id === message.send_account_id" class="friend-message">
+  <div class="message-item" >
+    <div v-if="this.$store.state.user.id !== message.send_account_id" class="friend-message">
       <div class="avatar">
-        <img :src="avatar" alt="avatar" />
+        <img :src="avatar" alt="avatar" @click="showProfileCard($event)"/>
       </div>
       <div class="message-content-wrapper">
         <div class="message-header">
           <span class="message-sender">{{ message.sender }}</span>
-          <span class="message-time">{{ message.timestamp }}</span>
+          <span class="message-time">{{ message.create_time }}</span>
         </div>
         <div class="message-content" 
              v-html="message.content" 
-             @contextmenu.prevent="showContextMenu($event)">
+             @contextmenu.prevent="showContextMenu($event, message)">
         </div>
       </div>
     </div>
@@ -22,30 +20,22 @@
       <div class="message-content-wrapper">
         <div class="message-header">
           <span class="message-sender">{{ message.sender }}</span>
-          <span class="message-time">{{ message.timestamp }}</span>
+          <span class="message-time">{{ message.create_time }}</span>
         </div>
         <div class="message-content" 
              v-html="message.content" 
-             @contextmenu.prevent="showContextMenu($event)">
+             @contextmenu.prevent="showContextMenu($event, message)">
         </div>
       </div>
       <div class="avatar">
-        <img :src="avatar" alt="avatar" />
+        <img :src="avatar" alt="avatar" @click="showProfileCard($event)"/>
       </div>
-    </div>
-    
-    <div v-show="showMenu" 
-      class="context-menu" 
-      :style="{ top: `${axis.y}px`, left: `${axis.x}px` }"
-    >
-      <button @click="handleAction('reply')">回复</button>
-      <button @click="handleAction('forward')">转发</button>
-      <button @click="handleAction('delete')">删除</button>
     </div>
   </div>
 </template>
 
 <script>
+
 export default {
   props: ['message', 'avatar'],
   data() {
@@ -58,53 +48,37 @@ export default {
     };
   },
   methods: {
-    showContextMenu(event) {
-      var x = event.clientX;
-      var y = event.clientY;
-      this.axis = {
-        x,
-        y
-      };
-      this.showMenu = true;
-      document.addEventListener('click', this.hideContextMenu);
-      document.addEventListener('contextmenu', this.hideContextMenu);
+    showContextMenu(event, message) {
+      this.$emit('show-context-menu',event, message);
     },
-    hideContextMenu(event) {
-      // 检查点击是否在菜单内，如果是则不隐藏菜单
-      if (this.$el.contains(event.target)) {
-        return;
-      }
-      this.showMenu = false;
-      document.removeEventListener('click', this.hideContextMenu);
-      document.removeEventListener('contextmenu', this.hideContextMenu);
-    },
-    handleAction(action) {
-      this.$emit('message-action', action, this.message);
-      this.hideContextMenu();
+    showProfileCard(event){
+      this.$emit('show-profile-card', event, this.message.send_account_id);
     }
+    
   },
-  beforeDestroy() {
-    document.removeEventListener('click', this.hideContextMenu);
-    document.removeEventListener('contextmenu', this.hideContextMenu);
-  }
 };
 </script>
 
 <style scoped>
 .message-item {
-  min-height: 50px;
+  display: flex;
   padding: 5px;
   position: relative;
+  width: 100%;
 }
 .friend-message {
-  float: left;
+  align-self: flex-start; 
   display: flex;
   align-items: flex-start;
+  justify-content: flex-start;
+  width: 100%;
 }
 .my-message {
-  float: right;
+  align-self: flex-end;
   display: flex;
   align-items: flex-end;
+  justify-content: flex-end;
+  width: 100%;
 }
 .friend-message .avatar {
   align-self: flex-start;

@@ -7,14 +7,10 @@ export default createStore({
     // 用户信息
     user: {
       username: '', // 用户名
-      id: '1', // 用户TID  debug
+      id: '1', // 用户tID 
     },
-    // 聊天列表
-    chatlist: [],
-    // 选中的聊天对象的id
-    selectedChatID: null,
-    // 消息历史
-    messages: [],
+    hasFloatComponent: false,
+    currentChat: null, // 当前聊天对象
     // 系统设置
     settings: {
       theme: '', // 主题颜色
@@ -25,6 +21,9 @@ export default createStore({
   
   // 同步修改状态的方法
   mutations: {
+    SET_CHAT(state, chat) {
+      state.currentChat = chat;
+    },
     SET_THEME(state,theme){
       state.settings.theme = theme;
       localStorage.setItem('them',theme);
@@ -51,6 +50,10 @@ export default createStore({
   
   // 异步操作和提交 mutations 的方法
   actions: {
+    // 设置聊天对象
+    setChat({ commit }, chat) {
+      commit('SET_CHAT', chat);
+    },
     setTheme({commit},theme){
       commit('SET_THEME',theme);
     },

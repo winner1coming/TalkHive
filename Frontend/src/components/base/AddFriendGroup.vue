@@ -2,7 +2,25 @@
   <div class="modal-overlay" @click.self="close">
     <div class="modal-content">
       <h2>加好友/群</h2>
-      <SearchBar :isImmidiate="true" @search="search" @button-click="search"/>
+      <SearchBar :isImmidiate="false" @search="search" @button-click="search"/>
+      <ul class="items">
+      <!-- 每个消息项 -->
+      <li 
+        v-for="result in results" 
+        :key="result.tid"
+      >
+        <div class="avatar">   <!-- 头像-->
+          <img :src="result.avatar" alt="avatar" />
+        </div>
+        <div class="info">   <!-- 信息-->
+          <div class="name">{{ result.nickname }}</div>
+          <div class="remark">{{ result.id }}</div>
+        </div>
+        <div >   
+          <button @click="add(result.tid)">添加</button>
+        </div>
+      </li>
+    </ul>
     </div>
   </div>
 </template>
@@ -11,20 +29,27 @@
 import { addFriendGroup, searchFriendGroup } from '@/services/api';
 import SearchBar from '@/components/base/SearchBar.vue';
 export default {
+  components: {
+    SearchBar,
+  },
   data() {
     return {
-      friendUsername: '',
+      results:[
+        {
+          tid: '13872132',   // 若为群聊，则为群号
+          id: '13872132',
+          nickname: 'test',
+          avatar: '',
+        },
+      ],  // 搜索结果
     };
   },
   methods: {
-    search(query) {
-      // 调用API搜索用户
-      console.log('searching...', query);
+    async search(query) {
+      this.results = await searchFriendGroup(query);
     },
-    addFriend() {
-      // 调用API添加好友
-      this.$emit('add-friend', this.friendUsername);
-      this.close();
+    async add(tid) {
+      await addFriendGroup(tid);
     },
     close() {
       this.$emit('close');
@@ -52,15 +77,38 @@ export default {
   padding: 20px;
   border-radius: 8px;
   width: 300px;
+  height: 400px;
 }
-
-.modal-actions {
+.items {
+  list-style: none;
+  padding: 0;
+}
+.items li {
   display: flex;
-  justify-content: flex-end;
-  margin-top: 20px;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  cursor: pointer;
 }
-
-.modal-actions button {
+.avatar img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+.info {
+  flex: 5;
   margin-left: 10px;
+  text-align: left;
+}
+.name{
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+.remark {
+  font-size: 0.8rem;
+  color: #888;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 </style>

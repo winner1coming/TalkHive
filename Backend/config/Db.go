@@ -1,7 +1,8 @@
 package config
 
 import (
-	"chatroom/models"
+	"TalkHive/global"
+	"TalkHive/models"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"log"
@@ -20,7 +21,7 @@ func InitDB() {
 
 	// 使用 GORM 连接 MySQL
 	var err error
-	DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	global.Db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatalf("数据库连接失败: %v", err)
 	}
@@ -28,7 +29,7 @@ func InitDB() {
 	log.Println("数据库连接成功")
 
 	// 配置数据库连接池
-	sqlDB, err := DB.DB()
+	sqlDB, err := global.Db.DB()
 	if err != nil {
 		log.Fatalf("获取数据库连接池失败: %v", err)
 	}
@@ -69,19 +70,11 @@ func autoMigrateTables() error {
 
 	// 执行自动迁移
 	for _, table := range tables {
-		err := DB.AutoMigrate(table)
+		err := global.Db.AutoMigrate(table)
 		if err != nil {
 			return err
 		}
 	}
 	log.Println("表迁移成功")
 	return nil
-}
-
-// GetDB 返回全局数据库实例
-func GetDB() *gorm.DB {
-	if DB == nil {
-		log.Fatal("数据库实例为空")
-	}
-	return DB
 }

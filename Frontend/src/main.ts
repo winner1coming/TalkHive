@@ -3,6 +3,7 @@ import {createApp} from 'vue';
 import App from './App.vue'
 import router from './router';
 import store from './store';
+import './services/mock/mock';  // todo debug: 项目完成时删除
 
 const app = createApp(App);
 app.use(router);
