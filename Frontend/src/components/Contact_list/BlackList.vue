@@ -22,26 +22,27 @@
   export default {
     data() {
       return {
-        blackList: [
-          {
-            avatar: '',
-            name: 'John Doe',
-            account_id: '1',   // id
-            signature:"爱拼才会赢",
-          },
-          {
-            avatar: '',
-            name: 'Jane Doe',
-            account_id: '2',
-            signature:"hi",
-          },
-        ],
+        // blackList: [
+        //   {
+        //     avatar: '',
+        //     name: 'John Doe',
+        //     account_id: '1',   // id
+        //     signature:"爱拼才会赢",
+        //   },
+        //   {
+        //     avatar: '',
+        //     name: 'Jane Doe',
+        //     account_id: '2',
+        //     signature:"hi",
+        //   },
+        // ],
+        blackList: [],
       };
     },
     methods: {
       async fetchBlackList() {
         const response = await getBlackList();
-        this.requests = response.data;
+        this.blackList = response.data;
       },
       async Remove(id) {
         await removeFromBlackList(id);

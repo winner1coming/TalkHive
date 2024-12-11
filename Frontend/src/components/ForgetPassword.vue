@@ -63,6 +63,7 @@
           verificationCode: '',
         },
         successMessage: '',
+        Code:'',
       };
     },
     
@@ -108,6 +109,19 @@
           this.errors.verificationCode = '';
         }
       },
+
+      async validateCode(){
+        if(Code){
+          if(Code !== this.verificationCode){
+              alert('验证码错误');
+              return;
+          }
+        }
+        else{
+          alter('请先获取验证码！');
+          return;
+        }
+      },
       
       // 发送验证码
       async sendSmsCode() {
@@ -124,6 +138,7 @@
           );
           if (response.success) {
             alert('验证码已发送');
+            this.Code = response.code;
           } else {
             alert(response.message || '发送验证码失败');
           }
@@ -142,15 +157,17 @@
         if (Object.values(this.errors).some(error => error)) {
           return;
         }
+        this.validateCode();
         
         try {
           const response = await resetPassword({
-            phoneNumber: this.phoneNumber,
+            phone: this.phoneNumber,
             password: this.newPassword,
           });
           
           if (response.success) {
             this.successMessage = '找回密码成功，请返回重新登录';
+            this.goToLogin();
           } else {
             alert(response.message || '找回密码失败');
           }
@@ -161,7 +178,7 @@
       
       // 跳转到登录页面
       goToLogin() {
-        this.$router.push('/login');
+        this.$router.push('/loginth');
       },
     },
   };

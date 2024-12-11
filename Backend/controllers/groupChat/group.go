@@ -1,7 +1,7 @@
 package groupChat
 
 import (
-	"TalkHive/config"
+	"TalkHive/global"
 	"TalkHive/models"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -10,7 +10,7 @@ import (
 )
 
 // 获取数据库连接
-var db = config.GetDB()
+var db = global.Db
 
 // GetGroupInfo 显示群头像、名称、成员详情等
 func GetGroupInfo(c *gin.Context) {

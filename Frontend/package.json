@@ -14,6 +14,7 @@
     "axios": "^0.21.1",
     "core-js": "^3.6.5",
     "mitt": "^3.0.1",
+    "mockjs": "^1.1.0",
     "vue": "^3.2.25",
     "vue-contextmenu": "^1.5.11",
     "vue-router": "^4.0.0",

@@ -6,19 +6,19 @@ import (
 
 // AccountInfo 表示账号信息表
 type AccountInfo struct {
-	AccountID        uint      `gorm:"primaryKey" json:"account_id"`
-	ID               string    `gorm:"unique" json:"id"`
-	Password         string    `json:"password"`
-	Phone            string    `json:"phone"`
-	Email            string    `json:"email"`
-	Avatar           string    `json:"avatar"`
-	Nickname         string    `json:"nickname"`
-	Signature        string    `json:"signature"`
-	Gender           string    `json:"gender"`
-	Birthday         time.Time `json:"birthday"`
-	Status           string    `json:"status"`
-	FriendPermission string    `json:"friend_permission"`
-	LastLogout       time.Time `json:"last_logout"`
+	AccountID        uint       `gorm:"primaryKey" json:"account_id"`
+	ID               string     `gorm:"unique" json:"id"`
+	Password         string     `json:"password"`
+	Phone            string     `json:"phone"`
+	Email            string     `json:"email"`
+	Avatar           string     `json:"avatar"`
+	Nickname         string     `json:"nickname"`
+	Signature        string     `json:"signature"`
+	Gender           string     `json:"gender"`
+	Birthday         *time.Time `json:"birthday"`
+	Status           string     `json:"status"`
+	FriendPermission string     `json:"friend_permission"`
+	LastLogout       *time.Time `json:"last_logout"`
 }
 
 // Contacts 表示好友/群聊表

@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"TalkHive/global"
 	"net/http"
 	"strconv"
 
@@ -19,7 +20,7 @@ func SendApplication(c *gin.Context) {
 	}
 
 	// 保存到数据库
-	if err := DB.Create(&application).Error; err != nil {
+	if err := global.Db.Create(&application).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to send application"})
 		return
 	}
@@ -36,14 +37,14 @@ func AcceptApplication(c *gin.Context) {
 	var application models.ApplyInfo
 
 	// 查找申请记录
-	if err := DB.Where("account_id = ? AND apply_type = ?", accountID, applyType).First(&application).Error; err != nil {
+	if err := global.Db.Where("account_id = ? AND apply_type = ?", accountID, applyType).First(&application).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Application not found"})
 		return
 	}
 
 	// 更新状态为已接受
 	application.Status = "accepted"
-	if err := DB.Save(&application).Error; err != nil {
+	if err := global.Db.Save(&application).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to accept application"})
 		return
 	}
@@ -54,7 +55,7 @@ func AcceptApplication(c *gin.Context) {
 			ContactID:   application.AccountID,
 			IsGroupChat: false,
 		}
-		if err := DB.Create(&contact).Error; err != nil {
+		if err := global.Db.Create(&contact).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update friend list"})
 			return
 		}
@@ -67,7 +68,7 @@ func AcceptApplication(c *gin.Context) {
 			AccountID: uint(application.AccountID),
 			GroupID:   uint(groupIDUint),
 		}
-		if err := DB.Create(&groupMember).Error; err != nil {
+		if err := global.Db.Create(&groupMember).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add group member"})
 			return
 		}
@@ -81,7 +82,7 @@ func RemoveFriend(c *gin.Context) {
 	accountID := c.Query("account_id")
 
 	// 删除好友记录
-	if err := DB.Delete(&models.Contacts{}, "contact_id = ?", accountID).Error; err != nil {
+	if err := global.Db.Delete(&models.Contacts{}, "contact_id = ?", accountID).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to remove friend"})
 		return
 	}
@@ -95,7 +96,7 @@ func GetApplicationStatus(c *gin.Context) {
 	var applications []models.ApplyInfo
 
 	// 查询申请记录
-	if err := DB.Where("account_id = ?", accountID).Find(&applications).Error; err != nil {
+	if err := global.Db.Where("account_id = ?", accountID).Find(&applications).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch application status"})
 		return
 	}
@@ -109,14 +110,14 @@ func AcceptGroupApplication(c *gin.Context) {
 	var application models.ApplyInfo
 
 	// 查找申请记录
-	if err := DB.First(&application, "apply_id = ?", applyID).Error; err != nil {
+	if err := global.Db.First(&application, "apply_id = ?", applyID).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Application not found"})
 		return
 	}
 
 	// 更新状态
 	application.Status = "accepted"
-	if err := DB.Save(&application).Error; err != nil {
+	if err := global.Db.Save(&application).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to accept application"})
 		return
 	}
@@ -126,7 +127,7 @@ func AcceptGroupApplication(c *gin.Context) {
 		AccountID: application.AccountID,
 		GroupID:   application.GroupID,
 	}
-	if err := DB.Create(&groupMember).Error; err != nil {
+	if err := global.Db.Create(&groupMember).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add group member"})
 		return
 	}
@@ -140,7 +141,7 @@ func LeaveGroup(c *gin.Context) {
 	groupID := c.PostForm("group_id")
 
 	// 删除群聊成员记录
-	if err := DB.Delete(&models.GroupMemberInfo{}, "account_id = ? AND group_id = ?", accountID, groupID).Error; err != nil {
+	if err := global.Db.Delete(&models.GroupMemberInfo{}, "account_id = ? AND group_id = ?", accountID, groupID).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to leave group"})
 		return
 	}
@@ -154,7 +155,7 @@ func GetGroupApplicationStatus(c *gin.Context) {
 	var applications []models.ApplyInfo
 
 	// 查询记录
-	if err := DB.Where("account_id = ? AND apply_type = 'group'", accountID).Find(&applications).Error; err != nil {
+	if err := global.Db.Where("account_id = ? AND apply_type = 'group'", accountID).Find(&applications).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch group application status"})
 		return
 	}
@@ -180,7 +181,7 @@ func AddGroup(c *gin.Context) {
 		AccountID: uint(accountID), // 将 uint 转换为模型需要的 uint 类型
 	}
 
-	if err := DB.Create(&groupDivide).Error; err != nil {
+	if err := global.Db.Create(&groupDivide).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add group"})
 		return
 	}
@@ -194,7 +195,7 @@ func DeleteGroup(c *gin.Context) {
 	accountID := c.Query("account_id")
 
 	// 删除分组记录
-	if err := DB.Delete(&models.GroupDivide{}, "gd_name = ? AND account_id = ?", groupName, accountID).Error; err != nil {
+	if err := global.Db.Delete(&models.GroupDivide{}, "gd_name = ? AND account_id = ?", groupName, accountID).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete group"})
 		return
 	}
@@ -209,7 +210,7 @@ func RenameGroup(c *gin.Context) {
 	accountID := c.PostForm("account_id")
 
 	// 更新分组名称
-	if err := DB.Model(&models.GroupDivide{}).Where("gd_name = ? AND account_id = ?", oldName, accountID).Update("gd_name", newName).Error; err != nil {
+	if err := global.Db.Model(&models.GroupDivide{}).Where("gd_name = ? AND account_id = ?", oldName, accountID).Update("gd_name", newName).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to rename group"})
 		return
 	}
@@ -227,7 +228,7 @@ func GetGroupStatistics(c *gin.Context) {
 		Count  int    `json:"count"`
 	}
 
-	if err := DB.Model(&models.Contacts{}).
+	if err := global.Db.Model(&models.Contacts{}).
 		Select("divide, COUNT(*) as count").
 		Where("account_id = ?", accountID).
 		Group("divide").
@@ -247,7 +248,7 @@ func GetSummary(c *gin.Context) {
 	var groupCount int64
 
 	// 查询好友总数
-	if err := DB.Model(&models.Contacts{}).
+	if err := global.Db.Model(&models.Contacts{}).
 		Where("account_id = ? AND is_groupchat = ?", accountID, false).
 		Count(&friendCount).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve friend count"})
@@ -255,7 +256,7 @@ func GetSummary(c *gin.Context) {
 	}
 
 	// 查询群聊总数
-	if err := DB.Model(&models.Contacts{}).
+	if err := global.Db.Model(&models.Contacts{}).
 		Where("account_id = ? AND is_groupchat = ?", accountID, true).
 		Count(&groupCount).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve group count"})
@@ -282,7 +283,7 @@ func SearchContact(c *gin.Context) {
 	var groups []models.GroupChatInfo
 
 	// 搜索好友
-	if err := DB.Table("contacts").
+	if err := global.Db.Table("contacts").
 		Select("account_infos.*").
 		Joins("JOIN account_infos ON contacts.contact_id = account_infos.account_id").
 		Where("contacts.account_id = ? AND contacts.is_groupchat = ? AND (account_infos.nickname LIKE ? OR account_infos.phone LIKE ?)", accountID, false, "%"+keyword+"%", "%"+keyword+"%").
@@ -292,7 +293,7 @@ func SearchContact(c *gin.Context) {
 	}
 
 	// 搜索群聊
-	if err := DB.Table("contacts").
+	if err := global.Db.Table("contacts").
 		Select("group_chat_infos.*").
 		Joins("JOIN group_chat_infos ON contacts.contact_id = group_chat_infos.group_id").
 		Where("contacts.account_id = ? AND contacts.is_groupchat = ? AND group_chat_infos.group_name LIKE ?", accountID, true, "%"+keyword+"%").

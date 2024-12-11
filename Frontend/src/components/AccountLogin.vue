@@ -5,7 +5,7 @@
       
       <div class="input-group">
         <label for="account">账号:</label>
-        <input id="account" type="text" v-model="account" placeholder="请输入账号" />
+        <input id="account" type="text" v-model="phone" placeholder="请输入账号" />
       </div>
       
       <div class="input-group">
@@ -13,7 +13,7 @@
         <input id="password" type="password" v-model="password" placeholder="请输入密码" />
       </div>
 
-      <button class="login-button" @click="login">登录</button>
+      <button class="login-button" @click="testlogin">登录</button>
       
       <div class = "link">
         <!-- 注册链接 -->
@@ -30,22 +30,25 @@ import { login } from '@/services/api'; // 导入登录 API
 export default {
   data() {
     return {
-      account: '',
-      password: '',
+      phone: '666666',
+      password: '666666',
     };
   },
   
   methods: {
     // 登录方法
+    async testlogin(){
+      this.$router.push('/home');
+    },
     async login() {
       try {
         const response = await login(
           {
-            acoount: this.account,
-            password: this.password
+            phone: this.phone,
+            password: this.password,
           });
         if (response.success) {
-          this.$router.push('/');
+          this.$router.push('/home');
         } else {
           alert(response.message || '登录失败');
         }

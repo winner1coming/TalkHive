@@ -32,19 +32,22 @@
       return {
         phoneNumber: '',
         smsCode: '',
+        code: '',
       };
     },
     
     methods: {
       // 登录方法
       async smsLogin() {
+        this.validateCode();
         try {
           const response = await smsLogin({
-            account : this.phoneNumber,
+            phoneNumber : this.phoneNumber,
           });
-          if (response.success) {
-            this.$router.push('/');
-          } else {
+          if(response.success){
+            this.$router.push('/home');
+          }
+          else {
             alert(response.message || '登录失败');
           }
         } catch (error) {
@@ -52,6 +55,18 @@
         }
       },
       
+      async validateCode(){
+        if(Code){
+          if(Code !== this.smsCode){
+              alert('验证码错误');
+              return;
+          }
+        }
+        else{
+          alter('请先获取验证码！');
+          return;
+        }
+      },
       // 发送验证码方法
       async sendSmsCode() {
         if (!this.validatePhoneNumber(this.phoneNumber)) {
@@ -67,6 +82,7 @@
 
           if (response.success) {
             alert('验证码已发送');
+            this.Code = response.code;
           } else {
             alert(response.message || '发送验证码失败');
           }

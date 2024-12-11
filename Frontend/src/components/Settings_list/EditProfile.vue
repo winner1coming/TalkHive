@@ -6,19 +6,25 @@
     <div class="avatar-container">
       <img :src="avatar" alt="avatar" class="headavatar" @click="showAvatarPreview" />
       <input type="file" ref="fileInput" style="display: none;" @change="handleFileChange" />
-      <button @click="openFilePicker">上传</button>
+      <button v-if="isEditing" @click="openFilePicker">上传</button>
     </div>
     <div class="input_text">
       <label>账号:</label>
       <span>{{ id }}</span>
     </div>
-    <div class="input_text">
+    <div class="input_text" v-if="isEditing">
       <label for="username">用户名:</label>
       <input id="username" type="text" v-model="username" :placeholder="username" />
     </div>
+    <div class="input_text" v-else>
+      <label for="username">用户名:</label>
+      <span>{{ username }}</span>
+    </div>
+
     <div class="input_text">
       <label>性别:</label>
-      <div class="gender-options">
+      <span v-if="!isEditing">{{ gender == 'male' ?'男':'女' }}</span>
+      <div class="gender-options" v-if="isEditing">
         <label>
           <input type="radio" v-model="gender" value="male" />
           男
@@ -29,24 +35,37 @@
         </label>
       </div>
     </div>
-    <div class="input_text">
+    <div class="input_text" v-if="isEditing">
       <label>生日:</label>
       <input type="text" v-model="birthday" :placeholder="birthday" @click="showDatePicker" readonly />
       <div v-if="showDatePickerFlag" class="date-picker">
         <input type="date" v-model="birthday" @change="hideDatePicker" />
       </div>
     </div>
-    <div class="input_sig">
+    <div class="input_text" v-else>
+      <label>生日</label>
+      <span>{{ birthday }}</span>
+    </div>
+
+    <div class="input_sig" v-if="isEditing">
       <label>个性签名:</label>
       <textarea v-model="signature" :placeholder="signature" maxlength="100"></textarea>
       <span class="signature-count">{{ signature.length }}/100</span>
     </div>
+    <div class="input_sig" v-else>
+      <label>个性签名</label>
+      <span>{{ signature }}</span>
+    </div>
     <!-- 保存按钮，点击时触发 saveProfile 方法 -->
-    <div class="button_container">
+    <div class="button_container" v-if="isEditing">
     <button class="save_button" @click="saveProfile">保存</button>
     <!-- 取消按钮，点击时触发 cancelEdit 方法 -->
     <button class="cancle_button" @click="cancelEdit">取消</button>
     </div>
+    <div class="botton_container" v-else>
+      <button class="edit_button" @click="toggleEdit">编辑</button>
+    </div>
+
     <!-- 头像预览弹窗 -->
     <div v-if="showPreview" class="avatar-preview">
       <img :src="avatar" alt="avatar" class="avatar-large" />
@@ -57,12 +76,13 @@
 
 <script>
 import { getProfile, updateProfile } from '@/services/api';
+import avatar from '@/assets/images/avatar.jpg';
 
 export default {
   // 组件的 data 函数，返回一个对象，包含组件的响应式数据
   data() {
     return {
-      avatar: '',
+      avatar,
       // 用户名输入框的值
       username: '',
       // ID 输入框的值
@@ -87,6 +107,7 @@ export default {
       showPreview: false,
       // 是否显示日期选择器
       showDatePickerFlag: false,
+      isEditing:false,
     };
   },
 
@@ -134,6 +155,7 @@ export default {
         this.originalGender = this.gender;
         this.originalBirthday = this.birthday;
         this.originalSignature = this.signature;
+        this.isEditing =false;
       } catch (error) {
         console.error('Failed to save profile:', error);
       }
@@ -147,6 +169,8 @@ export default {
       this.gender = this.originalGender;
       this.birthday = this.originalBirthday;
       this.signature = this.originalSignature;
+
+      this.isEditing=false;
     },
 
     openFilePicker() {
@@ -179,6 +203,11 @@ export default {
     hideDatePicker() {
       this.showDatePickerFlag = false;
     },
+
+    //切换编辑模式
+    toggleEdit(){
+      this.isEditing = !this.isEditing;
+    }
   },
 };
 </script>
@@ -354,6 +383,10 @@ button {
 }
 
 button:hover {
+  background-color: #369f6d;
+}
+
+.edit_button:hover{
   background-color: #369f6d;
 }
 
