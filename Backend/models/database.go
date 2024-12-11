@@ -19,6 +19,7 @@ type AccountInfo struct {
 	Status           string     `json:"status"`
 	FriendPermission string     `json:"friend_permission"`
 	LastLogout       *time.Time `json:"last_logout"`
+	Deactivation     bool       `json:"deactivation"` // 新增：用户注销标识
 }
 
 // Contacts 表示好友/群聊表

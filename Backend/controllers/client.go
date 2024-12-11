@@ -2,13 +2,15 @@ package controllers
 
 import (
 	"TalkHive/config"
+	"TalkHive/global"
 	"TalkHive/models"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"time"
 )
 
-// 获取数据库连接
-var DB = config.GetDB()
+// DB 获取数据库连接
+var DB = global.Db
 
 // Register 用户注册
 func Register(c *gin.Context) {
@@ -60,60 +62,107 @@ func Login(c *gin.Context) {
 	})
 }
 
-// GetProfile 获取用户信息
-func GetProfile(c *gin.Context) {
-	id := c.Param("id")
+// ShowProfile 获取用户个人主页资料
+func ShowProfile(c *gin.Context) {
+	// 获取前端传递的 id 参数
+	id := c.Query("id")
 
-	var account models.AccountInfo
-	if err := config.DB.Where("id = ?", id).First(&account).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+	// 检查是否传递了 id 参数
+	if id == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"message": "Missing required parameter: id",
+		})
 		return
 	}
 
+	// 查询数据库
+	var account models.AccountInfo
+	if err := config.DB.Where("account_id = ?", id).First(&account).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"success": false,
+			"message": "User not found",
+		})
+		return
+	}
+
+	// 返回符合前端格式的 JSON 数据
 	c.JSON(http.StatusOK, gin.H{
-		"account_id": account.AccountID,
-		"id":         account.ID,
-		"nickname":   account.Nickname,
-		"email":      account.Email,
-		"avatar":     account.Avatar,
-		"signature":  account.Signature,
-		"gender":     account.Gender,
-		"birthday":   account.Birthday,
+		"success": true,
+		"message": "User profile retrieved successfully",
+		"data": gin.H{
+			"id":        account.AccountID,
+			"nickname":  account.Nickname,
+			"gender":    account.Gender,
+			"birthday":  account.Birthday,
+			"signature": account.Signature,
+		},
 	})
 }
 
-// UpdateProfile 更新用户信息
-func UpdateProfile(c *gin.Context) {
-	id := c.Param("id")
-
-	var account models.AccountInfo
-	if err := config.DB.Where("id = ?", id).First(&account).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
-		return
-	}
-
+// SaveEdit 保存编辑后的用户信息
+func SaveEdit(c *gin.Context) {
+	// 接收前端发送的 JSON 数据
 	var updateData struct {
-		Nickname  string `json:"nickname"`
+		ID        string `json:"id" binding:"required"`
 		Avatar    string `json:"avatar"`
-		Signature string `json:"signature"`
+		Nickname  string `json:"nickname"`
 		Gender    string `json:"gender"`
-		Birthday  string `json:"birthday"`
+		Birthday  string `json:"birthday"` // 字符串形式
+		Signature string `json:"signature"`
 	}
+
+	// 绑定 JSON 数据并检查必填字段
 	if err := c.ShouldBindJSON(&updateData); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"message": "Invalid request data: " + err.Error(),
+		})
 		return
 	}
 
-	// 更新信息
+	// 查询数据库中是否存在对应的用户
+	var account models.AccountInfo
+	if err := config.DB.Where("account_id = ?", updateData.ID).First(&account).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"success": false,
+			"message": "User not found",
+		})
+		return
+	}
+
+	// 更新用户信息
 	account.Nickname = updateData.Nickname
 	account.Avatar = updateData.Avatar
 	account.Signature = updateData.Signature
 	account.Gender = updateData.Gender
 
+	// 转换生日为 *time.Time 类型
+	if updateData.Birthday != "" {
+		parsedBirthday, err := time.Parse("2006-01-02", updateData.Birthday) // 假设前端格式为 "YYYY-MM-DD"
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"success": false,
+				"message": "Invalid date format for birthday. Expected format: YYYY-MM-DD",
+			})
+			return
+		}
+		// 将 parsedBirthday 转换为 *time.Time 类型
+		account.Birthday = &parsedBirthday
+	}
+
+	// 保存更新后的数据到数据库
 	if err := config.DB.Save(&account).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update profile"})
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"message": "Failed to update profile",
+		})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Profile updated successfully"})
+	// 返回成功消息
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "Profile updated successfully",
+	})
 }
