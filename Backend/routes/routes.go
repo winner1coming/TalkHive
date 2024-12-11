@@ -13,10 +13,10 @@ func SetupRouter_testing() *gin.Engine {
 
 	// 用户账号相关
 	// 路由路径 处理函数
-	r.POST("/register", controllers.Register)               // 用户注册
-	r.POST("/login", controllers.Login)                     // 用户登录
-	r.GET("/profile/:id", controllers.GetProfile)           // 获取用户资料
-	r.PUT("/profile/update/:id", controllers.UpdateProfile) // 更新用户资料
+	r.POST("/register", controllers.Register)             // 用户注册
+	r.POST("/login", controllers.Login)                   // 用户登录
+	r.GET("/profile/:id", controllers.ShowProfile)        // 获取用户资料
+	r.PUT("/profile/update/:id", controllers.EditProfile) // 更新用户资料
 
 	// 好友相关
 	r.POST("/friend/add", controllers.AddFriend) // 添加好友
