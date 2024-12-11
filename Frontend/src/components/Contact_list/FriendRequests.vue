@@ -3,7 +3,7 @@
     <div class="contact-header">
         好友申请
     </div>
-    <div v-for="request in requests" :key="request.account_id" class="item">
+    <div v-for="request in requests" :key="request.apply_id" class="item">
       <img :src="request.avatar" alt="avatar" width="50" height="50" />
       <div class="left">
         <p class="name">{{ request.name }}</p>
@@ -11,13 +11,13 @@
       </div>
       <div class="right">
         <p class="remark">{{ request.time }}</p>
-        <div v-if="request.status === 'pending'">
-          <button @click="acceptRequest(request.account_id)">同意</button>
-          <button @click="rejectRequest(request.account_id)">拒绝</button>
+        <div v-if="request.status === 'pending' && request.receiver_id === this.$store.state.user.id">
+          <button @click="acceptRequest(request.sender_id)">同意</button>
+          <button @click="rejectRequest(request.sender_id)">拒绝</button>
         </div>
+        <p v-else-if="request.status === 'pending'">等待对方处理</p>
         <p v-else-if="request.status === 'accepted'">已同意</p>
         <p v-else-if="request.status === 'rejected'">已拒绝</p>
-        <p v-else-if="request.status === 'waiting'">等待对方处理</p>
       </div>
       
     </div>
@@ -25,43 +25,49 @@
 </template>
 
 <script>
-import { getFriendRequests, acceptFriendRequest, rejectFriendRequest } from '@/services/contactList';
+import { getFriendRequests, friendRequestPend } from '@/services/contactList';
+const contactListAPI = {getFriendRequests, friendRequestPend};
 
 export default {
   name: 'FriendRequest',
   data() {
     return {
-      requests: [
-        {
-          avatar: '',
-          name: 'John Doe',
-          account_id: '1',   // 申请者的id
-          reason:"I want to be your friend",
-          status: 'pending',   // pending（需要我处理的）, accepted, rejected, waiting（对方处理中）
-          time: '2021-01-01 12:00:00',  // 待定
-        },
-        {
-          avatar: '',
-          name: 'Jane Doe',
-          account_id: '2',
-          reason:"I want to be your friend",
-          status: 'accepted',
-          time: '2021-01-01 12:00:00',
-        },
-      ],
+      // requests: [
+      //   {
+      //     apply_id: '1',
+      //     avatar: '',
+      //     name: 'John Doe',
+      //     sender_id: '1', // 申请者的tid
+      //     receiver_id: '2',   // 接收者的tid
+      //     reason:"I want to be your friend",
+      //     status: 'pending',   // pending, accepted, rejected
+      //     time: '2021-01-01 12:00:00',  // 待定
+      //   },
+      //   {
+      //     apply_id: '2',
+      //     avatar: '',
+      //     name: 'Jane Doe',
+      //     sender_id: '2', // 申请者的tid
+      //     receiver_id: '1',   // 接收者的tid
+      //     reason:"I want to be your friend",
+      //     status: 'accepted',
+      //     time: '2021-01-01 12:00:00',
+      //   },
+      // ],
+      requests: [],
     };
   },
   methods: {
     async fetchRequests() {
-      const response = await getFriendRequests();
+      const response = await contactListAPI.getFriendRequests();
       this.requests = response.data;
     },
     async acceptRequest(requestId) {
-      await acceptFriendRequest(requestId);
+      await contactListAPI.friendRequestPend(requestId, true);
       this.fetchRequests();
     },
     async rejectRequest(requestId) {
-      await rejectFriendRequest(requestId);
+      await contactListAPI.friendRequestPend(requestId, false);
       this.fetchRequests();
     },
   },
