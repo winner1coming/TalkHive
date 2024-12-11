@@ -36,9 +36,6 @@ func SetupRouter_testing() *gin.Engine {
 	r.POST("/apply/submit", controllers.SubmitApply) // 提交申请
 	r.PUT("/apply/review", controllers.ReviewApply)  // 审核申请
 
-	// 系统设置相关
-	r.PUT("/settings/update", controllers.UpdateSystemSetting) // 更新系统设置
-
 	// 其他路由...
 	return r
 }

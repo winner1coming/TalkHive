@@ -131,22 +131,21 @@ func IsIDAdd(c *gin.Context) {
 		return
 	}
 
-	// 更新friend_permission字段
-	// 如果idStatus为"1"，表示允许通过ID查找；否则，表示不允许
-	var newFriendPermission string
+	// 根据IDStatus的值，更新friend_permission_id
+	var newFriendPermissionID int
 	if req.IDStatus == "1" {
-		// 如果允许通过ID查找，存储id作为friend_permission
-		newFriendPermission = req.ID
+		// 允许通过ID查找
+		newFriendPermissionID = 1
 	} else {
-		// 如果不允许通过ID查找，设置为""或其他标识
-		newFriendPermission = ""
+		// 不允许通过ID查找
+		newFriendPermissionID = 0
 	}
 
-	// 更新数据库中的friend_permission字段
-	if err := config.DB.Model(&account).Update("friend_permission", newFriendPermission).Error; err != nil {
+	// 更新数据库中的friend_permission_id字段
+	if err := config.DB.Model(&account).Update("friend_permission_id", newFriendPermissionID).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success": false,
-			"message": "Failed to update friend permission",
+			"message": "Failed to update friend permission by ID",
 		})
 		return
 	}
@@ -154,7 +153,7 @@ func IsIDAdd(c *gin.Context) {
 	// 返回成功响应
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
-		"message": "Friend permission updated successfully",
+		"message": "Friend permission by ID updated successfully",
 	})
 }
 
@@ -184,22 +183,21 @@ func IsPhoneAdd(c *gin.Context) {
 		return
 	}
 
-	// 更新friend_permission字段
-	// 如果phoneStatus为"on"，表示允许通过手机号查找；否则，表示不允许
-	var newFriendPermission string
+	// 根据PhoneStatus的值，更新friend_permission_phone
+	var newFriendPermissionPhone int
 	if req.PhoneStatus == "on" {
-		// 如果允许通过手机号查找，存储手机号作为friend_permission
-		newFriendPermission = account.Phone
+		// 允许通过手机号查找
+		newFriendPermissionPhone = 1
 	} else {
-		// 如果不允许通过手机号查找，设置为""或其他标识
-		newFriendPermission = ""
+		// 不允许通过手机号查找
+		newFriendPermissionPhone = 0
 	}
 
-	// 更新数据库中的friend_permission字段
-	if err := config.DB.Model(&account).Update("friend_permission", newFriendPermission).Error; err != nil {
+	// 更新数据库中的friend_permission_phone字段
+	if err := config.DB.Model(&account).Update("friend_permission_phone", newFriendPermissionPhone).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success": false,
-			"message": "Failed to update friend permission",
+			"message": "Failed to update friend permission by phone",
 		})
 		return
 	}
@@ -207,7 +205,7 @@ func IsPhoneAdd(c *gin.Context) {
 	// 返回成功响应
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
-		"message": "Friend permission updated successfully",
+		"message": "Friend permission by phone updated successfully",
 	})
 }
 
@@ -296,7 +294,7 @@ func GetPhone(c *gin.Context) {
 		"data": gin.H{
 			"phone":             account.Phone,
 			"password":          account.Password, // 注意：密码通常不直接返回，最好通过加密/哈希处理或通过特定机制传递
-			"friend_permission": account.FriendPermission,
+			"friend_permission": account.FriendPermissionID,
 		},
 	})
 }
