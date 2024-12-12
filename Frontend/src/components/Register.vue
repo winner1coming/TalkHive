@@ -201,7 +201,7 @@ export default {
       }
     },
     
-          // 验证邮箱
+    // 验证邮箱
     validateEmail() {
         if (!this.email) {
           this.errors.email = '邮箱不能为空';

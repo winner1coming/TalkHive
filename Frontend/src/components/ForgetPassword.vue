@@ -30,7 +30,8 @@
       <div class="input-group">
         <label for="verificationCode">验证码:</label>
         <input id="verificationCode" type="text" v-model="verificationCode" placeholder="验证码" @blur="validateVerificationCode" />
-        <button class="send-verification-code" @click="sendSmsCode">获取</button>
+        <button class="send-verification-code" @click="sendSmsCode" :disabled="isCountingDown" :class="{ 'counting-down': isCountingDown }">
+          {{ isCountingDown ? `${countdown}秒后重试` : '获取' }}</button>
       </div>
       <p v-if="errors.verificationCode" class="error">{{ errors.verificationCode }}</p>
       
@@ -64,6 +65,8 @@
         },
         successMessage: '',
         Code:'',
+        isCountingDown:false,
+        countdown:60,
       };
     },
     
@@ -114,6 +117,20 @@
         }
       },
 
+      // 启动倒计时
+      startCountdown() {
+        this.isCountingDown = true;
+        this.countdown = 60;
+
+        const timer = setInterval(() => {
+          this.countdown--;
+          if (this.countdown <= 0) {
+            clearInterval(timer);
+            this.isCountingDown = false;
+          }
+        }, 1000);
+      },
+
       async validateCode(){
         if(Code){
           if(Code !== this.verificationCode){
@@ -143,6 +160,7 @@
           if (response.success) {
             alert('验证码已发送');
             this.Code = response.code;
+            this.startCountdown();
           } else {
             alert(response.message || '发送验证码失败');
           }
