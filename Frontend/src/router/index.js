@@ -25,7 +25,7 @@ import Workspace from '@/views/Workspace.vue';
 
 // 定义路由配置
 const routes = [
-  {path:'/',component:LoginTH},
+  {path: '/', component: LoginTH},
   {path:'/loginth',component:LoginTH},
   { path: '/register', component: Register },
   {path:'/forgetpassword',component:ForgetPassword},

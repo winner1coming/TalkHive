@@ -40,8 +40,8 @@ export const sendSmsCode = async (data) => {
   }
 };
 
-export const smsLogin = (phoneNumber) => {
-  return apiClient.post('/smslogin', { phoneNumber})
+export const smsLogin = (email) => {
+  return apiClient.post('/smslogin', { email})
     .then(response => {
       return response.data;
     })

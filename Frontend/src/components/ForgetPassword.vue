@@ -7,10 +7,10 @@
       
       <!-- 手机号输入框 -->
       <div class="input-group">
-        <label for="phoneNumber">手机号:</label>
-        <input id="phoneNumber" type="text" v-model="phoneNumber" placeholder="手机号" @blur="validatePhoneNumber" />
+        <label for="email">邮箱:</label>
+        <input id="email" type="text" v-model="email" placeholder="邮箱" @blur="validateEmail" />
       </div>
-      <p v-if="errors.phoneNumber" class="error">{{ errors.phoneNumber }}</p>
+      <p v-if="errors.email" class="error">{{ errors.email }}</p>
       
       <!-- 新密码输入框 -->
       <div class="input-group">
@@ -52,12 +52,12 @@
   export default {
     data() {
       return {
-        phoneNumber: '',
+        email: '',
         newPassword: '',
         confirmPassword: '',
         verificationCode: '',
         errors: {
-          phoneNumber: '',
+          email: '',
           newPassword: '',
           confirmPassword: '',
           verificationCode: '',
@@ -68,26 +68,30 @@
     },
     
     methods: {
-      // 验证手机号
-      validatePhoneNumber() {
-        if (!this.phoneNumber) {
-          this.errors.phoneNumber = '手机号不能为空';
-        } else if (!/^1[3-9]\d{9}$/.test(this.phoneNumber)) {
-          this.errors.phoneNumber = '手机号格式不正确';
+      // 验证邮箱
+      validateEmail() {
+        if (!this.email) {
+          this.errors.email = '邮箱不能为空';
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email)) {
+          this.errors.email = '邮箱格式不正确';
         } else {
-          this.errors.phoneNumber = '';
+          this.errors.email = '';
         }
       },
       
       // 验证新密码
       validateNewPassword() {
-        if (!this.newPassword) {
-          this.errors.newPassword = '新密码不能为空';
-        } else if (this.newPassword.length < 6) {
-          this.errors.newPassword = '密码长度不能少于6位';
-        } else {
-          this.errors.newPassword = '';
-        }
+          if (!this.newPassword) {
+            this.errors.newPassword = '新密码不能为空';
+          } else if (this.newPassword.length < 6) {
+            this.errors.newPassword = '密码长度不能少于6位';
+          } else if (/\s/.test(this.newPassword)) {
+          this.errors.newPassword = '密码不能包含空格';
+          } else if (!/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/.test(this.newPassword)) {
+            this.errors.newPassword = '密码只能是包含数字和字母的组合';
+          } else {
+            this.errors.newPassword = '';
+          }
       },
       
       // 验证确认密码
@@ -125,7 +129,7 @@
       
       // 发送验证码
       async sendSmsCode() {
-        if (!this.validatePhoneNumber()) {
+        if (!this.validateEmail()) {
           return;
         }
         
@@ -133,7 +137,7 @@
           const response = await sendSmsCode(
             {
               command:'resetPassword',
-              phoneNumber:this.phoneNumber,
+              email:this.email,
             }
           );
           if (response.success) {
@@ -149,7 +153,7 @@
       
       // 提交找回密码请求
       async submit() {
-        this.validatePhoneNumber();
+        this.validateEmail();
         this.validateNewPassword();
         this.validateConfirmPassword();
         this.validateVerificationCode();
@@ -161,7 +165,7 @@
         
         try {
           const response = await resetPassword({
-            phone: this.phoneNumber,
+            email: this.email,
             password: this.newPassword,
           });
           
