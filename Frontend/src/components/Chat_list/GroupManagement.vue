@@ -40,10 +40,11 @@ export default {
   methods: {
     show(){
       this.visible = true;
-      EventBus.emit('open-float-component', this); // 通知其他组件
+      EventBus.emit('float-component-open', this); // 通知其他组件
     },
     hide(){
       this.visible = false;
+      EventBus.emit('hide-float-component'); // 通知其他组件
     },
     async addMember() {
       try {
@@ -73,8 +74,13 @@ export default {
     }
   },
   mounted() {
-    EventBus.on('hide-float-component', (component) => {
-      if (component !== this) {
+    EventBus.on('other-float-component', (component) => {
+      if (this.visible && component !== this) {
+        this.hide();
+      }
+    });
+    EventBus.on('close-float-component', (clickedElement) => {
+      if (this.visible && !this.$el.contains(clickedElement)) {
         this.hide();
       }
     });
