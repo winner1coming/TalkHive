@@ -51,7 +51,6 @@
       '$store.state.currentChat': {
         immediate: true,
         handler: function(newVar) {
-          console.log(newVar);
           if(newVar) {
             this.selectedChat = newVar;
             this.selectNewChat(newVar.id);

@@ -11,7 +11,6 @@
 <script>
 import { EventBus } from '@/components/base/EventBus';
 export default {
-    
     data() {
         return {
             visible: false,
