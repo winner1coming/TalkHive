@@ -6,20 +6,22 @@ import (
 
 // AccountInfo 表示账号信息表
 type AccountInfo struct {
-	AccountID        uint       `gorm:"primaryKey" json:"account_id"`
-	ID               string     `gorm:"unique" json:"id"`
-	Password         string     `json:"password"`
-	Phone            string     `json:"phone"`
-	Email            string     `json:"email"`
-	Avatar           string     `json:"avatar"`
-	Nickname         string     `json:"nickname"`
-	Signature        string     `json:"signature"`
-	Gender           string     `json:"gender"`
-	Birthday         *time.Time `json:"birthday"`
-	Status           string     `json:"status"`
-	FriendPermission string     `json:"friend_permission"`
-	LastLogout       *time.Time `json:"last_logout"`
-	Deactivation     bool       `json:"deactivation"` // 新增：用户注销标识
+	AccountID             uint       `gorm:"primaryKey" json:"account_id"`
+	ID                    string     `gorm:"unique" json:"id"`
+	Password              string     `json:"password"`
+	Phone                 string     `json:"phone"`
+	Email                 string     `json:"email"`
+	Avatar                string     `json:"avatar"`
+	Nickname              string     `json:"nickname"`
+	Signature             string     `json:"signature"`
+	Gender                string     `json:"gender"`
+	Birthday              *time.Time `json:"birthday"`
+	Status                string     `json:"status"`
+	FriendPermissionID    string     `json:"friend_permission_id"`    // 是否允许通过ID查找
+	FriendPermissionPhone string     `json:"friend_permission_phone"` // 是否允许通过手机号查找
+	LastLogout            *time.Time `json:"last_logout"`
+	LastUpdateID          *time.Time `json:"last_update_id"` // ID更新时间
+	Deactivation          bool       `json:"deactivation"`   // 用户注销标识
 }
 
 // Contacts 表示好友/群聊表
