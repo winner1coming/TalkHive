@@ -34,7 +34,7 @@ const routes = [
     component: Home,
     meta:{requiresAuth:true},
     children:[
-      { path: '/chat', component: ChatView },
+      { path: '/chat', name: 'chat', component: ChatView },
       { path: '/contact', component: ContactView },
       {path:'/setlist',component:ShowList},
       {path:'/workspace',component:Workspace},
