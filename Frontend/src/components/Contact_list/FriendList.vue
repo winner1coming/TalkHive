@@ -2,6 +2,7 @@
   <div class="main">
     <div class="contact-header">
         好友列表
+        <button style="float: right;">分组管理</button>
     </div>
     <itemList :items="items" :type="type" :tags="tags" @show-profile-card="showProfileCard"/>
     <ProfileCard ref="profileCard" />

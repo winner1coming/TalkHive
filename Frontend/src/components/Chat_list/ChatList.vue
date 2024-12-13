@@ -179,10 +179,10 @@ export default {
     showNewContextMenu(event) {
       this.menuType = 'new';
       const items = [
-        '添加好友',
+        '添加好友/群聊',
         '新建群聊',
       ];
-      this.$refs.contextMenu.show(event, event.clientX, event.clientY, items, null);
+      this.$refs.contextMenu.show(event, items, null, null, null);
     },
     // 右键聊天列表后的菜单
     showChatMenu(event, obj) {
@@ -209,7 +209,7 @@ export default {
       } else {
         items.push('屏蔽');
       }
-      this.$refs.contextMenu.show(event, event.clientX, event.clientY, items, obj);
+      this.$refs.contextMenu.show(event, items, obj, this.boundD, this.boundR);
     },
     // 处理新建消息的菜单点击事件
     async handleNewMenu(option) {
