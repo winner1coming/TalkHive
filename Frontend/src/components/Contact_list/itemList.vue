@@ -1,5 +1,5 @@
 <template>
-	<ToggleContent v-for="tag in tags" :previewText="tag">
+	<HeaderToggle v-for="tag in tags" :previewText="tag">
 		<div v-for="item in filteredItemsByTag(tag)" :key="items.account_id" class="item" @click="showProfileCard($event, item.account_id)">
 			<img :src="item.avatar" alt="avatar" width="50" height="50" />
 			<div class="left">
@@ -8,14 +8,14 @@
 				<p class="remark" v-else>{{ item.signature }}</p>
 			</div>
 		</div>
-	</ToggleContent>
+	</HeaderToggle>
 </template>
 
 <script>
-import ToggleContent from '@/components/base/ToggleContent.vue';
+import HeaderToggle from '@/components/Contact_list/HeaderToggle.vue';
 export default {
 	components: {
-		ToggleContent
+		HeaderToggle
 	},
 	props:['items','type','tags'],
 	methods: {

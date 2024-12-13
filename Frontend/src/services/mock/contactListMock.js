@@ -77,7 +77,7 @@ Mock.mock(`${baseURL}/contactList/groupRequests/applyPend`, 'post', (options) =>
 Mock.mock(`${baseURL}/contactList/blackList`, 'get', () => {
   return Mock.mock({
         'blackList|5-10': [{
-        'id|1': /[0-9]{10}/,
+        'account_id|1': /[0-9]{10}/,
         'name': '@name',
         'avatar': '@image("200x200", "#50B347", "#FFF", "Mock.js")',
         'signature': '爱拼才会赢',

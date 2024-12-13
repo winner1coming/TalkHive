@@ -10,7 +10,7 @@ export default createStore({
       id: '1', // 用户tID 
       avatar:'',
     },
-    hasFloatComponent: false,
+    hasFloatComponent: null,   // 当前正在开启的悬浮组件
     currentChat: null, // 当前聊天对象
     // 系统设置
     settings: {
