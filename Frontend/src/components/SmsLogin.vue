@@ -97,10 +97,6 @@
       },
       // 发送验证码方法
       async sendSmsCode() {
-        if (!this.validatePhoneNumber(this.email)) {
-          alert('请输入有效的手机号码');
-          return;
-        }
         
         try {
           const response = await sendSmsCode({
