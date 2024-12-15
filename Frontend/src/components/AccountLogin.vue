@@ -19,7 +19,7 @@
       <label for="rememberMe">记住密码</label>
       </div>
 
-      <button class="login-button" @click="testlogin">登录</button>
+      <button class="login-button" @click="login">登录</button>
       
       <div class = "link">
         <!-- 注册链接 -->
@@ -65,13 +65,13 @@ export default {
       return bytes.toString(CryptoJS.enc.Utf8);
     },
 
-    //检查账号密码是否为空（与后端连接需要把测试登录testlogin函数直接删除即可）
-    async testlogin(){
-            // 检查账号和密码是否为空
-      // 调用登录方法
-      await this.login();
-      this.$router.push('/home');
-    },
+    // //检查账号密码是否为空（与后端连接需要把测试登录testlogin函数直接删除即可）
+    // async testlogin(){
+    //         // 检查账号和密码是否为空
+    //   // 调用登录方法
+    //   await this.login();
+    //   this.$router.push('/home');
+    // },
     async login() {
 
       if (!this.account) {
