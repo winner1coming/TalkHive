@@ -10,6 +10,12 @@ import ForgetPassword from '@/components/ForgetPassword.vue';
 import SecuritySettings from '@/components/Settings_list/SecuritySettings.vue';
 import SystemSettings from '../components/Settings_list/SystemSettings.vue';
 import ShowList from '@/views/SettingView.vue';
+import WorkSpace from '@/views/WorkSpace.vue';
+import Favorites from '@/components/WorkSpace/Favorites.vue';
+import Notes from "@/components/WorkSpace/Notes.vue";
+import NoteEditor from "@/components/WorkSpace/NoteEditor.vue";
+import Code from "@/components/WorkSpace/Code.vue"
+import DdlList from "@/components/WorkSpace/DdlList.vue"
 
 //import GroupChat from '@/components/GroupChat.vue';
 //import Profile from '@/components/Profile.vue';w
@@ -34,7 +40,42 @@ const routes = [
   { path: '/register', component: Register },
   { path: '/chat', component: ChatView },
   { path: '/contact', component: ContactView },
-  {path:'/forgetpassword',component:ForgetPassword}
+  {path:'/forgetpassword',component:ForgetPassword},
+  {
+    path: "/workspace",
+    component: WorkSpace,
+    children: [
+      {
+        path: "/workspace/favorites",
+        component: Favorites,
+      },
+      {
+        path: "/workspace/notes",
+        component: Notes, 
+      },
+      {
+        path: "/workspace/code",
+        component: Code,
+        props: true,
+      },
+      {
+        path: "/workspace/ddl",
+        component: DdlList,
+        props: true,
+      },
+      {
+        path: "/workspace/notes/:id",
+        component: NoteEditor,
+        props: true,
+      },
+      {
+        path: "/workspace/code/:id",
+        component: NoteEditor,
+        props: true,
+      },
+      // 添加其他子路由
+    ]
+  }
   //{ path: '/profile', component: Profile },
    //{ path: '/group-management', component: GroupManagement },
   // { path: '/friends', component: FriendList },

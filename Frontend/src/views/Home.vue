@@ -9,9 +9,10 @@
     <router-link to="/chat">聊天</router-link>
     <router-link to="/contact">通讯录</router-link>
     <router-link to="/groups">群聊列表</router-link>
-    <router-link to="/notes">笔记</router-link>
+    <router-link to="/workspace">工作区</router-link>
+    <!-- <router-link to="/notes">笔记</router-link>
     <router-link to="/favorites">收藏</router-link>
-    <router-link to="/ddls">DDL</router-link>
+    <router-link to="/ddls">DDL</router-link> -->
   </div>
   <div>
       <component :is="currentTabComponent" />

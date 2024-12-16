@@ -15,8 +15,11 @@
     "core-js": "^3.6.5",
     "mitt": "^3.0.1",
     "mockjs": "^1.1.0",
+    "monaco-editor": "^0.52.2",
+    "vite-plugin-monaco-editor": "^1.1.0",
     "vue": "^3.2.25",
     "vue-contextmenu": "^1.5.11",
+    "vue-monaco": "^1.2.2",
     "vue-router": "^4.0.0",
     "vuex": "^4.0.0"
   },
@@ -29,6 +32,8 @@
     "babel-eslint": "^10.1.0",
     "eslint": "^6.7.2",
     "eslint-plugin-vue": "^6.2.2",
+    "monaco-editor-webpack-plugin": "^7.1.0",
+    "msw": "^2.6.9",
     "vite": "^5.4.11",
     "vite-plugin-compression": "^0.5.1",
     "vue-template-compiler": "^2.6.11"
