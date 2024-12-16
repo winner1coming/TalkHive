@@ -54,13 +54,14 @@
       // 登录方法
       async smsLogin() {
         if(!this.email){
-          alter("邮箱不能为空！");
+          alert("邮箱不能为空！");
         }
         else if(!this.smsCode){
-          alter("验证码不能为空！");
+          alert("验证码不能为空！");
         }
 
-        this.validateCode();    
+        this.validateCode();  
+          
         try {
           const response = await smsLogin({
             email : this.email,
@@ -84,14 +85,14 @@
       },
       
       async validateCode(){
-        if(Code){
-          if(Code !== this.smsCode){
+        if(this.Code){
+          if(this.Code !== this.smsCode){
               alert('验证码错误');
               return;
           }
         }
         else{
-          alter('请先获取验证码！');
+          alert('请先获取验证码！');
           return;
         }
       },
