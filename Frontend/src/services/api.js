@@ -33,49 +33,48 @@ export const login = async (payload) => {
 //短信接收码的接口
 export const sendSmsCode = async (data) => {
   try {
-    const response = await axios.post('/sendSmsCode',data);
+    const response = await apiClient.post('/sendSmsCode',data);
     return response.data;
   } catch (error) {
     throw error.response ? error.response.data : error.message;
   }
 };
 
-export const smsLogin = (email) => {
-  return apiClient.post('/smslogin', { email})
-    .then(response => {
+export const smsLogin = async(email) => {
+  try{
+    const response =await apiClient.post('/smslogin',email);
       return response.data;
-    })
-    .catch(error => {
+  }catch(error){
       throw error.response?.data || error.message;
-    });
+    };
 };
 
 // 注册接口
-export const Register = (data) => {
-  return apiClient.post('/register', data)
-    .then(response => {
-      return response.data;
-    })
-    .catch(error => {
-      throw error.response?.data || error.message;
-    });
+export const Register =async (data) => {
+  try{
+    const response = await apiClient.post('/register', data);
+    return response.data;
+  } 
+  catch(error) {
+    throw error.response?.data || error.message;
+  };
 };
 
 
 // 重置密码接口
-export const resetPassword = (msg) => {
-  return apiClient.post('/resetPassword', msg)
-    .then(response => {
-      return response.data;
-    })
-    .catch(error => {
-      throw error.response?.data || error.message;
-    });
+export const resetPassword =async (msg) => {
+  try{
+    const response = await apiClient.post('/resetPassword', msg);
+    return response.data;
+  } 
+  catch(error) {
+    throw error.response?.data || error.message;
+  };
 };
 
 // 获取用户信息接口
-export const getProfile = () => {
-  return apiClient.get('/profile')
+export const showProfile = (id) => {
+  return apiClient.get(`/Settings/profile/${id}`)
     .then(response => {
       return response.data;
     })
@@ -85,8 +84,8 @@ export const getProfile = () => {
 };
 
 // 更新用户信息接口
-export const updateProfile = (profile) => {
-  return apiClient.put('/profile', profile)
+export const saveEdit = (data) => {
+  return apiClient.post('/Settings/saveEdit', data)
     .then(response => {
       return response.data;
     })
