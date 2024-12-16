@@ -14,8 +14,8 @@
     <div class="input-group">
       <label>性别*:</label>
       <div class="radio-group">
-        <label> <input type="radio" v-model="gender" value="male" /> 男</label>
-        <label> <input type="radio" v-model="gender" value="female" /> 女</label>
+        <label> <input type="radio" v-model="gender" value="男" /> 男</label>
+        <label> <input type="radio" v-model="gender" value="女" /> 女</label>
       </div>
     </div>
     <p v-if="errors.gender" class="error">{{ errors.gender }}</p>
@@ -84,7 +84,7 @@
     <!-- 验证码输入框 -->
     <div class="input-group">
       <label for="verificationCode">验证码*:</label>
-      <input id="verificationCode" type="text" v-model="verificationCode" placeholder="" @blur="validateVerificationCode" />
+      <input id="verificationCode" type="text" v-model="verificationCode" placeholder=""  />
       <button class="send-verification-code" @click="sendSmsCode" :disabled="isCountingDown" :class="{ 'counting-down': isCountingDown }">
           {{ isCountingDown ? `${countdown}秒后重试` : '获取' }}</button>
     </div>
@@ -104,7 +104,7 @@ export default {
 
   data() {
     return {
-      avatar:'@/assets/images/avatar.jpg',
+      avatar:'',
       gender:'',
       id: '',
       nickname: '',
@@ -158,7 +158,7 @@ export default {
         } else if (this.id.length < 6 || this.id.length > 12) {
           this.errors.id = '账号 长度必须在 6 到 12 个字符之间';
         } else if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(this.id)) {
-          this.errors.id = '账号 开头只能是字母或下划线，且只能包含字母、数字和下划线';
+          this.errors.id = '账号只能包含字母、数字和下划线，且开头只能是字母或下划线';
         } else {
           this.errors.id = '';
         }
@@ -194,7 +194,7 @@ export default {
     
     // 验证手机号
     validatePhoneNumber() {
-      if ((this.phoneNumber)&&!/^1[3-9]\d{9}$/.test(this.phoneNumber)) {
+      if (this.phoneNumber &&!/^1[3-9]\d{9}$/.test(this.phoneNumber)) {
         this.errors.phoneNumber = '手机号格式不正确';
       } else {
         this.errors.phoneNumber = '';
@@ -254,14 +254,15 @@ export default {
           }
         }
         else{
-          alter('请先获取验证码！');
+          alert('请先获取验证码！');
           return;
         }
       },
     
     // 发送验证码
     async sendSmsCode() {
-      if (!this.validateEmail()) {
+      this.validateEmail();
+      if(this.errors.email){
         return;
       }
       
@@ -295,6 +296,8 @@ export default {
         }
       }, 1000);
     },
+
+    
     
     // 注册方法
     async register() {
@@ -327,7 +330,7 @@ export default {
         });
         
         if (response.success) {
-          alter(response.message);
+          alert(response.message);
           this.$router.push('/loginth');
         } else {
           alert(response.message || '注册失败');
