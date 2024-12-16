@@ -73,25 +73,23 @@ export const resetPassword =async (msg) => {
 };
 
 // 获取用户信息接口
-export const showProfile = (id) => {
-  return apiClient.get(`/Settings/profile/${id}`)
-    .then(response => {
-      return response.data;
-    })
-    .catch(error => {
-      throw error.response?.data || error.message;
-    });
+export const showProfile = async (id) => {
+  try {
+    const response = await apiClient.get(`/Settings/profile/${id}`);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error.message;
+  }
 };
 
 // 更新用户信息接口
-export const saveEdit = (data) => {
-  return apiClient.post('/Settings/saveEdit', data)
-    .then(response => {
-      return response.data;
-    })
-    .catch(error => {
-      throw error.response?.data || error.message;
-    });
+export const saveEdit = async (data) => {
+  try {
+    const response = await apiClient.post('/Settings/saveEdit', data);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error.message;
+  }
 };
 
 // 获取消息列表接口
