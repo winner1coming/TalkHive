@@ -92,10 +92,41 @@ export const saveEdit = async (data) => {
   }
 };
 
+//获取用户的邮箱（安全设置）
+export const getUserInfo = async(id)=>{
+  try{
+    const response = await apiClient.get('/Settings/getInfo',{id});
+    return response.data;
+
+  }catch(error){
+    throw error.response?.data ||error.message;
+  }
+};
+
+//更换邮箱时获取验证码
+export const getCode = async(data)=>{
+  try{
+    const response = await apiClient.post('/Settings/getCode',data);
+    return response.data;
+  }catch(error){
+    throw error.response?.data||error.message;
+  }
+};
+
+  //注销账号
+  export const confirmDeactivation = async(id)=>{
+    try{
+      const response = await apiClient.post('/Settings/deactivate',{id});
+      return response.data;
+    }catch(error){
+      throw error.response?.data ||error.message;
+    }
+  };
+
 // 获取消息列表接口
 export const getMessages = () => {
   return apiClient.get('/messages');
-}
+};
 
 
 // chat和contact
