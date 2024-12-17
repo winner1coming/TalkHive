@@ -38,7 +38,8 @@
         </div>
         <div class="chat-meta">   <!-- 时间和未读-->
           <div class="chat-time">{{ chat.lastMessageTime }}</div>
-          <div v-if="chat.unreadCount" class="unread-count">{{ chat.unreadCount }}</div>   <!--todo-->
+          <div v-if="chat.tags.includes('mute')" class="mute">🔇</div>
+          <div v-else-if="chat.unreadCount" class="unread-count">{{ chat.unreadCount }}</div>
         </div>
       </li>
     </ul>
@@ -120,6 +121,8 @@ export default {
       let chats = this.chats;
       if (this.activeTag !== 'all') {
         chats = chats.filter(chat => chat.tags.includes(this.activeTag));
+      }else{   // all不显示被屏蔽的消息
+        chats = chats.filter(chat => !chat.tags.includes('blocked'));
       }
       if(!chats) {
         return chats;
@@ -131,7 +134,16 @@ export default {
       return Math.floor((this.chatListWidth - 30) / 12);
     },
   },
-
+  watch:{
+    '$store.state.currentChat': {
+      handler: function(val) {
+        if(val){
+          this.selectChat(val);
+        }
+      },
+      immediate: true,
+    }
+  },
   methods: {
     async fetchChatList() {
       // 从后端获取聊天列表
@@ -150,11 +162,13 @@ export default {
     // 选中消息，切换到对应的聊天
     async selectChat(chat, tid=null) {
       if (!chat) {
-        chat = await chatListAPI.generateNewChat(tid);
+        const response = await chatListAPI.getChat(tid);
+        chat = response.data;
         this.chats.unshift(chat);
       }
       this.selectedChat = chat;   // todo 滚动到chat
-      this.$emit('chat-selected', chat);
+      this.$store.dispatch('setChat', chat);
+      
     },
     // 搜索消息
     async handleSearch(keyword) {
@@ -165,10 +179,10 @@ export default {
     showNewContextMenu(event) {
       this.menuType = 'new';
       const items = [
-        '添加好友',
+        '添加好友/群聊',
         '新建群聊',
       ];
-      this.$refs.contextMenu.show(event, event.clientX, event.clientY, items, null);
+      this.$refs.contextMenu.show(event, items, null, null, null);
     },
     // 右键聊天列表后的菜单
     showChatMenu(event, obj) {
@@ -195,7 +209,7 @@ export default {
       } else {
         items.push('屏蔽');
       }
-      this.$refs.contextMenu.show(event, event.clientX, event.clientY, items, obj);
+      this.$refs.contextMenu.show(event, items, obj, this.boundD, this.boundR);
     },
     // 处理新建消息的菜单点击事件
     async handleNewMenu(option) {
@@ -224,15 +238,20 @@ export default {
         // 告知服务器
         await chatListAPI.deleteChat(chat.id);
         // 本地删除
-        this.chats = this.chats.filter(chat => chat.id !== chat.id);
+        this.chats = this.chats.filter(onechat => onechat.id !== chat.id);
       }else if(option === '标记为已读') {
         // 标记为已读
         chat.tags = chat.tags.filter(tag => tag !== 'unread');
+        // 清空未读条数
+        chat.unreadCount = 0;
+        console.log(chat);
         // 告知服务器
         await chatListAPI.readMessages(chat.id, true);
       }else if(option === '标记为未读') {
         // 标记为未读
         chat.tags.push('unread');
+        // 更改未读条数
+        chat.unreadCount = 1;
         // 告知服务器
         await chatListAPI.readMessages(chat.id, false);
       }else if(option === '消息免打扰') {
@@ -354,5 +373,8 @@ export default {
   padding: 2px 5px;
   border-radius: 50%;
   text-align: center;
+}
+.mute{
+  color: #888;
 }
 </style>

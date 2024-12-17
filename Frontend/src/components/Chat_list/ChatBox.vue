@@ -1,30 +1,34 @@
 <!-- 聊天框,上半部分为历史记录，下半部分为输入区-->
-<template>
-    <div class="chat-box">
-      <div class="chat-header">
-        <div class="chat-avatar">
-          <img :src="selectedChat.avatar" alt="avatar" />
-        </div>
-        <div class="chat-name">{{ selectedChat.name }}</div>
-        <div style="margin-left: auto;" v-if="selectedChat.tags.includes('group')">
-          <button class="group-button" @click="clickGroupManagement">···</button>
-        </div>
+<template><!-- todo List:新消息的处理逻辑 -->
+  <div class="chat-box" ref="chatBox">
+    <!-- 最上方的聊天头部 -->
+    <div class="chat-header">
+      <div class="chat-avatar">
+        <img :src="selectedChat.avatar" alt="avatar" />
       </div>
-      <div class="messages" ref="messages">
-        <MessageItem 
-          v-for="message in messages" 
-          :message="message"
-          :avatar="selectedChat.avatar"
-          @show-context-menu="showContextMenu"
-          @show-profile-card="showProfileCard"
-        />
+      <div class="chat-name">{{ selectedChat.name }}</div>
+      <div style="margin-left: auto;" v-if="selectedChat.tags.includes('group')">
+        <button class="detail-button" @click="clickGroupManagement">···</button>
       </div>
-      <MessageInput @send-message="sendMessage" />
-      <ContextMenu ref="contextMenu"  @select-item="handleMenuSelect" />
-      <ProfileCard ref="profileCard" @go-to-chat="goToChat" />
     </div>
-
-  </template>
+    <!-- 上方的消息历史 -->
+    <div class="messages" ref="messages">
+      <MessageItem 
+        v-for="message in messages" 
+        :message="message"
+        :avatar="selectedChat.avatar"
+        @show-context-menu="showContextMenu"
+        @show-profile-card="showProfileCard"
+      />
+    </div>
+    <!-- 下方的输入框 -->
+    <MessageInput @send-message="sendMessage" />
+    <!-- 右键菜单 -->
+    <ContextMenu ref="contextMenu"  @select-item="handleMenuSelect" />
+    <!-- 个人名片 -->
+    <ProfileCard ref="profileCard"/>
+  </div>
+</template>
   
   <script>
   import MessageItem from './MessageItem.vue';
@@ -35,10 +39,33 @@
   import { getProfileCard } from '@/services/api';
   export default {
     components: {MessageItem, MessageInput, ContextMenu, ProfileCard},
-    props: ['selectedChat', 'messages'], // 当前选中的聊天信息和聊天记录
     data() {
+      return {
+        messages: [],  // 当前聊天的消息历史
+        boundD: 0,
+        boundR: 0,
+        selectedChat: null,  // 当前选中的聊天
+      }
+    },
+    watch: {
+      '$store.state.currentChat': {
+        immediate: true,
+        handler: function(newVar) {
+          if(newVar) {
+            this.selectedChat = newVar;
+            this.selectNewChat(newVar.id);
+          }
+        },
+      },
     },
     methods: {
+      async selectNewChat(account_id) {
+        // 加载消息历史   
+        const response = await chatListAPI.getMessages(account_id);
+        // 若被禁言  
+        //todo
+        this.messages = response.data.messages;
+      },
       sendMessage(content) {
         // 通知父组件发送消息
         this.$emit('send-message', content);
@@ -49,7 +76,7 @@
       },
       showContextMenu(event, message) {
         const items = ['引用', '转发', '删除', '撤回', '复制', '多选', '收藏', '置顶'];
-        this.$refs.contextMenu.show(event, event.clientX, event.clientY, items, message);
+        this.$refs.contextMenu.show(event, items, message, this.boundD, this.boundR);
       },
       async handleMenuSelect(option, message){   // todo api没搞完
         if(option === '引用'){
@@ -73,21 +100,28 @@
      
       },
       async showProfileCard(event, send_account_id){
-        // const profile = await this.getProfileCard(send_account_id); todo
-        const profile = {
-          tid: '0',  // tid
-          avatar: new URL('@/assets/images/avatar.jpg', import.meta.url).href,  // 头像地址
-          remark: '',  // 备注
-          nickname: '', // 对方设置的昵称
-          groupNickname: '',  // 对方的群昵称
-          tag: '',  // 分组
-          signature: '',  // 个性签名
-        };
-        this.$refs.profileCard.show(event, profile);
+        let group_id = null;
+        if(this.selectedChat.tags.includes('group')){
+          group_id = this.selectedChat.id;
+        }
+        const response = await getProfileCard(send_account_id, group_id); 
+        const profile = response.data;
+        // const profile = {
+        //   tid: '0',  // tid
+        //   avatar: new URL('@/assets/images/avatar.jpg', import.meta.url).href,  // 头像地址
+        //   remark: '',  // 备注
+        //   nickname: '', // 对方设置的昵称
+        //   groupNickname: '',  // 对方的群昵称
+        //   tag: '',  // 分组
+        //   signature: '',  // 个性签名
+        // };
+        
+        this.$refs.profileCard.show(event, profile, this.boundD, this.boundR);
       },
-      async goToChat(tid){
-        this.$emit('go-to-chat', tid);
-      },
+    },
+    mounted() {
+      this.boundD = this.$refs.chatBox.getBoundingClientRect().bottom;
+      this.boundR = this.$refs.chatBox.getBoundingClientRect().right;
     },
   };
   </script>
@@ -113,7 +147,7 @@
     margin-left: 10px;
     font-weight: bold;
   }
-  .group-button {
+  .detail-button {
     background-color:transparent;
     border: none;
     cursor: pointer;
@@ -123,5 +157,7 @@
     padding: 10px;
     background-color: #f0f0f0;
     display: block;
+    overflow-y: auto; /* 允许垂直滚动 */
+    overflow-x: hidden; /* 隐藏水平滚动条 */
   }
   </style>

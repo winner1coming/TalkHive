@@ -77,7 +77,7 @@ Mock.mock(`${baseURL}/contactList/groupRequests/applyPend`, 'post', (options) =>
 Mock.mock(`${baseURL}/contactList/blackList`, 'get', () => {
   return Mock.mock({
         'blackList|5-10': [{
-        'id|1': /[0-9]{10}/,
+        'account_id|1': /[0-9]{10}/,
         'name': '@name',
         'avatar': '@image("200x200", "#50B347", "#FFF", "Mock.js")',
         'signature': '爱拼才会赢',
@@ -107,21 +107,21 @@ Mock.mock(`${baseURL}/contactList/blackList/remove`, 'post', (options) => {
 Mock.mock(`${baseURL}/contactList/friends`, 'get', () => {
   return Mock.mock({
       'friends|5-10': [{
-        'id|1': /[0-9]{10}/,
-        'name': '@name',
-        'avatar': '@image("200x200", "#50B347", "#FFF", "Mock.js")',
-        'status': '@pick(["online", "offline"])',
-        'signature': '@sentence',
-        'tag': '@pick(["家人", "朋友", "同事"])',
-      }]
+      'account_id|1': /[0-9]{10}/,
+      'remark': '@name',
+      'avatar': '@image("200x200", "#50B347", "#FFF", "Mock.js")',
+      'status': '@pick(["online", "offline"])',
+      'signature': '@sentence',
+      'tag': '@pick(["家人", "朋友", "同事"])',
+    }]
     }).friends;
 });
 
 Mock.mock(`${baseURL}/contactList/groups`, 'get', () => {
   return Mock.mock({
       'groups|5-10': [{
-        'id|1': /[0-9]{10}/,
-        'name': '@name',
+        'account_id|1': /[0-9]{10}/,
+        'remark': '@name',
         'avatar': '@image("200x200", "#50B347", "#FFF", "Mock.js")',
         'status': '@pick(["online", "offline"])',
         'signature': '@sentence',
@@ -134,10 +134,9 @@ Mock.mock(`${baseURL}/contactList/groups`, 'post', (options) => {
   const { name } = JSON.parse(options.body);
   const group = Mock.mock({
     'group': {
-      'id|1': /[0-9]{10}/,
-      'name': name,
+      'account_id|1': /[0-9]{10}/,
+      'remark': name,
       'avatar': '@image("200x200", "#50B347", "#FFF", "Mock.js")',
-      'status': '@pick(["online", "offline"])',
       'signature': '@sentence',
       'tag': '@pick(["家人", "朋友", "同事"])',
     }

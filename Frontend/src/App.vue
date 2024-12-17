@@ -15,20 +15,17 @@ export default {
   
   methods: {
     ...mapActions(['connectWebSocket']),
-    hideClick(component=null) {
-      if(this.$store.hasFloatCompoent){
-        EventBus.emit('hide-float-component', component); // 通知其他组件
-        if(component===null){
-          this.$store.hasFloatCompoent = false;
-        }
+    hideClick(event) {
+      const clickedElement = event.target;
+      if(this.$store.hasFloatComponent){
+        EventBus.emit('close-float-component', clickedElement); // 通知其他组件
       }
-      
     },
     hideContext(event) {
       event.preventDefault();
-      if(this.$store.hasFloatCompoent){
-        EventBus.emit('hide-float-component'); // 通知其他组件
-        this.$store.hasFloatCompoent = false;
+      const clickedElement = event.target;
+      if(this.$store.hasFloatComponent){
+        EventBus.emit('close-float-component', clickedElement); // 通知其他组件
       }
     },
   },
@@ -36,9 +33,14 @@ export default {
     // this.connectWebSocket();
     window.addEventListener('click', this.hideClick, true); // 使用 capture 选项
     window.addEventListener('contextmenu', this.hideContext, true); // 使用 capture 选项
-    EventBus.on('open-float-component', (component) => {
-      this.$store.hasFloatCompoent = true;
-      hideClick(component);
+    EventBus.on('float-component-open', (component) => {
+      if(this.$store.hasFloatComponent){
+        EventBus.emit('other-float-component', component); // 通知其他组件
+      }
+      this.$store.hasFloatComponent = true;
+    });
+    EventBus.on('hide-float-component', () => {
+      this.$store.hasFloatComponent = false;
     });
   },
   beforeUnmount() {
