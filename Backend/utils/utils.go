@@ -1,9 +1,14 @@
 package utils
 
 import (
+	"TalkHive/global"
+	"TalkHive/models"
 	"errors"
+	"fmt"
 	"github.com/golang-jwt/jwt"
 	"golang.org/x/crypto/bcrypt"
+	"gopkg.in/gomail.v2"
+	"log"
 	"math/rand"
 	"regexp"
 	"time"
@@ -76,4 +81,50 @@ func RandomCode(length int) string {
 func ValidatePhone(phone string) bool {
 	phoneRegex := regexp.MustCompile(`^1[0-9]{10}$`)
 	return phoneRegex.MatchString(phone)
+}
+
+// ValidateEmail 验证电子邮件格式
+func ValidateEmail(email string) bool {
+	// 定义电子邮件格式的正则表达式
+	emailRegex := `^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$`
+	re := regexp.MustCompile(emailRegex)
+	return re.MatchString(email)
+}
+
+// CheckEmailRegistered 检查邮箱是否已经注册
+func CheckEmailRegistered(email string) bool {
+	var user models.AccountInfo
+	err := global.Db.Where("email = ?", email).First(&user).Error
+	return err == nil
+}
+
+// SendSms 发送短信验证码（授权码: nnqfhioshmxndehi）
+func SendSms(email string, code string) interface{} {
+	// QQ邮箱的SMTP服务器地址
+	smtpHost := "smtp.qq.com"
+	smtpPort := 587 // QQ邮箱SMTP端口
+
+	// 发件人信息
+	fromEmail := "15886421754@qq.com" // 发送邮箱
+	authCode := "nnqfhioshmxndehi"    // QQ邮箱的SMTP授权码
+
+	// 创建邮件消息
+	m := gomail.NewMessage()
+	m.SetHeader("From", fromEmail)  // 设置发件人
+	m.SetHeader("To", email)        // 设置收件人（即目标邮箱）
+	m.SetHeader("Subject", "您的验证码") // 邮件主题
+	m.SetBody("text/html", fmt.Sprintf("<h2>您的验证码是：<strong>%s</strong></h2><p>该验证码有效期为5分钟，请尽快使用。</p>", code))
+
+	// 设置SMTP客户端
+	d := gomail.NewDialer(smtpHost, smtpPort, fromEmail, authCode)
+
+	// 发送邮件
+	err := d.DialAndSend(m)
+	if err != nil {
+		log.Printf("邮件发送失败: %v", err)
+		return fmt.Errorf("邮件发送失败: %v", err)
+	}
+
+	log.Printf("验证码邮件已发送至: %s", email)
+	return nil
 }

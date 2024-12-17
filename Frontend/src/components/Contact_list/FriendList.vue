@@ -1,38 +1,63 @@
 <template>
-  <div class="friend-list">
-    <h2>好友列表</h2>
-    <ul>
-      <li v-for="friend in friends" :key="friend.id">
-        {{ friend.name }}
-      </li>
-    </ul>
+  <div class="main">
+    <div class="contact-header">
+        好友列表
+        <button style="float: right;">分组管理</button>
+    </div>
+    <itemList :items="items" :type="type" :tags="tags" @show-profile-card="showProfileCard"/>
+    <ProfileCard ref="profileCard" />
   </div>
 </template>
 
 <script>
-import { getFriends } from '../services/api';
-
+import { getFriends } from '@/services/contactList';
+import itemList from './itemList.vue';
+import ProfileCard from '@/components/base/ProfileCard.vue';
+import { getProfileCard } from '@/services/api';
 export default {
-  name: 'FriendList',
+  components: {
+    itemList,
+    ProfileCard,
+  },
   data() {
     return {
-      friends: [],
+      type: 'friendList',  // friendList, groupList
+      tags: ['家人', '朋友', '同事'],
+      // items: [
+      //   {
+      //     avatar: '',
+      //     account_id: '1',
+      //     remark: 'John',   // 好友备注
+      //     status: 'online',   // online, offline
+      //     signature: '爱拼才会赢',    // 签名
+      //     tag: '家人',   
+      //   },
+      // ],
+      items: [],
+      boundD: 0,
+      boundR: 0,
     };
   },
   methods: {
     async fetchFriends() {
       const response = await getFriends();
-      this.friends = response.data;
+      this.items = response.data;
+    },
+    async showProfileCard(event, send_account_id){
+      const response = await getProfileCard(send_account_id); 
+      const profile = response.data;
+      this.$refs.profileCard.show(event, profile, this.boundD, this.boundR);
     },
   },
-  created() {
+  mounted() {
     this.fetchFriends();
+    this.boundD = document.documentElement.clientHeight;
+    this.boundR = document.documentElement.clientWidth;
   },
 };
 </script>
 
+<style scoped src="@/assets/css/contactList.css"></style>
 <style scoped>
-.friend-list {
-  padding: 20px;
-}
+
 </style>

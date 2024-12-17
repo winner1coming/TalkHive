@@ -1,58 +1,242 @@
 <template>
-  <!-- 安全设置页面容器 -->
   <div class="security-settings">
-    <!-- 页面标题 -->
-    <h2>安全设置</h2>
-    
-    <!-- 旧密码输入框，使用 v-model 双向绑定到 data 中的 oldPassword 属性 -->
-    <input type="password" v-model="oldPassword" placeholder="旧密码" />
-    
-    <!-- 新密码输入框，使用 v-model 双向绑定到 data 中的 newPassword 属性 -->
-    <input type="password" v-model="newPassword" placeholder="新密码" />
-    
-    <!-- 确认新密码输入框，使用 v-model 双向绑定到 data 中的 confirmPassword 属性 -->
-    <input type="password" v-model="confirmPassword" placeholder="确认新密码" />
-    
-    <!-- 修改密码按钮，点击时触发 changePassword 方法 -->
-    <button @click="changePassword">修改密码</button>
+    <div class="left-panel">
+      <div class="menu-item" :class="{ active: activeComponent === 'ChangeEmail' }" @click="setActiveComponent('ChangeEmail')">
+        <span>邮箱</span>
+        <span class="content">{{ user.email }}</span>
+      </div>
+      <div class="menu-item" :class="{ active: activeComponent === 'ChangePassword' }" @click="setActiveComponent('ChangePassword')">
+        <span>更改密码</span>
+        <span class="content"></span>
+      </div>
+      <div class="menu-item" :class="{ active: activeComponent === 'FriendPermission' }" @click="setActiveComponent('FriendPermission')">
+        <span>好友权限设置</span>
+        <span class="content"></span>
+      </div>
+      <div class="menu-item" :class="{ active: activeComponent === 'DeactivateAccount' }" @click="showDeactivateConfirmation">
+        <span>注销账号</span>
+        <span class="content"></span>
+      </div>
+    </div>
+    <div class="right-panel">
+      <component :is="activeComponent" :user="users" @updateUser="updateUser"></component>
+    </div>
+    <div v-if="showConfirmation" class="confirmation-modal">
+      <div class="modal-content">
+        <span class="close" @click="hideDeactivateConfirmation">&times;</span>
+        <p>账号一旦注销，本用户信息将被销毁！</p>
+        <p>是否选择注销账号？</p>
+        <div class="modal-buttons">
+          <button @click="confirmDeactivate">确认</button>
+          <button @click="hideDeactivateConfirmation">取消</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
+import ChangePassword from './ChangePassword.vue';
+import FriendPermission from './FriendPermission.vue';
+import ChangeEmail from './ChangeEmail.vue';
+import { mapGetters } from 'vuex';
+import { getUserInfo , confirmDeactivation } from '@/services/api';
+
 export default {
-  // 组件的 data 函数，返回一个对象，包含组件的响应式数据
+  components: {
+    ChangePassword,
+    FriendPermission,
+    ChangeEmail,
+  },
+
+  computed: {
+    ...mapGetters(['user']),
+  },
+
   data() {
     return {
-      // 旧密码输入框的值
-      oldPassword: '',
-      // 新密码输入框的值
-      newPassword: '',
-      // 确认新密码输入框的值
-      confirmPassword: '',
+      users: {
+        ID:'',
+        email:'2698553217@qq.com',
+        password:'',
+        friend_permissionID:'',
+        friend_permissionNickname:'',
+      },
+      activeComponent: '',
+      showConfirmation:false,
     };
   },
-  
-  // 组件的方法定义
+  mounted(){
+    this.fetchUserInfo();
+    this.setActiveComponent('');
+  },
+
   methods: {
-    // 修改密码方法，处理用户点击修改密码按钮时的逻辑
-    changePassword() {
-      // 检查新密码和确认新密码是否一致
-      if (this.newPassword !== this.confirmPassword) {
-        // 如果不一致，弹出提示框并返回
-        alert('新密码不一致');
-        return;
+    async fetchUserInfo(){
+      try{
+        const id = this.user.id;
+        const response = await getUserInfo(id);
+        if(response.success){
+          this.users.ID = this.user.id;
+          this.users.email = response.email;
+          this.users.password =  response.password;
+          this.users.friend_permissionID = response.friend_permissionID;
+          this.users.friend_permissionNickname = response.friend_permissionNickname;
+        }
+        else{
+          alert(response.message || '获取用户邮箱失败');
+        }
+      }catch(error){
+          console.error('获取信息失败:',error);
       }
-      
-      // 如果新密码一致，调用 Vuex store 中的 changePassword 动作，传递旧密码和新密码
-      this.$store.dispatch('changePassword', { oldPassword: this.oldPassword, newPassword: this.newPassword });
     },
+
+    setActiveComponent(component) {
+      this.activeComponent = component;
+    },
+    updateUser(updatedUser) {
+      this.users = { ...this.users, ...updatedUser };
+      this.setActiveComponent('');  
+    },
+    showDeactivateConfirmation(){
+      this.showConfirmation = true;
+    },
+    hideDeactivateConfirmation(){
+      this.showConfirmation = false;
+    },
+    async confirmDeactivate(){
+      // 注销账号的逻辑
+      try{
+        const response = await confirmDeactivation(this.ID);
+        if(response.success){
+          alert('账号已注销');
+          this.hideDeactivateConfirmation();
+          this.$router.push('/loginth');
+        }
+        else{
+          alert(response.message || '注销账号失败');
+        }
+
+      }catch (error){
+        console.error("账号注销失败:",error)
+      }
+
+    }
   },
 };
 </script>
 
 <style scoped>
-/* 安全设置页面的样式 */
 .security-settings {
-  padding: 20px; /* 设置内边距 */
+  display: flex;
+  height: 100vh;
+}
+
+.left-panel {
+  width: 30%;
+  background-color: #f0f0f0;
+  padding: 20px;
+}
+
+.right-panel {
+  width: 70%;
+  padding: 20px;
+  position: relative;
+}
+
+.menu-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+  cursor: pointer;
+  width: 100%;
+  height: 10vh;
+}
+
+.menu-item.active {
+  background-color: #42b983;
+  color: white;
+}
+
+.menu-item span {
+  font-size: 16px;
+}
+
+.menu-item .content {
+  font-size: 14px;
+  color: #666;
+}
+
+.menu-item.active .content {
+  color: white;
+}
+
+.confirmation-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  position: relative;
+  width: 300px;
+}
+
+.close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+  font-size: 20px;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.modal-buttons button {
+  margin-left: 10px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.modal-buttons button:first-child {
+  background-color: #42b983;
+  color: white;
+}
+
+.modal-buttons button:last-child {
+  background-color: #ccc;
+  color: black;
+}
+
+.back-button {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  cursor: pointer;
+  font-size: 16px;
+  color: #42b983;
+  display: flex;
+  align-items: center;
+}
+
+.back-button i {
+  margin-right: 5px;
 }
 </style>

@@ -1,81 +1,116 @@
-import Vue from 'vue';
-import Router from 'vue-router';
+import { createRouter, createWebHistory } from 'vue-router';
 
 // 导入各个视图组件
-import Home from '../views/Home.vue';
-import Login from '../components/Login.vue';
-import Register from '../components/Register.vue';
-import MessageList from '../components/MessageList.vue';
-import SingleChat from '../components/SingleChat.vue';
-import GroupChat from '../components/GroupChat.vue';
-import Profile from '../components/Profile.vue';
-import GroupManagement from '../components/GroupManagement.vue';
-import ContactList from '../components/ContactList.vue';
-import FriendList from '../components/FriendList.vue';
-import GroupList from '../components/GroupList.vue';
-import FriendRequest from '../components/FriendRequest.vue';
-import GroupRequest from '../components/GroupRequest.vue';
-import PersonalHomepage from '../components/PersonalHomepage.vue';
-import EditProfile from '../components/EditProfile.vue';
-import SecuritySettings from '../components/SecuritySettings.vue';
-import SystemSettings from '../components/SystemSettings.vue';
+import Home from '@/views/Home.vue';
+import LoginTH from '@/views/LoginTH.vue';
+import Register from '@/components/Register.vue';
+import ChatView from '@/views/ChatView.vue';
+import ContactView from '@/views/ContactView.vue';
+import ForgetPassword from '@/components/ForgetPassword.vue';
+import ShowList from '@/views/SettingView.vue';
+import WorkSpace from '@/views/WorkSpace.vue';
+import Favorites from '@/components/WorkSpace/Favorites.vue';
+import Notes from "@/components/WorkSpace/Notes.vue";
+import NoteEditor from "@/components/WorkSpace/NoteEditor.vue";
+import Code from "@/components/WorkSpace/Code.vue"
+import DdlList from "@/components/WorkSpace/DdlList.vue"
 
-// 使用 Vue Router
-Vue.use(Router);
+//import GroupChat from '@/components/GroupChat.vue';
+//import Profile from '@/components/Profile.vue';
+//import GroupManagement from '@/components/GroupManagement.vue';
+//import ContactList from '@/components/ContactList.vue';
+//import FriendList from '@/components/FriendList.vue';
+//import GroupList from '@/components/GroupList.vue';
+// import FriendRequest from '@/components/FriendRequest.vue';
+// import GroupRequest from '@/components/GroupRequest.vue';
+// import PersonalHomepage from '@/components/PersonalHomepage.vue';
+// import EditProfile from '@/components/EditProfile.vue';
+// import SecuritySettings from '@/components/SecuritySettings.vue';
+// import SystemSettings from '@/components/SystemSettings.vue';
 
-// 导出路由实例
-export default new Router({
-  // 定义路由配置
-  routes: [
-    // 主页路由
-    { path: '/', component: Home },
-    
-    // 登录页面路由
-    { path: '/login', component: Login },
-    
-    // 注册页面路由
-    { path: '/register', component: Register },
-    
-    // 消息列表页面路由
-    { path: '/messages', component: MessageList },
-    
-    // 单聊页面路由，动态路由参数 :id
-    { path: '/chat/:id', component: SingleChat },
-    
-    // 群聊页面路由，动态路由参数 :id
-    { path: '/group/:id', component: GroupChat },
-    
-    // 个人信息页面路由
-    { path: '/profile', component: Profile },
-    
-    // 群组管理页面路由
-    { path: '/group-management', component: GroupManagement },
-    
-    // 联系人列表页面路由
-    { path: '/contacts', component: ContactList },
-    
-    // 好友列表页面路由
-    { path: '/friends', component: FriendList },
-    
-    // 群组列表页面路由
-    { path: '/groups', component: GroupList },
-    
-    // 好友请求页面路由
-    { path: '/friend-requests', component: FriendRequest },
-    
-    // 群组请求页面路由
-    { path: '/group-requests', component: GroupRequest },
-    
-    // 个人主页页面路由
-    { path: '/personal-homepage', component: PersonalHomepage },
-    
-    // 编辑资料页面路由
-    { path: '/edit-profile', component: EditProfile },
-    
-    // 安全设置页面路由
-    { path: '/security-settings', component: SecuritySettings },
-    
-    // 系统设置页面路由
-    { path: '/system-settings', component: SystemSettings },
-  ],
+// 定义路由配置
+const routes = [
+  {path: '/', component: LoginTH},
+  {path:'/loginth',component:LoginTH},
+  { path: '/register', component: Register },
+  {path:'/forgetpassword',component:ForgetPassword},
+  { 
+    path: '/home', 
+    component: Home,
+    meta:{requiresAuth:true},
+    children:[
+      { path: '/chat', name: 'chat', component: ChatView },
+      { path: '/contact', component: ContactView },
+      {path:'/setlist',component:ShowList},
+      {
+        path: "/workspace",
+        component: WorkSpace,
+        children: [
+          {
+            path: "/workspace/favorites",
+            component: Favorites,
+          },
+          {
+            path: "/workspace/notes",
+            component: Notes, 
+          },
+          {
+            path: "/workspace/code",
+            component: Code,
+            props: true,
+          },
+          {
+            path: "/workspace/ddl",
+            component: DdlList,
+            props: true,
+          },
+          {
+            path: "/workspace/notes/:id",
+            component: NoteEditor,
+            props: true,
+          },
+          {
+            path: "/workspace/code/:id",
+            component: NoteEditor,
+            props: true,
+          },
+          // 添加其他子路由
+        ]
+      }
+    ]
+  },
+  //{ path: '/profile', component: Profile },
+   //{ path: '/group-management', component: GroupManagement },
+  // { path: '/friends', component: FriendList },
+ // { path: '/groups', component: GroupList },
+  // { path: '/friend-requests', component: FriendRequest },
+  // { path: '/group-requests', component: GroupRequest },
+  // { path: '/personal-homepage', component: PersonalHomepage },
+  // { path: '/edit-profile', component: EditProfile },
+  // { path: '/security-settings', component: SecuritySettings },
+  // { path: '/system-settings', component: SystemSettings },
+];
+
+// 创建路由实例
+const router = createRouter({
+  history: createWebHistory(),
+  routes,
 });
+
+/*router.beforeEach((to, from, next) => {
+    const isLoggedIn = localStorage.getItem(('isLoggedIn')==='true');
+
+    if(to.meta.requiresAuth){
+      if(isLoggedIn){
+        next();
+      }
+      else{
+        next('/loginth');
+      }
+    }
+    else{
+      next();
+    }
+});*/
+
+export default router;

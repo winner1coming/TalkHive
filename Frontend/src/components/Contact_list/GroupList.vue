@@ -1,38 +1,62 @@
 <template>
-  <div class="group-list">
-    <h2>群聊列表</h2>
-    <ul>
-      <li v-for="group in groups" :key="group.id">
-        {{ group.name }}
-      </li>
-    </ul>
+  <div class="main">
+    <div class="contact-header">
+        群聊列表
+    </div>
+    <itemList :items="items" :type="type" :tags="tags" @show-profile-card="showProfileCard"/>
+    <ProfileCard ref="profileCard"/>
   </div>
 </template>
 
 <script>
-import { getGroups } from '../services/api';
+import { getGroups } from '@/services/contactList';
+import itemList from './itemList.vue';
+import ProfileCard from '@/components/base/ProfileCard.vue';
+import { getProfileCard } from '@/services/api';
 
 export default {
-  name: 'GroupList',
+  components: {
+    itemList,
+    ProfileCard,
+  },
   data() {
     return {
-      groups: [],
+      type: 'groupList',  // friendList, groupList
+      tags: ['家人', '朋友', '同事'],  // 从后端获取
+      // items: [   // 从后端获取
+      //   {
+      //     avatar: '',
+      //     account_id: '1',   // 群id
+      //     signature: '这是一个群聊',  // 群介绍
+      //     remark: 'John',   // 群聊备注或群名称
+      //     tag: '家人',
+      //   },
+      // ],
+      items: [],
+      boundD: 0,
+      boundR: 0,
     };
   },
   methods: {
     async fetchGroups() {
       const response = await getGroups();
-      this.groups = response.data;
+      this.items = response.data;
+    },
+    async showProfileCard(event, send_account_id){
+      const response = await getProfileCard(send_account_id); 
+      const profile = response.data;
+      this.$refs.profileCard.show(event, profile, this.boundD, this.boundR);
     },
   },
-  created() {
+  mounted() {
     this.fetchGroups();
+    this.boundD = document.documentElement.clientHeight;
+    this.boundR = document.documentElement.clientWidth;
   },
 };
 </script>
 
+<style scoped src="@/assets/css/contactList.css"></style>
 <style scoped>
-.group-list {
-  padding: 20px;
-}
+
 </style>

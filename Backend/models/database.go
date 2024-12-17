@@ -6,23 +6,25 @@ import (
 
 // AccountInfo 表示账号信息表
 type AccountInfo struct {
-	AccountID        uint       `gorm:"primaryKey" json:"account_id"`
-	ID               string     `gorm:"unique" json:"id"`
-	Password         string     `json:"password"`
-	Phone            string     `json:"phone"`
-	Email            string     `json:"email"`
-	Avatar           string     `json:"avatar"`
-	Nickname         string     `json:"nickname"`
-	Signature        string     `json:"signature"`
-	Gender           string     `json:"gender"`
-	Birthday         *time.Time `json:"birthday"`
-	Status           string     `json:"status"`
-	FriendPermission string     `json:"friend_permission"`
-	LastLogout       *time.Time `json:"last_logout"`
+	AccountID        uint   `gorm:"primaryKey" json:"account_id"`
+	ID               string `gorm:"unique" json:"id"`
+	Password         string `json:"password"`
+	Phone            string `json:"phone"`
+	Email            string `json:"email"`
+	Avatar           string `json:"avatar"`
+	Nickname         string `json:"nickname"`
+	Signature        string `json:"signature"`
+	Gender           string `json:"gender"`
+	Birthday         string `json:"birthday"`
+	Status           string `json:"status"`
+	FriendPermission string `json:"friend_permission"`
+	LastLogout       string `json:"last_logout"`
+	Deactivate       bool   `json:"deactivate"`
 }
 
 // Contacts 表示好友/群聊表
 type Contacts struct {
+	OwnerID     uint   `json:"owner_id"`
 	ContactID   uint   `gorm:"primaryKey" json:"contact_id"`
 	IsBlacklist bool   `json:"is_blacklist"`
 	IsPinned    bool   `json:"is_pinned"`
@@ -56,6 +58,7 @@ type ApplyInfo struct {
 // GroupChatInfo 表示群聊总表
 type GroupChatInfo struct {
 	GroupID         uint   `gorm:"primaryKey" json:"group_id"`
+	GroupOwner      uint   `json:"group_owner"`
 	GroupAvatar     string `json:"group_avatar"`
 	GroupName       string `json:"group_name"`
 	EnterPermission string `json:"enter_permission"`
