@@ -1,7 +1,8 @@
 <template>
     <div class="main">
       <div class="contact-header">
-          黑名单
+         黑名单
+        <button style="float: right;">批量管理</button>
       </div>
       <div v-for="person in blackList" :key="person.account_id" class="item">
         <img :src="person.avatar" alt="avatar" width="50" height="50" />
@@ -45,8 +46,8 @@
         this.blackList = response.data;
       },
       async Remove(id) {
-        await removeFromBlackList(id);
-        this.fetchBlackList();
+        const response = await removeFromBlackList(id);
+        this.blackList = this.blackList.filter(person => person.account_id !== id);
       },
     },
     created() {

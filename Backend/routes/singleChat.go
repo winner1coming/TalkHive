@@ -16,8 +16,8 @@ func SetupSingleChatRoutes(router *gin.Engine) *gin.RouterGroup {
 	r.POST("/chat/:id/friend/blacklist", singleChat.AddToBlacklist)        // 加入黑名单
 	r.DELETE("/chat/:id/friend/blacklist", singleChat.RemoveFromBlacklist) // 移除黑名单
 	r.DELETE("/chat/:id/friend", singleChat.DeleteContact)                 // 删除联系人
-	r.POST("/chat/:id/mute", singleChat.SetMute)                           // 设置免打扰
-	r.POST("/chat/:id/pin", singleChat.SetPin)                             // 设置置顶
+	r.POST("/chat/:id/mute", singleChat.SetMute)                           // 3.7.设置免打扰
+	r.POST("/chat/:id/pin", singleChat.SetPin)                             // 3.4.设置置顶
 	r.DELETE("/chat/:id/records", singleChat.DeleteChatRecords)            // 删除聊天记录
 
 	return r

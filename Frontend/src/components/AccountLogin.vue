@@ -1,16 +1,22 @@
 <template>
   <div class="accountlogin">
     <div class = "all">
-      <img  class="avatar" src = '@/assets/images/avatar.jpg'/>
+      <img  class="avatar" :src = "'user.avatar' || '@/assets/images/avatar.jpg'"/>
       
       <div class="input-group">
         <label for="account">账号:</label>
-        <input id="account" type="text" v-model="phone" placeholder="请输入账号" />
+        <input id="account" type="text" v-model="account" placeholder="请输入账号" />
       </div>
       
       <div class="input-group">
         <label for="password">密码:</label>
         <input id="password" type="password" v-model="password" placeholder="请输入密码" />
+      </div>
+
+      <!-- 记住密码选项 -->
+      <div class="remember-me">
+      <input type="checkbox" id="rememberMe" v-model="rememberMe" />
+      <label for="rememberMe">记住密码</label>
       </div>
 
       <button class="login-button" @click="login">登录</button>
@@ -26,26 +32,83 @@
 
 <script>
 import { login } from '@/services/api'; // 导入登录 API
+import CryptoJS from 'crypto-js';
+import { mapActions, mapGetters} from 'vuex';
 
 export default {
+  //数据的存储
   data() {
     return {
-      phone: '',
-      password: '',
+      account: '666666',
+      password: '666666',
+      rememberMe:false,
+      encryptionKey: 'TalkHiveProject',
     };
   },
+
+  computed: {
+    ...mapGetters(['user']), // 从 Vuex 获取用户信息
+  },
+
   
   methods: {
-    // 登录方法
+    ...mapActions(['login']), // 映射 Vuex 的 login 方法
+
+    //对密码进行加密
+    encryptPassword(password) {
+      return CryptoJS.AES.encrypt(password, this.encryptionKey).toString();
+    },
+
+    // 解密密码
+    decryptPassword(encryptedPassword) {
+      const bytes = CryptoJS.AES.decrypt(encryptedPassword, this.encryptionKey);
+      return bytes.toString(CryptoJS.enc.Utf8);
+    },
+
+    // //检查账号密码是否为空（与后端连接需要把测试登录testlogin函数直接删除即可）
+    // async testlogin(){
+    //         // 检查账号和密码是否为空
+    //   // 调用登录方法
+    //   await this.login();
+    //   this.$router.push('/home');
+    // },
     async login() {
+
+      if (!this.account) {
+        alert('账号不能为空');
+        return;
+        }
+        else if(!this.password){
+          alert('密码不能为空');
+        }
+
       try {
         const response = await login(
           {
-            phone: this.phone,
+            account: this.account,
             password: this.password,
           });
+
+        //如果记住密码
+        if (this.rememberMe) {
+          const encryptedPassword = this.encryptPassword(this.password);
+          localStorage.setItem('rememberedPhone', this.account);
+          localStorage.setItem('rememberedPassword', encryptedPassword);
+        } else {
+          // 如果未勾选“记住密码”，则清除之前保存的账号和密码
+          localStorage.removeItem('rememberedPhone');
+          localStorage.removeItem('rememberedPassword');
+        }
+
         if (response.success) {
-          this.$router.push('/');
+          //更新全局变量
+          this.$store.commit('SET_USER', {
+            username: response.nickname,
+            id: response.account_id,
+            avatar: response.avatar,
+          });
+
+          this.$router.push('/home');
         } else {
           alert(response.message || '登录失败');
         }
@@ -54,6 +117,19 @@ export default {
       }
     },
   },
+
+  mounted() {
+    // 页面加载时，检查是否有记住的账号和密码
+    const rememberedPhone = localStorage.getItem('rememberedPhone');
+    const encryptedPassword = localStorage.getItem('rememberedPassword');
+
+    if (rememberedPhone && encryptedPassword) {
+      this.phone = rememberedPhone;
+      this.password = this.decryptPassword(encryptedPassword); // 解密密码
+      this.rememberMe = true; // 自动勾选“记住密码”
+    }
+  },
+
 };
 </script>
 

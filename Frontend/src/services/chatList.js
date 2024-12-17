@@ -3,8 +3,8 @@ import apiClient from '@/services/api';
 export const getChatList = () => {
   return apiClient.get('/chatlist');
 };
-// 产生新聊天
-export const generateNewChat = (tid) => {  
+// 获取单个新聊天
+export const getChat = (tid) => {  
   // 创建一个新的聊天，后端需要返回新的chat，chat的格式同getChatList中的元素
   return apiClient.post(`/chatlist/createChat`,{tid});
 };

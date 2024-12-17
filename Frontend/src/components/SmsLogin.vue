@@ -3,8 +3,9 @@
       <img  class="avatar" src = '@/assets/images/avatar.jpg'/>
       
       <div class="input-group">
-        <label for="phoneNumber">手机号</label>
-        <input id="phoneNumber" type="text" v-model="phoneNumber" placeholder="请输入手机号" />
+        <label for="email">邮箱</label>
+        <input id="email" type="text" v-model="email" placeholder="请输入邮箱" />
+        <p v-if="!isEmailValid && email" class="error-message">请输入有效的邮箱地址</p>
       </div>
       
       <div class="verificate">
@@ -12,6 +13,7 @@
           <label for="smsCode">验证码</label>
           <input id="smsCode" type="text" v-model="smsCode" placeholder="请输入验证码" />
         </div>
+
         <button class="send-sms-button" @click="sendSmsCode">获取</button>
       </div>
 
@@ -26,26 +28,53 @@
   
   <script>
   import { smsLogin, sendSmsCode } from '@/services/api'; // 导入登录和发送验证码 API
+  import { mapActions, mapGetters} from 'vuex';
   
   export default {
+    computed: {
+      ...mapGetters(['user']), // 从 Vuex 获取用户信息
+      isEmailValid() {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(this.email);
+      },
+    },
+
     data() {
       return {
-        phoneNumber: '',
+        email: '',
         smsCode: '',
         code: '',
       };
     },
     
     methods: {
+      ...mapActions(['login']), // 映射 Vuex 的 login 方法
+
+
       // 登录方法
       async smsLogin() {
-        this.validateCode();
+        if(!this.email){
+          alert("邮箱不能为空！");
+        }
+        else if(!this.smsCode){
+          alert("验证码不能为空！");
+        }
+
+        this.validateCode();  
+          
         try {
           const response = await smsLogin({
-            phoneNumber : this.phoneNumber,
+            email : this.email,
           });
+
           if(response.success){
-            this.$router.push('/');
+            this.$store.commit('SET_USER', {
+            username: response.nickname,
+            id: response.account_id,
+            avatar: response.avatar,
+            });
+
+            this.$router.push('/home');
           }
           else {
             alert(response.message || '登录失败');
@@ -56,28 +85,24 @@
       },
       
       async validateCode(){
-        if(Code){
-          if(Code !== this.smsCode){
+        if(this.Code){
+          if(this.Code !== this.smsCode){
               alert('验证码错误');
               return;
           }
         }
         else{
-          alter('请先获取验证码！');
+          alert('请先获取验证码！');
           return;
         }
       },
       // 发送验证码方法
       async sendSmsCode() {
-        if (!this.validatePhoneNumber(this.phoneNumber)) {
-          alert('请输入有效的手机号码');
-          return;
-        }
         
         try {
           const response = await sendSmsCode({
             command:'smsLogin',
-            phoneNumber:this.phoneNumber,
+            email:this.email,
           });
 
           if (response.success) {
@@ -91,11 +116,8 @@
         }
       },
       
-      // 验证手机号
-      validatePhoneNumber(phoneNumber) {
-        return /^1[3-9]\d{9}$/.test(phoneNumber);
-      },
     },
+
   };
   </script>
   
@@ -209,4 +231,10 @@
   text-decoration: underline;
 }
 
+.error-message {
+  color: red;
+  font-size: 12px;
+  margin-top: 5px;
+  flex-direction: column;
+}
   </style>

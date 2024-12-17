@@ -33,76 +33,75 @@ export const login = async (payload) => {
 //短信接收码的接口
 export const sendSmsCode = async (data) => {
   try {
-    const response = await axios.post('/sendSmsCode',data);
+    const response = await apiClient.post('/sendSmsCode',data);
     return response.data;
   } catch (error) {
     throw error.response ? error.response.data : error.message;
   }
 };
 
-export const smsLogin = (phoneNumber) => {
-  return apiClient.post('/smslogin', { phoneNumber})
-    .then(response => {
+export const smsLogin = async(email) => {
+  try{
+    const response =await apiClient.post('/smslogin',email);
       return response.data;
-    })
-    .catch(error => {
+  }catch(error){
       throw error.response?.data || error.message;
-    });
+    };
 };
 
 // 注册接口
-export const Register = (data) => {
-  return apiClient.post('/register', data)
-    .then(response => {
-      return response.data;
-    })
-    .catch(error => {
-      throw error.response?.data || error.message;
-    });
+export const Register =async (data) => {
+  try{
+    const response = await apiClient.post('/register', data);
+    return response.data;
+  } 
+  catch(error) {
+    throw error.response?.data || error.message;
+  };
 };
 
 
 // 重置密码接口
-export const resetPassword = (msg) => {
-  return apiClient.post('/resetPassword', msg)
-    .then(response => {
-      return response.data;
-    })
-    .catch(error => {
-      throw error.response?.data || error.message;
-    });
+export const resetPassword =async (msg) => {
+  try{
+    const response = await apiClient.post('/resetPassword', msg);
+    return response.data;
+  } 
+  catch(error) {
+    throw error.response?.data || error.message;
+  };
 };
 
 // 获取用户信息接口
-export const getProfile = () => {
-  return apiClient.get('/profile')
-    .then(response => {
-      return response.data;
-    })
-    .catch(error => {
-      throw error.response?.data || error.message;
-    });
+export const showProfile = async (id) => {
+  try {
+    const response = await apiClient.get(`/Settings/profile/${id}`);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error.message;
+  }
 };
 
 // 更新用户信息接口
-export const updateProfile = (profile) => {
-  return apiClient.put('/profile', profile)
-    .then(response => {
-      return response.data;
-    })
-    .catch(error => {
-      throw error.response?.data || error.message;
-    });
+export const saveEdit = async (data) => {
+  try {
+    const response = await apiClient.post('/Settings/saveEdit', data);
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || error.message;
+  }
 };
 
 // 获取消息列表接口
 export const getMessages = () => {
   return apiClient.get('/messages');
 }
+
+
 // chat和contact
 // 资料卡片
-export const getProfileCard = (tid) => {
-  return apiClient.get('/profileCard', { tid });
+export const getProfileCard = (tid, group_id=null) => {
+  return apiClient.get(`/profileCard/${tid}`, {group_id});
 };
 // 搜索好友/群聊（key可能是id或者昵称）
 export const searchFriendGroup = (key) => {

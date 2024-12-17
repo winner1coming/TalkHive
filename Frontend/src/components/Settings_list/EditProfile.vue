@@ -8,10 +8,17 @@
       <input type="file" ref="fileInput" style="display: none;" @change="handleFileChange" />
       <button v-if="isEditing" @click="openFilePicker">上传</button>
     </div>
-    <div class="input_text">
-      <label>账号:</label>
+
+    <div class="input_text" v-if="isEditing">
+      <label for="id">账号:</label>
+      <input id="id" type="text" v-model="id" :placeholder="id" :disabled="!isIdEditable"/>
+      <span v-if="!isIdEditable" class="id-warning">一年只能更改一次-可更改时间{{ nextUpdateDate }}</span>
+    </div>
+    <div class="input_text" v-else>
+      <label for="id">账号:</label>
       <span>{{ id }}</span>
     </div>
+
     <div class="input_text" v-if="isEditing">
       <label for="username">用户名:</label>
       <input id="username" type="text" v-model="username" :placeholder="username" />
@@ -47,6 +54,20 @@
       <span>{{ birthday }}</span>
     </div>
 
+    <div class="input_text">
+      <label>邮箱:</label>
+      <span>{{ email }}</span>
+    </div>
+
+    <div class="input_text" v-if="isEditing">
+      <label for="phone">手机号:</label>
+      <input id="phone" type="text" v-model="phone" :placeholder="phone" />
+    </div>
+    <div class="input_text" v-else>
+      <label for="phone">手机号:</label>
+      <span>{{ phone }}</span>
+    </div>
+
     <div class="input_sig" v-if="isEditing">
       <label>个性签名:</label>
       <textarea v-model="signature" :placeholder="signature" maxlength="100"></textarea>
@@ -75,39 +96,39 @@
 </template>
 
 <script>
-import { getProfile, updateProfile } from '@/services/api';
+import { showProfile, saveEdit } from '@/services/api';
 import avatar from '@/assets/images/avatar.jpg';
+import { mapGetters } from 'vuex';
 
 export default {
+   // 从 Vuex 获取用户信息
+  computed: {
+    ...mapGetters(['user']),
+  },
   // 组件的 data 函数，返回一个对象，包含组件的响应式数据
   data() {
     return {
       avatar,
-      // 用户名输入框的值
       username: '',
-      // ID 输入框的值
       id: '',
-      // 性别
       gender: '',
-      // 生日
       birthday: '',
-      // 个性签名
       signature: '',
-      // 原始用户名，用于取消操作时恢复
+      email:'',
+      phone:'',
+      lastUpdate:'',
+      originalAvatar:'',
       originalUsername: '',
-      // 原始 ID，用于取消操作时恢复
       originalId: '',
-      // 原始性别，用于取消操作时恢复
       originalGender: '',
-      // 原始生日，用于取消操作时恢复
       originalBirthday: '',
-      // 原始个性签名，用于取消操作时恢复
       originalSignature: '',
-      // 是否显示头像预览
+      originalPhone:'',
       showPreview: false,
-      // 是否显示日期选择器
       showDatePickerFlag: false,
       isEditing:false,
+      isIdEditable: true, // 新增：控制账号是否可编辑
+      nextUpdateDate: '',
     };
   },
 
@@ -119,35 +140,72 @@ export default {
 
   // 组件的方法定义
   methods: {
-    // 从数据库获取用户信息
+    // 从父组件取用户信息
     async fetchProfile() {
       try {
-        const profile = await getProfile();
-        this.username = profile.username;
-        this.id = profile.id;
-        this.gender = profile.gender;
-        this.birthday = profile.birthday;
-        this.signature = profile.signature;
-        // 保存原始用户名和 ID
-        this.originalUsername = profile.username;
-        this.originalId = profile.id;
-        this.originalGender = profile.gender;
-        this.originalBirthday = profile.birthday;
-        this.originalSignature = profile.signature;
+        const id = this.user.id;
+        const profile = await showProfile(id);
+        if(profile.success){
+          this.id = this.user.id;
+          this.avatar = this.user.avatar;
+          this.username = profile.data.nickname;
+          this.gender = profile.data.gender;
+          this.birthday = profile.data.birthday;
+          this.signature = profile.data.signature;
+          this.email = profile.data.email;
+          this.phone = profile.data.phone;
+          this.lastUpdate = profile.data.lastUpdateID;
+
+          // 保存原始用户名和 ID
+          this.originalUsername = profile.data.nickname;
+          this.originalId = this.user.id;
+          this.originalGender = profile.data.gender;
+          this.originalBirthday = profile.data.birthday;
+          this.originalSignature = profile.data.signature;
+          this.originalPhone = profile.data.phone;
+          this.originalAvatar = this.user.avatar;
+
+          //检查ID是否可以修改
+          const currentDate = new Date();
+          const timeDifference = currentDate - this.lastUpdate;
+          const timegap = 365*24*60*60*1000;
+          
+          if(timeDifference > timegap){
+            this.isIdEditable = false;
+            const nextUpdateDate = new Date(this.lastUpdate.getTime() + timegap);
+            this.nextUpdateDate = nextUpdateDate.toLocaleDateString();
+          }
+          else{
+            this.isIdEditable = true;
+            this.nextUpdateDate = '';
+          }
+        }
+        else{
+          alert('获取个人主页数据失败'+response.message);
+        }
       } catch (error) {
-        console.error('Failed to fetch profile:', error);
+        console.error('加载数据失败:', error);
       }
     },
 
     // 保存资料方法，处理用户点击保存按钮时的逻辑
     async saveProfile() {
       try {
-        await updateProfile({
+        //检查账号是否改变
+        if(this.id !== this.originalId){
+          const currentDate =new Date();
+          this.lastUpdate = currentDate.toISOString();
+        }
+
+        await saveEdit({
           username: this.username,
           id: this.id,
+          avatar:this.avatar,
           gender: this.gender,
           birthday: this.birthday,
           signature: this.signature,
+          phone:this.phone,
+          lastUpdateID: this.lastUpdate,
         });
         // 更新原始用户名和 ID
         this.originalUsername = this.username;
@@ -155,6 +213,16 @@ export default {
         this.originalGender = this.gender;
         this.originalBirthday = this.birthday;
         this.originalSignature = this.signature;
+        this.originalPhone = this.phone,
+        this.originalAvatar = this.avatar;
+
+        //更新全局变量
+        this.$store.commit('SET_USER', {
+            username:this.nickname,
+            id : this.id,
+            avatar : this.avatar,
+        });
+
         this.isEditing =false;
       } catch (error) {
         console.error('Failed to save profile:', error);
@@ -166,10 +234,11 @@ export default {
       // 恢复原始用户名和 ID
       this.username = this.originalUsername;
       this.id = this.originalId;
+      this.avatar = this.originalAvatar;
       this.gender = this.originalGender;
       this.birthday = this.originalBirthday;
       this.signature = this.originalSignature;
-
+      this.phone = this.originalPhone;
       this.isEditing=false;
     },
 

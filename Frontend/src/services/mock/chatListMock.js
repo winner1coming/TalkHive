@@ -19,12 +19,12 @@ const chats = Mock.mock({
 });
 const messages = Mock.mock({
   'messages|5-10': [{
-    'message_id|+1': 1,
-    'send_account_id|1-100': 1,
-    'content': '@sentence',
-    'sender': '@name',
-    'create_time': '@time("HH:mm")',
-    'type': 'text',
+  'message_id|+1': /[0-9]{10}/,
+  'send_account_id|1': ['1','2'],
+  'content': ()=>Mock.Random.csentence(3, 20),
+  'sender': '@name',
+  'create_time': '@time("HH:mm")',
+  'type': 'text',
   }]
 });
 
@@ -48,10 +48,7 @@ Mock.mock(`${baseURL}/chatlist/createChat`, 'post', () => {
       },
     }
   });
-  return {
-    status: 200,
-    data: chat.chat,
-  };
+  return chat.chat;
 });
 Mock.mock(new RegExp(`${baseURL}/chatlist/search/\\w+`), 'get', (options) => {
   const keyword = options.url.split('/').pop();
@@ -138,7 +135,7 @@ Mock.mock(new RegExp(`${baseURL}/messages/\\d+`), 'get', (options) => {
   const tid = parseInt(options.url.split('/').pop());
   return {
     status: 200,
-    data: messages.messages,
+    messages: messages.messages,
   };
 });
 
