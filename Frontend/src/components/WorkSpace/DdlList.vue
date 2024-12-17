@@ -231,7 +231,7 @@ export default {
     // 根据 showCompleted 控制左侧待完成的 DDL 宽度
     leftDdlStyle() {
       return {
-        width: this.showCompleted ? '48%' : '100%', // 显示已完成时为48%，否则占满整个页面
+        width: this.showCompleted ? '60%' : '100%', // 显示已完成时为48%，否则占满整个页面
       };
     },
   },
@@ -335,8 +335,8 @@ export default {
 
 .ddl-item .ddl-checkbox {
   /* 放大复选框 */
-  transform: scale(2); /* 使复选框放大1.5倍 */
-  margin-right: 30px; /* 增加复选框与任务内容之间的间距 */
+  transform: scale(2); /* 使复选框放大2倍 */
+  margin-right: 20px; /* 增加复选框与任务内容之间的间距 */
 }
 
 .ddl-item .deadline {
@@ -350,7 +350,7 @@ export default {
 }
 
 .ddl-item .delete-btn {
-  background-color: #9fbddf;
+  background-color: #007bff;
   color: rgb(255, 255, 255);
   border: none;
   padding: 5px 10px;
@@ -374,7 +374,7 @@ export default {
 
 .toggle-btn {
   padding: 10px;
-  background-color: #007bff;
+  background-color: #9fbddf;
   color: white;
   border: none;
   cursor: pointer;
