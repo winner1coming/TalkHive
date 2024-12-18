@@ -21,13 +21,13 @@ export default {
 		};
 	},
 	methods: {
-		show(event, items, obj, boundD, boundR) { // boundD, boundR 为边界的坐标
+		show(event, items, obj, boundD, boundR, w=null, h=null) { // boundD, boundR 为边界的坐标
 			if(boundD === null){
 				this.x = event.clientX;
 				this.y = event.clientY;
 			}else{
-				const componentWidth = 60;
-				const componentHeight = 400;
+				const componentWidth = w ? w : 60;
+				const componentHeight = h ? h : 400;
 				const x = event.clientX + componentWidth > boundR ? event.clientX - componentWidth : event.clientX;
 				const y = event.clientY + componentHeight > boundD ? boundD - componentHeight : event.clientY;
 				this.x = x;
