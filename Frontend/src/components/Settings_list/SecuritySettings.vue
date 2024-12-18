@@ -1,13 +1,9 @@
 <template>
   <div class="security-settings">
     <div class="left-panel">
-      <div class="menu-item" :class="{ active: activeComponent === 'ChangeID' }" @click="setActiveComponent('ChangeID')">
-        <span>ID</span>
-        <span class="content">{{ user.ID }}</span>
-      </div>
-      <div class="menu-item" :class="{ active: activeComponent === 'ChangePhone' }" @click="setActiveComponent('ChangePhone')">
-        <span>手机号</span>
-        <span class="content">{{ user.phone }}</span>
+      <div class="menu-item" :class="{ active: activeComponent === 'ChangeEmail' }" @click="setActiveComponent('ChangeEmail')">
+        <span>邮箱</span>
+        <span class="content">{{ user.email }}</span>
       </div>
       <div class="menu-item" :class="{ active: activeComponent === 'ChangePassword' }" @click="setActiveComponent('ChangePassword')">
         <span>更改密码</span>
@@ -23,7 +19,7 @@
       </div>
     </div>
     <div class="right-panel">
-      <component :is="activeComponent" @updateUser="updateUser"></component>
+      <component :is="activeComponent" :user="users" @updateUser="updateUser"></component>
     </div>
     <div v-if="showConfirmation" class="confirmation-modal">
       <div class="modal-content">
@@ -40,37 +36,66 @@
 </template>
 
 <script>
-import ChangeID from './ChangeID.vue';
 import ChangePassword from './ChangePassword.vue';
 import FriendPermission from './FriendPermission.vue';
-import ChangePhone from './ChangePhone.vue';
+import ChangeEmail from './ChangeEmail.vue';
+import { mapGetters } from 'vuex';
+import { getUserInfo , confirmDeactivation } from '@/services/api';
 
 export default {
   components: {
-    ChangeID,
     ChangePassword,
     FriendPermission,
-    ChangePhone,
+    ChangeEmail,
   },
+
+  computed: {
+    ...mapGetters(['user']),
+  },
+
   data() {
     return {
-      user: {
-        ID: '阳光小青年',
-        phone: '18682139298',
+      users: {
+        ID:'',
+        email:'2698553217@qq.com',
+        password:'',
+        friend_permissionID:'',
+        friend_permissionNickname:'',
       },
       activeComponent: '',
       showConfirmation:false,
     };
   },
   mounted(){
+    this.fetchUserInfo();
     this.setActiveComponent('');
   },
+
   methods: {
+    async fetchUserInfo(){
+      try{
+        const id = this.user.id;
+        const response = await getUserInfo(id);
+        if(response.success){
+          this.users.ID = this.user.id;
+          this.users.email = response.email;
+          this.users.password =  response.password;
+          this.users.friend_permissionID = response.friend_permissionID;
+          this.users.friend_permissionNickname = response.friend_permissionNickname;
+        }
+        else{
+          alert(response.message || '获取用户邮箱失败');
+        }
+      }catch(error){
+          console.error('获取信息失败:',error);
+      }
+    },
+
     setActiveComponent(component) {
       this.activeComponent = component;
     },
     updateUser(updatedUser) {
-      this.user = { ...this.user, ...updatedUser };
+      this.users = { ...this.users, ...updatedUser };
       this.setActiveComponent('');  
     },
     showDeactivateConfirmation(){
@@ -79,10 +104,23 @@ export default {
     hideDeactivateConfirmation(){
       this.showConfirmation = false;
     },
-    confirmDeactivate(){
-      alert('账号已注销');
-      this.hideDeactivateConfirmation();
-      this.$router.push('/loginth');
+    async confirmDeactivate(){
+      // 注销账号的逻辑
+      try{
+        const response = await confirmDeactivation(this.ID);
+        if(response.success){
+          alert('账号已注销');
+          this.hideDeactivateConfirmation();
+          this.$router.push('/loginth');
+        }
+        else{
+          alert(response.message || '注销账号失败');
+        }
+
+      }catch (error){
+        console.error("账号注销失败:",error)
+      }
+
     }
   },
 };
