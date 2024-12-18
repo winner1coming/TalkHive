@@ -21,25 +21,19 @@
 <script>
 
 export default {
-	props:['devides', 'selectedTag'],
+	props:['devides'],
 	data() {
 	  return {
 			//devides:['家人', '好友', '同事','a','b','c','d','e','f', 'g'], 
 			selectAll: false,
 			selectedDevide: null,
+			multiple: false,
 	  };
-	},
-	watch: {
-	  selectedTag: {
-			handler(val) {
-				this.selectedDevide = val;
-			},
-			immediate: true
-	  }
 	},
 	methods: {
 	  async confirmSelection() {
-			//await deleteFriendGroup(this.selectedDevides);  // selectedDevides是被选择的分组的名称的数组
+			if(this.multiple===false) this.$emit('devide-move', this.selectedDevide);
+			else this.$emit('devides-move', this.selectedDevide);
 			this.close();
 	  },
 	  close() {

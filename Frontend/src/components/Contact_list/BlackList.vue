@@ -4,9 +4,13 @@
         黑名单
       <button style="float: right;" @click="showContextMenu">批量管理</button>
     </div>
-    <div v-for="person in blackList" :key="person.account_id" class="item">
-      <img :src="person.avatar" alt="avatar" width="50" height="50" />
-      <div class="left">
+    <div 
+      v-for="person in blackList" 
+      :key="person.account_id" 
+      class="item"
+    >
+      <img :src="person.avatar" alt="avatar" width="50" height="50" @click="showProfileCard($event, person.account_id)"/>
+      <div class="left" @click="showProfileCard($event, person.account_id)">
           <p class="name">{{ person.name }}</p>
       </div>
       <div class="right">
@@ -19,19 +23,25 @@
       v-show="isBlackListManagementVisible"
       @close="isBlackListManagementVisible = false"
       @confirm="confirmSelection"
-      />
+    />
+    <ProfileCard ref="profileCard" />
     <ContextMenu ref="contextMenu"  @select-item="handleMenuSelect" />
   </div>
 </template>
   
 <script>
-import { removeFromBlackList, getBlackList } from '@/services/contactList';
+import * as contactListAPI from '@/services/contactList';
+import { getProfileCard } from '@/services/api';
+
+
 import BlackListManagement from './BlackListManagement.vue';
 import ContextMenu from '@/components/base/ContextMenu.vue';
+import ProfileCard from '@/components/base/ProfileCard.vue';
 
 export default {
   components: {
     BlackListManagement,
+    ProfileCard,
     ContextMenu,
   },
   data() {
@@ -74,11 +84,16 @@ export default {
   },
   methods: {
     async fetchBlackList() {
-      const response = await getBlackList();
+      const response = await contactListAPI.getBlackList();
       this.blackList = response.data;
     },
+    async showProfileCard(event, send_account_id){
+      const response = await getProfileCard(send_account_id); 
+      const profile = response.data;
+      this.$refs.profileCard.show(event, profile, this.boundD, this.boundR);
+    },
     async Remove(id) {
-      const response = await removeFromBlackList(id);
+      const response = await contactListAPI.removeFromBlackList(id);
       this.blackList = this.blackList.filter(person => person.account_id !== id);
     },
     showContextMenu(event){
@@ -88,27 +103,28 @@ export default {
       ];
       this.$refs.contextMenu.show(event, items, null, this.boundD, this.boundR);
     },
-    handleMenuSelect(item){
+    async handleMenuSelect(item){
       if(item === '批量移出') {
         this.isBlackListManagementVisible = true;
         this.managementType = 'out';
-        // this.managePesons = this.blackList;  // todo api
+        this.managePesons = this.blackList;  
       }
       else {
         this.isBlackListManagementVisible = true;
         this.managementType = 'in';
-        // this.managePesons = this.blackList;  // todo api
+        const response = await contactListAPI.getFriends();
+        this.managePesons = response.data;
       }
     },
     async confirmSelection(selectedPersons) {
       if(this.managementType === 'out') {
         for(const person of selectedPersons) {
-          await removeFromBlackList(person.account_id);   // todo api
+          await contactListAPI.removeFromBlackList(person.account_id);  
         }
       }
       else {
         for(const person of selectedPersons) {
-          await addToBlackList(person.account_id);   // todo api
+          await contactListAPI.addToBlackList(person.account_id);  
         }
       }
       this.fetchBlackList();

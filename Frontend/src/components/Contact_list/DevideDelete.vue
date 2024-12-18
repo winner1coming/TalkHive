@@ -39,6 +39,7 @@ export default {
 	},
 	methods: {
 	  async confirmSelection() {
+			this.$emit('delete-devides', this.selectedDevides);
 			//await deleteFriendGroup(this.selectedDevides);  // selectedDevides是被选择的分组的名称的数组
 			this.close();
 	  },
@@ -63,7 +64,7 @@ export default {
 	mounted() {
 		this.watchSection = this.$watch('selectedDevides', (val) => {
 			const totalDevides = this.devides.length;
-			this.selectAll = val.length === totalDevides;
+			this.selectAll = val.length === totalDevides && totalDevides > 0;
 			this.$refs.selectAllCheckbox.indeterminate = val.length > 0 && val.length < totalDevides;
 		}, { deep: true, immediate: true });
 	},
