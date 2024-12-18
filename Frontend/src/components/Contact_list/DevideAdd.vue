@@ -1,29 +1,41 @@
 <template>
   <div class="modal-overlay" @click.self="close">
     <div class="modal-content">
-      <h2>新建分组</h2>
-      <input v-model="newDevide" placeholder="输入分组名称">
+      <h2>{{type==='add'?"新建分组":"重命名分组"}}</h2>
+      <input 
+        v-model="newDevide" 
+        placeholder="输入分组名称"
+        @keyup.enter="addDevide"
+      />
       <button @click="addDevide">确认</button>
     </div>
   </div>
 </template>
 
 <script>
-import { addFriendGroup, searchFriendGroup } from '@/services/api';
+
 export default {
   data() {
     return {
       newDevide: '',
+      type: '',  // add, rename
     };
   },
   methods: {
     async addDevide() {
 			if (this.newDevide.trim()) {
-				// todo 增加分组的api
+        if(this.type === 'rename'){
+          this.$emit('rename-devide', this.newDevide);
+        }else{
+          this.$emit('add-devide', this.newDevide);
+        }
 				this.close();
-			}
+			}else{
+        alert('分组名不能为空');
+      }
 		},
     close() {
+      this.newDevide = '';
       this.$emit('close');
     },
   },

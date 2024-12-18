@@ -19,8 +19,8 @@
 					<input type="checkbox" v-model="selectedPersons" :value="person">
 					<img :src="person.avatar" alt="avatar" width="50" height="50" />
 					<div class="left">
-						<p class="name">{{ person.name }}</p>
-						<p class="remark">{{ (`签名：${person.signature}`)}}</p>
+						<p class="name">{{ person.name? person.name : person.remark}}</p>
+						<p class="remark">{{ (`签名：${person.signature.length > this.maxChars ? person.signature.slice(0, this.maxChars) + '...' : person.signature}`)}}</p>
 					</div>
 				</li>
 			</ul>
@@ -37,6 +37,7 @@ export default {
 	  return {
 			selectAll: false,
 			selectedPersons: [],
+			maxChars: 20,
 	  };
 	},
 	watch:{

@@ -26,6 +26,33 @@ export const groupApplyRequestPend = (account_id, group_id, accept) => {
   return apiClient.post('/contactList/groupRequests/applyPend', { account_id, group_id, accept });
 };
 
+// *好友列表
+// 获取好友列表接口
+export const getFriends = () => {
+  return apiClient.get('/contactList/friends');
+};
+// 获取分组名
+export const getDevides = (type) => {   // type: 'friends' or 'groups'
+  return apiClient.get(`/contactList/${type}/devides`);
+};
+// 新建分组
+export const createDevide = (type, fd_name) => {   // type: 'friends' or 'groups'
+  return apiClient.post(`/contactList/${type}/devides/create`, { fd_name });
+};
+// 删除分组
+export const deleteDevide = (type, fd_name) => {   // type: 'friends' or 'groups'
+  return apiClient.delete(`/contactList/${type}/devides/delete/${fd_name}`);
+};
+// 修改分组名称
+export const renameDevide = (type, old_fd_name, new_fd_name) => {   // type: 'friends' or 'groups'
+  return apiClient.post(`/contactList/${type}/devides/rename`, {old_fd_name, new_fd_name });
+};
+// 移动好友到分组
+export const moveInDevide = (type, tid, divide) => {
+  return apiClient.post(`/contactList/${type}/devides/moveIn`, { tid, divide });
+};
+
+
 // 获取黑名单列表接口
 export const getBlackList = () => {
   return apiClient.get('/contactList/blackList');
@@ -35,11 +62,11 @@ export const getBlackList = () => {
 export const removeFromBlackList = (account_id) => {
   return apiClient.post('/contactList/blackList/remove', { account_id });
 };
-
-// 获取好友列表接口
-export const getFriends = () => {
-  return apiClient.get('/contactList/friends');
+// 拉黑用户
+export const addToBlackList = (account_id) => {
+  return apiClient.post('/contactList/blackList/add', { account_id });
 };
+
 
 // 获取群聊列表接口
 export const getGroups = () => {

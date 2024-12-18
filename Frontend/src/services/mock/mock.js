@@ -1,6 +1,10 @@
 // src/mocks/mock.js
 import Mock from 'mockjs';
+import './chatListMock';
+import './contactListMock';
+
 const baseURL = 'http://your-api-url.com';
+
 
 Mock.setup({
   timeout: '200-300', // 设置模拟延迟（可选）

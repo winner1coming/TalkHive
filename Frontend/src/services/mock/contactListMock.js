@@ -104,6 +104,15 @@ Mock.mock(`${baseURL}/contactList/blackList/remove`, 'post', (options) => {
   };
 });
 
+Mock.mock(new RegExp(`${baseURL}/contactList/\\w+/devides`), 'get', (options) => {
+  const type = options.url.match(/\/contactList\/(.*?)\/devides/)[1];
+  return Mock.mock({
+      'devides': {
+        'devides':["家人", "朋友", "同事"]
+      }
+  }).devides;
+});
+
 Mock.mock(`${baseURL}/contactList/friends`, 'get', () => {
   return Mock.mock({
       'friends|5-10': [{
