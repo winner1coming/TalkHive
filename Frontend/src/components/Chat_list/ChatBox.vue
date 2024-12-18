@@ -51,7 +51,6 @@
       '$store.state.currentChat': {
         immediate: true,
         handler: function(newVar) {
-          console.log(newVar);
           if(newVar) {
             this.selectedChat = newVar;
             this.selectNewChat(newVar.id);
@@ -77,7 +76,7 @@
       },
       showContextMenu(event, message) {
         const items = ['引用', '转发', '删除', '撤回', '复制', '多选', '收藏', '置顶'];
-        this.$refs.contextMenu.show(event, event.clientX, event.clientY, items, message);
+        this.$refs.contextMenu.show(event, items, message, this.boundD, this.boundR);
       },
       async handleMenuSelect(option, message){   // todo api没搞完
         if(option === '引用'){

@@ -22,7 +22,7 @@
 
     <!-- 群聊管理弹窗 -->
     <GroupManagement 
-      v-if="showGroupManagement" 
+      ref="groupManagement"
       :group="this.$store.state.currentChat" 
       @close="closeGroupManagement"
       @update-group="updateGroupDetails"
@@ -56,6 +56,7 @@ export default {
       //   timestamp: '12:00',
       // }], 
       showGroupManagement: false, // 是否显示群聊管理弹窗
+      showFriendManagement: false, // 是否显示好友管理弹窗
       chatListWidth: 300,  // 聊天列表的宽度
     };
   },
@@ -72,9 +73,9 @@ export default {
     //   this.selectChat(chat);
     // },
     clickGroupManagement() {
-      // if (this.selectedChat && this.selectedChat.is_groupchat) {
-      //   this.showGroupManagement = !this.showGroupManagement;
-      // }
+      if (this.$store.state.currentChat.tags.includes('group')) {
+        this.$refs.groupManagement.show();
+      }
     },
     closeGroupManagement() {
       this.showGroupManagement = false;

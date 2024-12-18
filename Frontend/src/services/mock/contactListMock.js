@@ -77,7 +77,7 @@ Mock.mock(`${baseURL}/contactList/groupRequests/applyPend`, 'post', (options) =>
 Mock.mock(`${baseURL}/contactList/blackList`, 'get', () => {
   return Mock.mock({
         'blackList|5-10': [{
-        'id|1': /[0-9]{10}/,
+        'account_id|1': /[0-9]{10}/,
         'name': '@name',
         'avatar': '@image("200x200", "#50B347", "#FFF", "Mock.js")',
         'signature': '爱拼才会赢',
@@ -102,6 +102,15 @@ Mock.mock(`${baseURL}/contactList/blackList/remove`, 'post', (options) => {
     status: 200,
     data: blackList,
   };
+});
+
+Mock.mock(new RegExp(`${baseURL}/contactList/\\w+/devides`), 'get', (options) => {
+  const type = options.url.match(/\/contactList\/(.*?)\/devides/)[1];
+  return Mock.mock({
+      'devides': {
+        'devides':["家人", "朋友", "同事"]
+      }
+  }).devides;
 });
 
 Mock.mock(`${baseURL}/contactList/friends`, 'get', () => {
