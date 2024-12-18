@@ -6,32 +6,101 @@
         <button class="toggle-button" :class="{ 'status-on': idStatus === 'on' }" @click="toggleIdStatus">
           <span class="toggle-circle"></span>
         </button>
+        <p>{{ msg1 }}</p>
       </div>
       <div class="user-info">
-        <span class="user-phone">手机号: {{ phone }}</span>
-        <button class="toggle-button" :class="{ 'status-on': phoneStatus === 'on' }" @click="togglePhoneStatus">
+        <span class="user-phone">昵称: {{ nickname }}</span>
+        <button class="toggle-button" :class="{ 'status-on': nicknameStatus === 'on' }" @click="toggleNicknameStatus">
           <span class="toggle-circle"></span>
         </button>
+        <p>{{ msg2 }}</p>
       </div>
+      <Windows :visible="modalVisible" :message="modalMessage" @close="closeModal" />
     </div>
   </template>
   
   <script>
+  import {isIDAdd, isNicknameAdd} from '@/services/api.js';
+  import Windows from '@/components/base/Windows.vue'
+
   export default {
-    data() {
+    components:{
+      Windows,
+    },
+    //从父组件获取信息
+    props:{
+      users: {
+        type: Object,
+        required: true,
+        default: () => ({
+            ID:'',
+            friend_permissionID: 'off',
+            friend_permissionNickname: 'off',
+          }),
+        validator: (value) => {
+          return ['ID','friend_permissionID', 'friend_permissionNickname'].every(key => value.hasOwnProperty(key));
+        },
+      },
+    },
+
+    data(){
       return {
-        ID: '阳光小青年',
-        phone: '18682139298',
-        idStatus: 'off', // 'on' or 'off'
-        phoneStatus: 'off', // 'on' or 'off'
+        ID:this.$store.state.user.id,
+        nickname:this.$store.state.user.username,
+        idStatus: this.users.friend_permissionID, // 'on' or 'off'
+        nicknameStatus: this.users.friend_permissionNickname, // 'on' or 'off'
+        modalVisible: false,
+        modalMessage: '',
+        msg1:'',
+        msg2:'',
       };
     },
     methods: {
-      toggleIdStatus() {
-        this.idStatus = this.idStatus === 'on' ? 'off' : 'on';
+      sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    },
+      //设置ID的权限
+      async toggleIdStatus() {
+        const jud = this.idStatus === 'on' ? true : false;
+        try{
+          const response = await isIDAdd({id:this.ID,friend_permissionID :jud});
+          if(response.success){
+            this.msg1 = 'ID权限设置成功！';
+            this.idStatus = this.idStatus === 'on' ? 'off' : 'on';
+          }
+          else{
+            this.showModal(response.message);
+          }
+        }catch(error){
+          this.showModal("服务器崩掉啦？");
+          console.error("设置ID权限失败");
+        }
       },
-      togglePhoneStatus() {
-        this.phoneStatus = this.phoneStatus === 'on' ? 'off' : 'on';
+      //设置昵称的权限
+      async toggleNicknameStatus() {
+        const jud = this.nicknameStatus === 'on' ? true : false;
+        try{
+          const response = await isNicknameAdd({id:this.ID,friend_permissionNickname :jud});
+          if(response.success){
+            this.msg2 = '昵称权限设置成功！';
+            this.nicknameStatus = this.nicknameStatus === 'on' ? 'off' : 'on';
+          }
+          else{
+            this.showModal(response.message||"设置昵称权限失败");
+          }
+        }catch(error){
+          console.error("设置昵称权限失败");
+          this.showModal("服务器崩掉啦？");
+        }
+      },
+      //展示弹窗
+      showModal(message) {
+        this.modalMessage = message;
+        this.modalVisible = true;
+      },
+      //关闭弹窗
+      closeModal() {
+        this.modalVisible = false;
       },
     },
   };

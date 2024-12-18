@@ -57,10 +57,10 @@ export default {
     return {
       users: {
         ID:'',
-        email:'2698553217@qq.com',
+        email:'',
         password:'',
-        friend_permissionID:'',
-        friend_permissionNickname:'',
+        friend_permissionID:'off',
+        friend_permissionNickname:'off',
       },
       activeComponent: '',
       showConfirmation:false,
@@ -80,8 +80,8 @@ export default {
           this.users.ID = this.user.id;
           this.users.email = response.email;
           this.users.password =  response.password;
-          this.users.friend_permissionID = response.friend_permissionID;
-          this.users.friend_permissionNickname = response.friend_permissionNickname;
+          this.users.friend_permissionID = response.friend_permissionID ? 'on':'off';
+          this.users.friend_permissionNickname = response.friend_permissionNickname?'on':'off';
         }
         else{
           alert(response.message || '获取用户邮箱失败');

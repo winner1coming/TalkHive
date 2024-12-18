@@ -2,7 +2,7 @@ import axios from 'axios';
 import store from '@/store'; 
 // 创建 axios 实例
 const apiClient = axios.create({
-  baseURL: 'http://your-api-url.com', // 后端 API 的基础 URL
+  baseURL: 'http://localhost:8080', // 后端 API 的基础 URL
   headers: {
     'Content-Type': 'application/json',
   },
@@ -21,97 +21,137 @@ apiClient.interceptors.request.use(config => {
 
 export default apiClient;
 
-// 登录接口
-export const login = async (payload) => {
-  try {
-    const response = await apiClient.post('/login', payload);
-    return response.data;
-  } catch (error) {
-    throw error.response ? error.response.data : error.message;
-  }
-};
-//短信接收码的接口
-export const sendSmsCode = async (data) => {
-  try {
-    const response = await apiClient.post('/sendSmsCode',data);
-    return response.data;
-  } catch (error) {
-    throw error.response ? error.response.data : error.message;
-  }
-};
-
-export const smsLogin = async(email) => {
-  try{
-    const response =await apiClient.post('/smslogin',email);
+  // 登录接口
+  export const login = async (payload) => {
+    try {
+      const response = await apiClient.post('/login', payload);
       return response.data;
-  }catch(error){
+    } catch (error) {
+      throw error.response ? error.response.data : error.message;
+    }
+  };
+  //短信接收码的接口
+  export const sendSmsCode = async (data) => {
+    try {
+      const response = await apiClient.post('/sendSmsCode',data);
+      return response.data;
+    } catch (error) {
+      throw error.response ? error.response.data : error.message;
+    }
+  };
+
+  export const smsLogin = async(email) => {
+    try{
+      const response =await apiClient.post('/smslogin',email);
+        return response.data;
+    }catch(error){
+        throw error.response?.data || error.message;
+      };
+  };
+
+  // 注册接口
+  export const Register =async (data) => {
+    try{
+      const response = await apiClient.post('/register', data);
+      return response.data;
+    } 
+    catch(error) {
       throw error.response?.data || error.message;
     };
-};
-
-// 注册接口
-export const Register =async (data) => {
-  try{
-    const response = await apiClient.post('/register', data);
-    return response.data;
-  } 
-  catch(error) {
-    throw error.response?.data || error.message;
   };
-};
 
 
-// 重置密码接口
-export const resetPassword =async (msg) => {
-  try{
-    const response = await apiClient.post('/resetPassword', msg);
-    return response.data;
-  } 
-  catch(error) {
-    throw error.response?.data || error.message;
+  // 重置密码接口
+  export const resetPassword =async (msg) => {
+    try{
+      const response = await apiClient.post('/resetPassword', msg);
+      return response.data;
+    } 
+    catch(error) {
+      throw error.response?.data || error.message;
+    };
   };
-};
 
-// 获取用户信息接口
-export const showProfile = async (id) => {
-  try {
-    const response = await apiClient.get(`/Settings/profile/${id}`);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error.message;
+  // 获取用户信息接口
+  export const showProfile = async (id) => {
+    try {
+      const response = await apiClient.get(`/Settings/profile/${id}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  };
+
+  // 更新用户信息接口
+  export const saveEdit = async (data) => {
+    try {
+      const response = await apiClient.post('/Settings/saveEdit', data);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  };
+
+  //获取用户的邮箱（安全设置）
+  export const getUserInfo = async(id)=>{
+    try{
+      const response = await apiClient.get('/Settings/getInfo',{id});
+      return response.data;
+
+    }catch(error){
+      throw error.response?.data ||error.message;
+    }
+  };
+
+  //更换邮箱时获取验证码
+  export const getCode = async(data)=>{
+    try{
+      const response = await apiClient.post('/Settings/getCode',data);
+      return response.data;
+    }catch(error){
+      throw error.response?.data||error.message;
+    }
+  };
+  //保存Email的修改
+  export const saveEmail = async (data) => {
+    try {
+      const response = await apiClient.post('/Settings/saveEmail', data);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  };
+
+  //保存密码的更改
+  export const savePassword =async(data)=>{
+    try{
+      const response = await apiClient.post('/Settings/savePassword',data);
+      return response.data;
+    }catch(error){
+      throw error.response?.data || error.message;
+    }
+  };
+
+  //是否可以通过ID添加我
+  export const isIDAdd = async(data)=>{
+    try{
+      const response = await apiClient.get('/Settings/isIDAdd',data);
+      return response.data;
+    }catch(error){
+      throw error.response?.data || error.message;
+    }
+  };
+
+  //是否可以通过昵称查找并添加我
+  export const isNicknameAdd = async(data)=>{
+    try{
+      const response = await apiClient.get('/Settings/isNicknameAdd',data);
+      return response.data;
+    }catch(error){
+      throw error.response?.data || error.message;
+    }
   }
-};
 
-// 更新用户信息接口
-export const saveEdit = async (data) => {
-  try {
-    const response = await apiClient.post('/Settings/saveEdit', data);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error.message;
-  }
-};
-
-//获取用户的邮箱（安全设置）
-export const getUserInfo = async(id)=>{
-  try{
-    const response = await apiClient.get('/Settings/getInfo',{id});
-    return response.data;
-
-  }catch(error){
-    throw error.response?.data ||error.message;
-  }
-};
-
-//更换邮箱时获取验证码
-export const getCode = async(data)=>{
-  try{
-    const response = await apiClient.post('/Settings/getCode',data);
-    return response.data;
-  }catch(error){
-    throw error.response?.data||error.message;
-  }
-};
 
   //注销账号
   export const confirmDeactivation = async(id)=>{
@@ -123,57 +163,67 @@ export const getCode = async(data)=>{
     }
   };
 
-// 获取消息列表接口
-export const getMessages = () => {
-  return apiClient.get('/messages');
-};
+  export const logout = async(id)=>{
+    try{
+      const response = await apiClient.post('/Logout',{id});
+      return response.data;
+    }catch(error){
+      throw error.response?.data ||error.message;
+    }
+  };
 
 
-// chat和contact
-// 资料卡片
-export const getProfileCard = (tid, group_id=null) => {
-  return apiClient.get(`/profileCard/${tid}`, {group_id});
-};
-// 搜索好友/群聊（key可能是id或者昵称）
-export const searchFriendGroup = (key) => {
-  return apiClient.get('/Stranger/search', { key });  
-};
-// 添加好友/群聊（id为tid，若为群聊，则为群号）
-export const addFriendGroup = (id) => {
-  return apiClient.post('/Stranger/add', { id });
-};
-// 新建群聊(tids为成员id列表，其中没有用户自己的)
-export const createGroup = (tids) => {
-  return apiClient.post('/GroupList/create', { tids });
-};
+  // 获取消息列表接口
+  export const getMessages = () => {
+    return apiClient.get('/messages');
+  };
 
 
-// 获取笔记列表接口
-export const getNotes = () => {
-  return apiClient.get('/notes');
-};
+  // chat和contact
+  // 资料卡片
+  export const getProfileCard = (tid, group_id=null) => {
+    return apiClient.get(`/profileCard/${tid}`, {group_id});
+  };
+  // 搜索好友/群聊（key可能是id或者昵称）
+  export const searchFriendGroup = (key) => {
+    return apiClient.get('/Stranger/search', { key });  
+  };
+  // 添加好友/群聊（id为tid，若为群聊，则为群号）
+  export const addFriendGroup = (id) => {
+    return apiClient.post('/Stranger/add', { id });
+  };
+  // 新建群聊(tids为成员id列表，其中没有用户自己的)
+  export const createGroup = (tids) => {
+    return apiClient.post('/GroupList/create', { tids });
+  };
 
-// 创建笔记接口
-export const createNote = (title, content) => {
-  return apiClient.post('/notes', { title, content });
-};
 
-// 获取收藏列表接口
-export const getFavorites = () => {
-  return apiClient.get('/favorites');
-};
+  // 获取笔记列表接口
+  export const getNotes = () => {
+    return apiClient.get('/notes');
+  };
 
-// 添加收藏接口
-export const addFavorite = (itemId) => {
-  return apiClient.post('/favorites', { itemId });
-};
+  // 创建笔记接口
+  export const createNote = (title, content) => {
+    return apiClient.post('/notes', { title, content });
+  };
 
-// 获取 DDL 列表接口
-export const getDDLs = () => {
-  return apiClient.get('/ddls');
-};
+  // 获取收藏列表接口
+  export const getFavorites = () => {
+    return apiClient.get('/favorites');
+  };
 
-// 创建 DDL 接口
-export const createDDL = (title, deadline) => {
-  return apiClient.post('/ddls', { title, deadline });
-};
+  // 添加收藏接口
+  export const addFavorite = (itemId) => {
+    return apiClient.post('/favorites', { itemId });
+  };
+
+  // 获取 DDL 列表接口
+  export const getDDLs = () => {
+    return apiClient.get('/ddls');
+  };
+
+  // 创建 DDL 接口
+  export const createDDL = (title, deadline) => {
+    return apiClient.post('/ddls', { title, deadline });
+  };
