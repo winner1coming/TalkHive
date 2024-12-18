@@ -31,7 +31,10 @@ export default {
 	methods: {
 	  toggleContent() {
 		this.showFullContent = !this.showFullContent;
-	  }
+	  },
+	  manageDevide(event) {
+		this.$emit('manage-devide', event);
+	  },
 	}
   };
 </script>
