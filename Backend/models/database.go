@@ -6,30 +6,32 @@ import (
 
 // AccountInfo 表示账号信息表
 type AccountInfo struct {
-	AccountID        uint      `gorm:"primaryKey" json:"account_id"`
-	ID               string    `gorm:"unique" json:"id"`
-	Password         string    `json:"password"`
-	Phone            string    `json:"phone"`
-	Email            string    `json:"email"`
-	Avatar           string    `json:"avatar"`
-	Nickname         string    `json:"nickname"`
-	Signature        string    `json:"signature"`
-	Gender           string    `json:"gender"`
-	Birthday         time.Time `json:"birthday"`
-	Status           string    `json:"status"`
-	FriendPermission string    `json:"friend_permission"`
-	LastLogout       time.Time `json:"last_logout"`
+	AccountID        uint   `gorm:"primaryKey" json:"account_id"`
+	ID               string `gorm:"unique" json:"id"`
+	Password         string `json:"password"`
+	Phone            string `json:"phone"`
+	Email            string `json:"email"`
+	Avatar           string `json:"avatar"`
+	Nickname         string `json:"nickname"`
+	Signature        string `json:"signature"`
+	Gender           string `json:"gender"`
+	Birthday         string `json:"birthday"`
+	Status           string `json:"status"`
+	FriendPermission string `json:"friend_permission"`
+	LastLogout       string `json:"last_logout"`
+	Deactivate       bool   `json:"deactivate"`
 }
 
 // Contacts 表示好友/群聊表
 type Contacts struct {
+	OwnerID     uint   `json:"owner_id"`
 	ContactID   uint   `gorm:"primaryKey" json:"contact_id"`
 	IsBlacklist bool   `json:"is_blacklist"`
 	IsPinned    bool   `json:"is_pinned"`
 	Divide      string `json:"divide"`
 	IsMute      bool   `json:"is_mute"`
 	IsBlocked   bool   `json:"is_blocked"`
-	IsGroupChat bool   `json:"is_groupchat"`
+	IsGroupChat bool   `json:"is_group_chat"`
 	Remark      string `json:"remark"`
 }
 
@@ -44,16 +46,19 @@ type SystemSetting struct {
 
 // ApplyInfo 表示申请通知表
 type ApplyInfo struct {
-	ApplyType string `gorm:"primaryKey" json:"apply_type"`
-	AccountID uint   `json:"account_id"`
-	GroupID   uint   `json:"group_id"`
-	Status    string `json:"status"`
-	Reason    string `json:"reason"`
+	ApplyID    string `gorm:"primaryKey" json:"apply_id"`
+	ApplyType  string `json:"apply_type"`
+	SenderID   uint   `json:"sender_id"`
+	ReceiverID uint   `json:"receiver_id"`
+	GroupID    uint   `json:"group_id"`
+	Status     string `json:"status"`
+	Reason     string `json:"reason"`
 }
 
 // GroupChatInfo 表示群聊总表
 type GroupChatInfo struct {
 	GroupID         uint   `gorm:"primaryKey" json:"group_id"`
+	GroupOwner      uint   `json:"group_owner"`
 	GroupAvatar     string `json:"group_avatar"`
 	GroupName       string `json:"group_name"`
 	EnterPermission string `json:"enter_permission"`

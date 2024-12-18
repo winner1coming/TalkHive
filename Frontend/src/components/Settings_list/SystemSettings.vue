@@ -1,46 +1,106 @@
 <template>
-  <!-- 系统设置页面容器 -->
   <div class="system-settings">
-    <!-- 页面标题 -->
-    <h2>系统设置</h2>
-    
-    <!-- 主题颜色输入框，使用 v-model 双向绑定到 data 中的 theme 属性 -->
-    <input type="text" v-model="theme" placeholder="主题颜色" />
-    
-    <!-- 字体大小输入框，使用 v-model 双向绑定到 data 中的 fontSize 属性 -->
-    <input type="text" v-model="fontSize" placeholder="字体大小" />
-    
-    <!-- 保存设置按钮，点击时触发 saveSettings 方法 -->
-    <button @click="saveSettings">保存设置</button>
+    <div class="left-panel">
+      <div class="menu-item" :class="{ active: activeComponent === 'ThemeSetting' }" @click="setActiveComponent('ThemeSetting')">
+        <span>主题</span>
+        <span class="content">{{ theme }}</span>
+      </div>
+      <div class="menu-item" :class="{ active: activeComponent === 'FontSize' }" @click="setActiveComponent('FontSize')">
+        <span>字体大小</span>
+        <span class="content">{{ fontsize }}</span>
+      </div>
+      <div class="menu-item" :class="{ active: activeComponent === 'SoundSetting' }" @click="setActiveComponent('SoundSetting')">
+        <span>消息通知</span>
+        <span class="content"></span>
+      </div>
+      <div class="menu-item" :class="{ active: activeComponent === 'ChatBackground' }" @click="setActiveComponent('ChatBackground')">
+        <span>聊天背景</span>
+        <span class="content"></span>
+      </div>
+      </div>
+    <div class="right-panel">
+      <component :is="activeComponent" @updateUser="updateUser" @cancel="setActiveComponent('')"></component>
+    </div>
   </div>
 </template>
 
 <script>
+import ThemeSetting from './ThemeSetting.vue';
+import FontSize from './FontSize.vue';
+import SoundSetting from './SoundSetting.vue';
+import ChatBackground from './ChatBackground.vue';
+
 export default {
-  // 组件的 data 函数，返回一个对象，包含组件的响应式数据
+  components: {
+   ThemeSetting,
+   FontSize,
+   SoundSetting,
+   ChatBackground,
+  },
   data() {
     return {
-      // 主题颜色输入框的值
-      theme: '',
-      // 字体大小输入框的值
-      fontSize: '',
+      theme:'浅色',
+      fontsize:'16px',
+      activeComponent: '',
     };
   },
-  
-  // 组件的方法定义
   methods: {
-    // 保存设置方法，处理用户点击保存设置按钮时的逻辑
-    saveSettings() {
-      // 调用 Vuex store 中的 saveSettings 动作，传递主题颜色和字体大小
-      this.$store.dispatch('saveSettings', { theme: this.theme, fontSize: this.fontSize });
+    setActiveComponent(component) {
+      this.activeComponent = component;
+    },
+    updateUser(updatedUser) {
+      this.user = { ...this.user, ...updatedUser };
+      this.setActiveComponent('');  
     },
   },
 };
 </script>
 
 <style scoped>
-/* 系统设置页面的样式 */
 .system-settings {
-  padding: 20px; /* 设置内边距 */
+  display: flex;
+  height: 100vh;
 }
+
+.left-panel {
+  width: 30%;
+  background-color: #f0f0f0;
+  padding: 20px;
+}
+
+.right-panel {
+  width: 70%;
+  padding: 20px;
+  position: relative;
+}
+
+.menu-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+  cursor: pointer;
+  width: 100%;
+  height: 10vh;
+}
+
+.menu-item.active {
+  background-color: #42b983;
+  color: white;
+}
+
+.menu-item span {
+  font-size: 16px;
+}
+
+.menu-item .content {
+  font-size: 14px;
+  color: #666;
+}
+
+.menu-item.active .content {
+  color: white;
+}
+
 </style>

@@ -7,14 +7,12 @@ export default createStore({
     // 用户信息
     user: {
       username: '', // 用户名
-      id: '1', // 用户ID  debug
+      id: '1', // 用户tID 
+      avatar:'',
     },
-    // 聊天列表
-    chatlist: [],
-    // 选中的聊天对象的id
-    selectedChatID: null,
-    // 消息历史
-    messages: [],
+    hasFloatComponent: null,   // 当前正在开启的悬浮组件
+    currentChat: null, // 当前聊天对象
+
     // 系统设置
     settings: {
       theme: '', // 主题颜色
@@ -25,21 +23,35 @@ export default createStore({
   
   // 同步修改状态的方法
   mutations: {
+    SET_CHAT(state, chat) {
+      state.currentChat = chat;
+    },
+
+    SET_THEME(state,theme){
+      state.settings.theme = theme;
+      localStorage.setItem('theme',theme);
+    },
+
     // 设置用户信息
     SET_USER(state, user) {
       state.user = user;
     },
+
     // 设置消息列表
     SET_MESSAGES(state, messages) {
       state.messages = messages;
     },
+
     ADD_MESSAGE(state, message) {
       state.messages.push(message);
     },
+
+
     // 设置系统设置
     SET_SETTINGS(state, settings) {
       state.settings = settings;
     },
+
     SET_SOCKET(state, socket) {
       state.socket = socket;
     },
@@ -47,14 +59,23 @@ export default createStore({
   
   // 异步操作和提交 mutations 的方法
   actions: {
-    // 登录操作
-    login({ commit }, { username, password }) {
-      // 登录逻辑
-      commit('SET_USER', { username, id: '12345' }); // 提交 SET_USER mutation
+    // 设置聊天对象
+    setChat({ commit }, chat) {
+      commit('SET_CHAT', chat);
     },
-    
+
+    setTheme({commit},theme){
+      commit('SET_THEME',theme);
+    },
+
+    // 登录操作
+    login({ commit }, user) {
+      // 登录逻辑
+      commit('SET_USER', user); // 提交 SET_USER mutation
+    },
+
     // 注册操作
-    register({ commit }, { username, password }) {
+    register({ commit }, user) {
       // 注册逻辑
       commit('SET_USER', { username, id: '12345' }); // 提交 SET_USER mutation
     },
@@ -108,4 +129,10 @@ export default createStore({
       commit('SET_SETTINGS', { theme, fontSize }); // 提交 SET_SETTINGS mutation
     },
   },
+
+  //获取用户信息
+  getters:{
+    user:(state) => state.user,
+  },
+
 });

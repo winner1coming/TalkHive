@@ -8,14 +8,45 @@
 
 <script>
 import { mapActions } from 'vuex';
+import { EventBus } from '@/components/base/EventBus';
 export default {
   // 组件名称
   name: 'App',
-  created() {
-    // this.connectWebSocket();
-  },
+  
   methods: {
     ...mapActions(['connectWebSocket']),
+    hideClick(event) {
+      const clickedElement = event.target;
+      if(this.$store.hasFloatComponent){
+        EventBus.emit('close-float-component', clickedElement); // 通知其他组件
+      }
+    },
+    hideContext(event) {
+      event.preventDefault();
+      const clickedElement = event.target;
+      if(this.$store.hasFloatComponent){
+        EventBus.emit('close-float-component', clickedElement); // 通知其他组件
+      }
+    },
+  },
+  created() {
+    // this.connectWebSocket();
+    window.addEventListener('click', this.hideClick, true); // 使用 capture 选项
+    window.addEventListener('contextmenu', this.hideContext, true); // 使用 capture 选项
+    EventBus.on('float-component-open', (component) => {
+      if(this.$store.hasFloatComponent){
+        EventBus.emit('other-float-component', component); // 通知其他组件
+      }
+      this.$store.hasFloatComponent = true;
+    });
+    EventBus.on('hide-float-component', () => {
+      this.$store.hasFloatComponent = false;
+    });
+  },
+  beforeUnmount() {
+    window.removeEventListener('click', this.hideClick, true); 
+    window.removeEventListener('contextmenu', this.hideContext, true); 
+
   },
 }
 

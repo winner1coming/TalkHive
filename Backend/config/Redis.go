@@ -1,8 +1,8 @@
 package config
 
 import (
-	"context"
-	"github.com/go-redis/redis/v8"
+	"TalkHive/global"
+	"github.com/go-redis/redis"
 	"log"
 )
 
@@ -19,18 +19,11 @@ func InitRedis() {
 	})
 
 	// 测试 Redis 连接
-	ctx := context.Background()
-	if err := RedisClient.Ping(ctx).Err(); err != nil {
-		log.Fatalf("连接Redis失败: %v", err)
+	_, err := RedisClient.Ping().Result()
+	if err != nil {
+		log.Fatalf("Failed to connect to Redis, got error: %v", err)
 	}
 
+	global.RedisDB = RedisClient
 	log.Println("连接Redis成功")
-}
-
-// GetRedis 返回全局数据库实例
-func GetRedis() *redis.Client {
-	if RedisClient == nil {
-		log.Fatal("Redis实例为空")
-	}
-	return RedisClient
 }

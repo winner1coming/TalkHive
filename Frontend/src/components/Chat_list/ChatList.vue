@@ -34,20 +34,29 @@
         </div>
         <div class="chat-info">   <!-- 信息-->
           <div class="chat-name">{{ chat.name }}</div>
-          <div class="chat-last-chat">{{ chat.lastMessage }}</div>
+          <div class="chat-last-chat">{{chat.lastMessage.length > this.maxChars ? chat.lastMessage.slice(0, this.maxChars) + '...' : chat.lastMessage}}</div>
         </div>
         <div class="chat-meta">   <!-- 时间和未读-->
           <div class="chat-time">{{ chat.lastMessageTime }}</div>
-          <div v-if="chat.unreadCount" class="unread-count">{{ chat.unreadCount }}</div>   <!--todo-->
+          <div v-if="chat.tags.includes('mute')" class="mute">🔇</div>
+          <div v-else-if="chat.unreadCount" class="unread-count">{{ chat.unreadCount }}</div>
+
         </div>
       </li>
     </ul>
     <!-- 添加好友弹窗 -->
     <AddFriendGroup
-      v-if="isAddFriendModalVisible"
-      @close="isAddFriendModalVisible = false"
+      v-if="isAddModalVisible"
+      @close="isAddModalVisible = false"
       @add-friend="handleAddFriend"
     />
+    <!-- 新建群聊弹窗 -->
+    <BuildGroup
+      v-if="isBuildModalVisible"
+      @close="isBuildModalVisible = false"
+      @build-group="handleBuildGroup"
+    />
+
     <ContextMenu ref="contextMenu"  @select-item="handleMenuSelect" />
   </div>
 </template>
@@ -56,36 +65,45 @@
 import SearchBar from '@/components/base/SearchBar.vue';
 import ContextMenu from '@/components/base/ContextMenu.vue';
 import * as chatListAPI from '@/services/chatList';
-import { addFriendGroup } from '@/services/api';
+import { addFriendGroup, createGroup } from '@/services/api';
 import AddFriendGroup from '@/components/base/AddFriendGroup.vue';
+import BuildGroup from '@/components/base/BuildGroup.vue';
+
 export default {
   components: {
     SearchBar,
     ContextMenu,
     AddFriendGroup,
+    BuildGroup,
   },
+  props:['chatListWidth'],
+
   // 组件的 data 函数，返回一个对象，包含组件的响应式数据
   data() {
     return {
       // 消息列表（从后端获取）
-      chats: [{
-          id: 0,   // 好友的tid
-          avatar: new URL('cat.png', import.meta.url).href,
-          name: 'Alice',  // 好友的备注 remark
-          lastMessage: 'hi',
-          lastMessageTime: '10:00',
-          unreadCount: 1,
-          tags: ['unread','pinned'],   // friend, group, unread, pinned, blocked
-        },
-        {
-          id: 1,
-          avatar: new URL('cat.png', import.meta.url).href,
-          name: 'Bob',
-          lastMessage: 'hello',
-          lastMessageTime: '11:00',
-          unreadCount: 0,
-          tags: ['unread', 'group'],
-        }], 
+      chats: [],
+      // chats: [{
+      //     id: '0',   // 好友的tid
+      //     avatar: new URL('@/assets/images/avatar.jpg', import.meta.url).href,
+      //     name: 'Alice',  // 好友的备注 remark
+      //     lastMessage: 'hi',
+      //     lastMessageTime: '10:00',
+      //     unreadCount: 1,
+      //     tags: ['unread','pinned'],   // friend, group, unread, pinned, blocked
+      //   },
+      //   {
+      //     id: '1',
+      //     avatar: new URL('@/assets/images/avatar.jpg', import.meta.url).href,
+      //     name: 'Bob',
+      //     lastMessage: 'hello',
+      //     lastMessageTime: '11:00',
+      //     unreadCount: 0,
+      //     tags: ['unread', 'group'],
+      //   }], 
+      // 选中的聊天
+      selectedChat: null,
+
       // 消息标签
       tags: [
         { name: 'all', label: '全部' },
@@ -96,7 +114,10 @@ export default {
         { name: 'blocked', label: '屏蔽' },
       ],
       activeTag: 'all',
-      isAddFriendModalVisible: false,
+      isAddModalVisible: false,
+      isBuildModalVisible: false,
+      menuType: '',
+
     };
   },
 
@@ -106,25 +127,57 @@ export default {
       let chats = this.chats;
       if (this.activeTag !== 'all') {
         chats = chats.filter(chat => chat.tags.includes(this.activeTag));
+      }else{   // all不显示被屏蔽的消息
+        chats = chats.filter(chat => !chat.tags.includes('blocked'));
+      }
+      if(!chats) {
+        return chats;
+
       }
       // 将置顶的消息排在前面
       return chats.sort((a, b) => b.pinned - a.pinned);
     },
-
+    maxChars(){  // 可以显示的字体个数
+      return Math.floor((this.chatListWidth - 30) / 12);
+    },
   },
-
+  watch:{
+    '$store.state.currentChat': {
+      handler: function(val) {
+        if(val){
+          this.selectChat(val);
+        }
+      },
+      immediate: true,
+    }
+  },
   methods: {
     async fetchChatList() {
       // 从后端获取聊天列表
-      this.chats = await chatListAPI.getChatList();
+      let response = await chatListAPI.getChatList();
+      if(response.status === 200) {
+        this.chats = response.data;
+      }
+      else{
+        console.error('获取聊天列表失败:', response.data);
+      }
+
     },
     // 选中tag筛选消息
     filterChats(tagName) {
       this.activeTag = tagName;
     },
     // 选中消息，切换到对应的聊天
-    selectChat(chat) {
-      this.$emit('chat-selected', chat);
+    async selectChat(chat, tid=null) {
+      if (!chat) {
+        const response = await chatListAPI.getChat(tid);
+        chat = response.data;
+        this.chats.unshift(chat);
+      }
+      this.selectedChat = chat;   // todo 滚动到chat
+      this.$store.dispatch('setChat', chat);
+      
+
     },
     // 搜索消息
     async handleSearch(keyword) {
@@ -133,15 +186,17 @@ export default {
     },
     // 显示新建消息的菜单
     showNewContextMenu(event) {
-      console.log(event);
+      this.menuType = 'new';
       const items = [
-        '添加好友',
+        '添加好友/群聊',
         '新建群聊',
       ];
-      this.$refs.contextMenu.show(event, event.clientX, event.clientY, items, null);
+      this.$refs.contextMenu.show(event, items, null, null, null);
     },
     // 右键聊天列表后的菜单
     showChatMenu(event, obj) {
+      this.menuType = 'chat';
+
       let items = [];
       if(obj.tags.includes('unread')) {
         items.push('标记为已读');
@@ -164,15 +219,17 @@ export default {
       } else {
         items.push('屏蔽');
       }
-      this.$refs.contextMenu.show(event, event.clientX, event.clientY, items, obj);
+      this.$refs.contextMenu.show(event, items, obj, this.boundD, this.boundR);
+
     },
     // 处理新建消息的菜单点击事件
     async handleNewMenu(option) {
       if(option === '添加好友') {
-        this.isAddFriendModalVisible = true;
-      }else if(option === '发起群聊') {
-        // 新建群聊
-        // todo
+        this.isAddModalVisible = true;
+      }else if(option === '新建群聊') {
+        
+        this.isBuildModalVisible = true;
+
       }
     },
     // 处理聊天列表的菜单点击事件
@@ -182,54 +239,67 @@ export default {
         // 置顶聊天
         chat.tags.push('pinned');
         // 告知服务器
-        await chatListAPI.pinChat(chat.id);
+        await chatListAPI.pinChat(chat.id, true);
+
       }else if(option === '取消置顶') {
         // 取消置顶聊天
         chat.tags = chat.tags.filter(tag => tag !== 'pinned');
         // 告知服务器
-        await chatListAPI.unpinChat(chat.id);
+        await chatListAPI.pinChat(chat.id, false);
+
       }else if(option === '删除') {
         // 删除聊天
         // 告知服务器
         await chatListAPI.deleteChat(chat.id);
         // 本地删除
-        this.chats = this.chats.filter(chat => chat.id !== chat.id);
+        this.chats = this.chats.filter(onechat => onechat.id !== chat.id);
       }else if(option === '标记为已读') {
         // 标记为已读
         chat.tags = chat.tags.filter(tag => tag !== 'unread');
+        // 清空未读条数
+        chat.unreadCount = 0;
+        console.log(chat);
         // 告知服务器
-        await chatListAPI.readMessages(chat.id);
+        await chatListAPI.readMessages(chat.id, true);
       }else if(option === '标记为未读') {
         // 标记为未读
         chat.tags.push('unread');
+        // 更改未读条数
+        chat.unreadCount = 1;
         // 告知服务器
-        await chatListAPI.unreadMessages(chat.id);
+        await chatListAPI.readMessages(chat.id, false);
+
       }else if(option === '消息免打扰') {
         // 消息免打扰
         chat.tags.push('mute');
         // 告知服务器
-        await chatListAPI.setMute(chat.id);
+        await chatListAPI.setMute(chat.id, true);
+
       }else if(option === '取消消息免打扰') {
         // 取消消息免打扰
         chat.tags = chat.tags.filter(tag => tag !== 'mute');
         // 告知服务器
-        await chatListAPI.cancelMute(chat.id);
+        await chatListAPI.setMute(chat.id, false);
+
       }else if(option === '屏蔽') {
         // 屏蔽
         chat.tags.push('blocked');
         // 告知服务器
-        await chatListAPI.blockChat(chat.id);
+        await chatListAPI.blockChat(chat.id, true);
+
       }else if(option === '取消屏蔽') {
         // 取消屏蔽
         chat.tags = chat.tags.filter(tag => tag !== 'blocked');
         // 告知服务器
-        await chatListAPI.unblockChat(chat.id);
+        await chatListAPI.blockChat(chat.id, false);
+
       }
     },
     // 处理菜单的点击事件
     handleMenuSelect(item, obj) {
-      this.handleChatMenu(item, obj);  
-      this.handleNewMenu(item);
+      if(this.menuType === 'new') this.handleNewMenu(item);
+      if(this.menuType === 'chat') this.handleChatMenu(item, obj);
+
     },
     // 处理添加好友/群聊的逻辑
     async handleAddFriendGroup(key) {
@@ -242,8 +312,13 @@ export default {
         alert('添加失败，请重试。');
       }
     },
+    // 处理新建群聊的逻辑
+    async handleBuildGroup(tids) {
+      await createGroup(tids);
+    },
   },
-  mounted() {
+  created () {
+
     this.fetchChatList();
   },
 };
@@ -255,7 +330,6 @@ export default {
   width: 30%;
   height: 100%;
   background-color: #f5f5f5;
-  padding: 10px;
 }
 .chat-header button {
   margin-right: 10px;
@@ -274,6 +348,8 @@ export default {
   display: flex;
   align-items: center;
   padding: 10px;
+  padding-bottom: 0px;
+
   border-bottom: 1px solid #ddd;
   cursor: pointer;
 }
@@ -320,4 +396,8 @@ export default {
   border-radius: 50%;
   text-align: center;
 }
+.mute{
+  color: #888;
+}
+
 </style>

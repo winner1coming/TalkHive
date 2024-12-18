@@ -28,12 +28,6 @@ export default {
     return {
       // 新消息输入框的值
       newMessage: '',
-      // 消息列表数据，每个消息包含 id 和 content 属性
-      messages: [
-        { id: 1, content: '你好' },
-        { id: 2, content: '你好，有什么事吗？' },
-        // 更多消息
-      ],
     };
   },
   
