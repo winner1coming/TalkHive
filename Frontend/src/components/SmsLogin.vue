@@ -13,7 +13,6 @@
           <label for="smsCode">验证码</label>
           <input id="smsCode" type="text" v-model="smsCode" placeholder="请输入验证码" />
         </div>
-
         <button class="send-sms-button" @click="sendSmsCode">获取</button>
       </div>
 
@@ -43,7 +42,7 @@
       return {
         email: '',
         smsCode: '',
-        code: '',
+        Code: '',
       };
     },
     

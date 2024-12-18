@@ -66,6 +66,7 @@ export default {
     },
 
     // //检查账号密码是否为空（与后端连接需要把测试登录testlogin函数直接删除即可）
+
     async testlogin(){
     //         // 检查账号和密码是否为空
     //   // 调用登录方法
@@ -92,11 +93,11 @@ export default {
         //如果记住密码
         if (this.rememberMe) {
           const encryptedPassword = this.encryptPassword(this.password);
-          localStorage.setItem('rememberedPhone', this.account);
+          localStorage.setItem('rememberedAccount', this.account);
           localStorage.setItem('rememberedPassword', encryptedPassword);
         } else {
           // 如果未勾选“记住密码”，则清除之前保存的账号和密码
-          localStorage.removeItem('rememberedPhone');
+          localStorage.removeItem('rememberedAccount');
           localStorage.removeItem('rememberedPassword');
         }
 
@@ -120,11 +121,11 @@ export default {
 
   mounted() {
     // 页面加载时，检查是否有记住的账号和密码
-    const rememberedPhone = localStorage.getItem('rememberedPhone');
+    const rememberedAccount = localStorage.getItem('rememberedAccount');
     const encryptedPassword = localStorage.getItem('rememberedPassword');
 
-    if (rememberedPhone && encryptedPassword) {
-      this.phone = rememberedPhone;
+    if (rememberedAccount && encryptedPassword) {
+      this.phone = rememberedAccount;
       this.password = this.decryptPassword(encryptedPassword); // 解密密码
       this.rememberMe = true; // 自动勾选“记住密码”
     }
