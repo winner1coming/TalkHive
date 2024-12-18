@@ -5,6 +5,7 @@
     </div>
     <itemList :items="items" :type="type" :tags="tags" @show-profile-card="showProfileCard"/>
     <ProfileCard ref="profileCard"/>
+
   </div>
 </template>
 
@@ -14,10 +15,12 @@ import itemList from './itemList.vue';
 import ProfileCard from '@/components/base/ProfileCard.vue';
 import { getProfileCard } from '@/services/api';
 
+
 export default {
   components: {
     itemList,
     ProfileCard,
+
   },
   data() {
     return {
@@ -52,6 +55,7 @@ export default {
     this.fetchGroups();
     this.boundD = document.documentElement.clientHeight;
     this.boundR = document.documentElement.clientWidth;
+
   },
 };
 </script>

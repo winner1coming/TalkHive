@@ -60,6 +60,7 @@ export default {
 			}
 		});
 	},
+
 };
 </script>
 
@@ -82,5 +83,6 @@ export default {
 }
 .context-menu li:hover {
 	background-color: #f5f5f5;
+
 }
 </style>

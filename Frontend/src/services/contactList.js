@@ -55,3 +55,4 @@ export const createGroup = (name) => {
 export const deleteGroup = (group_id) => {
   return apiClient.delete(`/contactList/groups/${group_id}`);
 };
+

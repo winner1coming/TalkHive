@@ -40,6 +40,7 @@
           <div class="chat-time">{{ chat.lastMessageTime }}</div>
           <div v-if="chat.tags.includes('mute')" class="mute">🔇</div>
           <div v-else-if="chat.unreadCount" class="unread-count">{{ chat.unreadCount }}</div>
+
         </div>
       </li>
     </ul>
@@ -55,6 +56,7 @@
       @close="isBuildModalVisible = false"
       @build-group="handleBuildGroup"
     />
+
     <ContextMenu ref="contextMenu"  @select-item="handleMenuSelect" />
   </div>
 </template>
@@ -66,6 +68,7 @@ import * as chatListAPI from '@/services/chatList';
 import { addFriendGroup, createGroup } from '@/services/api';
 import AddFriendGroup from '@/components/base/AddFriendGroup.vue';
 import BuildGroup from '@/components/base/BuildGroup.vue';
+
 export default {
   components: {
     SearchBar,
@@ -74,6 +77,7 @@ export default {
     BuildGroup,
   },
   props:['chatListWidth'],
+
   // 组件的 data 函数，返回一个对象，包含组件的响应式数据
   data() {
     return {
@@ -99,6 +103,7 @@ export default {
       //   }], 
       // 选中的聊天
       selectedChat: null,
+
       // 消息标签
       tags: [
         { name: 'all', label: '全部' },
@@ -112,6 +117,7 @@ export default {
       isAddModalVisible: false,
       isBuildModalVisible: false,
       menuType: '',
+
     };
   },
 
@@ -126,6 +132,7 @@ export default {
       }
       if(!chats) {
         return chats;
+
       }
       // 将置顶的消息排在前面
       return chats.sort((a, b) => b.pinned - a.pinned);
@@ -154,6 +161,7 @@ export default {
       else{
         console.error('获取聊天列表失败:', response.data);
       }
+
     },
     // 选中tag筛选消息
     filterChats(tagName) {
@@ -169,6 +177,7 @@ export default {
       this.selectedChat = chat;   // todo 滚动到chat
       this.$store.dispatch('setChat', chat);
       
+
     },
     // 搜索消息
     async handleSearch(keyword) {
@@ -187,6 +196,7 @@ export default {
     // 右键聊天列表后的菜单
     showChatMenu(event, obj) {
       this.menuType = 'chat';
+
       let items = [];
       if(obj.tags.includes('unread')) {
         items.push('标记为已读');
@@ -210,6 +220,7 @@ export default {
         items.push('屏蔽');
       }
       this.$refs.contextMenu.show(event, items, obj, this.boundD, this.boundR);
+
     },
     // 处理新建消息的菜单点击事件
     async handleNewMenu(option) {
@@ -218,6 +229,7 @@ export default {
       }else if(option === '新建群聊') {
         
         this.isBuildModalVisible = true;
+
       }
     },
     // 处理聊天列表的菜单点击事件
@@ -228,11 +240,13 @@ export default {
         chat.tags.push('pinned');
         // 告知服务器
         await chatListAPI.pinChat(chat.id, true);
+
       }else if(option === '取消置顶') {
         // 取消置顶聊天
         chat.tags = chat.tags.filter(tag => tag !== 'pinned');
         // 告知服务器
         await chatListAPI.pinChat(chat.id, false);
+
       }else if(option === '删除') {
         // 删除聊天
         // 告知服务器
@@ -254,32 +268,38 @@ export default {
         chat.unreadCount = 1;
         // 告知服务器
         await chatListAPI.readMessages(chat.id, false);
+
       }else if(option === '消息免打扰') {
         // 消息免打扰
         chat.tags.push('mute');
         // 告知服务器
         await chatListAPI.setMute(chat.id, true);
+
       }else if(option === '取消消息免打扰') {
         // 取消消息免打扰
         chat.tags = chat.tags.filter(tag => tag !== 'mute');
         // 告知服务器
         await chatListAPI.setMute(chat.id, false);
+
       }else if(option === '屏蔽') {
         // 屏蔽
         chat.tags.push('blocked');
         // 告知服务器
         await chatListAPI.blockChat(chat.id, true);
+
       }else if(option === '取消屏蔽') {
         // 取消屏蔽
         chat.tags = chat.tags.filter(tag => tag !== 'blocked');
         // 告知服务器
         await chatListAPI.blockChat(chat.id, false);
+
       }
     },
     // 处理菜单的点击事件
     handleMenuSelect(item, obj) {
       if(this.menuType === 'new') this.handleNewMenu(item);
       if(this.menuType === 'chat') this.handleChatMenu(item, obj);
+
     },
     // 处理添加好友/群聊的逻辑
     async handleAddFriendGroup(key) {
@@ -298,6 +318,7 @@ export default {
     },
   },
   created () {
+
     this.fetchChatList();
   },
 };
@@ -328,6 +349,7 @@ export default {
   align-items: center;
   padding: 10px;
   padding-bottom: 0px;
+
   border-bottom: 1px solid #ddd;
   cursor: pointer;
 }
@@ -377,4 +399,5 @@ export default {
 .mute{
   color: #888;
 }
+
 </style>

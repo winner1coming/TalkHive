@@ -3,6 +3,7 @@ import store from '@/store';
 // 创建 axios 实例
 const apiClient = axios.create({
   baseURL: 'http://localhost:8080', // 后端 API 的基础 URL
+
   headers: {
     'Content-Type': 'application/json',
   },
@@ -13,6 +14,7 @@ apiClient.interceptors.request.use(config => {
   const userId = store.state.user.id; // 从 Vuex 存储中获取用户 ID
   if (userId) {
     config.headers['tid'] = userId; // 在请求头中添加用户 ID
+
   }
   return config;
 }, error => {
@@ -145,6 +147,7 @@ export const addFriendGroup = (id) => {
 // 新建群聊(tids为成员id列表，其中没有用户自己的)
 export const createGroup = (tids) => {
   return apiClient.post('/GroupList/create', { tids });
+
 };
 
 

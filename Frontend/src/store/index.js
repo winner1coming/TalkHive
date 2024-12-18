@@ -12,6 +12,7 @@ export default createStore({
     },
     hasFloatComponent: null,   // 当前正在开启的悬浮组件
     currentChat: null, // 当前聊天对象
+
     // 系统设置
     settings: {
       theme: '', // 主题颜色
@@ -44,6 +45,7 @@ export default createStore({
     ADD_MESSAGE(state, message) {
       state.messages.push(message);
     },
+
 
     // 设置系统设置
     SET_SETTINGS(state, settings) {

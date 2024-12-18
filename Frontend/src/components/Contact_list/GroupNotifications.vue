@@ -4,6 +4,7 @@
         群聊通知
     </div>
     <div v-for="request in requests" :key="request.apply_id" class="item">
+
       <img :src="request.avatar" alt="avatar" width="50" height="50" />
       <div class="left">
         <p class="name">{{ request.group_name }}</p>
@@ -18,6 +19,7 @@
         </div>
         <div v-else-if="request.type === 'notification'" class="remark">
           <p >{{ (request.account_name+"已退出群聊："+request.group_name) }}</p>
+
         </div>
       </div>
       <div class="right">
@@ -34,6 +36,7 @@
         <p v-else-if="request.status === 'pending' && request.type === 'groupApply'">等待管理员处理</p>
         <p v-else-if="request.status === 'accepted'">已同意</p>
         <p v-else-if="request.status === 'rejected'">已拒绝</p>
+
       </div>
       
     </div>
@@ -48,6 +51,7 @@ const ContactListAPI = {
   groupInvitationRequestPend,
   groupApplyRequestPend
 };
+
 
 export default {
   components: {
@@ -97,6 +101,7 @@ export default {
       //   }
       // ],
       requests: [],
+
     };
   },
   methods: {
@@ -118,6 +123,7 @@ export default {
     },
     async rejectApply(accountId,groupId) {
       await ContactListAPI.groupApplyRequestPend(accountId, groupId, false);
+
       this.fetchRequests();
     },
   },

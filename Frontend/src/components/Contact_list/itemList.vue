@@ -28,6 +28,7 @@ export default {
 		}
 	},
 };
+
 </script>
 
 <style scoped src="@/assets/css/contactList.css"></style>

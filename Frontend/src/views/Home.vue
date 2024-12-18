@@ -24,6 +24,10 @@
     <main class="content">
       <router-view></router-view>
     </main>
+
+  </div>
+  <div>
+      <component :is="currentTabComponent" />
   </div>
 </template>
 

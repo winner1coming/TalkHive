@@ -25,6 +25,7 @@
 import { getGroups, createGroup, deleteGroup } from '@/services/contactList';
 import { EventBus } from '@/components/base/EventBus';
 
+
 export default {
   name: 'GroupManagement',
   data() {

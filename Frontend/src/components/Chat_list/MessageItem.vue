@@ -3,6 +3,7 @@
     <div v-if="this.$store.state.user.id !== message.send_account_id" class="friend-message">
       <div class="avatar">
         <img :src="avatar" alt="avatar" @click="showProfileCard($event)"/>
+
       </div>
       <div class="message-content-wrapper">
         <div class="message-header">
@@ -12,6 +13,7 @@
         <div class="message-content" 
              v-html="message.content" 
              @contextmenu.prevent="showContextMenu($event, message)">
+
         </div>
       </div>
     </div>
@@ -31,6 +33,7 @@
         <img :src="avatar" alt="avatar" @click="showProfileCard($event)"/>
       </div>
     </div>
+
   </div>
 </template>
 
@@ -56,6 +59,7 @@ export default {
     }
     
   },
+
 };
 </script>
 
@@ -79,6 +83,7 @@ export default {
   align-items: flex-end;
   justify-content: flex-end;
   width: 100%;
+
 }
 .friend-message .avatar {
   align-self: flex-start;

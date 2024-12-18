@@ -21,6 +21,7 @@
         </div>
       </li>
     </ul>
+
     </div>
   </div>
 </template>
@@ -50,6 +51,7 @@ export default {
     },
     async add(tid) {
       await addFriendGroup(tid);
+
     },
     close() {
       this.$emit('close');
@@ -110,5 +112,6 @@ export default {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+
 }
 </style>

@@ -46,6 +46,7 @@ export default {
   beforeUnmount() {
     window.removeEventListener('click', this.hideClick, true); 
     window.removeEventListener('contextmenu', this.hideContext, true); 
+
   },
 }
 

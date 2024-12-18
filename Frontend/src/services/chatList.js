@@ -8,6 +8,7 @@ export const getChat = (tid) => {
   // 创建一个新的聊天，后端需要返回新的chat，chat的格式同getChatList中的元素
   return apiClient.post(`/chatlist/createChat`,{tid});
 };
+
 // 搜索聊天
 export const searchChats = (keyword) => {
   return apiClient.get(`/chatlist/search/${keyword}`);
@@ -42,4 +43,5 @@ export const getMessages = (tid) => {
 // 发送消息接口
 export const sendMessage = (tid, content) => {
   return apiClient.post(`/messages/${tid}/send`, { content });
+
 };

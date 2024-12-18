@@ -29,6 +29,7 @@
     <ProfileCard ref="profileCard"/>
   </div>
 </template>
+
   
   <script>
   import MessageItem from './MessageItem.vue';
@@ -122,6 +123,7 @@
     mounted() {
       this.boundD = this.$refs.chatBox.getBoundingClientRect().bottom;
       this.boundR = this.$refs.chatBox.getBoundingClientRect().right;
+
     },
   };
   </script>
@@ -148,6 +150,7 @@
     font-weight: bold;
   }
   .detail-button {
+
     background-color:transparent;
     border: none;
     cursor: pointer;
@@ -159,5 +162,6 @@
     display: block;
     overflow-y: auto; /* 允许垂直滚动 */
     overflow-x: hidden; /* 隐藏水平滚动条 */
+
   }
   </style>

@@ -4,6 +4,7 @@
         好友申请
     </div>
     <div v-for="request in requests" :key="request.apply_id" class="item">
+
       <img :src="request.avatar" alt="avatar" width="50" height="50" />
       <div class="left">
         <p class="name">{{ request.name }}</p>
@@ -18,6 +19,7 @@
         <p v-else-if="request.status === 'pending'">等待对方处理</p>
         <p v-else-if="request.status === 'accepted'">已同意</p>
         <p v-else-if="request.status === 'rejected'">已拒绝</p>
+
       </div>
       
     </div>
@@ -27,6 +29,7 @@
 <script>
 import { getFriendRequests, friendRequestPend } from '@/services/contactList';
 const contactListAPI = {getFriendRequests, friendRequestPend};
+
 
 export default {
   name: 'FriendRequest',
@@ -55,6 +58,7 @@ export default {
       //   },
       // ],
       requests: [],
+
     };
   },
   methods: {
@@ -68,6 +72,7 @@ export default {
     },
     async rejectRequest(requestId) {
       await contactListAPI.friendRequestPend(requestId, false);
+
       this.fetchRequests();
     },
   },

@@ -6,6 +6,7 @@
     </div>
     <itemList :items="items" :type="type" :tags="tags" @show-profile-card="showProfileCard"/>
     <ProfileCard ref="profileCard" />
+
   </div>
 </template>
 
@@ -18,6 +19,7 @@ export default {
   components: {
     itemList,
     ProfileCard,
+
   },
   data() {
     return {
@@ -36,6 +38,7 @@ export default {
       items: [],
       boundD: 0,
       boundR: 0,
+
     };
   },
   methods: {
