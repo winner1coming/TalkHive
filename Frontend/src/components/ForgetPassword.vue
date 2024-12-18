@@ -132,23 +132,21 @@
       },
 
       async validateCode(){
-        if(Code){
-          if(Code !== this.verificationCode){
+        if(this.Code){
+          if(this.Code !== this.verificationCode){
               alert('验证码错误');
               return;
           }
         }
         else{
-          alter('请先获取验证码！');
+          alert('请先获取验证码！');
           return;
         }
       },
       
       // 发送验证码
       async sendSmsCode() {
-        if (!this.validateEmail()) {
-          return;
-        }
+        this.validateEmail();
         
         try {
           const response = await sendSmsCode(
