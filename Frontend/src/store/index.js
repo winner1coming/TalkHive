@@ -3,7 +3,7 @@ import { EventBus } from '@/components/base/EventBus';
 
 export default createStore({
   // 状态对象，包含应用的所有状态
-  state: {
+  state: sessionStorage.getItem("state") ? JSON.parse(sessionStorage.getItem("state")):{
     // 用户信息
     user: {
       username: 'hh', // 用户名

@@ -4,7 +4,7 @@
     <aside class="sidebar">
       <div class="user-info">
         <img src="../assets/image/avatar.jpg" alt="Avatar" class="avatar" />
-        <span class="nickname">用户昵称</span>
+        <span class="nickname">{{ $store.state.user.username }}</span>
       </div>
       <ul class="nav-links">
         <li><router-link to="/chat">聊天</router-link></li>
@@ -69,6 +69,7 @@ export default {
   display: flex;
   align-items: center;
   margin-bottom: 20px;
+  flex-direction: column;
 }
 
 .avatar {
