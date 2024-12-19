@@ -3,7 +3,7 @@ import { EventBus } from '@/components/base/EventBus';
 
 export default createStore({
   // 状态对象，包含应用的所有状态
-  state: {
+  state: sessionStorage.getItem("state") ? JSON.parse(sessionStorage.getItem("state")):{
     // 用户信息
     user: {
       username: 'hh', // 用户名
@@ -74,7 +74,7 @@ export default createStore({
     setUser({ commit }, user) {
       // 登录逻辑
       commit('SET_USER_ID', user.id); // 提交 SET_USER mutation
-      commit('SET_USER_Name',user.username);
+      commit('SET_USER_NAME',user.username);
       commit('SET_USER_AVATAR',user.avatar);
     },
 

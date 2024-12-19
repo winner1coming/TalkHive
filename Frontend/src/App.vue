@@ -12,13 +12,26 @@ import { EventBus } from '@/components/base/EventBus';
 export default {
   // 组件名称
   name: 'App',
-  
+  mounted() {
+    window.addEventListener('beforeunload', this.saveState);
+  },
+
+  beforeDestroy() {
+    window.removeEventListener('beforeunload', this.saveState);
+  },
+
   methods: {
     ...mapActions(['connectWebSocket']),
-    hideClick(event) {
-      const clickedElement = event.target;
-      if(this.$store.hasFloatComponent){
-        EventBus.emit('close-float-component', clickedElement); // 通知其他组件
+    
+    saveState: function() {
+      sessionStorage.setItem("state", JSON.stringify(this.$store.state));
+    },
+    hideClick(component=null) {
+      if(this.$store.hasFloatCompoent){
+        EventBus.emit('hide-float-component', component); // 通知其他组件
+        if(component===null){
+          this.$store.hasFloatCompoent = false;
+        }
       }
     },
     hideContext(event) {
@@ -30,6 +43,11 @@ export default {
     },
   },
   created() {
+    //恢复vuex状态
+    const savedState = sessionStorage.getItem("state");
+    if (savedState) {
+      this.$store.replaceState(JSON.parse(savedState));
+    }
     // this.connectWebSocket();
     window.addEventListener('click', this.hideClick, true); // 使用 capture 选项
     window.addEventListener('contextmenu', this.hideContext, true); // 使用 capture 选项
