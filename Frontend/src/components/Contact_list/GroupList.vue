@@ -181,6 +181,7 @@ export default {
       else if(item === '更名'){
         this.$refs.devideAdd.type = 'rename';
         this.isDevideAddVisible = true;
+        this.obj = obj;
       }
       else if(item === '移动'){
         this.isDevideMoveVisible = true;
@@ -204,7 +205,7 @@ export default {
       }
       await contactListAPI.renameDevide('groups', this.obj, newDevide);
       this.tags = this.tags.map(tag => tag === this.obj ? newDevide : tag); 
-      await this.fetchFriends();
+      await this.fetchGroups();
     },
     async deleteDevides(devides){
       devides.forEach(async (devide) => {
@@ -218,13 +219,13 @@ export default {
       await this.fetchGroups();
     },
     async devideMove(devide){
-      await contactListAPI.moveInDevide('groups', devide);   // obj为好友对象
+      await contactListAPI.moveInDevide('groups', this.obj.account_id,devide);   // obj为好友对象
       this.obj.tag = devide;   // obj为好友对象
     },
     devideIn(selectedPersons){
       selectedPersons.forEach(async (person) => {
         try {
-          await contactListAPI.moveInDevide('groups', this.obj);   
+          await contactListAPI.moveInDevide('groups', person.account_id,this.obj);   
           person.tag = this.obj; 
         } catch (error) {
           alert('移入分组失败！');
@@ -240,7 +241,7 @@ export default {
     devidesMove(devide){
       this.selectedPersons.forEach(async (person) => {
         try {
-          await contactListAPI.moveInDevide('groups', devide);  
+          await contactListAPI.moveInDevide('groups', person.account_id, devide);  
           person.tag = devide;
         } catch (error) {
           alert('移入分组失败！');

@@ -61,6 +61,7 @@ export default {
     async fetchRequests() {
       const response = await contactListAPI.getFriendRequests();
       this.requests = response.data;
+      console.log(this.requests);
     },
     async acceptRequest(requestId) {
       await contactListAPI.friendRequestPend(requestId, true);
