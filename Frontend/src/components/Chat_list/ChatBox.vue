@@ -30,112 +30,120 @@
   </div>
 </template>
   
-  <script>
-  import MessageItem from './MessageItem.vue';
-  import MessageInput from './MessageInput.vue';
-  import ContextMenu from '@/components/base/ContextMenu.vue';
-  import ProfileCard from '@/components/base/ProfileCard.vue';
-  import * as chatListAPI from '@/services/chatList';
-  import { getProfileCard } from '@/services/api';
-  export default {
-    components: {MessageItem, MessageInput, ContextMenu, ProfileCard},
-    data() {
-      return {
-        messages: [],  // 当前聊天的消息历史
-        boundD: 0,
-        boundR: 0,
-        selectedChat: null,  // 当前选中的聊天
+<script>
+import MessageItem from './MessageItem.vue';
+import MessageInput from './MessageInput.vue';
+import ContextMenu from '@/components/base/ContextMenu.vue';
+import ProfileCard from '@/components/base/ProfileCard.vue';
+import * as chatListAPI from '@/services/chatList';
+import { getProfileCard } from '@/services/api';
+export default {
+  components: {MessageItem, MessageInput, ContextMenu, ProfileCard},
+  data() {
+    return {
+      messages: [],  // 当前聊天的消息历史
+      boundD: 0,
+      boundR: 0,
+      selectedChat: null,  // 当前选中的聊天
+    }
+  },
+  watch: {
+    '$store.state.currentChat': {
+      immediate: true,
+      handler: function(newVar) {
+        if(newVar) {
+          this.selectedChat = newVar;
+          this.selectNewChat(newVar.id);
+        }
+      },
+    },
+  },
+  methods: {
+    async selectNewChat(account_id) {
+      // 加载消息历史   
+      const response = await chatListAPI.getMessages(account_id);
+      // 若被禁言  
+      //todo
+      this.messages = response.data.messages;
+      this.$nextTick(() => {
+        this.scrollToBottom();
+      });
+      
+    },
+    sendMessage(content) {
+      // todo api
+      this.messages.push({
+        message_id: '0',  // 消息编号
+        send_account_id: this.$store.state.user.id,  // 发送者的id
+        content: content,
+        sender: this.$store.state.user.username,   // 发送者的备注
+        create_time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),  // 发送时间
+        type: 'text',   // 消息类型
+      });
+      this.scrollToBottom();
+    },
+    clickGroupManagement() {
+      // 打开群聊管理弹窗
+      this.$emit('clickGroupManagement');
+    },
+    showContextMenu(event, message) {
+      const items = ['引用', '转发', '删除', '撤回', '复制', '多选', '收藏', '置顶'];
+      this.$refs.contextMenu.show(event, items, message, this.boundD, this.boundR);
+    },
+    async handleMenuSelect(option, message){   // todo api没搞完
+      if(option === '引用'){
+        // todo
+        this.$emit('reply', message);
+      }else if(option === '转发'){
+        this.$emit('forward', message);
+      }else if(option === '删除'){
+        chatListAPI.deleteMessage(message.message_id);
+      }else if(option === '撤回'){
+        chatListAPI.recallMessage(message.message_id);
+      }else if(option === '复制'){
+        // todo
+      }else if(option === '多选'){
+        // todo
+      }else if(option === '收藏'){
+        chatListAPI.collectMessage(message.message_id);
+      }else if(option === '置顶'){
+        chatListAPI.topMessage(message.message_id);  // todo
       }
+    
     },
-    watch: {
-      '$store.state.currentChat': {
-        immediate: true,
-        handler: function(newVar) {
-          if(newVar) {
-            this.selectedChat = newVar;
-            this.selectNewChat(newVar.id);
-          }
-        },
-      },
+    async showProfileCard(event, send_account_id){
+      let group_id = null;
+      if(this.selectedChat.tags.includes('group')){
+        group_id = this.selectedChat.id;
+      }
+      const response = await getProfileCard(send_account_id, group_id); 
+      const profile = response.data;
+      // const profile = {
+      //   tid: '0',  // tid
+      //   avatar: new URL('@/assets/images/avatar.jpg', import.meta.url).href,  // 头像地址
+      //   remark: '',  // 备注
+      //   nickname: '', // 对方设置的昵称
+      //   groupNickname: '',  // 对方的群昵称
+      //   tag: '',  // 分组
+      //   signature: '',  // 个性签名
+      // };
+      
+      this.$refs.profileCard.show(event, profile, this.boundD, this.boundR);
     },
-    methods: {
-      async selectNewChat(account_id) {
-        // 加载消息历史   
-        const response = await chatListAPI.getMessages(account_id);
-        // 若被禁言  
-        //todo
-        this.messages = response.data.messages;
-        this.$nextTick(() => {
-          this.scrollToBottom();
-        });
-        
-      },
-      sendMessage(content) {
-        // 通知父组件发送消息
-        this.$emit('send-message', content);
-      },
-      clickGroupManagement() {
-        // 打开群聊管理弹窗
-        this.$emit('clickGroupManagement');
-      },
-      showContextMenu(event, message) {
-        const items = ['引用', '转发', '删除', '撤回', '复制', '多选', '收藏', '置顶'];
-        this.$refs.contextMenu.show(event, items, message, this.boundD, this.boundR);
-      },
-      async handleMenuSelect(option, message){   // todo api没搞完
-        if(option === '引用'){
-          // todo
-          this.$emit('reply', message);
-        }else if(option === '转发'){
-          this.$emit('forward', message);
-        }else if(option === '删除'){
-          chatListAPI.deleteMessage(message.message_id);
-        }else if(option === '撤回'){
-          chatListAPI.recallMessage(message.message_id);
-        }else if(option === '复制'){
-          // todo
-        }else if(option === '多选'){
-          // todo
-        }else if(option === '收藏'){
-          chatListAPI.collectMessage(message.message_id);
-        }else if(option === '置顶'){
-          chatListAPI.topMessage(message.message_id);  // todo
-        }
-     
-      },
-      async showProfileCard(event, send_account_id){
-        let group_id = null;
-        if(this.selectedChat.tags.includes('group')){
-          group_id = this.selectedChat.id;
-        }
-        const response = await getProfileCard(send_account_id, group_id); 
-        const profile = response.data;
-        // const profile = {
-        //   tid: '0',  // tid
-        //   avatar: new URL('@/assets/images/avatar.jpg', import.meta.url).href,  // 头像地址
-        //   remark: '',  // 备注
-        //   nickname: '', // 对方设置的昵称
-        //   groupNickname: '',  // 对方的群昵称
-        //   tag: '',  // 分组
-        //   signature: '',  // 个性签名
-        // };
-        
-        this.$refs.profileCard.show(event, profile, this.boundD, this.boundR);
-      },
 
-      scrollToBottom(){
-        const messages = this.$refs.messages;
-        if (messages) {
-          messages.scrollTop = messages.scrollHeight;
-        }
+    scrollToBottom(){
+      const messages = this.$refs.messages;
+      if (messages) {
+        messages.scrollTop = messages.scrollHeight;
       }
-    },
-    mounted() {
-      this.boundD = this.$refs.chatBox.getBoundingClientRect().bottom;
-      this.boundR = this.$refs.chatBox.getBoundingClientRect().right;
-    },
-  };
-  </script>
+    }
+  },
+  mounted() {
+    this.boundD = this.$refs.chatBox.getBoundingClientRect().bottom;
+    this.boundR = this.$refs.chatBox.getBoundingClientRect().right;
+  },
+};
+</script>
   
   <style scoped src="@/assets/css/chatList.css"></style>
   <style scoped>
@@ -149,11 +157,6 @@
     align-items: center;
     padding: 10px;
     background-color: #687aec91;
-  }
-  .chat-avatar img {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
   }
   .chat-name {
     margin-left: 10px;

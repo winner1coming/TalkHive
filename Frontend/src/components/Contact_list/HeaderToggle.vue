@@ -1,10 +1,10 @@
 <template>
 	<div style="width: 100%;">
 	  <div class="header-toggle">
-			<span class="toggle" @click="toggleContent">
-				<i :class="{'arrow-down': showFullContent, 'arrow-right': !showFullContent}"></i>
-			</span>
-			{{ previewText }}
+			<p class="toggle" @click="toggleContent">
+				<p :class="{'arrow-down': showFullContent, 'arrow-right': !showFullContent}"></p>
+			</p>
+			<p class="title">{{ previewText }}</p>
 			<button @click="manageDevide" class="toggle-button">管理</button>
 	  </div>
 	  <transition name="fade">
@@ -39,31 +39,39 @@ export default {
   };
 </script>
   
+<style scoped src="@/assets/css/contactList.css"></style>
 <style scoped>
 .header-toggle {
 	width: 100%;
-	display: inline-block;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	border: 0.5px solid #e0e0e0;
 }
 .toggle {
+	display: flex;
 	cursor: pointer;
-	margin-left: 5px;
-	float: left;
+	margin: 5px;
+	align-self: start;
+	align-items: center;
+	height: 100%;
 }
 .arrow-right::before {
 	content: '>';
-	display: inline-block;
-	transition: transform 0.3s ease;
+	transition: transform 0.2s ease;
 }
 .arrow-down::before {
 	content: '▼';
-	display: inline-block;
-	transition: transform 0.3s ease;
+	transition: transform 0.2s ease;
+}
+.title{
+	align-self: center;
 }
 .toggle-button{
-	float: right;
+	align-self: flex-end;
 }
 .fade-enter-active, .fade-leave-active {
-	transition: opacity 0.3s ease;
+	transition: opacity 0.2s ease;
 }
 .fade-enter, .fade-leave-to {
 	opacity: 0;
