@@ -8,7 +8,12 @@ import ChatView from '@/views/ChatView.vue';
 import ContactView from '@/views/ContactView.vue';
 import ForgetPassword from '@/components/ForgetPassword.vue';
 import ShowList from '@/views/SettingView.vue';
-import Workspace from '@/views/Workspace.vue';
+import WorkSpace from '@/views/WorkSpace.vue';
+import Favorites from '@/components/WorkSpace/Favorites.vue';
+import Notes from "@/components/WorkSpace/Notes.vue";
+import NoteEditor from "@/components/WorkSpace/NoteEditor.vue";
+import Code from "@/components/WorkSpace/Code.vue"
+import DdlList from "@/components/WorkSpace/DdlList.vue"
 
 //import GroupChat from '@/components/GroupChat.vue';
 //import Profile from '@/components/Profile.vue';
@@ -34,10 +39,44 @@ const routes = [
     component: Home,
     meta:{requiresAuth:true},
     children:[
-      { path: '/chat', component: ChatView },
+      { path: '/chat', name: 'chat', component: ChatView },
       { path: '/contact', component: ContactView },
       {path:'/setlist',component:ShowList},
-      {path:'/workspace',component:Workspace},
+      {
+        path: "/workspace",
+        component: WorkSpace,
+        children: [
+          {
+            path: "/workspace/favorites",
+            component: Favorites,
+          },
+          {
+            path: "/workspace/notes",
+            component: Notes, 
+          },
+          {
+            path: "/workspace/code",
+            component: Code,
+            props: true,
+          },
+          {
+            path: "/workspace/ddl",
+            component: DdlList,
+            props: true,
+          },
+          {
+            path: "/workspace/notes/:id",
+            component: NoteEditor,
+            props: true,
+          },
+          {
+            path: "/workspace/code/:id",
+            component: NoteEditor,
+            props: true,
+          },
+          // 添加其他子路由
+        ]
+      }
     ]
   },
   //{ path: '/profile', component: Profile },

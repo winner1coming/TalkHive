@@ -58,6 +58,7 @@ export default {
 };
 </script>
 
+<style scoped src="@/assets/css/chatList.css"></style>
 <style scoped>
 .modal-overlay {
   position: fixed;

@@ -74,17 +74,6 @@ textarea {
   background-color: #f5f5f5;
   outline: none;
 }
-button {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  padding: 0 15px;
-  cursor: pointer;
-  border-radius: 5px;
-}
-button:hover {
-  background-color: #0056b3;
-}
 .input-toolbar {
   display: flex;
   align-items: center;

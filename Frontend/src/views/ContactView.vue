@@ -2,9 +2,14 @@
   <div class="contact-view">
     <FunctionBar 
       :currentTab="currentTab" 
+      :style="{ width: functionBarWidth + 'px' }"
       @tab-selected="handleTabChange" 
       class="function-bar"
     />
+
+    <!-- 拖动条 -->
+    <div class="resizer" @mousedown="startResize"></div>
+    
     <div class="main-content">
       <component :is="currentTabComponent" />
     </div>
@@ -31,6 +36,8 @@ export default {
   data() {
     return {
       currentTab: "FriendRequests", // 默认展示“好友申请”
+      functionBarWidth: 230,  // 功能栏的宽度
+      leftComponentWidth: 130,  // 左侧组件的宽度 todo
     };
   },
   computed: {
@@ -49,6 +56,23 @@ export default {
     handleTabChange(tabName) {
       this.currentTab = tabName;
     },
+
+    // 拖动条的逻辑
+    startResize(event) {
+      this.isResizing = true;
+      document.addEventListener('mousemove', this.resize);
+      document.addEventListener('mouseup', this.stopResize);
+    },
+    resize(event) {
+      if (this.isResizing) {
+        this.functionBarWidth = event.clientX - this.leftComponentWidth;
+      }
+    },
+    stopResize() {
+      this.isResizing = false;
+      document.removeEventListener('mousemove', this.resize);
+      document.removeEventListener('mouseup', this.stopResize);
+    },
   },
 };
 </script>
@@ -60,18 +84,22 @@ export default {
   width: 100%;
 }
 .function-bar {
-  flex:3;
   align-self: flex-start;
   height: 100%;
 }
 .main-content {
   padding: 0px;
   margin: 0;
-  flex: 7;
   align-self: flex-end;
   background-color: #f8f9fa;
   overflow-y: auto;
   height: 100%;
-  
+  width: 100%;
+}
+.resizer {
+  width: 4px;
+  height: 100%;
+  cursor: ew-resize;
+  background-color: #ccc;
 }
 </style>
