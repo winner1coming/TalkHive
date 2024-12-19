@@ -1,25 +1,30 @@
 <template>
   <!-- 消息列表页面容器 -->
   <div class="chat-list">
-    <!-- 搜索框-->
-    <SearchBar 
-      @search="handleSearch" 
-      @button-click="showNewContextMenu($event)"
-      :isImmidiate="true"
-    />
-    <!-- 筛选标签-->
-    <div class="chat-list-header">
-      <div class="chat-tag">
-        <button 
-          v-for="tag in tags" 
-          :key="tag.name" 
-          :class = "{ active: activeTag === tag.name }"
-          @click="filterChats(tag.name)"
-        >
-          {{ tag.label }}
-        </button>
+
+    <!-- 消息列表的头部 -->
+    <div class="chat-header">
+      <!-- 搜索框-->
+      <SearchBar 
+        @search="handleSearch" 
+        @button-click="showNewContextMenu($event)"
+        :isImmidiate="true"
+      />
+      <!-- 筛选标签-->
+      <div class="chat-list-header">
+        <div class="chat-tag">
+          <button 
+            v-for="tag in tags" 
+            :key="tag.name" 
+            :class = "{ active: activeTag === tag.name }"
+            @click="filterChats(tag.name)"
+          >
+            {{ tag.label }}
+          </button>
+        </div>
       </div>
     </div>
+
     <!-- 消息列表，使用 v-for 指令循环渲染 chats 数组中的每个消息 -->
     <ul class="chat-items">
       <!-- 每个消息项 -->
@@ -28,6 +33,7 @@
         :key="chat.id"
         @contextmenu.prevent="showChatMenu($event, chat)"
         @click = selectChat(chat)
+        :class="{pinned: chat.tags.includes('pinned')}"
       >
         <div class="chat-avatar">   <!-- 头像-->
           <img :src="chat.avatar" alt="avatar" />
@@ -37,12 +43,13 @@
           <div class="chat-last-chat">{{chat.lastMessage.length > this.maxChars ? chat.lastMessage.slice(0, this.maxChars) + '...' : chat.lastMessage}}</div>
         </div>
         <div class="chat-meta">   <!-- 时间和未读-->
-          <div class="chat-time">{{ chat.lastMessageTime }}</div>
+          <div class="chat-time">{{ formatTime(chat.lastMessageTime) }}</div>
           <div v-if="chat.tags.includes('mute')" class="mute">🔇</div>
           <div v-else-if="chat.unreadCount" class="unread-count">{{ chat.unreadCount }}</div>
         </div>
       </li>
     </ul>
+
     <!-- 添加好友弹窗 -->
     <AddFriendGroup
       v-if="isAddModalVisible"
@@ -56,6 +63,7 @@
       @build-group="handleBuildGroup"
     />
     <ContextMenu ref="contextMenu"  @select-item="handleMenuSelect" />
+  
   </div>
 </template>
 
@@ -119,19 +127,26 @@ export default {
     // 过滤后的消息列表
     filteredChats() {
       let chats = this.chats;
-      if (this.activeTag !== 'all') {
+      if(this.activeTag === 'blocked') {
         chats = chats.filter(chat => chat.tags.includes(this.activeTag));
+      }else if (this.activeTag !== 'all') {
+        chats = chats.filter(chat => chat.tags.includes(this.activeTag) && !chat.tags.includes('blocked'));
       }else{   // all不显示被屏蔽的消息
         chats = chats.filter(chat => !chat.tags.includes('blocked'));
       }
       if(!chats) {
         return chats;
       }
+      console.log(chats);
       // 将置顶的消息排在前面
-      return chats.sort((a, b) => b.pinned - a.pinned);
+      return chats.sort((a, b) => {
+        const aPinned = a.tags.includes('pinned') ? 1 : 0;
+        const bPinned = b.tags.includes('pinned') ? 1 : 0;
+        return bPinned - aPinned;
+      });
     },
     maxChars(){  // 可以显示的字体个数
-      return Math.floor((this.chatListWidth - 30) / 12);
+      return Math.floor((this.chatListWidth - 50) / 12);
     },
   },
   watch:{
@@ -168,7 +183,27 @@ export default {
       }
       this.selectedChat = chat;   // todo 滚动到chat
       this.$store.dispatch('setChat', chat);
-      
+      // 已读消息
+      if(chat.tags.includes('unread')) {
+        chat.tags = chat.tags.filter(tag => tag !== 'unread');
+        chat.unreadCount = 0;
+        await chatListAPI.readMessages(chat.id, true);
+      }
+    },
+    // 格式化时间
+    formatTime(time) {
+      const now = new Date();
+      const messageTime = new Date(time);
+      const isToday = now.toDateString() === messageTime.toDateString();
+      const isYesterday = new Date(now.setDate(now.getDate() - 1)).toDateString() === messageTime.toDateString();
+
+      if (isToday) {
+        return messageTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      } else if (isYesterday) {
+        return '昨天';
+      } else {
+        return messageTime.toLocaleDateString();
+      }
     },
     // 搜索消息
     async handleSearch(keyword) {
@@ -244,7 +279,6 @@ export default {
         chat.tags = chat.tags.filter(tag => tag !== 'unread');
         // 清空未读条数
         chat.unreadCount = 0;
-        console.log(chat);
         // 告知服务器
         await chatListAPI.readMessages(chat.id, true);
       }else if(option === '标记为未读') {
@@ -303,26 +337,39 @@ export default {
 };
 </script>
 
+<style scoped src="@/assets/css/chatList.css"></style>
 <style scoped>
 /* 消息列表页面的样式 */
 .chat-list {
   width: 30%;
   height: 100%;
   background-color: #f5f5f5;
+  display: flex;
+  flex-direction: column;
+}
+.chat-header{
+  flex: 1;
 }
 .chat-header button {
-  margin-right: 10px;
-  padding: 5px 10px;
+  border-radius: 20%;
+  margin: 5px;
+  padding: 5px 5px;
   cursor: pointer;
+  border: none;
+  background-color: rgb(220, 213, 213);
 }
 .chat-header button.active {
   background-color: #007bff;
   color: white;
 }
 .chat-items {
+  flex: 9;
   list-style: none;
   padding: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
+
 .chat-items li {
   display: flex;
   align-items: center;
@@ -331,11 +378,8 @@ export default {
   border-bottom: 1px solid #ddd;
   cursor: pointer;
 }
-.chat-items li.unread {
-  font-weight: bold;
-}
 .chat-items li.pinned {
-  font-weight: bold;
+  background-color: #d5d2d2
 }
 .chat-avatar img {
   width: 40px;
@@ -355,6 +399,7 @@ export default {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  font-size: 0.8rem
 }
 .chat-meta {
   text-align: right;

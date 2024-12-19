@@ -55,10 +55,10 @@ export default {
 
 /* 左侧导航栏样式 */
 .sidebar {
-  width: 150px;
+  width: 120px;
   background-color: #6dc79fb1;
   color: white;
-  padding: 20px;
+  padding: 10px;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
