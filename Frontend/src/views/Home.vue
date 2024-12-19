@@ -4,7 +4,7 @@
     <aside class="sidebar">
       <div class="user-info">
         <img src="../assets/image/avatar.jpg" alt="Avatar" class="avatar" />
-        <span class="nickname">{{ $store.state.user.username }}</span>
+        <span class="nickname">{{ this.$store.state.user.username }}</span>
       </div>
       <ul class="nav-links">
         <li><router-link to="/chat">聊天</router-link></li>

@@ -74,7 +74,7 @@ export default createStore({
     setUser({ commit }, user) {
       // 登录逻辑
       commit('SET_USER_ID', user.id); // 提交 SET_USER mutation
-      commit('SET_USER_Name',user.username);
+      commit('SET_USER_NAME',user.username);
       commit('SET_USER_AVATAR',user.avatar);
     },
 
