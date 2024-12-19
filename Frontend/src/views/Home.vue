@@ -129,7 +129,6 @@ export default {
 /* 右侧视图区域样式 */
 .content {
   flex: 1;
-  padding: 20px;
   overflow-y: auto;
   background-color: #f5f5f5;
 }

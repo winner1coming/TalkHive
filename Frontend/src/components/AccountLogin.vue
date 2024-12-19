@@ -66,11 +66,12 @@ export default {
     },
 
     // //检查账号密码是否为空（与后端连接需要把测试登录testlogin函数直接删除即可）
-     async testlogin(){
+
+    async testlogin(){
     //         // 检查账号和密码是否为空
     //   // 调用登录方法
        await this.login();
-       this.$router.push('/home');
+      this.$router.push('/home');
      },
     async login() {
 

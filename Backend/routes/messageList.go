@@ -17,11 +17,8 @@ func SetupMessageListRoutes(router *gin.Engine) *gin.RouterGroup {
 	r.POST("/group/create", controllers.CreateGroup) // 创建群聊
 
 	// 消息相关
-	r.GET("/messages/:id", controllers.GetMessages)   // 获取消息记录
-	r.POST("/messages/send", controllers.SendMessage) // 发送消息
-
-	// 系统设置相关
-	r.PUT("/settings/system", controllers.UpdateSystemSetting) // 更新系统设置
+	r.GET("/messages/:id", controllers.GetMessages)   // 3.9.获取聊天记录
+	r.POST("/messages/send", controllers.SendMessage) // 3.10.发送消息
 
 	// 申请通知相关
 	r.POST("/apply/submit", controllers.SubmitApply) // 提交申请
