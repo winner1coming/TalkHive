@@ -1,5 +1,5 @@
 import Mock from 'mockjs';
-const baseURL = 'http://your-api-url.com';
+const baseURL = 'http://localhost:8080';
 
 Mock.setup({
   timeout: '200-300', // 设置模拟延迟（可选）

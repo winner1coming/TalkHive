@@ -1,24 +1,44 @@
 import Mock from 'mockjs';
-const baseURL = 'http://your-api-url.com';
+const baseURL = 'http://localhost:8080';
 
 // chatlist
-const chats = Mock.mock({
-  'chats|5-10': [{
-  'id|1': /[0-9]{10}/,
-  'avatar': '@image("200x200", "#50B347", "#FFF", "Mock.js")',
-  'name': '@name',
-  'lastMessage': '@sentence',
-  'lastMessageTime': '@time("HH:mm")',
-  'unreadCount|0-10': 1,
-  'tags': function() {
-      return Mock.mock({
-        'array|1-3': ['@pick(["friend", "group", "unread", "pinned", "blocked"])']
-      }).array;
+let chats = Mock.mock({
+  'chats|14-19': [{
+    'id|1': /[0-9]{10}/,
+    'avatar': '@image("200x200", "#50B347", "#FFF", "Mock.js")',
+    'name': '@name',
+    'lastMessage': '@sentence',
+    'lastMessageTime': function() {
+      const now = new Date();
+      const daysAgo = Math.floor(Math.random() * 7); // 最近7天内
+      const date = new Date(now.setDate(now.getDate() - daysAgo));
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      return `${year}-${month}-${day} ${hours}:${minutes}`;
     },
-}]
+    'unreadCount|0-10': 1,
+    'tags': function() {
+      const tags = Mock.mock({
+        'array|1-2': ['@pick(["friend", "group", "pinned", "blocked"])']
+      }).array;
+      if (this.unreadCount > 0) {
+        tags.push('unread');
+      }
+      return tags;
+    },
+  }]
 });
-const messages = Mock.mock({
-  'messages|5-10': [{
+// 按照 lastMessageTime 排序
+chats.chats.sort((a, b) => {
+  const timeA = new Date(a.lastMessageTime);
+  const timeB = new Date(b.lastMessageTime);
+  return timeB - timeA;
+});
+let messages = Mock.mock({
+  'messages|10-15': [{
   'message_id|+1': /[0-9]{10}/,
   'send_account_id|1': ['1','2'],
   'content': ()=>Mock.Random.csentence(3, 20),

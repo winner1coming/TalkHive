@@ -3,7 +3,7 @@ import Mock from 'mockjs';
 import './chatListMock';
 import './contactListMock';
 
-const baseURL = 'http://your-api-url.com';
+const baseURL = 'http://localhost:8080';
 
 
 Mock.setup({

@@ -65,6 +65,10 @@
         // 若被禁言  
         //todo
         this.messages = response.data.messages;
+        this.$nextTick(() => {
+          this.scrollToBottom();
+        });
+        
       },
       sendMessage(content) {
         // 通知父组件发送消息
@@ -118,6 +122,13 @@
         
         this.$refs.profileCard.show(event, profile, this.boundD, this.boundR);
       },
+
+      scrollToBottom(){
+        const messages = this.$refs.messages;
+        if (messages) {
+          messages.scrollTop = messages.scrollHeight;
+        }
+      }
     },
     mounted() {
       this.boundD = this.$refs.chatBox.getBoundingClientRect().bottom;
@@ -126,6 +137,7 @@
   };
   </script>
   
+  <style scoped src="@/assets/css/chatList.css"></style>
   <style scoped>
   .chat-box {
     display: flex;

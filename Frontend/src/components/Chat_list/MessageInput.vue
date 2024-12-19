@@ -75,15 +75,16 @@ textarea {
   outline: none;
 }
 button {
-  background-color: #007bff;
-  color: white;
+  margin-left: 10px;
+  background-color: rgb(220, 213, 213);
+  color: rgb(48, 47, 47);
   border: none;
-  padding: 0 15px;
+  padding: 5px;
   cursor: pointer;
-  border-radius: 5px;
+  border-radius: 20%;
 }
 button:hover {
-  background-color: #0056b3;
+  background-color: #70a7eb;
 }
 .input-toolbar {
   display: flex;
