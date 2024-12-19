@@ -11,7 +11,7 @@
     >
       <img :src="person.avatar" alt="avatar" width="50" height="50" @click="showProfileCard($event, person.account_id)"/>
       <div class="left" @click="showProfileCard($event, person.account_id)">
-          <p class="name">{{ person.name }}</p>
+          <p class="name">{{ person.name?person.name:person.remark }}</p>
       </div>
       <div class="right">
           <button @click="Remove(person.account_id)">移出</button>

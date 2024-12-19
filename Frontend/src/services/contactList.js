@@ -31,6 +31,8 @@ export const groupApplyRequestPend = (account_id, group_id, accept) => {
 export const getFriends = () => {
   return apiClient.get('/contactList/friends');
 };
+
+// *分组
 // 获取分组名
 export const getDevides = (type) => {   // type: 'friends' or 'groups'
   return apiClient.get(`/contactList/${type}/devides`);
@@ -73,9 +75,9 @@ export const getGroups = () => {
   return apiClient.get('/contactList/groups');
 };
 
-// 创建群聊接口
+// 创建群聊接口（未完成）
 export const createGroup = (name) => {
-  return apiClient.post('/contactList/groups', { name });
+  return apiClient.post('/contactList/groups/create', { name });
 };
 
 // 删除群聊接口
