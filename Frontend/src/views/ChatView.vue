@@ -13,7 +13,6 @@
       <!-- 消息历史 -->
       <ChatBox 
         @clickGroupManagement="clickGroupManagement"
-        @send-message="sendNewMessage"
       />
     </div>
 
@@ -62,12 +61,12 @@ export default {
     };
   },
   methods: {
-    async sendNewMessage(content) {   // todo 目前只有发送文字的功能
-      if (!this.$store.state.currentChat) return;
-      // 发送消息到后端
-      await sendMessage(this.$store.state.currentChat.id, content);
-      // this.messages[this.selectedChat.id].push(newMessage);  todo 消息发送后，是否需要接收自己发送的消息
-    },
+    // async sendNewMessage(content) {   // todo 目前只有发送文字的功能
+    //   if (!this.$store.state.currentChat) return;
+    //   // 发送消息到后端
+    //   await sendMessage(this.$store.state.currentChat.id, content);
+    //   // this.messages[this.selectedChat.id].push(newMessage);  todo 消息发送后，是否需要接收自己发送的消息
+    // },
     // async goToChat(tid) {
     //   // 跳转到指定聊天
     //   const chat = this.$ref.chatList.chats.find(chat => chat.id === tid);

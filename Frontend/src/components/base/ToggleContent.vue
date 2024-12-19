@@ -35,6 +35,7 @@ export default {
 };
 </script>
 
+
 <style scoped>
 .toggle {
   cursor: pointer;

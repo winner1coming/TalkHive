@@ -159,7 +159,7 @@ Mock.mock(new RegExp(`${baseURL}/messages/\\d+`), 'get', (options) => {
   };
 });
 
-Mock.mock(/\/messages\/\d+\/send/, 'post', (options) => {
+Mock.mock(new RegExp(`${baseURL}/messages/\\d+/send`), 'post', (options) => {
   const tid = parseInt(options.url.split('/')[2]);
   const { content } = JSON.parse(options.body);
   const newMessage = Mock.mock({

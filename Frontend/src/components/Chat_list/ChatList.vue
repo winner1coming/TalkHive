@@ -33,7 +33,7 @@
         :key="chat.id"
         @contextmenu.prevent="showChatMenu($event, chat)"
         @click = selectChat(chat)
-        :class="{pinned: chat.tags.includes('pinned')}"
+        :class="{pinned: chat.tags.includes('pinned'), selected: chat.id === selectedChat.id}"
       >
         <div class="chat-avatar">   <!-- 头像-->
           <img :src="chat.avatar" alt="avatar" />
@@ -350,18 +350,6 @@ export default {
 .chat-header{
   flex: 1;
 }
-.chat-header button {
-  border-radius: 20%;
-  margin: 5px;
-  padding: 5px 5px;
-  cursor: pointer;
-  border: none;
-  background-color: rgb(220, 213, 213);
-}
-.chat-header button.active {
-  background-color: #007bff;
-  color: white;
-}
 .chat-items {
   flex: 9;
   list-style: none;
@@ -379,6 +367,9 @@ export default {
   cursor: pointer;
 }
 .chat-items li.pinned {
+  background-color: #e3e0e0
+}
+.chat-items li.selected {
   background-color: #d5d2d2
 }
 .chat-avatar img {
