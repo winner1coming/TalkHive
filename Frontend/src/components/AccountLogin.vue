@@ -108,10 +108,10 @@ export default {
             id: response.account_id,
             avatar: response.avatar,
           });
-
+          alert(response.message);
           this.$router.push('/home');
         } else {
-          alert(response.message || '登录失败');
+          alert(response.message);
         }
       } catch (error) {
         alert(error || '登录失败');

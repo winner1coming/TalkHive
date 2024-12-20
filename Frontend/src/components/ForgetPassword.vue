@@ -160,7 +160,7 @@
             this.Code = response.code;
             this.startCountdown();
           } else {
-            alert(response.message || '发送验证码失败');
+            alert(response.message);
           }
         } catch (error) {
           alert(error || '发送验证码失败');
@@ -189,10 +189,10 @@
             this.successMessage = '找回密码成功，请返回重新登录';
             this.goToLogin();
           } else {
-            alert(response.message || '找回密码失败');
+            alert(response.message);
           }
         } catch (error) {
-          alert(error || '找回密码失败');
+          alert(error);
         }
       },
       

@@ -7,7 +7,7 @@ import apiClient from '@/services/api';
       const response = await apiClient.get(`/Settings/profile/${id}`);
       return response.data;
     } catch (error) {
-      throw error.response?.data || error.message;
+      throw error.response?.data.message || error.message;
     }
   };
 
@@ -17,7 +17,7 @@ import apiClient from '@/services/api';
       const response = await apiClient.post('/Settings/saveEdit', data);
       return response.data;
     } catch (error) {
-      throw error.response?.data || error.message;
+      throw error.response?.data.message || error.message;
     }
   };
 
@@ -28,7 +28,7 @@ import apiClient from '@/services/api';
       return response.data;
 
     }catch(error){
-      throw error.response?.data ||error.message;
+      throw error.response?.data.message ||error.message;
     }
   };
 
@@ -38,7 +38,7 @@ import apiClient from '@/services/api';
       const response = await apiClient.post('/Settings/getCode',data);
       return response.data;
     }catch(error){
-      throw error.response?.data||error.message;
+      throw error.response?.data.message||error.message;
     }
   };
   //保存Email的修改
@@ -47,7 +47,7 @@ import apiClient from '@/services/api';
       const response = await apiClient.post('/Settings/saveEmail', data);
       return response.data;
     } catch (error) {
-      throw error.response?.data || error.message;
+      throw error.response?.data.message || error.message;
     }
   };
 
@@ -57,7 +57,7 @@ import apiClient from '@/services/api';
       const response = await apiClient.post('/Settings/savePassword',data);
       return response.data;
     }catch(error){
-      throw error.response?.data || error.message;
+      throw error.response?.data.message || error.message;
     }
   };
 
@@ -67,7 +67,7 @@ import apiClient from '@/services/api';
       const response = await apiClient.get('/Settings/isIDAdd',data);
       return response.data;
     }catch(error){
-      throw error.response?.data || error.message;
+      throw error.response?.data.message || error.message;
     }
   };
 
@@ -77,7 +77,7 @@ import apiClient from '@/services/api';
       const response = await apiClient.get('/Settings/isNicknameAdd',data);
       return response.data;
     }catch(error){
-      throw error.response?.data || error.message;
+      throw error.response?.data.message || error.message;
     }
   }
 
@@ -88,7 +88,7 @@ import apiClient from '@/services/api';
       const response = await apiClient.post('/Settings/deactivate',{id});
       return response.data;
     }catch(error){
-      throw error.response?.data ||error.message;
+      throw error.response?.data.message ||error.message;
     }
   };
 
@@ -97,6 +97,6 @@ import apiClient from '@/services/api';
       const response = await apiClient.post('/Logout',{id});
       return response.data;
     }catch(error){
-      throw error.response?.data ||error.message;
+      throw error.response?.data.message ||error.message;
     }
   };

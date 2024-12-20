@@ -6,7 +6,7 @@ import apiClient from '@/services/api';
       const response = await apiClient.post('/login', payload);
       return response.data;
     } catch (error) {
-      throw error.response ? error.response.data : error.message;
+      throw error.response ? error.response.data.message : error.message;
     }
   };
   //短信接收码的接口
@@ -15,7 +15,7 @@ import apiClient from '@/services/api';
       const response = await apiClient.post('/sendSmsCode',data);
       return response.data;
     } catch (error) {
-      throw error.response ? error.response.data : error.message;
+      throw error.response ? error.response.data.message : error.message;
     }
   };
 
@@ -24,7 +24,7 @@ import apiClient from '@/services/api';
       const response =await apiClient.post('/smslogin',email);
         return response.data;
     }catch(error){
-        throw error.response?.data || error.message;
+        throw error.response?.data.message || error.message;
       };
   };
 
@@ -35,7 +35,7 @@ import apiClient from '@/services/api';
       return response.data;
     } 
     catch(error) {
-      throw error.response?.data || error.message;
+      throw error.response?.data.message || error.message;
     };
   };
 
@@ -47,6 +47,6 @@ import apiClient from '@/services/api';
       return response.data;
     } 
     catch(error) {
-      throw error.response?.data || error.message;
+      throw error.response?.data.message || error.message;
     };
   };
