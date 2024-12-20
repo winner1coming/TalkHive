@@ -40,7 +40,7 @@ import ChangePassword from './ChangePassword.vue';
 import FriendPermission from './FriendPermission.vue';
 import ChangeEmail from './ChangeEmail.vue';
 import { mapGetters } from 'vuex';
-import { getUserInfo , confirmDeactivation } from '@/services/api';
+import { getUserInfo , confirmDeactivation } from '@/services/settingView.js';
 
 export default {
   components: {

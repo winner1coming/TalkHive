@@ -20,7 +20,7 @@
   </template>
   
   <script>
-  import {isIDAdd, isNicknameAdd} from '@/services/api.js';
+  import {isIDAdd, isNicknameAdd} from '@/services/settingView.js';
   import Windows from '@/components/base/Windows.vue'
 
   export default {

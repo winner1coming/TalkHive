@@ -25,7 +25,7 @@
   </template>
   
   <script>
-  import {getCode,saveEmail} from '@/services/api';
+  import {getCode,saveEmail} from '@/services/settingView.js';
 
   export default {
     props:{

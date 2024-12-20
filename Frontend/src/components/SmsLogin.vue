@@ -26,7 +26,7 @@
   </template>
   
   <script>
-  import { smsLogin, sendSmsCode } from '@/services/api'; // 导入登录和发送验证码 API
+  import { smsLogin, sendSmsCode } from '@/services/loginth.js'; // 导入登录和发送验证码 API
   import { mapActions, mapGetters} from 'vuex';
   
   export default {
