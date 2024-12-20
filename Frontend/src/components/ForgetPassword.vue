@@ -48,7 +48,7 @@
   </template>
   
   <script>
-  import { sendSmsCode, resetPassword } from '@/services/api'; // 导入发送验证码和重置密码 API
+  import { sendSmsCode, resetPassword } from '@/services/loginth.js'; // 导入发送验证码和重置密码 API
   
   export default {
     data() {

@@ -25,6 +25,7 @@ export default {
     
     saveState: function() {
       sessionStorage.setItem("state", JSON.stringify(this.$store.state));
+      this.$store.state.user,id;
     },
     hideClick(component=null) {
       if(this.$store.hasFloatCompoent){

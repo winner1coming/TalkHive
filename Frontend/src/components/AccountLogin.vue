@@ -31,7 +31,7 @@
 </template>
 
 <script>
-import { login } from '@/services/api'; // 导入登录 API
+import { login } from '@/services/loginth.js'; // 导入登录 API
 import CryptoJS from 'crypto-js';
 import { mapActions, mapGetters} from 'vuex';
 

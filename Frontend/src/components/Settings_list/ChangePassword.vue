@@ -44,7 +44,7 @@
   </template>
   
   <script>
-  import { savePassword } from '@/services/api';
+  import { savePassword } from '@/services/settingView.js';
 
   export default {
     props:{

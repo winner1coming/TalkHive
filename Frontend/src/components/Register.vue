@@ -97,7 +97,7 @@
 </template>
 
 <script>
-import { Register, sendSmsCode } from '@/services/api'; // 导入注册和发送验证码 API
+import { Register, sendSmsCode } from '@/services/loginth.js'; // 导入注册和发送验证码 API
 
 export default {
 

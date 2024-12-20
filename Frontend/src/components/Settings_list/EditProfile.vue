@@ -96,7 +96,7 @@
 </template>
 
 <script>
-import { showProfile, saveEdit } from '@/services/api';
+import { showProfile, saveEdit } from '@/services/settingView.js';
 import avatar from '@/assets/images/avatar.jpg';
 import { mapGetters } from 'vuex';
 
