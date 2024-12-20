@@ -272,11 +272,11 @@ export default {
           email: this.email,
         });
         if (response.success) {
-          alert('验证码已发送');
+          alert(response.message);
           this.Code = response.code;
           this.startCountdown();//启动一分钟倒计时
         } else {
-          alert(response.message || '发送验证码失败');
+          alert(response.message);
         }
       } catch (error) {
         alert(error || '发送验证码失败');
@@ -333,7 +333,7 @@ export default {
           alert(response.message);
           this.$router.push('/loginth');
         } else {
-          alert(response.message || '注册失败');
+          alert(response.message);
         }
       } catch (error) {
         alert(error || '注册失败');
