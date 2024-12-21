@@ -43,6 +43,7 @@
   background-color: #f9f9f9;
   padding: 20px;
   box-sizing: border-box;
+  justify-content: flex-start;
 }
 
 .login-options {

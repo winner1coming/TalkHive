@@ -63,13 +63,12 @@ export default {
 }
 
 .left-panel {
-  width: 30%;
+  width: 20%;
   background-color: #f0f0f0;
-  padding: 20px;
 }
 
 .right-panel {
-  width: 70%;
+  width: 80%;
   padding: 20px;
   position: relative;
 }
@@ -78,11 +77,11 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px;
   border-bottom: 1px solid #ccc;
   cursor: pointer;
-  width: 100%;
+  width: 80%;
   height: 10vh;
+  padding: auto;
 }
 
 .menu-item.active {
@@ -92,6 +91,7 @@ export default {
 
 .menu-item span {
   font-size: 16px;
+  margin-left: 40px;
 }
 
 .menu-item .content {

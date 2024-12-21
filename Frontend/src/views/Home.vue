@@ -3,7 +3,7 @@
     <!-- 左侧导航栏 -->
     <aside class="sidebar">
       <div class="user-info">
-        <img src="../assets/image/avatar.jpg" alt="Avatar" class="avatar" />
+        <img :src="avatar" alt="Avatar" class="avatar" />
         <span class="nickname">用户昵称</span>
       </div>
       <ul class="nav-links">
@@ -33,6 +33,7 @@ export default {
   data() {
     return {
       showDropdown: false,
+      avatar: this.$store.state.user.avatar,
     };
   },
   methods: {

@@ -2,7 +2,6 @@
   <!-- 编辑资料页面容器 -->
   <div class="editprofile">
     <!-- 页面标题 -->
-    <h2>编辑资料</h2>
     <div class="avatar-container">
       <img :src="avatar" alt="avatar" class="headavatar" @click="showAvatarPreview" />
       <input type="file" ref="fileInput" style="display: none;" @change="handleFileChange" />
@@ -286,10 +285,10 @@ export default {
 .editprofile {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 20px;
-  padding: 20px; /* 设置内边距 */
+  gap: 10px;
   align-items: center;
   justify-items: center;
+  margin-top: 20px;
 }
 
 h2{

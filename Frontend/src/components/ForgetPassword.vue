@@ -249,7 +249,7 @@
     font-size: 14px;
     color: #666;
     text-align: left;
-    width: 89px;
+    width: 60px;
   }
 
   .input-group input {
