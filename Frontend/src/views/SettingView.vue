@@ -130,7 +130,6 @@
   
   .bottom-panel {
     flex: 1;
-    padding: 20px;
     overflow-y: auto;
   }
   
