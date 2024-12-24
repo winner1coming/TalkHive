@@ -16,13 +16,23 @@
           </label>
         </div>
       </div>
+      <Windows 
+        :visial="showModal"
+        :message="modalMessage"
+        @close="showModal = false"
+      />
     </div>
   </template>
   
   <script>
-import { mapState,mapActions } from 'vuex';
+  import { mapActions } from 'vuex';
+  import { changeTheme } from '@/services/settingView.js';
+  import Windows from '@/base/Windows.vue';
 
   export default {
+    components:{
+      Windows,
+    },
     data() {
       return {
         themes: [
@@ -30,31 +40,44 @@ import { mapState,mapActions } from 'vuex';
           { label: '深色模式', value: 'dark' },
           { label: '系统默认', value: 'system' },
         ],
+        showModal:false,
+        modalMessage:'',
       };
     },
     computed:{
-        ...mapState(['setting']),
         selectedTheme:{
             get(){
-                return this.setting?.theme;
+                return this.$store.state.settings.theme;
             },
             set(value){
-                this.setTheme(value);
+                this.$store.commit('SET_THEME',value);
             },
         },
     },
     watch: {
     selectedTheme(newVal) {
-      // 手动更新视图
       this.$forceUpdate();
     },
-  },
+    },
     methods: {
-      ...mapActions(['setTheme']),
-      onThemeChange() {
-        // 在这里处理主题切换逻辑
-        console.log('Selected theme:', this.selectedTheme);
-        // 你可以在这里调用一个方法来应用选中的主题
+      ...mapActions(['saveSettings']),
+      async onThemeChange() {
+        try{
+          const response = await changeTheme({theme:this.selectedTheme});
+          if(response.success){
+              // 在这里处理主题切换逻辑
+              console.log('Selected theme:', this.selectedTheme);
+              // 你可以在这里调用一个方法来应用选中的主题
+              this.$emit('updateUser', {theme:this.selectedTheme});
+          }
+          else{
+            this.modalMessage = response.message;
+            this.showModal = true;
+          }
+        }catch(error){
+          this.modalMessage = '切换主题失败,请重试';
+          this.showModal = true;
+        }
       },
     },
   };

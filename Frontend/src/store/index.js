@@ -16,12 +16,11 @@ export default createStore({
 
     // 系统设置
     settings: {
-      theme: '', // 主题颜色
-      fontSize: '', // 字体大小
-      fontStyle: '', // 字体样式
+      theme: 'light', // 主题颜色
+      fontSize: '16px', // 字体大小
+      fontStyle: 'Arial,sans-serif', // 字体样式
       sound:'',
     },
-
     socket: null,
   },
   
@@ -60,7 +59,23 @@ export default createStore({
 
     // 设置系统设置
     SET_SETTINGS(state, settings) {
-      state.settings = settings;
+      state.settings = {...state.settings,...settings};
+    },
+
+    SET_THEME(state, theme) {
+      state.settings.theme = theme;
+    },
+
+    SET_FONTSIZE(state,fontSize){
+      state.settings.fontSize = fontSize;
+    },
+
+    SET_FONTSTYLE(state,fontStyle){
+      state.settings.fontStyle = fontStyle;
+    },
+
+    SET_SOUND(state,sound){
+      state.settings.sound = sound;
     },
 
     SET_SOCKET(state, socket) {
@@ -81,10 +96,6 @@ export default createStore({
     // 设置聊天对象
     setChat({ commit }, chat) {
       commit('SET_CHAT', chat);
-    },
-
-    setTheme({commit},theme){
-      commit('SET_THEME',theme);
     },
 
     // 注册操作
@@ -132,9 +143,12 @@ export default createStore({
     },
         
     // 保存设置操作
-    saveSettings({ commit }, { theme, fontSize }) {
+    saveSettings({ commit }, settings) {
       // 保存设置逻辑
-      commit('SET_SETTINGS', { theme, fontSize }); // 提交 SET_SETTINGS mutation
+      commit('SET_THEME', settings.theme); // 提交 SET_SETTINGS mutation
+      commit('SET_FONTSIZE', settings.fontSize);
+      commit('SET_FONTSTYLE',settings.fontStyle);
+      commit('SET_SOUND',settings.sound);
     },
   },
 

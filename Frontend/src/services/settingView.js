@@ -79,7 +79,27 @@ import apiClient from '@/services/api';
     }catch(error){
       throw error.response?.data.message || error.message;
     }
-  }
+  };
+
+  //更改字体大小
+  export const changeFontsize = async(data)=>{
+    try{
+      const response = await apiClient.post('/Settings/fontsize',data);
+      return response.data;
+    }catch(error){
+      throw error.response?.data.message || error.message;
+    }
+  };
+
+  //更改主题
+  export const changeTheme = async(data)=>{
+    try{
+      const response = await apiClient.post('/Settings/changeTheme',data);
+      return response.data;
+    }catch(error){
+      throw error.response?.data.message || error.message;
+    }
+  };
 
 
   //注销账号
