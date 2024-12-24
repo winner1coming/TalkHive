@@ -14,7 +14,7 @@
             <input
             type="range"
             min="12"
-            max="36"
+            max="33"
             v-model="fontSize"
             @input="onFontSizeChange"
             />
@@ -25,18 +25,31 @@
         </div>
         <button @click="saveFontSize">完成</button>
       </div>
+
+      <Windows 
+        :visible="showModal"
+        :message="modalMessage"
+        @close="showModal = false"
+      />
     </div>
   </template>
 
   
   <script>
-
+  import Windows from '@/base/Windows.vue';
   import avatar from '@/assets/images/avatar.jpg';
+  import { changeFontsize } from '@/services/settingView.js';
+
   export default {
+    components:{
+      Windows,
+    },
     data() {
       return {
         avatar,
-        fontSize: 16, // 默认字体大小
+        fontSize:this.$store.state.settings.fontSize, // 默认字体大小
+        showModal:false,
+        modalMessage:'',
       };
     },
     methods: {
@@ -44,10 +57,27 @@
         // 处理字体大小变化逻辑
         console.log('Font size changed:', this.fontSize);
       },
-      saveFontSize() {
-        // 保存字体大小逻辑
-        console.log('Font size saved:', this.fontSize);
-        // 你可以在这里调用一个方法来保存字体大小
+      async saveFontSize() {
+        try{
+          //向后端发送更改请求
+          const response = await changeFontsize({FontSize:this.fontSize});
+          if(response.success){
+            // 保存字体大小逻辑
+            console.log('Font size saved:', this.fontSize);
+            // 调用一个方法来保存字体大小
+            this.$store.commit('SET_FONTSIZE',`${this.fontSize}px`);
+            this.$emit('updateUser', {fontsize:`${this.fontSize}px`});
+            this.modalMessage = '字体大小修改成功';
+            this.showModal = true;
+          }else{
+            this.modalMessage = response.message;
+            this.showModal =true;
+          }
+        }catch(error){
+          this.modalMessage = '保存失败请重试！';
+          this.showModal = true;
+          console.error(error);
+        }
       },
     },
   };

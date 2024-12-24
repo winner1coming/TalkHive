@@ -7,7 +7,7 @@
       </div>
       <div class="menu-item" :class="{ active: activeComponent === 'FontSize' }" @click="setActiveComponent('FontSize')">
         <span>字体大小</span>
-        <span class="content">{{ fontsize }}</span>
+        <span class="content">{{ fontSize }}</span>
       </div>
       <div class="menu-item" :class="{ active: activeComponent === 'SoundSetting' }" @click="setActiveComponent('SoundSetting')">
         <span>消息通知</span>
@@ -29,6 +29,7 @@ import ThemeSetting from './ThemeSetting.vue';
 import FontSize from './FontSize.vue';
 import SoundSetting from './SoundSetting.vue';
 import ChatBackground from './ChatBackground.vue';
+import { mapGetters } from 'vuex';
 
 export default {
   components: {
@@ -44,13 +45,33 @@ export default {
       activeComponent: '',
     };
   },
+  computed:{
+    ...mapGetters(['settings']),
+  },
   methods: {
     setActiveComponent(component) {
       this.activeComponent = component;
     },
     updateUser(updatedUser) {
-      this.user = { ...this.user, ...updatedUser };
-      this.setActiveComponent('');  
+      // 处理子组件传递的更新数据
+      if (updatedUser.fontsize) {
+        this.fontsize = updatedUser.fontsize;
+      }
+      if (updatedUser.theme) {
+        this.theme = this.getThemeLabel(updatedUser.theme);
+      }
+      // 关闭当前组件
+      this.setActiveComponent('');
+    },
+
+    getThemeLabel(themeValue) {
+      // 根据 theme 的值返回对应的标签
+      const themeMap = {
+        light: '浅色',
+        dark: '深色',
+        system: '系统默认',
+      };
+      return themeMap[themeValue] || '浅色';
     },
   },
 };
