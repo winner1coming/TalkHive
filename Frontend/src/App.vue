@@ -142,7 +142,6 @@ export default {
   /* 设置字体 */
   font-family: var(--font-family);
   font-size:var(--font-size);
-  /*font-family: Avenir, Helvetica, Arial, sans-serif;*/
 
   /* 抗锯齿，使字体在 Webkit 浏览器中更平滑 */
   -webkit-font-smoothing: antialiased;

@@ -27,7 +27,7 @@
   <script>
   import { mapActions } from 'vuex';
   import { changeTheme } from '@/services/settingView.js';
-  import Windows from '@/base/Windows.vue';
+  import Windows from '@/components/base/Windows.vue';
 
   export default {
     components:{
