@@ -1,8 +1,12 @@
 <template>
     <div class="chat-background-settings">
+      <div class="background-view">
       <h3>聊天背景</h3>
       <div class="current-background">
-        <img :src="currentBackground" alt="Current Background" />
+        <div v-if="!currentBackground" class="placeholder">
+          <span>默认纯白背景</span>
+        </div>
+        <img v-else :src="currentBackground" alt="Current Background" />
       </div>
       <div class="upload-container">
         <label class="custom-file-upload">
@@ -11,17 +15,29 @@
         </label>
       </div>
       <button @click="saveBackground">保存</button>
+      <Windows 
+        :visible="showModal"
+        :message="modalMessage"
+        @close="showModal = false"
+      />
+      </div>
     </div>
   </template>
   
   <script>
-  import currentBackground from '@/assets/images/avatar.jpg';
-  
+  import Windows from '@/components/base/Windows.vue';
+  import {changeBackground} from '@/services/settingView.js';
   export default {
+    components:{
+      Windows,
+    },
     data() {
       return {
-        currentBackground, // 默认背景图片
+        currentBackground:this.$store.state.settings.background, // 默认背景图片
         newBackground: null, // 新上传的背景图片
+        file: null, // 文件对象
+        showModal:false,
+        modalMessage:'',
       };
     },
     methods: {
@@ -30,19 +46,36 @@
         if (file) {
           const reader = new FileReader();
           reader.onload = (e) => {
-            this.currentBackground = e.target.result;
-            this.newBackground = e.target.result;
+            this.currentBackground = `data:${file.type};base64,${e.target.result.split(',')[1]}`;
+            this.newBackground = this.currentBackground;
           };
           reader.readAsDataURL(file);
+          this.file = file;
         }
       },
-      saveBackground() {
+      async saveBackground() {
+        if(!this.newBackground){
+          this.modalMessage = '请先上传图片!';
+          this.showModal = true;
+          return;
+        }
         // 保存背景图片逻辑
-        if (this.newBackground) {
-          console.log('Background saved:', this.currentBackground);
-          // 你可以在这里调用一个方法来保存背景图片
-        } else {
-          console.log('No new background to save');
+        try{
+          const formData = new FormData();
+          formData.append('background', this.file);
+          const response = await changeBackground({formData});
+          this.formData = null;
+          if(response.success){
+            this.$store.commit('SET_BACKGROUND',this.newBackground);
+            this.modalMessage = response.message;
+            this.showModal = true;
+          }else{
+            this.modalMessage = response.message;
+            this.showModal = true;
+          }
+        }catch(error){
+            this.modalMessage = error;
+            this.showModal = true;
         }
       },
     },
@@ -52,8 +85,18 @@
   <style scoped>
   .chat-background-settings {
     padding: 20px;
+    height: 50vh;
     width: 100%;
-    max-width: 400px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .background-view{
+    padding: 20px;
+    width: 100%;
+    max-width: 500px;
+    height: 400px;
     background-color: #f9f9f9;
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -75,15 +118,28 @@
   .current-background {
     margin-bottom: 20px;
     width: 100%;
-    max-width: 300px;
+    max-width: 400px;
     border-radius: 8px;
     overflow: hidden;
+    border: 2px dashed #ccc; /* 添加虚线边框 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px; /* 设置最小高度 */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 添加阴影效果 */
+    background-color: #fff; /* 设置背景颜色 */
   }
   
   .current-background img {
     width: 100%;
     height: auto;
     display: block;
+  }
+
+  .placeholder {
+  text-align: center;
+  color: #888; /* 占位文字颜色 */
+  font-size: 14px;
   }
   
   .upload-container {

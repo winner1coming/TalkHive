@@ -12,7 +12,7 @@
       </div>
     </div>
     <!-- 上方的消息历史 -->
-    <div class="messages" ref="messages">
+    <div class="messages" ref="messages" :style="messagesStyle">
       <MessageItem 
         v-for="message in messages" 
         :message="message"
@@ -37,6 +37,7 @@ import ContextMenu from '@/components/base/ContextMenu.vue';
 import ProfileCard from '@/components/base/ProfileCard.vue';
 import * as chatListAPI from '@/services/chatList';
 import { getProfileCard } from '@/services/api';
+
 export default {
   components: {MessageItem, MessageInput, ContextMenu, ProfileCard},
   data() {
@@ -45,7 +46,18 @@ export default {
       boundD: 0,
       boundR: 0,
       selectedChat: null,  // 当前选中的聊天
+      backgroundImage:this.$store.state.settings.background,
     }
+  },
+  computed:{
+    messagesStyle(){
+      return{
+        backgroundImage: `url(${this.backgroundImage})`, // 动态绑定背景图片
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        backgroundSize: 'cover',
+      };
+    },
   },
   watch: {
     '$store.state.currentChat': {

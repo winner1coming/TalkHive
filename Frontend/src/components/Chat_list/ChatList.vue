@@ -33,7 +33,7 @@
         :key="chat.id"
         @contextmenu.prevent="showChatMenu($event, chat)"
         @click = selectChat(chat)
-        :class="{pinned: chat.tags.includes('pinned'), selected: chat.id === selectedChat.id}"
+        :class="{pinned: chat.tags.includes('pinned'), selected: selectedChat && chat.id === selectedChat.id}"
       >
         <div class="chat-avatar">   <!-- 头像-->
           <img :src="chat.avatar" alt="avatar" />

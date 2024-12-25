@@ -8,7 +8,7 @@ export default createStore({
     user: {
       username: 'hh', // 用户名
       id: '1', // 用户tID 
-      avatar:'',
+      avatar:'', //默认头像
     },
 
     hasFloatComponent: null,   // 当前正在开启的悬浮组件
@@ -20,6 +20,7 @@ export default createStore({
       fontSize: '16px', // 字体大小
       fontStyle: 'Microsoft YaHei', // 字体样式
       sound:'',
+      background:'',
     },
     socket: null,
   },
@@ -76,6 +77,10 @@ export default createStore({
 
     SET_SOUND(state,sound){
       state.settings.sound = sound;
+    },
+
+    SET_BACKGROUND(state,background){
+      state.settings.background = background;
     },
 
     SET_SOCKET(state, socket) {
@@ -149,6 +154,7 @@ export default createStore({
       commit('SET_FONTSIZE', settings.fontSize);
       commit('SET_FONTSTYLE',settings.fontStyle);
       commit('SET_SOUND',settings.sound);
+      commit('SET_BACKGROUND',settings.background);
     },
   },
 
