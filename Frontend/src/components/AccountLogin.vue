@@ -31,7 +31,7 @@
 </template>
 
 <script>
-import { login } from '@/services/api'; // 导入登录 API
+import { login } from '@/services/loginth.js'; // 导入登录 API
 import CryptoJS from 'crypto-js';
 import { mapActions, mapGetters} from 'vuex';
 
@@ -108,10 +108,10 @@ export default {
             id: response.account_id,
             avatar: response.avatar,
           });
-
+          alert(response.message);
           this.$router.push('/home');
         } else {
-          alert(response.message || '登录失败');
+          alert(response.message);
         }
       } catch (error) {
         alert(error || '登录失败');

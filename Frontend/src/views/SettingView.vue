@@ -41,7 +41,7 @@
   import EditProfile from '@/components/Settings_list/EditProfile.vue';
   import SecuritySettings from '@/components/Settings_list/SecuritySettings.vue';
   import SystemSettings from '@/components/Settings_list/SystemSettings.vue';
-  import {logout} from '@/services/api.js';
+  import {logout} from '@/services/settingView.js';
   import { mapGetters } from 'vuex';
   
   export default {
@@ -130,7 +130,6 @@
   
   .bottom-panel {
     flex: 1;
-    padding: 20px;
     overflow-y: auto;
   }
   

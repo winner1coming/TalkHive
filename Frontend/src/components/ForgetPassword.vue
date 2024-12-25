@@ -48,7 +48,7 @@
   </template>
   
   <script>
-  import { sendSmsCode, resetPassword } from '@/services/api'; // 导入发送验证码和重置密码 API
+  import { sendSmsCode, resetPassword } from '@/services/loginth.js'; // 导入发送验证码和重置密码 API
   
   export default {
     data() {
@@ -160,7 +160,7 @@
             this.Code = response.code;
             this.startCountdown();
           } else {
-            alert(response.message || '发送验证码失败');
+            alert(response.message);
           }
         } catch (error) {
           alert(error || '发送验证码失败');
@@ -189,10 +189,10 @@
             this.successMessage = '找回密码成功，请返回重新登录';
             this.goToLogin();
           } else {
-            alert(response.message || '找回密码失败');
+            alert(response.message);
           }
         } catch (error) {
-          alert(error || '找回密码失败');
+          alert(error);
         }
       },
       
@@ -249,7 +249,7 @@
     font-size: 14px;
     color: #666;
     text-align: left;
-    width: 89px;
+    width: 60px;
   }
 
   .input-group input {

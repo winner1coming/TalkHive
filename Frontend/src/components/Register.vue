@@ -97,7 +97,7 @@
 </template>
 
 <script>
-import { Register, sendSmsCode } from '@/services/api'; // 导入注册和发送验证码 API
+import { Register, sendSmsCode } from '@/services/loginth.js'; // 导入注册和发送验证码 API
 
 export default {
 
@@ -114,6 +114,7 @@ export default {
       password: '',
       confirmPassword: '',
       verificationCode: '',
+      file:null,
       errors: {
         avatar:'',
         gender:'',
@@ -265,18 +266,17 @@ export default {
       if(this.errors.email){
         return;
       }
-      
       try {
         const response = await sendSmsCode({
           command:'register',
           email: this.email,
         });
         if (response.success) {
-          alert('验证码已发送');
+          alert(response.message);
           this.Code = response.code;
           this.startCountdown();//启动一分钟倒计时
         } else {
-          alert(response.message || '发送验证码失败');
+          alert(response.message);
         }
       } catch (error) {
         alert(error || '发送验证码失败');
@@ -318,22 +318,21 @@ export default {
       this.validateCode();
       
       try {
-        const response = await Register({
-          avatar :this.avatar,
-          gender:this.gender,
-          id: this.id,
-          nickname: this.nickname,
-          birthday:this.birthday,
-          phone: this.phoneNumber,
-          email:this.email,
-          password: this.password,
-        });
+        const formData = new FormData();
+        formData.append('avatar', this.file);
+        formData.append('gender', this.gender);
+        formData.append('id', this.id);
+        formData.append('nickname', this.nickname);
+        formData.append('birthday', this.birthday);
+        formData.append('phone',this.phone);
+        formData.append('password',this.password);
+        const response = await Register(formData);
         
         if (response.success) {
           alert(response.message);
           this.$router.push('/loginth');
         } else {
-          alert(response.message || '注册失败');
+          alert(response.message);
         }
       } catch (error) {
         alert(error || '注册失败');
@@ -352,7 +351,7 @@ export default {
   align-items: center;
   justify-items: center;
   height: 100vh;
-  background-color: #f9f9f9;
+  background-color: #ffffff;
   padding: 20px;
   box-sizing: border-box;
 }
@@ -365,9 +364,9 @@ export default {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 添加阴影效果 */
     border-radius: 8px; /* 添加圆角效果 */
     background-color: #fff; /* 添加背景色 */
-    padding: 20px; /* 添加内边距 */
-    margin-top: 40px;
+    margin-top: 15px;
     width: 400px;
+    flex-wrap: nowrap;
   }
 
 h2 {
@@ -383,8 +382,8 @@ h2 {
 }
 
 .headavatar {
-  width: 100px;
-  height: 100px;
+  width: 80px;
+  height: 80px;
   margin-top: 10px;
   margin-bottom: 20px;
   margin-left: 10px;
@@ -418,7 +417,7 @@ h2 {
 }
 
 .date-picker {
-  margin-left: 18px;
+  margin-left: 15px;
   padding: 10px;
   font-size: 16px;
   border: 1px solid #ccc;
@@ -435,22 +434,22 @@ h2 {
 .input-group {
   display: flex;
   grid-template-columns: 100px 1fr;
-  gap: 10px;
+  gap: 5px;
   align-items:center;
   width: 100%;
-  max-width: 400px;
-  margin-bottom: 20px;
+  max-width: 300px;
+  margin-bottom: 15px;
 }
 
 .input-group label {
   font-size: 14px;
   color: #666;
   text-align: left;
-  width: 89px;
+  width: 70px;
 }
 
 .input-group input {
-  padding: 10px;
+  padding: 5px;
   font-size: 16px;
   border: 1px solid #ccc;
   border-radius: 4px;
@@ -459,7 +458,7 @@ h2 {
 }
 
 .send-verification-code {
-  padding: 10px;
+  padding: 6px;
   width: 20%;
   font-size: 14px;
   color: #fff;
@@ -494,7 +493,7 @@ h2 {
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  margin-top: 10px;
+  margin-bottom: 10px;
 }
 
 .register-button:hover {

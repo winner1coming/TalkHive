@@ -26,7 +26,7 @@
   </template>
   
   <script>
-  import { smsLogin, sendSmsCode } from '@/services/api'; // 导入登录和发送验证码 API
+  import { smsLogin, sendSmsCode } from '@/services/loginth.js'; // 导入登录和发送验证码 API
   import { mapActions, mapGetters} from 'vuex';
   
   export default {
@@ -76,7 +76,7 @@
             this.$router.push('/home');
           }
           else {
-            alert(response.message || '登录失败');
+            alert(response.message);
           }
         } catch (error) {
           alert(error || '登录失败');
@@ -108,7 +108,7 @@
             alert('验证码已发送');
             this.Code = response.code;
           } else {
-            alert(response.message || '发送验证码失败');
+            alert(response.message);
           }
         } catch (error) {
           alert(error || '发送验证码失败');
