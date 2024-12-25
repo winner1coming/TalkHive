@@ -49,14 +49,6 @@ export default createStore({
       state.currentChat = chat;
     },
 
-    // 设置消息列表
-    SET_MESSAGES(state, messages) {
-      state.messages = messages;
-    },
-
-    ADD_MESSAGE(state, message) {
-      state.messages.push(message);
-    },
 
     // 设置系统设置
     SET_SETTINGS(state, settings) {

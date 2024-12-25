@@ -12,10 +12,20 @@ const apiClient = axios.create({
 apiClient.interceptors.request.use(config => {
   const userId = store.state.user.id; // 从 Vuex 存储中获取用户 ID
   if (userId) {
-    config.headers['tid'] = userId; // 在请求头中添加用户 ID
+    config.headers['User-ID'] = userId; // 在请求头中添加用户 ID
   }
+  console.log('请求拦截器:', config); // 打印请求信息
   return config;
 }, error => {
+  return Promise.reject(error);
+});
+
+// 添加响应拦截器
+apiClient.interceptors.response.use(response => {
+  console.log('响应拦截器:', response); // 打印响应信息
+  return response;
+}, error => {
+  console.error('响应错误拦截器:', error); // 打印响应错误信息
   return Promise.reject(error);
 });
 
