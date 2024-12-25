@@ -18,7 +18,7 @@ export default createStore({
     settings: {
       theme: 'light', // 主题颜色
       fontSize: '16px', // 字体大小
-      fontStyle: 'Arial,sans-serif', // 字体样式
+      fontStyle: 'Microsoft YaHei', // 字体样式
       sound:'',
     },
     socket: null,

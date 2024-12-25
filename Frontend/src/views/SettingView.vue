@@ -57,7 +57,7 @@
 
     data() {
       return {
-        activeComponent: '', // 默认显示个人主页
+        activeComponent: 'EditProfile', // 默认显示个人主页
         showConfirmation: false,
       };
     },

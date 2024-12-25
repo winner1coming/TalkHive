@@ -7,7 +7,7 @@
       </div>
       <div class="menu-item" :class="{ active: activeComponent === 'FontSize' }" @click="setActiveComponent('FontSize')">
         <span>字体大小</span>
-        <span class="content">{{ fontSize }}</span>
+        <span class="content">{{ fontsize }}</span>
       </div>
       <div class="menu-item" :class="{ active: activeComponent === 'SoundSetting' }" @click="setActiveComponent('SoundSetting')">
         <span>消息通知</span>
@@ -52,13 +52,13 @@ export default {
     setActiveComponent(component) {
       this.activeComponent = component;
     },
-    updateUser(updatedUser) {
+    updateUser(updateUser) {
       // 处理子组件传递的更新数据
-      if (updatedUser.fontsize) {
-        this.fontsize = updatedUser.fontsize;
+      if (updateUser.fontsize) {
+        this.fontsize = updateUser.fontsize;
       }
-      if (updatedUser.theme) {
-        this.theme = this.getThemeLabel(updatedUser.theme);
+      if (updateUser.theme) {
+        this.theme = this.getThemeLabel(updateUser.theme);
       }
       // 关闭当前组件
       this.setActiveComponent('');

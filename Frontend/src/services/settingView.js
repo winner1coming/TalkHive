@@ -91,10 +91,30 @@ import apiClient from '@/services/api';
     }
   };
 
+  //更改字体风格
+  export const changeFontstyle = async(data)=>{
+    try{
+      const response = await apiClient.post('Settings/fontStyle',data);
+      return response.data;
+    }catch(error){
+      throw error.response?.data.message || error.message;
+    }
+  };
+
   //更改主题
   export const changeTheme = async(data)=>{
     try{
       const response = await apiClient.post('/Settings/changeTheme',data);
+      return response.data;
+    }catch(error){
+      throw error.response?.data.message || error.message;
+    }
+  };
+
+  //更改聊天背景
+  export const changeBackground = async(data)=>{
+    try{
+      const response = await apiClient.post('/Settings/changeBackground',data);
       return response.data;
     }catch(error){
       throw error.response?.data.message || error.message;
