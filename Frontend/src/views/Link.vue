@@ -24,15 +24,21 @@
       </div>
       <div v-if="showAddLinkModal" class="modal-overlay">
         <div class="modal-content">
-            <h3>添加新链接</h3>
-            <form @submit.prevent="addWebLink">
-            <label for="linkName">名称:</label>
-            <input type="text" id="linkName" v-model="newlink.name" required />
-            <label for="linkUrl">URL:</label>
-            <input type="url" id="linkUrl" v-model="newlink.url" required />
-            <button type="submit" class="add-button">添加</button>
-            <button @click="showAddLinkModal = false" class="cancel-button">取消</button>
-            </form>
+          <h3>添加新链接</h3>
+          <form @submit.prevent="addWebLink">
+            <div class="form-group">
+              <label for="linkName">名称:</label>
+              <input type="text" id="linkName" v-model="newlink.name" required />
+            </div>
+            <div class="form-group">
+              <label for="linkUrl">网址:</label>
+              <input type="url" id="linkUrl" v-model="newlink.url" required />
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="add-button">添加</button>
+              <button @click="showAddLinkModal = false" class="cancel-button">取消</button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
@@ -261,65 +267,72 @@
     .pin-icon:hover {
     background-color: #b72424;
     }
+    
     .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
     }
 
     .modal-content {
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    width: 300px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      width: 300px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     }
 
     .modal-content h3 {
-    margin-top: 0;
+      margin-top: 0;
+      font-size: 1.2em;
+      text-align: center;
     }
 
-    .modal-content form {
-    display: flex;
-    flex-direction: column;
+    .form-group {
+      margin-bottom: 15px;
     }
 
-    .modal-content label {
-        margin-bottom: 5px;
-        display: block; /* 确保 label 是块级元素 */
-        font-weight: bold; /* 可选：加粗字体 */
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
     }
 
-    .modal-content input {
-    margin-bottom: 10px;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+    .form-group input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
     }
 
-    .modal-content button {
-    padding: 8px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
+    .form-actions {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
     }
 
-    .modal-content .add-button {
-    background-color: #28a745;
-    color: white;
-    margin-top: 10px;
+    .form-actions button {
+      padding: 8px 15px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.9em;
     }
 
-    .modal-content .cancel-button {
-    background-color: #dc3545;
-    color: white;
-    margin-top: 10px;
+    .add-button {
+      background-color: #28a745;
+      color: white;
+    }
+
+    .cancel-button {
+      background-color: #dc3545;
+      color: white;
     }
   </style>
