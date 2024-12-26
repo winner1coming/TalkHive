@@ -77,7 +77,9 @@ export default {
       }
     },
     closeGroupManagement() {
-      this.showGroupManagement = false;
+      if (this.$store.state.currentChat.tags.includes('group')) {
+        this.$refs.groupManagement.hide();
+      }
     },
     updateGroupDetails(updatedGroup) {
       // 更新群聊信息

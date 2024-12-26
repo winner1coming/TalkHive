@@ -264,6 +264,7 @@ let groupInfo = Mock.mock({
         'avatar': '@image("200x200", "#50B347", "#FFF", "Avatar")',
         'group_role': 'group_owner',
         'group_nickname': '@name',
+        'is_banned':true,
       },
     ],
     'my_group_role': '@pick(["group_owner", "group_manager", "group_ordinary"])',

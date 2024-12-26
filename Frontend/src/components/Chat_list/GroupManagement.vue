@@ -53,9 +53,6 @@
           <span class="arrow-button" >></span>
         </p>
         <hr v-show="groupInfo.my_group_role==='group_owner'||groupInfo.my_group_role==='group_manager'" class="divider" />
-        <p>是否全体禁言: <SwitchButton v-model="groupInfo.muteAll" @change-value=""/></p>
-        <p>是否可以通过群成员邀请进入: <SwitchButton v-model="groupInfo.allowMemberInvite" @change-value=""/></p>
-        <p>是否可以通过群号搜索进入: <SwitchButton v-model="groupInfo.allowSearch" @change-value=""/></p>
       </div>
       <div class="group-actions">
         <div>
@@ -76,9 +73,30 @@
     </div>
     <div v-show="componentStatus === 'manage'">
       <p>管理员设置</p>
+      <p class="title">全体禁言: <SwitchButton v-model="groupInfo.muteAll" @change-value=""/></p>
+      <p class="detail"> 已禁言的成员：</p>
+      <div class="muted-members-list">
+        <div 
+          v-for="member in groupInfo.members.filter(member => member.is_banned)" 
+          :key="member.account_id" 
+          class="muted-member"
+        >
+          <img :src="member.avatar" alt="avatar" class="avatar">
+          <span class="remark">{{ member.group_nickname }}</span>
+          <button @click="removeMember(member.account_id)">解禁</button>
+        </div>
+      </div>
+      <hr class="divider" />
+      <p class="title">申请入群的方式：</p>
+      <p class="detail" style="margin-left: 15px;">成员邀请: <SwitchButton v-model="groupInfo.allow_invite" @change-value="changeInvitePermission"/></p>
+      <p class="detail" style="margin-left: 15px;">群号搜索: <SwitchButton v-model="groupInfo.allow_id_search" @change-value="changeIdPermission"/></p>
+      <p class="detail" style="margin-left: 15px;">群名称搜索: <SwitchButton v-model="groupInfo.allow_name_search" @change-value="changeNamePermission"/></p>
+      <hr class="divider" />
+      <p class="title">更改群头像<button>上传</button></p>
     </div>
+    <ProfileCard ref="profileCard" />
   </div>
-  <ProfileCard ref="profileCard" />
+ 
 </template>
 
 <script>
@@ -123,6 +141,7 @@ export default {
       //       avatar: 'https://cdn.jsdelivr.net/gh/lin09/dist/img/avatar.jpg',
       //       group_role: 'group_owner',
       //       group_nickname: 'aa',
+      //       is_banned:false,
       //     },
       //     {
       //       account_id: '222',
@@ -143,11 +162,13 @@ export default {
         group_name: '',
         group_owner: '',  // 群主tid
         introduction: '',
-        // 入群权限 todo
-        
+        // 入群权限 
+        allow_invite: true, 
+        allow_id_search: true, 
+        allow_name_search: true,
         my_group_nickname: '',   // 我在本群的群昵称
-        members: [],
         my_group_role:'',
+        members: [],
       },
       newMemberId: '',
       componentStatus: 'main',  // 'main', 'history', 'manage'
@@ -161,6 +182,9 @@ export default {
       deep: true,
       handler(newVal) {
         if(!newVal) return;
+        if(this.visible && newVal.id !== this.group_id){
+          this.hide();
+        }
         this.group_id = newVal.id;
         this.group_remark = newVal.name;
         this.isMute = newVal.tags.includes('mute');
@@ -337,6 +361,39 @@ export default {
       // 管理员设置
       this.componentStatus = 'manage';
     },
+    async changeInvitePermission(){
+      try{
+        const response = await contactListAPI.changeInvitePermission(this.group_id, this.groupInfo.allow_invite);
+        if(response.status !== 200){
+          // todo
+        }
+      }
+      catch(error){
+        console.log('change invite permission error:', error);
+      }
+    },
+    async changeIdPermission(){
+      try{
+        const response = await contactListAPI.changeIdPermission(this.group_id, this.groupInfo.allow_id_search);
+        if(response.status !== 200){
+          // todo
+        }
+      }
+      catch(error){
+        console.log('change id permission error:', error);
+      }
+    },
+    async changeNamePermission(){
+      try{
+        const response = await contactListAPI.changeNamePermission(this.group_id, this.groupInfo.allow_name_search);
+        if(response.status !== 200){
+          // todo
+        }
+      }
+      catch(error){
+        console.log('change name permission error:', error);
+      }
+    },
     show(){
       this.fetchGroupInfo();
       this.visible = true;
@@ -359,11 +416,7 @@ export default {
   },
   mounted() {
     
-    EventBus.on('other-float-component', (component) => {
-      if (this.visible && component !== this) {
-        this.hide();
-      }
-    });
+
     EventBus.on('close-float-component', (clickedElement) => {
       console.log(clickedElement);
       if (this.visible && !this.$el.contains(clickedElement)) {
@@ -463,5 +516,23 @@ export default {
   height: 1px;
   background: #e0e0e0;
   margin: 10px 0;
+}
+
+.muted-members-list {
+  max-height: 300px; 
+  overflow-y: auto; 
+  border: 1px solid #e0e0e0;
+  border-radius: 5px;
+  background-color: #f9f9f9; 
+}
+
+.muted-member {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  border: 1px solid #ccc; 
+  border-radius: 5px; 
+  background-color: #fff; 
 }
 </style>
