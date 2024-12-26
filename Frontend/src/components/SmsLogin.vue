@@ -1,6 +1,6 @@
 <template>
     <div class="smslogin">
-      <img  class="avatar" src = '@/assets/images/avatar.jpg'/>
+      <img  class="avatar" :src ="avatar" />
       
       <div class="input-group">
         <label for="email">邮箱</label>
@@ -28,6 +28,7 @@
   <script>
   import { smsLogin, sendSmsCode } from '@/services/loginth.js'; // 导入登录和发送验证码 API
   import { mapActions, mapGetters} from 'vuex';
+  import img from '@/assets/images/avatar.jpg';
   
   export default {
     computed: {
@@ -43,6 +44,7 @@
         email: '',
         smsCode: '',
         Code: '',
+        avatar:img,
       };
     },
     
@@ -67,12 +69,14 @@
           });
 
           if(response.success){
+            this.avatar = `data:${response.mimeType};base64,${response.avatar}`;
             this.$store.commit('SET_USER', {
             username: response.nickname,
             id: response.account_id,
-            avatar: response.avatar,
+            avatar: this.avatar,
             });
-
+            this.$store.commit('SET_LINKS',response.links);
+            alert(response.message);
             this.$router.push('/home');
           }
           else {

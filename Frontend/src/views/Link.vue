@@ -79,7 +79,7 @@ export default {
         { name: 'Vue', url: 'https://vuejs.org', icon: 'https://vuejs.org/logo.svg' },
         { name: 'Github', url: 'https://github.com', icon: 'https://github.githubassets.com/favicon.ico' },
         { name: 'baidu', url: 'https://baidu.com', icon: 'https://baidu.com/favicon.ico' },
-      ],
+      ],//从vuex获取 this.$store.state.links;
       showAddLinkModal: false,
       newlink: {
         name: '',
@@ -136,6 +136,7 @@ export default {
         });
         if (response.success) {
           this.defaultwebLinks.push({ ...this.newlink });
+          this.$store.commit('SET_LINKS',this.defaultwebLinks);  //把更改后的数组存入全局
           this.newlink = { name: '', url: '', icon: '' };
         }
         this.showModal = true;
@@ -160,6 +161,7 @@ export default {
         const response = await DelLinks({ url: url });
         if (response.success) {
           this.defaultwebLinks.splice(index, 1);
+          this.$store.commit('SET_LINKS',this.defaultwebLinks);
         }
         this.showModal = true;
         this.modalMessage = `${this.defaultwebLinks[index].name}\n${this.defaultwebLinks[index].url}\n${response.message}`;
