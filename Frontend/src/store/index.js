@@ -22,6 +22,8 @@ export default createStore({
       sound:'',
       background:'',
     },
+    links:[],
+
     socket: null,
   },
   
@@ -81,6 +83,10 @@ export default createStore({
 
     SET_BACKGROUND(state,background){
       state.settings.background = background;
+    },
+
+    SET_LINKS(state,links){
+      state.links = links;
     },
 
     SET_SOCKET(state, socket) {
@@ -156,12 +162,17 @@ export default createStore({
       commit('SET_SOUND',settings.sound);
       commit('SET_BACKGROUND',settings.background);
     },
+
+    updateLinks({commit}, links){
+      commit('SET_LINKS',links);
+    }
   },
 
   //获取用户信息.计算属性
   getters:{
     user:(state) => state.user,
     settings:(state)=>state.settings,
+    links:(state)=>state.links,
   },
 
 });
