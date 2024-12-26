@@ -33,7 +33,7 @@ export default {
 		this.showFullContent = !this.showFullContent;
 	  },
 	  manageDevide(event) {
-		this.$emit('manage-devide', event);
+		this.$emit('manage-divide', event);
 	  },
 	}
   };

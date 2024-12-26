@@ -40,23 +40,23 @@ export const getFriends = () => {
 // *分组
 // 获取分组名
 export const getDevides = (type) => {   // type: 'friends' or 'groups'
-  return apiClient.get(`/contactList/${type}/devides`);
+  return apiClient.get(`/contactList/${type}/divides`);
 };
 // 新建分组
 export const createDevide = (type, fd_name) => {   // type: 'friends' or 'groups'
-  return apiClient.post(`/contactList/${type}/devides/create`, { fd_name });
+  return apiClient.post(`/contactList/${type}/divides/create`, { fd_name });
 };
 // 删除分组
 export const deleteDevide = (type, fd_name) => {   // type: 'friends' or 'groups'
-  return apiClient.delete(`/contactList/${type}/devides/delete/${fd_name}`);
+  return apiClient.delete(`/contactList/${type}/divides/delete/${fd_name}`);
 };
 // 修改分组名称
 export const renameDevide = (type, old_fd_name, new_fd_name) => {   // type: 'friends' or 'groups'
-  return apiClient.post(`/contactList/${type}/devides/rename`, {old_fd_name, new_fd_name });
+  return apiClient.post(`/contactList/${type}/divides/rename`, {old_fd_name, new_fd_name });
 };
 // 移动好友到分组
 export const moveInDevide = (type, tid, divide) => {
-  return apiClient.post(`/contactList/${type}/devides/moveIn`, { tid, divide });
+  return apiClient.post(`/contactList/${type}/divides/moveIn`, { tid, divide });
 };
 
 

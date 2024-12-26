@@ -5,12 +5,12 @@
 			<ul class="items">
 				<!-- 每个分组 -->
 				<li 
-					v-for="(devide, index) in devides" 
+					v-for="(divide, index) in divides" 
 					:key="index"
-					@click="selectedDevide = devide"
+					@click="selectedDevide = divide"
 				>
-					<input type="radio" v-model="selectedDevide" :value="devide">
-					<span>{{ devide }}</span>
+					<input type="radio" v-model="selectedDevide" :value="divide">
+					<span>{{ divide }}</span>
 				</li>
 			</ul>
 			<button class="confirm-button" @click="confirmSelection">确认</button>
@@ -21,10 +21,10 @@
 <script>
 
 export default {
-	props:['devides'],
+	props:['divides'],
 	data() {
 	  return {
-			//devides:['家人', '好友', '同事','a','b','c','d','e','f', 'g'], 
+			//divides:['家人', '好友', '同事','a','b','c','d','e','f', 'g'], 
 			selectAll: false,
 			selectedDevide: null,
 			multiple: false,
@@ -32,8 +32,8 @@ export default {
 	},
 	methods: {
 	  async confirmSelection() {
-			if(this.multiple===false) this.$emit('devide-move', this.selectedDevide);
-			else this.$emit('devides-move', this.selectedDevide);
+			if(this.multiple===false) this.$emit('divide-move', this.selectedDevide);
+			else this.$emit('divides-move', this.selectedDevide);
 			this.close();
 	  },
 	  close() {
