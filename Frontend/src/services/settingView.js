@@ -140,3 +140,22 @@ import apiClient from '@/services/api';
       throw error.response?.data.message ||error.message;
     }
   };
+
+  //链接器的添加
+  export const AddLinks = async(links)=>{
+    try{
+      const response = await apiClient.post('/addLinks',{links});
+      return response.data;
+    }catch(error){
+      throw error.response?.data.message ||error.message;
+    }
+  };
+
+  export const DelLinks = async(links)=>{
+    try{
+      const response = await apiClient.post('/delLinks',{links});
+      return response.data;
+    }catch(error){
+      throw error.response?.data.message ||error.message;
+    }
+  };

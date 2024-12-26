@@ -1,7 +1,7 @@
 <template>
   <div class="accountlogin">
     <div class = "all">
-      <img  class="avatar" :src = "'user.avatar' || '@/assets/images/avatar.jpg'"/>
+      <img  class="avatar" :src = "avatar"/>
       
       <div class="input-group">
         <label for="account">账号:</label>
@@ -34,15 +34,17 @@
 import { login } from '@/services/loginth.js'; // 导入登录 API
 import CryptoJS from 'crypto-js';
 import { mapActions, mapGetters} from 'vuex';
+import img from '@/assets/images/avatar.jpg';
 
 export default {
   //数据的存储
   data() {
     return {
-      account: '666666',
-      password: '666666',
+      account: '',
+      password: '',
       rememberMe:false,
       encryptionKey: 'TalkHiveProject',
+      avatar:img,
     };
   },
 
@@ -102,12 +104,14 @@ export default {
         }
 
         if (response.success) {
+          this.avatar = `data:${response.mimeType};base64,${response.avatar}`;
           //更新全局变量
           this.$store.commit('SET_USER', {
             username: response.nickname,
             id: response.account_id,
-            avatar: response.avatar,
+            avatar: this.avatar,
           });
+          this.$store.commit('SET_LINKS',response.links);
           alert(response.message);
           this.$router.push('/home');
         } else {
