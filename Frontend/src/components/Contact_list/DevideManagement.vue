@@ -56,10 +56,10 @@ export default {
 	methods: {
 	  async confirmSelection() {
 			if(this.type === "in"){
-				this.$emit('devide-in', this.selectedPersons);
+				this.$emit('divide-in', this.selectedPersons);
 			}
 			else{
-				this.$emit('devide-out', this.selectedPersons);
+				this.$emit('divide-out', this.selectedPersons);
 			}
 			this.close();
 	  },

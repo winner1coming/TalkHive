@@ -1,5 +1,5 @@
 <template>
-	<HeaderToggle v-for="tag in tags" :previewText="tag" @manage-devide="manageDevide($event, tag)">
+	<HeaderToggle v-for="tag in tags" :previewText="tag" @manage-divide="manageDevide($event, tag)">
 		<div 
 			v-for="item in filteredItemsByTag(tag)" 
 			:key="item.account_id" 
@@ -35,7 +35,7 @@ export default {
 			this.$emit('show-person-context-menu', event, item);
 		},
 		manageDevide(event, tag){
-			this.$emit('show-devide-context-menu', event, tag);
+			this.$emit('show-divide-context-menu', event, tag);
 		}
 	},
 };

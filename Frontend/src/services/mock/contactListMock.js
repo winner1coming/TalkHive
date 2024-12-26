@@ -137,48 +137,48 @@ Mock.mock(`${baseURL}/contactList/remark`, 'post', (options) => {
   };
 });
 
-let devideList = Mock.mock({
-  'devides': {
-    'devides':["家人", "朋友", "同事"]
+let divideList = Mock.mock({
+  'divides': {
+    'divides':["家人", "朋友", "同事"]
   }
 });
-Mock.mock(new RegExp(`${baseURL}/contactList/\\w+/devides`), 'get', (options) => {
-  const type = options.url.match(/\/contactList\/(.*?)\/devides/)[1];
-  return devideList.devides;
+Mock.mock(new RegExp(`${baseURL}/contactList/\\w+/divides`), 'get', (options) => {
+  const type = options.url.match(/\/contactList\/(.*?)\/divides/)[1];
+  return divideList.divides;
 });
-Mock.mock(new RegExp(`${baseURL}/contactList/\\w+/devides/create`), 'post', (options) => {
+Mock.mock(new RegExp(`${baseURL}/contactList/\\w+/divides/create`), 'post', (options) => {
   const { fd_name } = JSON.parse(options.body);
-  devideList.devides.devides.push(fd_name);
+  divideList.divides.divides.push(fd_name);
   return {
     status: 200,
-    data: devideList.devides,
+    data: divideList.divides,
   };
 });
-Mock.mock(new RegExp(`${baseURL}/contactList/\\w+/devides/delete/\\w+`), 'delete', (options) => {
+Mock.mock(new RegExp(`${baseURL}/contactList/\\w+/divides/delete/\\w+`), 'delete', (options) => {
  // todo 对url内中文无法识别
   const fd_name = decodeURIComponent(options.url.match(/\/delete\/(.*)$/)[1]);
   console.log(fd_name);
-  devideList.devides.devides = devideList.devides.devides.filter(devide => devide !== fd_name);
+  divideList.divides.divides = divideList.divides.divides.filter(divide => divide !== fd_name);
   return addCorsHeaders({
     status: 200,
-    data: devideList.devides,
+    data: divideList.divides,
   });
 });
-Mock.mock(new RegExp(`${baseURL}/contactList/\\w+/devides/rename`), 'post', (options) => {
+Mock.mock(new RegExp(`${baseURL}/contactList/\\w+/divides/rename`), 'post', (options) => {
   const { old_fd_name, new_fd_name } = JSON.parse(options.body);
   console.log(old_fd_name, new_fd_name);
-  const index = devideList.devides.devides.indexOf(old_fd_name);
+  const index = divideList.divides.divides.indexOf(old_fd_name);
   if (index !== -1) {
-    devideList.devides.devides.splice(index, 1, new_fd_name);
+    divideList.divides.divides.splice(index, 1, new_fd_name);
   }
   
-  console.log(devideList.devides);
+  console.log(divideList.divides);
   return {
     status: 200,
-    data: devideList.devides,
+    data: divideList.divides,
   };
 });
-Mock.mock(new RegExp(`${baseURL}/contactList/\\w+/devides/moveIn`), 'post', (options) => {
+Mock.mock(new RegExp(`${baseURL}/contactList/\\w+/divides/moveIn`), 'post', (options) => {
   const { tid, divide } = JSON.parse(options.body);
   // 模拟移动好友到分组的逻辑
   friends.friends.forEach(friend => {
@@ -266,6 +266,7 @@ let groupInfo = Mock.mock({
         'group_nickname': '@name',
       },
     ],
+    'my_group_role': '@pick(["group_owner", "group_manager", "group_ordinary"])',
   }
 });
 // 模拟 getGroupInfo 接口

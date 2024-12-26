@@ -34,14 +34,15 @@ export default {
   },
   data() {
     return {
-      results:[
-        {
-          tid: '13872132',   // 若为群聊，则为群号
-          id: '13872132',
-          nickname: 'test',
-          avatar: '',
-        },
-      ],  // 搜索结果
+      // results:[
+      //   {
+      //     tid: '13872132',   // 若为群聊，则为群号
+      //     id: '13872132',
+      //     nickname: 'test',
+      //     avatar: '',
+      //   },
+      // ],  // 搜索结果
+      results: [],
     };
   },
   methods: {

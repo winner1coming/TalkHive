@@ -25,9 +25,9 @@ export default {
     async addDevide() {
 			if (this.newDevide.trim()) {
         if(this.type === 'rename'){
-          this.$emit('rename-devide', this.newDevide);
+          this.$emit('rename-divide', this.newDevide);
         }else{
-          this.$emit('add-devide', this.newDevide);
+          this.$emit('add-divide', this.newDevide);
         }
 				this.close();
 			}else{

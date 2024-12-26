@@ -45,21 +45,6 @@ export default {
       sessionStorage.setItem("state", JSON.stringify(this.$store.state));
       this.$store.state.user,id;
     },
-    hideClick(component=null) {
-      if(this.$store.hasFloatCompoent){
-        EventBus.emit('hide-float-component', component); // 通知其他组件
-        if(component===null){
-          this.$store.hasFloatCompoent = false;
-        }
-      }
-    },
-    hideContext(event) {
-      event.preventDefault();
-      const clickedElement = event.target;
-      if(this.$store.hasFloatComponent){
-        EventBus.emit('close-float-component', clickedElement); // 通知其他组件
-      }
-    },
     getBackgroundColor() {
       switch (this.settings.theme) {
         case 'light':
@@ -108,6 +93,19 @@ export default {
           return '#ffffff';
       }
     },
+    hideClick(event) {
+      const clickedElement = event.target;
+      if(this.$store.hasFloatComponent){
+        EventBus.emit('close-float-component', clickedElement); // 通知其他组件
+      }
+    },
+    hideContext(event) {
+      event.preventDefault();
+      const clickedElement = event.target;
+      if(this.$store.hasFloatComponent){
+        EventBus.emit('close-float-component', clickedElement); // 通知其他组件
+      }
+    },
   },
   created() {
     //恢复vuex状态
@@ -115,6 +113,7 @@ export default {
     if (savedState) {
       this.$store.replaceState(JSON.parse(savedState));
     }
+    // 全局监视器
     // this.connectWebSocket();
     window.addEventListener('click', this.hideClick, true); // 使用 capture 选项
     window.addEventListener('contextmenu', this.hideContext, true); // 使用 capture 选项
