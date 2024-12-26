@@ -42,16 +42,20 @@
   }
   
   .modal-content {
-    background: white;
+    background: rgb(252, 251, 251);
     padding: 20px;
     border-radius: 8px;
     text-align: center;
+  }
+
+  .modal-content p{
+    color: black;
   }
   
   button {
     padding: 10px 20px;
     background-color: #42b983;
-    color: white;
+    color: rgb(24, 22, 22);
     border: none;
     border-radius: 4px;
     cursor: pointer;
@@ -60,4 +64,6 @@
   button:hover {
     background-color: #369f6d;
   }
+
+  
   </style>
