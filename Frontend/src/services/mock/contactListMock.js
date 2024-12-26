@@ -1,20 +1,35 @@
 import Mock from 'mockjs';
-const baseURL = 'http://your-api-url.com';
+const baseURL = 'http://localhost:8080';
 
-const friendRequests = Mock.mock({
+Mock.setup({
+  timeout: '200-300', // 设置模拟延迟（可选）
+});
+
+const addCorsHeaders = (response) => {
+  return {
+    ...response,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+    }
+  };
+};
+
+let friendRequests = Mock.mock({
   'requests|5-10': [{
   'apply_id|+1': 1,
   'avatar': '@image("200x200", "#50B347", "#FFF", "Mock.js")',
   'name': '@name',
-  'sender_id|1-100': 1,
-  'receiver_id|1-100': 1,
+  'sender_id|1': /[0-9]{10}/,
+  'receiver_id|1': /[0-9]{10}/,
   'reason': '@sentence',
   'status': '@pick(["pending", "accepted", "rejected"])',
   'time': '@datetime',
   }]
 });
 
-const groupRequests = Mock.mock({
+let groupRequests = Mock.mock({
   'requests|5-10': [{
   'apply_id|+1': 1,
   'avatar': '@image("200x200", "#50B347", "#FFF", "Mock.js")',
@@ -74,39 +89,113 @@ Mock.mock(`${baseURL}/contactList/groupRequests/applyPend`, 'post', (options) =>
   };
 });
 
-Mock.mock(`${baseURL}/contactList/blackList`, 'get', () => {
-  return Mock.mock({
-        'blackList|5-10': [{
+
+let blackList = Mock.mock({
+  'blackList|5-10': [{
         'account_id|1': /[0-9]{10}/,
         'name': '@name',
         'avatar': '@image("200x200", "#50B347", "#FFF", "Mock.js")',
         'signature': '爱拼才会赢',
       }]
-    }).blackList;
 });
-
+Mock.mock(`${baseURL}/contactList/blackList`, 'get', () => {
+  return blackList.blackList;
+});
 Mock.mock(`${baseURL}/contactList/blackList/remove`, 'post', (options) => {
   const { account_id } = JSON.parse(options.body);
-  const blackList = Mock.mock({
-    'blackList|5-10': [{
-      'id|1': /[0-9]{10}/,
-      'name': '@name',
-      'avatar': '@image("200x200", "#50B347", "#FFF", "Mock.js")',
-    }]
-  }).blackList;
-  const index = blackList.findIndex(item => item.id === account_id);
+  let blacks = blackList.blackList;
+  const index = blacks.findIndex(item => item.account_id === account_id);
   if (index !== -1) {
-    blackList.splice(index, 1);
+    blacks.splice(index, 1);
   }
   return {
     status: 200,
-    data: blackList,
+    data: blacks,
+  };
+});
+Mock.mock(`${baseURL}/contactList/blackList/add`, 'post', (options) => {
+  const { account_id } = JSON.parse(options.body);
+  const newBlack = friends.friends.find(friend => friend.account_id === account_id);
+  blackList.blackList.push(newBlack);
+  return {
+    status: 200,
+    data: blackList.blackList,
   };
 });
 
-Mock.mock(`${baseURL}/contactList/friends`, 'get', () => {
-  return Mock.mock({
-      'friends|5-10': [{
+// 好友和群聊
+// changeRemark
+Mock.mock(`${baseURL}/contactList/remark`, 'post', (options) => {
+  const { id, remark } = JSON.parse(options.body);
+  const friend = friends.friends.find(friend => friend.account_id === id);
+  if (friend) {
+    friend.remark = remark;
+  }
+  return {
+    status: 200,
+    data: friend,
+  };
+});
+
+let devideList = Mock.mock({
+  'devides': {
+    'devides':["家人", "朋友", "同事"]
+  }
+});
+Mock.mock(new RegExp(`${baseURL}/contactList/\\w+/devides`), 'get', (options) => {
+  const type = options.url.match(/\/contactList\/(.*?)\/devides/)[1];
+  return devideList.devides;
+});
+Mock.mock(new RegExp(`${baseURL}/contactList/\\w+/devides/create`), 'post', (options) => {
+  const { fd_name } = JSON.parse(options.body);
+  devideList.devides.devides.push(fd_name);
+  return {
+    status: 200,
+    data: devideList.devides,
+  };
+});
+Mock.mock(new RegExp(`${baseURL}/contactList/\\w+/devides/delete/\\w+`), 'delete', (options) => {
+ // todo 对url内中文无法识别
+  const fd_name = decodeURIComponent(options.url.match(/\/delete\/(.*)$/)[1]);
+  console.log(fd_name);
+  devideList.devides.devides = devideList.devides.devides.filter(devide => devide !== fd_name);
+  return addCorsHeaders({
+    status: 200,
+    data: devideList.devides,
+  });
+});
+Mock.mock(new RegExp(`${baseURL}/contactList/\\w+/devides/rename`), 'post', (options) => {
+  const { old_fd_name, new_fd_name } = JSON.parse(options.body);
+  console.log(old_fd_name, new_fd_name);
+  const index = devideList.devides.devides.indexOf(old_fd_name);
+  if (index !== -1) {
+    devideList.devides.devides.splice(index, 1, new_fd_name);
+  }
+  
+  console.log(devideList.devides);
+  return {
+    status: 200,
+    data: devideList.devides,
+  };
+});
+Mock.mock(new RegExp(`${baseURL}/contactList/\\w+/devides/moveIn`), 'post', (options) => {
+  const { tid, divide } = JSON.parse(options.body);
+  // 模拟移动好友到分组的逻辑
+  friends.friends.forEach(friend => {
+    if (friend.account_id === tid) {
+      friend.tag = divide;
+    }
+  });
+  return {
+    status: 200,
+    message: `好友 ${tid} 已移动到分组 ${divide}`,
+  };
+});
+
+
+
+let friends = Mock.mock({
+  'friends|5-10': [{
       'account_id|1': /[0-9]{10}/,
       'remark': '@name',
       'avatar': '@image("200x200", "#50B347", "#FFF", "Mock.js")',
@@ -114,23 +203,26 @@ Mock.mock(`${baseURL}/contactList/friends`, 'get', () => {
       'signature': '@sentence',
       'tag': '@pick(["家人", "朋友", "同事"])',
     }]
-    }).friends;
+  });
+Mock.mock(`${baseURL}/contactList/friends`, 'get', () => {
+  return friends.friends;
 });
 
+let groups = Mock.mock({
+  'groups|5-10': [{
+    'account_id|1': /[0-9]{10}/,
+    'remark': '@name',
+    'avatar': '@image("200x200", "#50B347", "#FFF", "Mock.js")',
+    'status': '@pick(["online", "offline"])',
+    'signature': '@sentence',
+    'tag': '@pick(["家人", "朋友", "同事"])',
+  }]
+});
 Mock.mock(`${baseURL}/contactList/groups`, 'get', () => {
-  return Mock.mock({
-      'groups|5-10': [{
-        'account_id|1': /[0-9]{10}/,
-        'remark': '@name',
-        'avatar': '@image("200x200", "#50B347", "#FFF", "Mock.js")',
-        'status': '@pick(["online", "offline"])',
-        'signature': '@sentence',
-        'tag': '@pick(["家人", "朋友", "同事"])',
-      }]
-    }).groups;
+  return groups.groups;
 });
 
-Mock.mock(`${baseURL}/contactList/groups`, 'post', (options) => {
+Mock.mock(`${baseURL}/contactList/groups/create`, 'post', (options) => {
   const { name } = JSON.parse(options.body);
   const group = Mock.mock({
     'group': {
@@ -149,22 +241,46 @@ Mock.mock(`${baseURL}/contactList/groups`, 'post', (options) => {
 
 Mock.mock(new RegExp(`${baseURL}/contactList/groups/\\d+`), 'delete', (options) => {
   const groupId = parseInt(options.url.split('/').pop());
-  const groups = Mock.mock({
-    'groups|5-10': [{
-      'id|1': /[0-9]{10}/,
-      'name': '@name',
-      'avatar': '@image("200x200", "#50B347", "#FFF", "Mock.js")',
-      'status': '@pick(["online", "offline"])',
-      'signature': '@sentence',
-      'tag': '@pick(["家人", "朋友", "同事"])',
-    }]
-  }).groups;
-  const index = groups.findIndex(group => group.id === groupId);
+  const groupList = groups.groups;
+  const index = groupList.findIndex(group => group.id === groupId);
   if (index !== -1) {
-    groups.splice(index, 1);
+    groupList.splice(index, 1);
   }
   return {
     status: 200,
-    data: groups,
+    data: groupList,
+  };
+});
+
+let groupInfo = Mock.mock({
+  'groupInfo': {
+    'group_name': '@name',
+    'group_owner': '@id',  // 随机生成群主tid
+    'introduction': '@sentence',  // 随机生成一句话作为介绍
+    'my_group_nickname': '@name',   // 随机生成一个名字作为群昵称
+    'members|10': [
+      {
+        'account_id': '@id',
+        'avatar': '@image("200x200", "#50B347", "#FFF", "Avatar")',
+        'group_role': 'group_owner',
+        'group_nickname': '@name',
+      },
+    ],
+  }
+});
+// 模拟 getGroupInfo 接口
+Mock.mock(new RegExp(`${baseURL}/contactList/groups/groupInfo/\\d+`), 'get', () => {
+  return groupInfo.groupInfo;
+});
+// changeGroupNickname
+Mock.mock(`${baseURL}/contactList/groups/changeNickname`, 'post', (options) => {
+  const { group_id, group_nickname } = JSON.parse(options.body);
+  // const group = groups.groups.find(group => group.account_id === group_id);
+  // if (group) {
+  //   group.remark = group_nickname;
+  // }
+  return {
+    status: 200,
+    
   };
 });

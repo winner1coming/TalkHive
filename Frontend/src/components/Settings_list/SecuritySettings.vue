@@ -40,7 +40,7 @@ import ChangePassword from './ChangePassword.vue';
 import FriendPermission from './FriendPermission.vue';
 import ChangeEmail from './ChangeEmail.vue';
 import { mapGetters } from 'vuex';
-import { getUserInfo , confirmDeactivation } from '@/services/api';
+import { getUserInfo , confirmDeactivation } from '@/services/settingView.js';
 
 export default {
   components: {
@@ -57,10 +57,10 @@ export default {
     return {
       users: {
         ID:'',
-        email:'2698553217@qq.com',
+        email:'',
         password:'',
-        friend_permissionID:'',
-        friend_permissionNickname:'',
+        friend_permissionID:'off',
+        friend_permissionNickname:'off',
       },
       activeComponent: '',
       showConfirmation:false,
@@ -80,8 +80,8 @@ export default {
           this.users.ID = this.user.id;
           this.users.email = response.email;
           this.users.password =  response.password;
-          this.users.friend_permissionID = response.friend_permissionID;
-          this.users.friend_permissionNickname = response.friend_permissionNickname;
+          this.users.friend_permissionID = response.friend_permissionID ? 'on':'off';
+          this.users.friend_permissionNickname = response.friend_permissionNickname?'on':'off';
         }
         else{
           alert(response.message || '获取用户邮箱失败');
@@ -133,13 +133,12 @@ export default {
 }
 
 .left-panel {
-  width: 30%;
+  width: 20%;
   background-color: #f0f0f0;
-  padding: 20px;
 }
 
 .right-panel {
-  width: 70%;
+  width: 80%;
   padding: 20px;
   position: relative;
 }
@@ -148,10 +147,9 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px;
   border-bottom: 1px solid #ccc;
   cursor: pointer;
-  width: 100%;
+  width: 80%;
   height: 10vh;
 }
 
@@ -162,6 +160,7 @@ export default {
 
 .menu-item span {
   font-size: 16px;
+  margin-left: 40px;
 }
 
 .menu-item .content {

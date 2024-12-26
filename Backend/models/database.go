@@ -6,20 +6,21 @@ import (
 
 // AccountInfo 表示账号信息表
 type AccountInfo struct {
-	AccountID        uint   `gorm:"primaryKey" json:"account_id"`
-	ID               string `gorm:"unique" json:"id"`
-	Password         string `json:"password"`
-	Phone            string `json:"phone"`
-	Email            string `json:"email"`
-	Avatar           string `json:"avatar"`
-	Nickname         string `json:"nickname"`
-	Signature        string `json:"signature"`
-	Gender           string `json:"gender"`
-	Birthday         string `json:"birthday"`
-	Status           string `json:"status"`
-	FriendPermission string `json:"friend_permission"`
-	LastLogout       string `json:"last_logout"`
-	Deactivate       bool   `json:"deactivate"`
+	AccountID                uint   `gorm:"primaryKey" json:"account_id"`
+	ID                       string `gorm:"unique" json:"id"`
+	Password                 string `json:"password"`
+	Phone                    string `json:"phone"`
+	Email                    string `json:"email"`
+	Avatar                   string `json:"avatar"`
+	Nickname                 string `json:"nickname"`
+	Signature                string `json:"signature"`
+	Gender                   string `json:"gender"`
+	Birthday                 string `json:"birthday"`
+	Status                   string `json:"status"`
+	FriendPermissionID       bool   `json:"friend_permission"`
+	FriendPermissionNickName bool   `json:"friend_permission_nick_name"`
+	LastLogout               string `json:"last_logout"`
+	Deactivate               bool   `json:"deactivate"`
 }
 
 // Contacts 表示好友/群聊表
@@ -37,11 +38,14 @@ type Contacts struct {
 
 // SystemSetting 表示系统环境设置表
 type SystemSetting struct {
-	Background string `json:"background"`
-	FontStyle  string `json:"font_style"`
-	FontSize   int    `json:"font_size"`
-	Theme      string `json:"theme"`
-	Sound      string `json:"sound"`
+	AccountID   uint   `gorm:"primaryKey" json:"account_id"`
+	Background  string `json:"background"`
+	FontStyle   string `json:"font_style"`
+	FontSize    int    `json:"font_size"`
+	Theme       string `json:"theme"`
+	Sound       string `json:"sound"`
+	Notice      string `json:"notice"`
+	NoticeGroup string `json:"noticeGroup"`
 }
 
 // ApplyInfo 表示申请通知表
@@ -57,12 +61,13 @@ type ApplyInfo struct {
 
 // GroupChatInfo 表示群聊总表
 type GroupChatInfo struct {
-	GroupID         uint   `gorm:"primaryKey" json:"group_id"`
-	GroupOwner      uint   `json:"group_owner"`
-	GroupAvatar     string `json:"group_avatar"`
-	GroupName       string `json:"group_name"`
-	EnterPermission string `json:"enter_permission"`
-	IsAllBanned     bool   `json:"is_all_banned"`
+	GroupID           uint   `gorm:"primaryKey" json:"group_id"`
+	GroupOwner        uint   `json:"group_owner"`
+	GroupAvatar       string `json:"group_avatar"`
+	GroupName         string `json:"group_name"`
+	GroupIntroduction string `json:"group_introduction"`
+	EnterPermission   string `json:"enter_permission"`
+	IsAllBanned       bool   `json:"is_all_banned"`
 }
 
 // GroupMemberInfo 表示群成员信息表
@@ -71,6 +76,7 @@ type GroupMemberInfo struct {
 	GroupID       uint   `gorm:"primaryKey" json:"group_id"`
 	GroupNickname string `json:"group_nickname"`
 	IsBanned      bool   `json:"is_banned"`
+	GroupRole     string `json:"group_role"`
 }
 
 // Notes 表示笔记表

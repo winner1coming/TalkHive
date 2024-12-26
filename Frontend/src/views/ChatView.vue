@@ -13,7 +13,6 @@
       <!-- 消息历史 -->
       <ChatBox 
         @clickGroupManagement="clickGroupManagement"
-        @send-message="sendNewMessage"
       />
     </div>
 
@@ -23,7 +22,6 @@
     <!-- 群聊管理弹窗 -->
     <GroupManagement 
       ref="groupManagement"
-      :group="this.$store.state.currentChat" 
       @close="closeGroupManagement"
       @update-group="updateGroupDetails"
     />
@@ -58,15 +56,16 @@ export default {
       showGroupManagement: false, // 是否显示群聊管理弹窗
       showFriendManagement: false, // 是否显示好友管理弹窗
       chatListWidth: 300,  // 聊天列表的宽度
+      leftComponentWidth: 130,  // 左侧组件的宽度 todo
     };
   },
   methods: {
-    async sendNewMessage(content) {   // todo 目前只有发送文字的功能
-      if (!this.$store.state.currentChat) return;
-      // 发送消息到后端
-      await sendMessage(this.$store.state.currentChat.id, content);
-      // this.messages[this.selectedChat.id].push(newMessage);  todo 消息发送后，是否需要接收自己发送的消息
-    },
+    // async sendNewMessage(content) {   // todo 目前只有发送文字的功能
+    //   if (!this.$store.state.currentChat) return;
+    //   // 发送消息到后端
+    //   await sendMessage(this.$store.state.currentChat.id, content);
+    //   // this.messages[this.selectedChat.id].push(newMessage);  todo 消息发送后，是否需要接收自己发送的消息
+    // },
     // async goToChat(tid) {
     //   // 跳转到指定聊天
     //   const chat = this.$ref.chatList.chats.find(chat => chat.id === tid);
@@ -104,7 +103,7 @@ export default {
     },
     resize(event) {
       if (this.isResizing) {
-        this.chatListWidth = event.clientX;
+        this.chatListWidth = event.clientX - this.leftComponentWidth;
       }
     },
     stopResize() {

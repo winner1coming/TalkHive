@@ -20,6 +20,12 @@ func HashPassword(pwd string) (string, error) {
 	return string(hash), err
 }
 
+// CheckPassword 检查密码
+func CheckPassword(password string, hash string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+	return err == nil
+}
+
 // GenerateJWT 生成JWT
 func GenerateJWT(username string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
@@ -29,12 +35,6 @@ func GenerateJWT(username string) (string, error) {
 
 	signedToken, err := token.SignedString([]byte("secret"))
 	return "Bearer " + signedToken, err
-}
-
-// CheckPassword 检查密码
-func CheckPassword(password string, hash string) bool {
-	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
-	return err == nil
 }
 
 // ParseJWT 解析JWT
@@ -98,8 +98,8 @@ func CheckEmailRegistered(email string) bool {
 	return err == nil
 }
 
-// SendSms 发送短信验证码（授权码: nnqfhioshmxndehi）
-func SendSms(email string, code string) interface{} {
+// SendSms 发送短信验证码
+func SendSms(email string, code string) error {
 	// QQ邮箱的SMTP服务器地址
 	smtpHost := "smtp.qq.com"
 	smtpPort := 587 // QQ邮箱SMTP端口

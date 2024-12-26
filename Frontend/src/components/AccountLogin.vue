@@ -1,7 +1,7 @@
 <template>
   <div class="accountlogin">
     <div class = "all">
-      <img  class="avatar" :src = "'user.avatar' || '@/assets/images/avatar.jpg'"/>
+      <img  class="avatar" :src = "avatar"/>
       
       <div class="input-group">
         <label for="account">账号:</label>
@@ -19,7 +19,7 @@
       <label for="rememberMe">记住密码</label>
       </div>
 
-      <button class="login-button" @click="login">登录</button>
+      <button class="login-button" @click="testlogin">登录</button>
       
       <div class = "link">
         <!-- 注册链接 -->
@@ -31,18 +31,20 @@
 </template>
 
 <script>
-import { login } from '@/services/api'; // 导入登录 API
+import { login } from '@/services/loginth.js'; // 导入登录 API
 import CryptoJS from 'crypto-js';
 import { mapActions, mapGetters} from 'vuex';
+import img from '@/assets/images/avatar.jpg';
 
 export default {
   //数据的存储
   data() {
     return {
-      account: '666666',
-      password: '666666',
+      account: '',
+      password: '',
       rememberMe:false,
       encryptionKey: 'TalkHiveProject',
+      avatar:img,
     };
   },
 
@@ -66,12 +68,13 @@ export default {
     },
 
     // //检查账号密码是否为空（与后端连接需要把测试登录testlogin函数直接删除即可）
-    // async testlogin(){
-    // //         // 检查账号和密码是否为空
-    // //   // 调用登录方法
-    //    await this.login();
-    //   this.$router.push('/home');
-    //  },
+
+    async testlogin(){
+    //         // 检查账号和密码是否为空
+    //   // 调用登录方法
+       await this.login();
+      this.$router.push('/home');
+     },
     async login() {
 
       if (!this.account) {
@@ -92,25 +95,27 @@ export default {
         //如果记住密码
         if (this.rememberMe) {
           const encryptedPassword = this.encryptPassword(this.password);
-          localStorage.setItem('rememberedPhone', this.account);
+          localStorage.setItem('rememberedAccount', this.account);
           localStorage.setItem('rememberedPassword', encryptedPassword);
         } else {
           // 如果未勾选“记住密码”，则清除之前保存的账号和密码
-          localStorage.removeItem('rememberedPhone');
+          localStorage.removeItem('rememberedAccount');
           localStorage.removeItem('rememberedPassword');
         }
 
         if (response.success) {
+          this.avatar = `data:${response.mimeType};base64,${response.avatar}`;
           //更新全局变量
           this.$store.commit('SET_USER', {
             username: response.nickname,
             id: response.account_id,
-            avatar: response.avatar,
+            avatar: this.avatar,
           });
-
+          this.$store.commit('SET_LINKS',response.links);
+          alert(response.message);
           this.$router.push('/home');
         } else {
-          alert(response.message || '登录失败');
+          alert(response.message);
         }
       } catch (error) {
         alert(error || '登录失败');
@@ -120,11 +125,11 @@ export default {
 
   mounted() {
     // 页面加载时，检查是否有记住的账号和密码
-    const rememberedPhone = localStorage.getItem('rememberedPhone');
+    const rememberedAccount = localStorage.getItem('rememberedAccount');
     const encryptedPassword = localStorage.getItem('rememberedPassword');
 
-    if (rememberedPhone && encryptedPassword) {
-      this.phone = rememberedPhone;
+    if (rememberedAccount && encryptedPassword) {
+      this.phone = rememberedAccount;
       this.password = this.decryptPassword(encryptedPassword); // 解密密码
       this.rememberMe = true; // 自动勾选“记住密码”
     }

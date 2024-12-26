@@ -41,6 +41,8 @@
   import EditProfile from '@/components/Settings_list/EditProfile.vue';
   import SecuritySettings from '@/components/Settings_list/SecuritySettings.vue';
   import SystemSettings from '@/components/Settings_list/SystemSettings.vue';
+  import {logout} from '@/services/settingView.js';
+  import { mapGetters } from 'vuex';
   
   export default {
     components: {
@@ -48,12 +50,18 @@
       SecuritySettings,
       SystemSettings,
     },
+
+    computed: {
+      ...mapGetters(['user']),
+    },
+
     data() {
       return {
-        activeComponent: '', // 默认显示个人主页
+        activeComponent: 'EditProfile', // 默认显示个人主页
         showConfirmation: false,
       };
     },
+
     methods: {
       setActiveComponent(component) {
         this.activeComponent = component;
@@ -64,10 +72,22 @@
       hideLogoutConfirmation() {
         this.showConfirmation = false;
       },
-      confirmLogout() {
-        alert('已退出登录');
-        this.hideLogoutConfirmation();
-        // 你可以在这里添加退出登录的逻辑
+      async confirmLogout() {
+        try{
+          const response = await logout({
+            id:this.user.id,
+          });
+          if(response.success){
+            alert('已退出登录~');
+            this.$router.push('/loginth');
+            this.hideLogoutConfirmation();
+          // 你可以在这里添加退出登录的逻辑
+          }else{
+            alert("退出登录失败，请重试！");
+          }
+        }catch(error){
+          console.error("退出登录失败！");
+        }
       },
     },
   };
@@ -110,7 +130,6 @@
   
   .bottom-panel {
     flex: 1;
-    padding: 20px;
     overflow-y: auto;
   }
   

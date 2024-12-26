@@ -13,6 +13,7 @@ import (
 	"time"
 )
 
+// -------------------------------------------------------------------------------
 /*登录注册*/
 
 // Login 登录处理
@@ -24,20 +25,14 @@ func Login(c *gin.Context) {
 
 	// 解析 JSON 请求体
 	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"success": false,
-			"message": "Json输入格式错误",
-		})
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Json输入格式错误"})
 		return
 	}
 
 	// 查询数据库中账号信息
 	var account models.AccountInfo
 	if err := global.Db.Where("ID = ? AND password = ?", input.Account, input.Password).First(&account).Error; err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"success": false,
-			"message": "账号名称或密码错误",
-		})
+		c.JSON(http.StatusUnauthorized, gin.H{"success": false, "message": "账号名称或密码错误"})
 		return
 	}
 
@@ -57,7 +52,7 @@ func Login(c *gin.Context) {
 		"message":    "登录成功",
 		"avatar":     account.Avatar,
 		"nickname":   account.Nickname,
-		"account_id": account.ID,
+		"account_id": account.AccountID,
 		"data": gin.H{
 			"account": account.ID,
 			"token":   token,
@@ -152,22 +147,22 @@ func SendSmsCode(c *gin.Context) {
 
 	switch input.Command {
 	case "smsLogin":
-		if utils.CheckEmailRegistered(input.Email) {
-			c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "该邮箱未注册", "code": ""})
+		if !utils.CheckEmailRegistered(input.Email) { // 没有注册
+			c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "该邮箱未注册"})
 			return
 		}
 	case "register":
-		if utils.CheckEmailRegistered(input.Email) {
-			c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "该邮箱已注册，不可重复注册", "code": ""})
+		if utils.CheckEmailRegistered(input.Email) { // 已经注册
+			c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "该邮箱已注册，不可重复注册"})
 			return
 		}
 	case "resetPassword":
-		if utils.CheckEmailRegistered(input.Email) {
-			c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "该邮箱未注册", "code": ""})
+		if !utils.CheckEmailRegistered(input.Email) { // 没有注册
+			c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "该邮箱未注册"})
 			return
 		}
 	default:
-		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "无效的命令", "code": ""})
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "无效的命令"})
 		return
 	}
 
@@ -263,21 +258,24 @@ func ResetPassword(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"success": true, "message": "密码重置成功"})
 }
 
+// ---------------------------------------------------------------------------
 /*通信录*/
 
-// FriendRequests 获取当前用户的所有好友请求列表
-func FriendRequests(c *gin.Context) {
-	urlID := c.Param("id")
-	if urlID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "缺少用户ID"})
-		return
-	}
-	accountID, err := strconv.Atoi(urlID)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户ID格式错误"})
-		return
-	}
+/*好友请求*/
 
+// GetFriendRequests 获取当前用户的所有好友请求列表
+func GetFriendRequests(c *gin.Context) {
+	ID := c.GetHeader("User-ID")
+	if ID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "http的Header中缺少用户ID"})
+		return
+	}
+	fmt.Println(ID)
+	accountID, err := strconv.Atoi(ID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "ID为空"})
+		return
+	}
 	var user models.AccountInfo
 	err = global.Db.Where("account_id = ?", accountID).First(&user).Error
 	if err != nil {
@@ -293,21 +291,21 @@ func FriendRequests(c *gin.Context) {
 	var receivedApplyInfos []models.ApplyInfo
 	err = global.Db.Where("receiver_id = ? AND apply_type = ?", accountID, "friend").Find(&receivedApplyInfos).Error
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "无法获取好友申请"})
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "获取其他人加当前id用户的好友申请失败"})
 		return
 	}
 
 	// 获取所有当前用户发出的好友申请
 	var sentApplyInfos []models.ApplyInfo
-	err = global.Db.Where("sender_id = ? AND apply_type = ?", accountID, "friend").Find(&sentApplyInfos).Error
+	err = global.Db.Where("(sender_id = ? AND apply_type = ?", accountID, "friend").Find(&sentApplyInfos).Error
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "无法获取发出的好友申请"})
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "获取当前id用户加其他人的好友申请失败"})
 		return
 	}
 
 	var friendRequests []map[string]interface{}
 
-	// 处理接收到的申请
+	// 其他人加当前用户id
 	for _, applyInfo := range receivedApplyInfos {
 		var senderInfo models.AccountInfo
 		err := global.Db.Where("account_id = ?", applyInfo.SenderID).First(&senderInfo).Error
@@ -317,13 +315,14 @@ func FriendRequests(c *gin.Context) {
 		}
 
 		friendRequest := map[string]interface{}{
-			"avatar":     senderInfo.Avatar,
-			"name":       senderInfo.Nickname,
-			"account_id": senderInfo.AccountID,
-			"reason":     applyInfo.Reason,
-			"status":     applyInfo.Status,
-			"time":       time.Now().Format("2006-01-02 15:04:05"),
-			"type":       "received",
+			"apply_id":    applyInfo.ApplyID,
+			"avatar":      senderInfo.Avatar,
+			"name":        senderInfo.Nickname,
+			"sender_id":   applyInfo.SenderID,
+			"receiver_id": applyInfo.ReceiverID,
+			"reason":      applyInfo.Reason,
+			"status":      applyInfo.Status,
+			"time":        time.Now().Format("2006-01-02 15:04:05"),
 		}
 		friendRequests = append(friendRequests, friendRequest)
 	}
@@ -338,367 +337,122 @@ func FriendRequests(c *gin.Context) {
 		}
 
 		friendRequest := map[string]interface{}{
-			"avatar":     receiverInfo.Avatar,
-			"name":       receiverInfo.Nickname,
-			"account_id": receiverInfo.AccountID,
-			"reason":     applyInfo.Reason,
-			"status":     applyInfo.Status,
-			"time":       time.Now().Format("2006-01-02 15:04:05"),
-			"type":       "sent",
+			"apply_id":    applyInfo.ApplyID,
+			"avatar":      receiverInfo.Avatar,
+			"name":        receiverInfo.Nickname,
+			"sender_id":   applyInfo.SenderID,
+			"receiver_id": applyInfo.ReceiverID,
+			"reason":      applyInfo.Reason,
+			"status":      applyInfo.Status,
+			"time":        time.Now().Format("2006-01-02 15:04:05"),
 		}
 		friendRequests = append(friendRequests, friendRequest)
 	}
 
-	c.JSON(http.StatusOK, gin.H{"success": true, "friend_requests": friendRequests})
+	c.JSON(http.StatusOK, gin.H{"success": true, "message": "成功！", "friend_requests": friendRequests})
 }
 
-// FriendRequestPend 处理好友请求
+// FriendRequestPend 处理好友请求(其他人申请当前id用户为好友)
 func FriendRequestPend(c *gin.Context) {
-	urlID := c.Param("id")
-	if urlID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "请求体格式错误"})
+	// 从请求头获取用户ID
+	ID := c.GetHeader("User-ID")
+	if ID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "http的Header中用户ID为空"})
 		return
 	}
-	accountID, err := strconv.Atoi(urlID)
+
+	// 转换用户ID为整数
+	accountID, err := strconv.Atoi(ID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "请求体格式错误"})
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "ID为空"})
 		return
 	}
+
 	var input struct {
 		AccountID uint `json:"account_id"`
 		Accept    bool `json:"accept"`
 	}
 	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "请求体格式错误"})
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "请求体格式错误"})
 		return
 	}
 
+	// 判断当前id用户和申请的用户是否存在
 	var me models.AccountInfo
 	var friend models.AccountInfo
-	if err := global.Db.Where("account_id = ?", input.AccountID).First(&friend).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "申请好友的的用户不存在"})
+	if err := global.Db.Where("account_id = ?", accountID).First(&me).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "当前id用户不存在"})
 		return
 	}
-	if err := global.Db.Where("account_id = ?", accountID).First(&me).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "当前id用户不存在"})
+	if err := global.Db.Where("account_id = ?", input.AccountID).First(&friend).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "申请好友的的用户不存在"})
 		return
 	}
 
+	//判断是否注销
 	if me.Deactivate == true {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "当前id用户已经注销"})
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "当前id用户已经注销"})
 		return
 	}
 	if friend.Deactivate == true {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "申请好友的的用户已经注销"})
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "申请好友的的用户已经注销"})
 		return
 	}
 
+	// 判断是否存在好友关系
 	var apply models.ApplyInfo
 	if err := global.Db.Where("receiver_id = ? AND sender_id = ? AND apply_type = ? AND status = ?", accountID, input.AccountID, "friend", "pending").First(&apply).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "申请不存在"})
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "申请不存在"})
 		return
 	}
 
+	//处理申请
 	if input.Accept {
 		apply.Status = "accepted"
 	} else {
 		apply.Status = "rejected"
 	}
+
+	// 保存到数据库
 	if err := global.Db.Save(&apply).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "无法更新申请状态"})
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "无法更新申请状态"})
 		return
 	}
 }
 
-// AcceptFriendRequest 同意好友申请
-func AcceptFriendRequest(c *gin.Context) {
-	var input struct {
-		AccountID uint `json:"account_id"`
-	}
-
-	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "请求体格式错误", "details": err.Error()})
-		return
-	}
-
-	receiverID, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "接收者ID格式错误", "details": err.Error()})
-		return
-	}
-
-	senderID := input.AccountID
-
-	fmt.Printf("发送者id: %d 接收者id: %d\n", senderID, receiverID)
-
-	var contactCount int64
-	// 查询是否已经是好友
-	if err := global.Db.Model(&models.Contacts{}).
-		Where("(contact_id = ? OR contact_id = ?) AND is_group_chat = FALSE", receiverID, senderID).
-		Count(&contactCount).
-		Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "查询好友关系时出错", "details": err.Error()})
-		return
-	}
-	if contactCount > 0 {
-		c.JSON(http.StatusConflict, gin.H{"error": "已是好友关系"})
-		return
-	}
-
-	var applyInfo models.ApplyInfo
-	if err := global.Db.Where("receiver_id = ? AND sender_id = ? AND status = ?", receiverID, senderID, "pending").First(&applyInfo).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{"error": "好友申请未找到"})
-		} else {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "查询数据库时出错", "details": err.Error()})
-		}
-		return
-	}
-
-	// 开启事务
-	tx := global.Db.Begin()
-	if err := tx.Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "开启事务时出错"})
-		return
-	}
-
-	// 更新申请状态
-	applyInfo.Status = "accepted"
-	if err := tx.Save(&applyInfo).Error; err != nil {
-		tx.Rollback()
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "保存请求时出错", "details": err.Error()})
-		return
-	}
-
-	// 将双方添加为好友
-	contacts := []models.Contacts{
-		{ContactID: uint(receiverID), IsGroupChat: false},
-		{ContactID: senderID, IsGroupChat: false},
-	}
-
-	for _, contact := range contacts {
-		if err := tx.Model(&models.Contacts{}).Create(&contact).Error; err != nil {
-			tx.Rollback()
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "添加好友关系时出错", "details": err.Error()})
-			return
-		}
-	}
-
-	if err := tx.Commit().Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "提交事务时出错", "details": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"status": "好友申请已同意"})
+// AddFriend 添加好友
+func AddFriend(c *gin.Context) {
+	//// 从请求头获取用户ID
+	//urlID := c.GetHeader("User-ID")
+	//if urlID == "" {
+	//	c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "http的Header中用户ID为空"})
+	//	return
+	//}
+	//
+	//// 转换用户ID为整数
+	//accountID, err := strconv.Atoi(urlID)
+	//if err != nil {
+	//	c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "ID为空"})
+	//	return
+	//}
 }
 
-// RejectFriendRequest 拒绝好友申请
-func RejectFriendRequest(c *gin.Context) {
-	var input struct {
-		AccountID uint `json:"account_id"`
-	}
-
-	// 绑定并验证JSON输入
-	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "请求体格式错误", "details": err.Error()})
-		return
-	}
-
-	receiverID, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "接收者ID格式错误", "details": err.Error()})
-		return
-	}
-
-	senderID := input.AccountID
-
-	fmt.Printf("发送者id: %d 接收者id: %d\n", senderID, receiverID)
-
-	var applyInfo models.ApplyInfo
-	if err := global.Db.Where("receiver_id = ? AND sender_id = ? AND status = ?", receiverID, senderID, "pending").First(&applyInfo).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{"error": "好友申请未找到"})
-		} else {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "查询数据库时出错", "details": err.Error()})
-		}
-		return
-	}
-
-	// 开启事务
-	tx := global.Db.Begin()
-	if err := tx.Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "开启事务时出错"})
-		return
-	}
-
-	// 更新申请状态
-	applyInfo.Status = "rejected"
-	if err := tx.Save(&applyInfo).Error; err != nil {
-		tx.Rollback()
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "更新申请状态时出错", "details": err.Error()})
-		return
-	}
-
-	if err := tx.Commit().Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "提交事务时出错", "details": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"status": "好友申请已拒绝"})
-}
-
-// GetGroupRequests 获取群组申请列表
-func GetGroupRequests(c *gin.Context) {
-	urlID := c.Param("id")
-	if urlID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "ID为空"})
-		return
-	}
-	accountID, err := strconv.Atoi(urlID)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "ID格式错误"})
-		return
-	}
-
-	var user models.AccountInfo
-	if err := global.Db.Where("account_id = ?", accountID).First(&user).Error; err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "用户不存在"})
-		return
-	}
-	if user.Deactivate == true {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "用户已被注销"})
-		return
-	}
-
-	// 获取当前用户的所有群聊申请（包括作为群主的和作为申请者的）
-	var applyInfos []models.ApplyInfo
-	err = global.Db.Where("(receiver_id = ? OR sender_id = ? ) AND apply_type = ?", accountID, accountID, "group_apply").Find(&applyInfos).Error
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "数据库查询失败"})
-		return
-	}
-
-	var groupRequests []map[string]interface{}
-	for _, applyInfo := range applyInfos {
-		var groupChat models.GroupChatInfo
-		err := global.Db.Where("group_id = ?", applyInfo.GroupID).First(&groupChat).Error
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"message": "这个群没找到"})
-		}
-
-		var groupMember models.GroupMemberInfo
-		err = global.Db.Where("account_id = ? AND group_id = ?", applyInfo.SenderID, applyInfo.GroupID).First(&groupMember).Error
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve group member information"})
-			return
-		}
-
-		// 获取申请人的信息（头像、昵称等）
-		var accountInfo models.AccountInfo
-		err = global.Db.Where("account_id = ?", applyInfo.SenderID).First(&accountInfo).Error
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve account information"})
-			return
-		}
-
-		// 根据申请的状态生成群聊请求的响应数据
-		groupRequest := map[string]interface{}{
-			"avatar":        groupChat.GroupAvatar,                    // 群聊头像
-			"group_name":    groupChat.GroupName,                      // 群名称
-			"account_name":  accountInfo.Nickname,                     // 申请人或群主的昵称
-			"other_side_id": applyInfo.SenderID,                       // 申请人或群主的ID
-			"group_id":      applyInfo.GroupID,                        // 群聊ID
-			"reason":        applyInfo.Reason,                         // 申请理由
-			"apply_type":    applyInfo.ApplyType,                      // 申请类型
-			"status":        applyInfo.Status,                         // 状态：pending、accepted、rejected等
-			"time":          time.Now().Format("2006-01-02 15:04:05"), // 申请时间
-		}
-
-		groupRequests = append(groupRequests, groupRequest)
-	}
-
-	// 返回群聊请求列表
-	c.JSON(http.StatusOK, gin.H{"群聊申请请求": groupRequests})
-}
-
-// DealGroupApplyRequest 处理群聊申请请求
-func DealGroupApplyRequest(c *gin.Context) {
-	userID := c.Param("id")
-	userIDInt, err := strconv.Atoi(userID)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "ID无效"})
-		return
-	}
-
-	var input struct {
-		AccountID uint `json:"account_id"` // 对方的账号ID
-		GroupID   uint `json:"group_id"`   // 群聊ID
-		Accept    bool `json:"accept"`     // 是否接受邀请
-	}
-
-	// 解析请求体
-	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "json解析失败"})
-		return
-	}
-
-	// 检查申请记录是否存在，并获取相关信息
-	var applyInfo models.ApplyInfo
-	err = global.Db.Where("sender_id = ? AND receiver_id = ? AND group_id = ? AND apply_type = ?", input.AccountID, userIDInt, input.GroupID, "group").First(&applyInfo).Error
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "数据库中没有这个群申请！"})
-		return
-	}
-
-	// 根据是否接受邀请，更新申请表和群聊成员表
-	if input.Accept {
-		// 接受邀请，更新申请状态为 accepted
-		applyInfo.Status = "accepted"
-		if err := global.Db.Save(&applyInfo).Error; err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "更新申请表信息失败"})
-			return
-		}
-
-		// 获取群聊名称作为昵称
-		var groupChat models.GroupChatInfo
-		err := global.Db.Where("group_id = ?", input.GroupID).First(&groupChat).Error
-		if err != nil {
-			c.JSON(http.StatusNotFound, gin.H{"error": "群聊不存在"})
-			return
-		}
-
-		// 将用户添加到群聊成员表中
-		groupMember := models.GroupMemberInfo{
-			AccountID:     uint(userIDInt),
-			GroupID:       input.GroupID,
-			GroupNickname: groupChat.GroupName, // 使用群聊名称作为群聊昵称
-			IsBanned:      false,               // 初始加入群聊时不禁言
-		}
-		if err := global.Db.Create(&groupMember).Error; err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "将用户添加到群聊中失败"})
-			return
-		}
-
-		c.JSON(http.StatusOK, gin.H{"message": "同意群聊加入申请"})
-	} else {
-		// 拒绝邀请，更新申请状态为 rejected
-		applyInfo.Status = "rejected"
-		if err := global.Db.Save(&applyInfo).Error; err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "更新申请表信息失败"})
-			return
-		}
-
-		c.JSON(http.StatusOK, gin.H{"message": "拒绝群聊加入申请"})
-	}
-}
+// ---------------------------------------------------------------------------
+/*群聊请求*/
 
 // DealGroupInviteRequest  处理群聊邀请请求
 func DealGroupInviteRequest(c *gin.Context) {
-	// 获取当前用户ID
-	userID := c.Param("id")
-	userIDInt, err := strconv.Atoi(userID)
+	// 从请求头获取用户ID
+	ID := c.GetHeader("User-ID")
+	if ID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "http的Header中用户ID为空"})
+		return
+	}
+
+	// 转换用户ID为整数
+	accountID, err := strconv.Atoi(ID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "ID无效"})
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "ID为空"})
 		return
 	}
 
@@ -711,24 +465,22 @@ func DealGroupInviteRequest(c *gin.Context) {
 
 	// 解析请求体
 	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "json解析失败"})
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "json解析失败"})
 		return
 	}
 
-	// 检查申请记录是否存在，并获取相关信息
+	// 数据库中是否有这个群聊邀请
 	var applyInfo models.ApplyInfo
-	err = global.Db.Where("sender_id = ? AND receiver_id = ? AND group_id = ? AND apply_type = ?", input.AccountID, userIDInt, input.GroupID, "groupInvitation").First(&applyInfo).Error
+	err = global.Db.Where("sender_id = ? AND receiver_id = ? AND group_id = ? AND apply_type = ?", input.AccountID, accountID, input.GroupID, "groupInvitation").First(&applyInfo).Error
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "数据库中没有这个群聊邀请申请记录！"})
+		c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "数据库中没有这个群聊邀请申请记录！"})
 		return
 	}
 
-	// 根据是否接受邀请，更新申请表和群聊成员表
-	if input.Accept {
-		// 接受邀请，更新申请状态为 accepted
+	if input.Accept { // 接受邀请，更新申请状态为 accepted
 		applyInfo.Status = "accepted"
 		if err := global.Db.Save(&applyInfo).Error; err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "更新申请表信息失败"})
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "更新申请表信息失败"})
 			return
 		}
 
@@ -742,7 +494,7 @@ func DealGroupInviteRequest(c *gin.Context) {
 
 		// 将用户添加到群聊成员表中
 		groupMember := models.GroupMemberInfo{
-			AccountID:     uint(userIDInt),
+			AccountID:     uint(accountID),
 			GroupID:       input.GroupID,
 			GroupNickname: groupChat.GroupName, // 使用群聊名称作为群聊昵称
 			IsBanned:      false,               // 初始加入群聊时不禁言
@@ -751,36 +503,192 @@ func DealGroupInviteRequest(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "将用户添加到群聊中失败"})
 			return
 		}
-
-		// 返回成功响应
-		c.JSON(http.StatusOK, gin.H{"message": "已接受群聊邀请"})
-	} else {
-		// 拒绝邀请，更新申请状态为 rejected
+		c.JSON(http.StatusOK, gin.H{"success": true, "message": "已接受群聊邀请"})
+	} else { // 拒绝邀请，更新申请状态为 rejected
 		applyInfo.Status = "rejected"
 		if err := global.Db.Save(&applyInfo).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "更新申请表信息失败"})
 			return
 		}
-
-		// 返回成功响应
 		c.JSON(http.StatusOK, gin.H{"message": "已拒绝群聊邀请"})
 	}
 }
 
+// DealGroupApplyRequest 处理群聊申请请求
+func DealGroupApplyRequest(c *gin.Context) {
+	ID := c.GetHeader("User-ID")
+	if ID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "ID为空"})
+		return
+	}
+	AccountID, err := strconv.Atoi(ID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "ID转换失败"})
+		return
+	}
+
+	var input struct {
+		AccountID uint `json:"account_id"`
+		GroupID   uint `json:"group_id"`
+		Accept    bool `json:"accept"`
+	}
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "json解析失败"})
+		return
+	}
+
+	// 检查申请记录是否存在
+	var applyInfo models.ApplyInfo
+	err = global.Db.Where("sender_id = ? AND receiver_id = ? AND group_id = ? AND apply_type = ?", input.AccountID, AccountID, input.GroupID, "groupApply").First(&applyInfo).Error
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"success": false, "error": "数据库中没有这个群申请！"})
+		return
+	}
+
+	if input.Accept { // 接受邀请
+		applyInfo.Status = "accepted"
+		if err := global.Db.Save(&applyInfo).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "更新申请表信息失败"})
+			return
+		}
+
+		// 查询该群聊
+		var groupChat models.GroupChatInfo
+		err := global.Db.Where("group_id = ?", input.GroupID).First(&groupChat).Error
+		if err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "群聊不存在"})
+			return
+		}
+
+		// 将用户添加到群聊成员表中
+		groupMember := models.GroupMemberInfo{
+			AccountID:     uint(AccountID),
+			GroupID:       input.GroupID,
+			GroupNickname: groupChat.GroupName, // 使用群聊名称作为群聊昵称
+			IsBanned:      false,               // 初始加入群聊时不禁言
+		}
+		if err := global.Db.Create(&groupMember).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "error": "将用户添加到群聊中失败"})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"success": true, "message": "同意群聊加入申请"})
+	} else { // 拒绝邀请
+		applyInfo.Status = "rejected"
+		if err := global.Db.Save(&applyInfo).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "error": "更新申请表信息失败"})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"success": true, "message": "拒绝群聊加入申请"})
+	}
+}
+
+// GetGroupRequests 获取群组申请列表
+func GetGroupRequests(c *gin.Context) {
+	// 从请求头获取用户ID
+	ID := c.GetHeader("User-ID")
+	if ID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "http的Header中用户ID为空"})
+		return
+	}
+
+	// 转换用户ID为整数
+	accountID, err := strconv.Atoi(ID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "ID为空"})
+		return
+	}
+
+	var user models.AccountInfo
+	if err := global.Db.Where("account_id = ?", accountID).First(&user).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "id用户不存在"})
+		return
+	}
+	if user.Deactivate == true {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "id用户已被注销"})
+		return
+	}
+
+	// 获取当前用户的所有群聊申请（包括作为群主的和作为申请者的，以及申请类型的和邀请类型的）
+	var applyInfos []models.ApplyInfo
+	err = global.Db.Where("(receiver_id = ? OR sender_id = ? ) AND (apply_type = ? OR apply_type = ?)", accountID, accountID, "groupInvitation", "groupApply").Find(&applyInfos).Error
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "数据库查询失败"})
+		return
+	}
+
+	var groupRequests []map[string]interface{}
+	for _, applyInfo := range applyInfos {
+		var groupChat models.GroupChatInfo
+		// 判断此群是否存在
+		err := global.Db.Where("group_id = ?", applyInfo.GroupID).First(&groupChat).Error
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "这个群没找到"})
+			return
+		}
+
+		var groupMember models.GroupMemberInfo
+		// 申请人SenderID是否已经在群聊中
+		err = global.Db.Where("account_id = ? AND group_id = ?", applyInfo.SenderID, applyInfo.GroupID).First(&groupMember).Error
+		if err == nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "申请人已经在群聊中"})
+			return
+		}
+
+		// 获取申请人的信息
+		var accountInfo models.AccountInfo
+		err = global.Db.Where("account_id = ?", applyInfo.SenderID).First(&accountInfo).Error
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "获取申请人信息失败"})
+			return
+		}
+		if accountInfo.Deactivate == true {
+			c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "申请人已被注销"})
+			return
+		}
+
+		groupRequest := map[string]interface{}{
+			"apply_id":     applyInfo.ApplyID,                        // 申请ID
+			"avatar":       groupChat.GroupAvatar,                    // 群聊头像
+			"group_name":   groupChat.GroupName,                      // 群名称
+			"account_name": accountInfo.Nickname,                     // 申请人或群主的昵称
+			"sender_id":    applyInfo.SenderID,                       // 申请人或群主的ID
+			"receiver_id":  applyInfo.ReceiverID,                     // 接收者ID
+			"group_id":     applyInfo.GroupID,                        // 群聊ID
+			"reason":       applyInfo.Reason,                         // 申请理由
+			"apply_type":   applyInfo.ApplyType,                      // 申请类型
+			"status":       applyInfo.Status,                         // 状态：pending、accepted、rejected等
+			"time":         time.Now().Format("2006-01-02 15:04:05"), // 申请时间
+		}
+
+		groupRequests = append(groupRequests, groupRequest)
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": false, "message": "成功!", "群聊申请请求": groupRequests})
+}
+
+// ---------------------------------------------------------------------------
+/*黑名单*/
+
 // GetBlackList 获取当前用户的黑名单列表
 func GetBlackList(c *gin.Context) {
-	userID := c.Param("id")
-	userIDInt, err := strconv.Atoi(userID)
+	ID := c.GetHeader("User-ID")
+	if ID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "http的Header中用户ID为空"})
+		return
+	}
+
+	// 转换用户ID为整数
+	accountID, err := strconv.Atoi(ID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "id无效"})
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "ID为空"})
 		return
 	}
 
 	// 查询Contacts表，查找当前用户的黑名单联系人
 	var contacts []models.Contacts
-	err = global.Db.Where("owner_id = ? AND is_blacklist = ? AND is_group_chat = ?", userIDInt, true, false).Find(&contacts).Error
+	err = global.Db.Where("owner_id = ? AND is_blacklist = ? AND is_group_chat = ?", accountID, true, false).Find(&contacts).Error
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "查询黑名单失败"})
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询黑名单失败"})
 		return
 	}
 
@@ -790,16 +698,15 @@ func GetBlackList(c *gin.Context) {
 		var account models.AccountInfo
 		err := global.Db.Where("account_id = ?", contact.ContactID).First(&account).Error
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "查询用户信息失败"})
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "error": "查询用户信息失败"})
 			return
 		}
 
 		blackList = append(blackList, gin.H{
-			"avatar":     account.Avatar,    // 头像
-			"name":       account.Nickname,  // 昵称
-			"account_id": account.AccountID, // 账户ID
-			"signature":  account.Signature, // 电话
-
+			"avatar":     account.Avatar,
+			"name":       account.Nickname,
+			"account_id": account.AccountID,
+			"signature":  account.Signature,
 		})
 	}
 
@@ -810,61 +717,105 @@ func GetBlackList(c *gin.Context) {
 
 // RemoveFromBlacklist 从黑名单中移除用户
 func RemoveFromBlacklist(c *gin.Context) {
-	urlID := c.Param("id")
-	if urlID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "id不为空"})
+	ID := c.GetHeader("User-ID")
+	if ID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "http的Header中用户ID为空"})
 		return
 	}
 
-	ownerID, err := strconv.Atoi(urlID)
+	accountID, err := strconv.Atoi(ID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Json中ID解析失败"})
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "ID为空"})
 		return
 	}
+
 	var input struct {
 		AccountID uint `json:"account_id"`
 	}
 
 	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Json解析失败"})
 		return
 	}
 
 	var contact models.Contacts
-	result := global.Db.Where("owner_id = ? AND contact_id = ? AND is_group_chat = ?", ownerID, input.AccountID, false).First(&contact)
+	result := global.Db.Where("owner_id = ? AND contact_id = ? AND is_group_chat = ?", accountID, input.AccountID, false).First(&contact)
 
 	// 如果没有找到该记录
 	if result.Error != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "没有找到这个关系"})
+		c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "没有找到这个关系"})
 		return
 	}
 
 	// contact_id不在黑名单中
 	if !contact.IsBlacklist {
-		c.JSON(http.StatusOK, gin.H{"message": "黑名单已经不在黑名单中"})
+		c.JSON(http.StatusOK, gin.H{"success": false, "message": "黑名单已经不在黑名单中"})
 		return
 	}
 
 	contact.IsBlacklist = false
 	if err := global.Db.Save(&contact).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "黑名单移除错误"})
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "黑名单移除错误"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "黑名单移除成功"})
+	c.JSON(http.StatusOK, gin.H{"success": true, "message": "黑名单移除成功"})
 }
+
+// AddToBlacklist 将用户添加到黑名单
+func AddToBlacklist(c *gin.Context) {
+	ID := c.GetHeader("User-ID")
+	if ID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "http的Header中用户ID为空"})
+		return
+	}
+	AccountID, err := strconv.Atoi(ID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "转换失败"})
+		return
+	}
+
+	var input struct {
+		AccountID uint `json:"account_id"`
+	}
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Json解析失败"})
+		return
+	}
+
+	var contact models.Contacts
+	result := global.Db.Where("owner_id = ? AND contact_id = ? AND is_group_chat = ?", AccountID, input.AccountID, false).First(&contact)
+	if result.Error != nil {
+		c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "没有找到这个关系"})
+		return
+	}
+	if contact.IsBlacklist {
+		c.JSON(http.StatusOK, gin.H{"success": false, "message": "黑名单已经存在"})
+		return
+	}
+
+	contact.IsBlacklist = true
+	if err := global.Db.Save(&contact).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "添加黑名单错误"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"success": true, "message": "添加黑名单成功"})
+}
+
+// ---------------------------------------------------------------------------
+/*好友列表*/
 
 // GetFriends 获取好友列表
 func GetFriends(c *gin.Context) {
-	urlID := c.Param("id")
-	if urlID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "id不为空"})
+	ID := c.GetHeader("User-ID")
+	if ID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "http的Header中用户ID为空"})
 		return
 	}
 
-	ownerID, err := strconv.Atoi(urlID)
+	accountID, err := strconv.Atoi(ID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Json中ID解析失败"})
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "ID解析失败"})
 		return
 	}
 
@@ -880,19 +831,24 @@ func GetFriends(c *gin.Context) {
 
 	// 查询联系人
 	var contacts []models.Contacts
-	err = global.Db.Where("owner_id = ?", ownerID).Find(&contacts).Error
+	err = global.Db.Where("owner_id = ?", accountID).Find(&contacts).Error
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "获取当前id的好友表失败"})
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "获取当前ID的好友列表失败"})
 		return
 	}
 
 	var friends []FriendResponse
 	for _, contact := range contacts {
+		if contact.IsBlacklist { // 黑名单不显示
+			continue
+		}
 		var accountInfo models.AccountInfo
 		err := global.Db.First(&accountInfo, contact.ContactID).Error
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "获取当前id的好友信息失败"})
+		if err != nil { // 如果某个联系人信息获取失败，继续下一个联系人
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "获取当前好友信息失败"})
+			continue
 		}
+
 		friend := FriendResponse{
 			Avatar:    accountInfo.Avatar,
 			AccountID: accountInfo.AccountID,
@@ -905,194 +861,884 @@ func GetFriends(c *gin.Context) {
 		friends = append(friends, friend)
 	}
 
-	c.JSON(http.StatusOK, friends)
+	c.JSON(http.StatusOK, gin.H{"success": true, "message": "获取好友列表成功", "data": friends})
 }
 
-// GetGroups 获取群聊列表
-func GetGroups(c *gin.Context) {
-	urlID := c.Param("id")
-	if urlID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "id解析获取失败"})
+// ---------------------------------------------------------------------------
+/*分组部分*/
+
+// GetDivides 获取分组名称
+func GetDivides(c *gin.Context) {
+	ID := c.GetHeader("User-ID")
+	if ID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "http的Header中用户ID为空"})
 		return
 	}
 
-	ownerID, err := strconv.Atoi(urlID)
+	accountID, err := strconv.Atoi(ID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Json中ID解析失败"})
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "ID解析失败"})
 		return
 	}
 
-	// 群聊返回结构体
-	type GroupResponse struct {
-		GroupID     uint   `json:"group_id"`
-		GroupName   string `json:"group_name"`
-		GroupAvatar string `json:"group_avatar"`
+	// 验证用户是否存在
+	var user models.AccountInfo
+	err = global.Db.Where("account_id = ?", accountID).First(&user).Error
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "用户不存在"})
+		return
+	}
+	if user.Deactivate == true {
+		c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "用户已注销"})
+		return
 	}
 
-	// 查询群聊列表
+	// 获取URL中的type参数
+	groupType := c.Param("type")
+	if groupType != "friends" && groupType != "groups" { // 参数不匹配
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "type参数无效"})
+		return
+	}
+
+	// 当前id用户创建分组名称
+	type response struct {
+		Divide string `json:"divide"` // 分组
+	}
+
+	var isGroupChat bool
+	if groupType == "groups" {
+		isGroupChat = true // 群聊分组
+	} else {
+		isGroupChat = false // 好友分组
+	}
+
+	// 查询用户分组信息
 	var contacts []models.Contacts
-	err = global.Db.Where("owner_id = ? AND is_group_chat = ?", ownerID, true).Find(&contacts).Error
+	err = global.Db.Where("owner_id = ? AND is_group_chat = ?", accountID, isGroupChat).Find(&contacts).Error
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error fetching groups"})
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "获取当前ID的群聊/好友分组失败"})
 		return
 	}
 
-	var groups []GroupResponse
+	// 存储去重后的分组信息
+	var groups []response
+	seenGroups := make(map[string]bool) // 用来去重的map
+
 	for _, contact := range contacts {
-		var groupInfo models.GroupChatInfo
-		err := global.Db.Model(&models.GroupChatInfo{}).First(&groupInfo, contact.ContactID).Error
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "当前群号的群信息查找失败"})
+		if _, exists := seenGroups[contact.Divide]; exists { // 分组去重
+			continue
 		}
 
-		// 组装返回数据
-		group := GroupResponse{
-			GroupID:     groupInfo.GroupID,
-			GroupName:   groupInfo.GroupName,
-			GroupAvatar: groupInfo.GroupAvatar,
+		seenGroups[contact.Divide] = true
+		group := response{
+			Divide: contact.Divide,
 		}
 		groups = append(groups, group)
 	}
 
-	c.JSON(http.StatusOK, groups)
+	c.JSON(http.StatusOK, gin.H{"success": true, "message": "成功", "groups": groups})
 }
 
-// CreateGroup 当前id用户创建群聊
-func CreateGroup(c *gin.Context) {
-	urlID := c.Param("id")
-	if urlID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "id解析获取失败"})
+// CreateDivide 创建分组
+func CreateDivide(c *gin.Context) {
+	ID := c.GetHeader("User-ID")
+	if ID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "http的Header中用户ID为空"})
+		return
 	}
-	accountID, err := strconv.Atoi(urlID)
+	accountID, err := strconv.Atoi(ID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Json中ID解析失败"})
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "ID解析失败"})
+		return
 	}
 
+	// 验证用户是否存在
 	var user models.AccountInfo
 	err = global.Db.Where("account_id = ?", accountID).First(&user).Error
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "用户不存在"})
+		c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "用户不存在"})
 		return
 	}
 	if user.Deactivate == true {
-		c.JSON(http.StatusNotFound, gin.H{"error": "用户已注销"})
+		c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "用户已注销"})
+		return
+	}
+
+	// 获取URL中的type参数
+	groupType := c.Param("type") // 'friends' 或 'groups'
+	if groupType != "friends" && groupType != "groups" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "type参数无效"})
+		return
+	}
+
+	// 分组名称
+	var input struct {
+		Divide string `json:"divide" binding:"required"`
+	}
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "json绑定失败"})
+		return
+	}
+
+	// 定义是否是群聊
+	var isGroupChat bool
+	if groupType == "groups" {
+		isGroupChat = true // 创建群聊分组
+	} else {
+		isGroupChat = false // 创建好友分组
+	}
+
+	// 检查分组名称是否已存在
+	var existingContact models.Contacts
+	err = global.Db.Where("owner_id = ? AND divide = ? AND is_group_chat = ?", accountID, input.Divide, isGroupChat).First(&existingContact).Error
+	if err == nil {
+		c.JSON(http.StatusConflict, gin.H{"success": false, "message": "分组名称已存在"})
+		return
+	} else if !errors.Is(err, gorm.ErrRecordNotFound) {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询分组名称失败"})
+		return
+	}
+
+	// 创建新分组
+	newContact := models.Contacts{
+		OwnerID:     uint(accountID),
+		Divide:      input.Divide,
+		IsGroupChat: isGroupChat,
+	}
+	if err := global.Db.Create(&newContact).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "创建分组失败"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"success": true, "message": "创建分组成功"})
+}
+
+// DeleteDivide 删除分组
+func DeleteDivide(c *gin.Context) {
+	ID := c.GetHeader("User-ID")
+	if ID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "http的Header中用户ID为空"})
+		return
+	}
+	accountID, err := strconv.Atoi(ID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "ID解析失败"})
+		return
+	}
+	var user models.AccountInfo
+	err = global.Db.Where("account_id = ?", accountID).First(&user).Error
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "用户不存在"})
+		return
+	}
+	if user.Deactivate == true {
+		c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "用户已注销"})
+		return
+	}
+
+	groupType := c.Param("type")
+	if groupType != "friends" && groupType != "groups" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "type参数无效"})
+		return
+	}
+
+	// 获取URL中的divide参数（要删除的分组名称）
+	divideName := c.Param("divide")
+	if divideName == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "分组名称不能为空"})
+		return
+	}
+
+	// 定义是否是群聊
+	var isGroupChat bool
+	if groupType == "groups" {
+		isGroupChat = true
+	} else {
+		isGroupChat = false
+	}
+
+	// 检查分组是否存在
+	var group models.Contacts
+	err = global.Db.Where("owner_id = ? AND divide = ? AND is_group_chat = ?", accountID, divideName, isGroupChat).First(&group).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "分组不存在"})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询分组失败"})
+		}
+		return
+	}
+
+	// 将分组内的成员移入未分类分组（"未分类" 分组名称）
+	uncategorizedDivide := "未分类"
+	var uncategorizedGroup models.Contacts
+
+	// 检查是否已经存在 "未分类" 分组
+	err = global.Db.Where("owner_id = ? AND divide = ? AND is_group_chat = ?", accountID, uncategorizedDivide, isGroupChat).First(&uncategorizedGroup).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			// 如果 "未分类" 分组不存在，则创建一个
+			uncategorizedGroup = models.Contacts{
+				OwnerID:     uint(accountID),
+				Divide:      uncategorizedDivide,
+				IsGroupChat: isGroupChat,
+			}
+			if err := global.Db.Create(&uncategorizedGroup).Error; err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "创建未分类分组失败"})
+				return
+			}
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询未分类分组失败"})
+			return
+		}
+	}
+
+	// 将分组内的所有联系人或成员移动到 "未分类" 分组
+	err = global.Db.Model(&models.Contacts{}).
+		Where("owner_id = ? AND divide = ?", accountID, divideName).
+		Update("divide", uncategorizedDivide).Error
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "移动分组成员到未分类失败"})
+		return
+	}
+
+	// 删除指定分组
+	if err := global.Db.Delete(&group).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "删除分组失败"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true, "message": "分组删除成功，成员已移入未分类分组"})
+}
+
+// RenameDivide 重命名分组
+func RenameDivide(c *gin.Context) {
+	ID := c.GetHeader("User-ID")
+	if ID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "http的Header中用户ID为空"})
+		return
+	}
+	accountID, err := strconv.Atoi(ID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "ID解析失败"})
+		return
+	}
+
+	// 获取URL中的type参数（friends 或 groups）
+	groupType := c.Param("type")
+	if groupType != "friends" && groupType != "groups" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "type参数无效"})
+		return
+	}
+
+	// 解析请求体中的参数
+	var requestBody struct {
+		OldFdName string `json:"old_fd_name"` // 旧分组名称
+		NewFdName string `json:"new_fd_name"` // 新分组名称
+	}
+	if err := c.ShouldBindJSON(&requestBody); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "JSON绑定失败"})
+		return
+	}
+	if requestBody.OldFdName == "" || requestBody.NewFdName == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "old_fd_name和new_fd_name参数不能为空"})
+		return
+	}
+
+	// 确定是否是群聊
+	var isGroupChat bool
+	if groupType == "groups" {
+		isGroupChat = true
+	} else {
+		isGroupChat = false
+	}
+
+	// 检查旧分组是否存在
+	var oldGroup models.Contacts
+	err = global.Db.Where("owner_id = ? AND divide = ? AND is_group_chat = ?", accountID, requestBody.OldFdName, isGroupChat).First(&oldGroup).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "旧分组不存在"})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询旧分组失败"})
+		}
+		return
+	}
+
+	// 检查新分组名称是否已存在
+	var newGroup models.Contacts
+	err = global.Db.Where("owner_id = ? AND divide = ? AND is_group_chat = ?", accountID, requestBody.NewFdName, isGroupChat).First(&newGroup).Error
+	if err == nil {
+		c.JSON(http.StatusConflict, gin.H{"success": false, "message": "新分组名称已存在"})
+		return
+	}
+
+	// 更新旧分组的名称为新分组名称
+	err = global.Db.Model(&oldGroup).Update("divide", requestBody.NewFdName).Error
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "更新分组名称失败"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"success": true, "message": "分组名称更新成功"})
+}
+
+// MoveInDivide 将传入的成员的分组改为相应分组
+func MoveInDivide(c *gin.Context) {
+	ID := c.GetHeader("User-ID")
+	if ID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "http的Header中用户ID为空"})
+		return
+	}
+
+	accountID, err := strconv.Atoi(ID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "ID解析失败"})
+		return
+	}
+	var user models.AccountInfo
+	if err := global.Db.Where("id = ?", accountID).First(&user).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户不存在"})
+		return
+	}
+	if user.Deactivate == true {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户注销"})
+		return
+	}
+
+	// 获取URL中的type参数（friends 或 groups）
+	groupType := c.Param("type")
+	if groupType != "friends" && groupType != "groups" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "type参数无效"})
+		return
+	}
+
+	// 解析请求体中的参数
+	var requestBody struct {
+		TID    string `json:"tid"`    // 成员ID或者群号
+		Divide string `json:"divide"` // 目标分组名称
+	}
+
+	if err := c.ShouldBindJSON(&requestBody); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "JSON绑定失败"})
+		return
+	}
+	if requestBody.TID == "" || requestBody.Divide == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "tid和divide参数不能为空"})
+		return
+	}
+
+	// 确定是否是群聊
+	var isGroupChat bool
+	if groupType == "groups" {
+		isGroupChat = true
+	} else {
+		isGroupChat = false
+	}
+
+	//检测进行分组的这个人是否存在，是否注销
+	if !isGroupChat {
+		var user1 models.AccountInfo
+		if err := global.Db.Where("account_id = ?", requestBody.TID).First(&user1).Error; err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "需要进行分组的用户不存在"})
+			return
+		}
+		if user1.Deactivate == true {
+			c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "需要进行分组的用户已经注销"})
+			return
+		}
+	}
+
+	// 检查目标分组是否存在
+	var targetGroup models.Contacts
+	err = global.Db.Where("owner_id = ? AND divide = ? AND is_group_chat = ?", accountID, requestBody.Divide, isGroupChat).First(&targetGroup).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "目标分组不存在"})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询目标分组失败"})
+		}
+		return
+	}
+
+	// 检查当前id用户的这个好友/群聊是否存在
+	var member models.Contacts
+	err = global.Db.Where("owner_id = ? AND tid = ? AND is_group_chat = ?", accountID, requestBody.TID, isGroupChat).First(&member).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "成员不存在"})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询成员失败"})
+		}
+		return
+	}
+
+	err = global.Db.Model(&member).Update("divide", requestBody.Divide).Error
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "更新成员分组失败"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"success": true, "message": "成员已成功移入目标分组"})
+}
+
+// ---------------------------------------------------------------------------
+/*群聊部分*/
+
+// GetGroups 获取群聊列表
+func GetGroups(c *gin.Context) {
+	userID := c.GetHeader("User-ID")
+	if userID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "http的Header中用户ID为空"})
+		return
+	}
+	accountID, err := strconv.Atoi(userID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "ID解析失败"})
+		return
+	}
+	var user models.AccountInfo
+	if err = global.Db.Where("account_id = ?", accountID).First(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询用户失败"})
+		return
+	}
+	if user.Deactivate == true {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户已注销"})
+		return
+	}
+
+	// 查询用户所属的群聊信息
+	var contacts []models.Contacts
+	err = global.Db.Where("owner_id = ? AND is_group_chat = ? AND is_blocked = ?", accountID, true, false).
+		Find(&contacts).Error
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询群聊失败"})
+		return
+	}
+
+	var groupList []map[string]interface{}
+
+	for _, contact := range contacts {
+		var group models.GroupChatInfo
+		err := global.Db.Where("group_id = ?", contact.ContactID).First(&group).Error
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询群聊失败"})
+			continue
+		}
+
+		// 将群聊信息添加到结果数组
+		groupList = append(groupList, map[string]interface{}{
+			"avatar":     group.GroupAvatar,       // 群头像
+			"account_id": group.GroupID,           // 群ID
+			"signature":  group.GroupIntroduction, // 群介绍
+			"remark":     contact.Remark,          // 群名称或备注
+			"tag":        contact.Divide,          // 分组名称
+		})
+	}
+	c.JSON(http.StatusOK, gin.H{"success": true, "data": groupList})
+}
+
+// CreateGroup 创建群聊
+func CreateGroup(c *gin.Context) {
+	userID := c.GetHeader("User-ID")
+	if userID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "http的Header中用户ID为空"})
+		return
+	}
+	accountID, err := strconv.Atoi(userID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "ID解析失败"})
+		return
+	}
+	var user models.AccountInfo
+	if err = global.Db.Where("account_id = ?", accountID).First(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询用户失败"})
+		return
+	}
+	if user.Deactivate == true {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户已注销"})
 		return
 	}
 
 	var input struct {
-		GroupName   string `json:"group_name" binding:"required"`
-		GroupAvatar string `json:"group_avatar" binding:"required"`
+		GroupAvatar string `json:"group_avatar"`
+		GroupName   string `json:"group_name"`
 	}
 
+	// 解析请求体
 	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "请求参数解析失败"})
+		return
+	}
+	if input.GroupAvatar == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "群聊头像不能为空"})
+		return
+	}
+	if input.GroupName == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "群聊名称不能为空"})
+		return
+	}
+
+	group := models.GroupChatInfo{
+		// GroupID自增自动生成
+		GroupAvatar: input.GroupAvatar,
+		GroupName:   input.GroupName,
+	}
+	if err := global.Db.Create(&group).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "创建群聊失败"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"success": true, "message": "创建群聊成功"})
+}
+
+// DisMissGroup 解散群聊
+func DisMissGroup(c *gin.Context) {
+	userID := c.GetHeader("User-ID")
+	if userID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "http的Header中用户ID为空"})
+		return
+	}
+	accountID, err := strconv.Atoi(userID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "ID解析失败"})
+		return
+	}
+	var user models.AccountInfo
+	if err = global.Db.Where("account_id = ?", accountID).First(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询用户失败"})
+		return
+	}
+	if user.Deactivate == true {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户已注销"})
+		return
+	}
+
+	var input struct {
+		GroupID uint `json:"group_id"`
 	}
 	var group models.GroupChatInfo
-	group.GroupName = input.GroupName
-	group.GroupAvatar = input.GroupAvatar
-	group.GroupOwner = uint(accountID)
-
-	if err := global.Db.Create(&group).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"GroupID": group.GroupID, "message": "创建群聊失败"})
-	} else {
-		c.JSON(http.StatusOK, gin.H{"message": "创建群聊成功"})
-	}
-
-}
-
-// DeleteGroup 当前ID用户删除群聊
-func DeleteGroup(c *gin.Context) {
-
-}
-
-// ProfileCard 获取id用户的获取资料卡片
-func ProfileCard(c *gin.Context) {
-	urlID := c.Param("id")
-	if urlID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "id为空"})
+	if err := global.Db.Where("group_id = ?", input.GroupID).First(&group).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "群聊不存在"})
 		return
 	}
-	accountID, err := strconv.Atoi(urlID)
+
+	// 非群主无法解除
+	if uint(accountID) != group.GroupOwner {
+		c.JSON(http.StatusForbidden, gin.H{"success": false, "message": "只有群主才能解散群聊"})
+		return
+	}
+
+	if err := global.Db.Where("group_id = ?", input.GroupID).Delete(&models.GroupChatInfo{}).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "解散群聊失败"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"success": true, "message": "解散群聊成功"})
+}
+
+// Invite 邀请其他人加入群聊
+func Invite(c *gin.Context) {
+	userID := c.GetHeader("User-ID")
+	if userID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "http的Header中用户ID为空"})
+		return
+	}
+	accountID, err := strconv.Atoi(userID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Json中ID解析失败"})
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "ID解析失败"})
 		return
 	}
-
-	//当前用户
-	var owner models.AccountInfo
-	if err := global.Db.Where("account_id = ?", accountID).First(&owner).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "用户不存在"})
+	var user models.AccountInfo
+	if err = global.Db.Where("account_id = ?", accountID).First(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询用户失败"})
 		return
 	}
-	if owner.Deactivate == true {
-		c.JSON(http.StatusNotFound, gin.H{"error": "用户已注销"})
+	if user.Deactivate == true {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户已注销"})
+		return
 	}
 
 	var input struct {
-		AnotherID int `json:"another_id" binding:"required"`
+		AccountID uint `json:"account_id"`
+		GroupID   uint `json:"group_id"`
 	}
 
-	//需要查询的用户
-	var another models.AccountInfo
-	if err := global.Db.Where("account_id = ?", input.AnotherID).First(&another).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "用户不存在"})
+	//检测被邀请的用户是否存在
+	var other models.AccountInfo
+	if err := global.Db.Where("account_id = ?", input.AccountID).First(&other).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "想邀请的用户不存在"})
+		return
 	}
-	if another.Deactivate == true {
-		c.JSON(http.StatusNotFound, gin.H{"error": "用户已注销"})
-	}
-
-	var contact models.Contacts
-	if err := global.Db.Where("owner_id = ? and contact_id = ?", owner.AccountID, another.AccountID).First(&contact).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "不是好友关系"})
+	if other.Deactivate == true {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "想邀请的用户已注销"})
 		return
 	}
 
-	responseData := gin.H{
-		"account_id": another.AccountID,
-		"avatar":     another.Avatar,
-		"remark":     contact.Remark,
-		"divide":     contact.Divide,
-		"nickname":   another.Nickname,
-		"signature":  another.Signature,
+	// 群聊是否存在
+	var group models.GroupChatInfo
+	if err := global.Db.Where("group_id = ?", input.GroupID).First(&group).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "群聊不存在"})
+		return
 	}
-	c.JSON(http.StatusOK, responseData)
+
+	// 是否已经在群聊中
+	var member models.GroupMemberInfo
+	if err := global.Db.Where("account_id = ? AND group_id = ?", input.AccountID, input.GroupID).First(&member).Error; err != nil {
+		c.JSON(http.StatusForbidden, gin.H{"success": false, "message": "该成员已经在群聊中"})
+		return
+	}
+
+	newMember := models.GroupMemberInfo{
+		GroupID:   input.GroupID,
+		AccountID: input.AccountID,
+		GroupRole: "group_ordinary",
+	}
+	if err := global.Db.Create(&newMember).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "邀请失败"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"success": true, "message": "邀请成功"})
 }
+
+// Quit 退出群聊
+func Quit(c *gin.Context) {
+	userID := c.GetHeader("User-ID")
+	if userID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "http的Header中用户ID为空"})
+		return
+	}
+	accountID, err := strconv.Atoi(userID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "ID解析失败"})
+		return
+	}
+	var user models.AccountInfo
+	if err = global.Db.Where("account_id = ?", accountID).First(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询用户失败"})
+		return
+	}
+	if user.Deactivate == true {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户已注销"})
+		return
+	}
+
+	var input struct {
+		GroupID string `json:"group_id"`
+	}
+
+	if input.GroupID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "缺少必要的参数"})
+		return
+	}
+
+	// 检测该群聊是否存在
+	var group models.GroupChatInfo
+	if err := global.Db.Where("group_id = ?", input.GroupID).First(&group).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "群聊不存在"})
+		return
+	}
+
+	// 检测该用户是否为群聊成员
+	var groupMember models.GroupMemberInfo
+	if err := global.Db.Where("AccountID = ? AND group_id = ?", accountID, input.GroupID).First(&groupMember).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "该用户不是群聊成员，无法退出"})
+		return
+	}
+
+	// 退出群聊
+	if err := global.Db.Where("AccountID = ? AND group_id = ?", accountID, input.GroupID).Delete(&groupMember).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "退出群聊失败，请稍后重试"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"success": true, "message": "成功退出群聊"})
+}
+
+// GetGroupInfo 获取群聊的详细信息
+func GetGroupInfo(c *gin.Context) {
+	userID := c.GetHeader("User-ID")
+	if userID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "http的Header中用户ID为空"})
+		return
+	}
+	accountID, err := strconv.Atoi(userID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "ID解析失败"})
+		return
+	}
+	var user models.AccountInfo
+	if err = global.Db.Where("account_id = ?", accountID).First(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询用户失败"})
+		return
+	}
+	if user.Deactivate == true {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户已注销"})
+		return
+	}
+
+	groupID := c.Param("group_id")
+	if groupID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "缺少群聊ID参数"})
+		return
+	}
+
+	// 检测群聊是否存在
+	var group models.GroupChatInfo
+	if err := global.Db.Where("group_id = ?", groupID).First(&group).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "群聊不存在"})
+		return
+	}
+
+	// 获取Group_id群成员信息
+	var members []models.GroupMemberInfo
+	if err := global.Db.Where("group_id = ?", groupID).Find(&members).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "获取群聊成员失败"})
+		return
+	}
+
+	memberList := make([]gin.H, len(members))
+	for i, member := range members {
+		memberList[i] = gin.H{
+			"user_id":   member.AccountID,
+			"user_name": member.GroupNickname,
+		}
+	}
+
+	var groupChat models.GroupChatInfo
+	if err := global.Db.Where("group_id = ?", groupID).First(&groupChat).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "获取群聊信息失败"})
+		return
+	}
+
+	// 前后端可能返回不一致，需注意
+	c.JSON(http.StatusOK, gin.H{
+		"success":            true,
+		"message":            "成功",
+		"group_id":           groupID,
+		"group_name":         group.GroupName,
+		"group_introduction": groupChat.GroupIntroduction,
+		"members":            memberList,
+	})
+}
+
+/* 获取各类资料卡片*/
+
+// GetProfileCard 获取指定用户的资料卡片
+func GetProfileCard(c *gin.Context) {
+	userID := c.GetHeader("User-ID")
+	if userID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "HTTP header中用户ID为空"})
+		return
+	}
+	accountID, err := strconv.Atoi(userID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "ID解析失败"})
+		return
+	}
+	var user models.AccountInfo
+	if err := global.Db.Where("account_id = ?", accountID).First(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询用户失败"})
+		return
+	}
+	if user.Deactivate {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户已注销"})
+		return
+	}
+
+	// 用户ID或者群号
+	other := c.Param("tid")
+	groupID := c.DefaultPostForm("group_id", "") // 获取POST请求中的group_id参数
+	if groupID != "" {
+		var groupChat models.GroupChatInfo
+		if err := global.Db.Where("group_id = ?", groupID).First(&groupChat).Error; err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "群聊不存在"})
+			return
+		}
+
+		var contact models.Contacts
+		if err := global.Db.Where("contact_id = ? AND owner_id = ?", groupID, accountID).First(&contact).Error; err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "不是群聊成员"})
+			return
+		}
+
+		responseData := gin.H{
+			"tid":           groupChat.GroupID,
+			"avatar":        groupChat.GroupAvatar,
+			"remark":        contact.Remark,
+			"groupNickname": groupChat.GroupName,
+			"tag":           contact.Divide,
+			"signature":     groupChat.GroupIntroduction,
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"success": true,
+			"message": "成功",
+			"data":    responseData,
+		})
+	} else {
+		var another models.AccountInfo
+		if err := global.Db.Where("account_id = ?", other).First(&another).Error; err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": "用户不存在"})
+			return
+		}
+		if another.Deactivate {
+			c.JSON(http.StatusNotFound, gin.H{"error": "目标用户已注销"})
+			return
+		}
+
+		var contact models.Contacts
+		if err := global.Db.Where("owner_id = ? AND contact_id = ?", accountID, another.AccountID).First(&contact).Error; err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": "不是好友关系"})
+			return
+		}
+
+		responseData := gin.H{
+			"tid":       another.AccountID,
+			"avatar":    another.Avatar,
+			"remark":    contact.Remark,
+			"nickname":  another.Nickname,
+			"tag":       contact.Divide,
+			"signature": another.Signature,
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"success": true,
+			"message": "成功",
+			"data":    responseData,
+		})
+	}
+}
+
+// -------------------------------------------------------------------------
+/*设置*/
+
+// 个人主业
 
 // ShowProfile 返回个人信息
 func ShowProfile(c *gin.Context) {
-
-	urlID := c.Param("id")
-	if urlID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"success": false,
-			"message": "缺少账号ID",
-		})
+	userID := c.GetHeader("User-ID")
+	if userID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "http的Header中用户ID为空"})
 		return
 	}
-
-	accountID, err := strconv.Atoi(urlID)
+	accountID, err := strconv.Atoi(userID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Json中ID解析失败"})
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "ID解析失败"})
 		return
 	}
-
-	// 查询 AccountInfo 表，查找对应的用户信息
-	var account models.AccountInfo
-	err = global.Db.Where("account_id = ?", accountID).First(&account).Error
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"success": false,
-			"message": "账号未找到",
-		})
+	var user models.AccountInfo
+	if err = global.Db.Where("account_id = ?", accountID).First(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询用户失败"})
+		return
+	}
+	if user.Deactivate == true {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户已注销"})
 		return
 	}
 
 	responseData := gin.H{
-		"id":        account.ID,
-		"nickname":  account.Nickname,
-		"gender":    account.Gender,
-		"birthday":  account.Birthday,
-		"signature": account.Signature,
+		"id":        user.ID,
+		"nickname":  user.Nickname,
+		"gender":    user.Gender,
+		"birthday":  user.Birthday,
+		"signature": user.Signature,
+		"email":     user.Email,
+		"phone":     user.Phone,
 	}
 
 	// 返回成功响应
@@ -1105,18 +1751,23 @@ func ShowProfile(c *gin.Context) {
 
 // SaveEdit 保存编辑后的个人资料
 func SaveEdit(c *gin.Context) {
-	urlID := c.Param("id")
-	if urlID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"success": false,
-			"message": "缺少账号ID",
-		})
+	userID := c.GetHeader("User-ID")
+	if userID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "HTTP header中用户ID为空"})
 		return
 	}
-
-	accountID, err := strconv.Atoi(urlID)
+	accountID, err := strconv.Atoi(userID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Json中ID解析失败"})
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "ID解析失败"})
+		return
+	}
+	var user models.AccountInfo
+	if err := global.Db.Where("account_id = ?", accountID).First(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询用户失败"})
+		return
+	}
+	if user.Deactivate {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户已注销"})
 		return
 	}
 
@@ -1127,285 +1778,203 @@ func SaveEdit(c *gin.Context) {
 		Gender    string `json:"gender"`
 		Birthday  string `json:"birthday"`
 		Signature string `json:"signature"`
-	}
-
-	// 解析请求体中的 JSON 数据
-	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"success": false,
-			"message": "请求数据格式错误",
-		})
-		return
-	}
-
-	// 查询数据库中的用户数据
-	var account models.AccountInfo
-	err = global.Db.Where("account_id = ?", accountID).First(&account).Error
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"success": false,
-			"message": "账号未找到",
-		})
-		return
-	}
-
-	// 更新用户资料
-	account.ID = input.ID
-	account.Avatar = input.Avatar
-	account.Nickname = input.Nickname
-	account.Gender = input.Gender
-	account.Birthday = input.Birthday
-	account.Signature = input.Signature
-
-	// 保存更新的数据
-	if err := global.Db.Save(&account).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"success": false,
-			"message": "保存失败",
-		})
-		return
-	}
-
-	// 返回成功响应
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"message": "保存成功",
-	})
-}
-
-// GetPhone 获取用户的手机号
-func GetPhone(c *gin.Context) {
-	urlID := c.Param("id")
-	if urlID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"success": false,
-			"message": "缺少账号ID",
-		})
-		return
-	}
-
-	accountID, err := strconv.Atoi(urlID)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Json中ID解析失败"})
-		return
-	}
-
-	// 查询数据库中的用户信息
-	var userAccount models.AccountInfo
-	err = global.Db.Where("account_id = ?", accountID).First(&userAccount).Error
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"success": false,
-			"message": "账号未找到",
-		})
-		return
-	}
-
-	// 返回用户的手机号、密码和权限信息
-	/*
-		to be continued 此处的密码可能需要加密解密处理后
-	*/
-
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"message": "获取手机号成功",
-		"data": gin.H{
-			"phone":             userAccount.Phone,
-			"password":          userAccount.Password,
-			"friend_permission": userAccount.FriendPermission,
-		},
-	})
-}
-
-// SavePhone 修改手机号
-func SavePhone(c *gin.Context) {
-	urlID := c.Param("id")
-	if urlID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"success": false,
-			"message": "缺少账号ID",
-		})
-		return
-	}
-
-	accountID, err := strconv.Atoi(urlID)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Json中ID解析失败"})
-		return
-	}
-
-	// 获取请求体中的新手机号
-	var input struct {
-		NewPhone string `json:"newphone"`
+		Phone     string `json:"phone"`
 	}
 	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"success": false,
-			"message": "无效的请求体",
-		})
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "请求数据格式错误"})
 		return
 	}
+	user.ID = input.ID
+	user.Avatar = input.Avatar
+	user.Nickname = input.Nickname
+	user.Gender = input.Gender
+	user.Birthday = input.Birthday
+	user.Signature = input.Signature
+	user.Phone = input.Phone
 
-	// 校验手机号格式
-	if !utils.ValidatePhone(input.NewPhone) {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"success": false,
-			"message": "手机号格式不正确",
-		})
-		return
-	}
-
-	// 检查手机号是否已被其他用户使用
-	var existingUser models.AccountInfo
-	err = global.Db.Where("phone = ?", input.NewPhone).First(&existingUser).Error
-	if err == nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"success": false,
-			"message": "该手机号已被其他用户使用",
-		})
-		return
-	}
-
-	// 查询当前用户
-	var user models.AccountInfo
-	err = global.Db.Where("account_id = ?", accountID).First(&user).Error
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"success": false,
-			"message": "用户未找到",
-		})
-		return
-	}
-
-	// 更新手机号
-	user.Phone = input.NewPhone
 	if err := global.Db.Save(&user).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"success": false,
-			"message": "更新手机号失败",
-		})
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "保存失败"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"success": true, "message": "保存成功"})
+}
+
+//---------------------------------------------------------------------------------
+// 安全设置
+
+// GetUserInfo 展示安全信息
+func GetUserInfo(c *gin.Context) {
+	userID := c.GetHeader("User-ID")
+	if userID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "HTTP header中用户ID为空"})
+		return
+	}
+	accountID, err := strconv.Atoi(userID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "ID解析失败"})
+		return
+	}
+	var user models.AccountInfo
+	if err := global.Db.Where("account_id = ?", accountID).First(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询用户失败"})
+		return
+	}
+	if user.Deactivate == true {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户已注销"})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
-		"message": "手机号更新成功",
+		"message": "成功获取用户信息",
 		"data": gin.H{
-			"newphone": user.Phone,
+			"email":                     user.Email,
+			"password":                  user.Password,
+			"friend_permissionID":       user.FriendPermissionID,
+			"friend_permissionNickname": user.FriendPermissionNickName,
 		},
 	})
 }
 
-// GetCode 向id用户的新手机号中发送验证码
+// GetCode 向id用户的新邮箱中发送验证码
 func GetCode(c *gin.Context) {
-	urlID := c.Param("id")
-	if urlID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"success": false,
-			"message": "缺少账号ID",
-		})
+	userID := c.GetHeader("User-ID")
+	if userID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "HTTP header中用户ID为空"})
 		return
 	}
-
-	accountID, err := strconv.Atoi(urlID)
+	accountID, err := strconv.Atoi(userID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Json中ID解析失败"})
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "ID解析失败"})
 		return
 	}
-
-	// 当前用户是否存在
 	var user models.AccountInfo
-	err = global.Db.Where("account_id = ?", accountID).First(&user).Error
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"success": false,
-			"message": "用户未找到",
-		})
+	if err := global.Db.Where("account_id = ?", accountID).First(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询用户失败"})
+		return
+	}
+	if user.Deactivate == true {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户已注销"})
 		return
 	}
 
-	// 获取请求体中的新手机号
 	var input struct {
-		NewPhone string `json:"newphone"`
+		NewEmail string `json:"new_email"`
 	}
-
 	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"success": false,
-			"message": "无效的请求体",
-		})
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "无效的请求体"})
 		return
 	}
 
-	// 校验手机号格式
-	if !utils.ValidatePhone(input.NewPhone) {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"success": false,
-			"message": "手机号格式不正确",
-		})
+	if !utils.ValidateEmail(input.NewEmail) {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "邮箱格式不正确"})
 		return
 	}
 
-	// 检查手机号是否已被其他用户使用
+	// 新旧邮箱一致
+	if input.NewEmail == user.Email {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "新邮箱不能与旧邮箱相同"})
+		return
+	}
+
 	var existingUser models.AccountInfo
-	err = global.Db.Where("phone = ?", input.NewPhone).First(&existingUser).Error
+	err = global.Db.Where("email = ?", input.NewEmail).First(&existingUser).Error
 	if err == nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"success": false,
-			"message": "该手机号已被其他用户使用",
-		})
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "邮箱已被其他用户使用"})
 		return
 	}
 
-	// 生成6位随机验证码
+	// 生成随机的验证码，并将验证码存储到 Redis 中，设置过期时间为 5 分钟
 	code := utils.RandomCode(6)
-
-	// 将验证码存储到 Redis 中，设置过期时间为 5 分钟
-	cacheKey := global.SmsCodeKey + input.NewPhone
+	cacheKey := global.SmsCodeKey + input.NewEmail
 	if err := global.RedisDB.Set(cacheKey, code, 5*time.Minute).Err(); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"success": false,
-			"message": "保存验证码失败",
-		})
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "保存验证码失败"})
 		return
 	}
 
-	/*
-		To be continued 向用户id手机号中发送验证码
-	*/
-	// 返回发送验证码成功的响应
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"message": "验证码已发送",
-		"code":    code,
-	})
+	err = utils.SendSms(input.NewEmail, code)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "发送短信失败", "code": ""})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"success": true, "message": "验证码已发送", "code": code})
+}
+
+// SaveEmail 修改账号绑定的邮箱
+func SaveEmail(c *gin.Context) {
+	userID := c.GetHeader("User-ID")
+	if userID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "HTTP header中用户ID为空"})
+		return
+	}
+	accountID, err := strconv.Atoi(userID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "ID解析失败"})
+		return
+	}
+	var user models.AccountInfo
+	if err := global.Db.Where("account_id = ?", accountID).First(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询用户失败"})
+		return
+	}
+	if user.Deactivate == true {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户已注销"})
+		return
+	}
+
+	var input struct {
+		NewEmail string `json:"new_email"`
+	}
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "无效的请求体"})
+		return
+	}
+
+	if !utils.ValidateEmail(input.NewEmail) {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "邮箱格式不正确"})
+		return
+	}
+
+	// 新旧邮箱一致
+	if input.NewEmail == user.Email {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "新邮箱不能与旧邮箱相同"})
+		return
+	}
+
+	var existingUser models.AccountInfo
+	err = global.Db.Where("email = ?", input.NewEmail).First(&existingUser).Error
+	if err == nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "邮箱已被其他用户使用"})
+		return
+	}
+
+	user.Email = input.NewEmail
+	if err := global.Db.Save(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "保存新邮箱失败"})
+	} else {
+		c.JSON(http.StatusOK, gin.H{"success": true, "message": "保存邮箱成功"})
+	}
 }
 
 // SavePassword 保存修改的密码
 func SavePassword(c *gin.Context) {
-	urlID := c.Param("id")
-	if urlID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"success": false,
-			"message": "URL中id为空",
-		})
+	userID := c.GetHeader("User-ID")
+	if userID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "HTTP header中用户ID为空"})
 		return
 	}
-
-	accountID, err := strconv.Atoi(urlID)
+	accountID, err := strconv.Atoi(userID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "ID解析失败"})
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "ID解析失败"})
 		return
 	}
-
-	// 当前用户是否存在
 	var user models.AccountInfo
-	err = global.Db.Where("account_id = ?", accountID).First(&user).Error
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"success": false,
-			"message": "用户未找到",
-		})
+	if err := global.Db.Where("account_id = ?", accountID).First(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询用户失败"})
+		return
+	}
+	if user.Deactivate == true {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户已注销"})
 		return
 	}
 
@@ -1416,95 +1985,577 @@ func SavePassword(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "无效的请求体"})
 	}
 
-	// 更改
 	user.Password = input.NewPassword
 	if err := global.Db.Save(&user).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"success": false,
-			"message": "更改密码失败",
-		})
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "更改密码失败"})
 		return
+	} else {
+		c.JSON(http.StatusOK, gin.H{"success": true, "message": "更改密码成功", "password": user.Password})
 	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"success":  true,
-		"message":  "更改密码成功",
-		"password": user.Password,
-	})
-
 }
 
 // IsIDAdd 查询id用户是否能被添加
 func IsIDAdd(c *gin.Context) {
-	urlID := c.Param("id")
-	if urlID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "URL中id为空"})
+	ID := c.GetHeader("User-ID")
+	if ID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Header中的User-ID为空"})
 		return
 	}
-	accountID, err := strconv.Atoi(urlID)
+	accountID, err := strconv.Atoi(ID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "ID解析失败"})
-		return
-	}
-	var user models.AccountInfo
-	err = global.Db.Where("account_id = ?", accountID).First(&user).Error
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "用户未找到"})
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "ID解析失败"})
 		return
 	}
 
-	if user.FriendPermission == "ID_true" {
-		c.JSON(http.StatusOK, gin.H{"success": true, "message": "可以添加"})
-	} else if user.FriendPermission == "ID_false" {
-		c.JSON(http.StatusOK, gin.H{"success": false, "message": "不能添加"})
+	var user models.AccountInfo
+	if err := global.Db.Where("account_id = ?", accountID).First(&user).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户未找到"})
+		return
 	}
-	return
+	if user.Deactivate == true {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户已注销"})
+		return
+	}
+
+	var input struct {
+		FriendPermissionID bool `json:"friend_permission_id"`
+	}
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "无效的请求体"})
+		return
+	}
+
+	user.FriendPermissionID = input.FriendPermissionID
+	if err := global.Db.Save(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "更改权限失败"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"success": true, "message": "更改权限成功"})
 }
 
-// IsPhoneAdd 当前id用户是否能通过手机号进行添加好友
-func IsPhoneAdd(c *gin.Context) {
-	urlID := c.Param("id")
-	if urlID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "URL中id为空"})
+// IsNickNameAdd 查询昵称用户是否能被添加
+func IsNickNameAdd(c *gin.Context) {
+	ID := c.GetHeader("User-ID")
+	if ID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Header中的User-ID为空"})
+		return
 	}
-	accountID, err := strconv.Atoi(urlID)
+	accountID, err := strconv.Atoi(ID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "ID解析失败"})
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "ID解析失败"})
+		return
 	}
 	var user models.AccountInfo
-	err = global.Db.Where("account_id = ?", accountID).First(&user).Error
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "用户未找到"})
+	if err := global.Db.Where("account_id = ?", accountID).First(&user).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户未找到"})
+		return
 	}
-
-	if user.FriendPermission == "Phone_true" {
-		c.JSON(http.StatusOK, gin.H{"success": true, "message": "可以添加"})
-	} else if user.FriendPermission == "Phone_false" {
-		c.JSON(http.StatusOK, gin.H{"success": false, "message": "不能添加"})
+	if user.Deactivate == true {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户已注销"})
+		return
+	}
+	var input struct {
+		FriendPermissionNickName bool `json:"friend_permissionNickname"`
+	}
+	if c.ShouldBindJSON(&input) != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "无效的请求体"})
+		return
+	}
+	user.FriendPermissionNickName = input.FriendPermissionNickName
+	if err := global.Db.Save(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "更改权限失败"})
+	} else {
+		c.JSON(http.StatusOK, gin.H{"success": true, "message": "更改权限成功"})
 	}
 }
 
 // ConfirmDeactivation 确认当前id用户是否注销
 func ConfirmDeactivation(c *gin.Context) {
-	urlID := c.Param("id")
-	if urlID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "URL中id为空"})
+	ID := c.GetHeader("User-ID")
+	if ID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Header中的User-ID为空"})
+		return
 	}
-	accountID, err := strconv.Atoi(urlID)
+	accountID, err := strconv.Atoi(ID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "ID解析失败"})
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "ID解析失败"})
+		return
 	}
 	var user models.AccountInfo
-	err = global.Db.Where("account_id = ?", accountID).First(&user).Error
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "用户未找到"})
+	if err := global.Db.Where("account_id = ?", accountID).First(&user).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户未找到"})
+		return
 	}
-
 	if user.Deactivate == true {
-		c.JSON(http.StatusOK, gin.H{"success": true, "message": "用户已经注销"})
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户已注销"})
 		return
 	}
 
 	user.Deactivate = true
+	if err := global.Db.Save(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "更改权限失败"})
+	}
 	c.JSON(http.StatusOK, gin.H{"success": true, "message": "用户注销成功"})
+}
+
+// --------------------------------------------------------------------------
+// 系统设置
+
+// ChangeTheme 更改系统主题颜色
+func ChangeTheme(c *gin.Context) {
+	ID := c.GetHeader("User-ID")
+	if ID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Header中的User-ID为空"})
+		return
+	}
+	accountID, err := strconv.Atoi(ID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "ID解析失败"})
+		return
+	}
+	var user models.AccountInfo
+	if err := global.Db.Where("account_id = ?", accountID).First(&user).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户未找到"})
+		return
+	}
+	if user.Deactivate == true {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户已注销"})
+		return
+	}
+
+	// light dark system
+	var input struct {
+		Theme string `json:"theme"`
+	}
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "参数解析失败"})
+		return
+	}
+	if input.Theme != "light" && input.Theme != "dark" && input.Theme != "system" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "无效的主题值"})
+		return
+	}
+
+	var systemSetting models.SystemSetting
+	err = global.Db.Where("account_id = ?", accountID).First(&systemSetting).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) { // 如果记录不存在则创建新的新的系统设置，并且绑定id
+			systemSetting = models.SystemSetting{
+				AccountID: uint(accountID),
+				Theme:     input.Theme,
+			}
+			if err := global.Db.Create(&systemSetting).Error; err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "插入系统设置失败"})
+				return
+			}
+		} else { // 正常情况下不会出现
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询系统设置失败（正常情况下不会出现）"})
+			return
+		}
+	}
+
+	systemSetting.Theme = input.Theme
+	if err := global.Db.Save(&systemSetting).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "更改主题失败"})
+	} else {
+		c.JSON(http.StatusOK, gin.H{"success": true, "message": "更改主题成功"})
+	}
+}
+
+// ChangeFontsize 更改字体大小
+func ChangeFontsize(c *gin.Context) {
+	ID := c.GetHeader("User-ID")
+	if ID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Header中的User-ID为空"})
+		return
+	}
+	accountID, err := strconv.Atoi(ID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "ID解析失败"})
+		return
+	}
+	var user models.AccountInfo
+	if err := global.Db.Where("account_id = ?", accountID).First(&user).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户未找到"})
+		return
+	}
+	if user.Deactivate == true {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户已注销"})
+		return
+	}
+	var input struct {
+		FontSize int `json:"font_size"`
+	}
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "参数解析失败"})
+		return
+	}
+
+	var systemSetting models.SystemSetting
+	if err = global.Db.Where("account_id = ?", accountID).First(&systemSetting).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) { // 如果记录不存在则创建新的新的系统设置，并且绑定id
+			systemSetting = models.SystemSetting{
+				AccountID: uint(accountID),
+				FontSize:  input.FontSize,
+			}
+			if err := global.Db.Create(&systemSetting).Error; err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "插入系统设置失败"})
+				return
+			}
+		} else { // 正常情况下不会出现
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询系统设置失败（正常情况下不会出现）"})
+			return
+		}
+	}
+	systemSetting.FontSize = input.FontSize
+	if err := global.Db.Save(&systemSetting).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "更改字体大小失败"})
+	} else {
+		c.JSON(http.StatusOK, gin.H{"success": true, "message": "更改字体大小成功"})
+	}
+}
+
+// ChangeFontstyle 更换字体风格
+func ChangeFontstyle(c *gin.Context) {
+	ID := c.GetHeader("User-ID")
+	if ID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Header中的User-ID为空"})
+		return
+	}
+	accountID, err := strconv.Atoi(ID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "ID解析失败"})
+		return
+	}
+	var user models.AccountInfo
+	if err := global.Db.Where("account_id = ?", accountID).First(&user).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户未找到"})
+		return
+	}
+	if user.Deactivate == true {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户已注销"})
+		return
+	}
+	var input struct {
+		FontStyle string `json:"font_style"`
+	}
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "参数解析失败"})
+		return
+	}
+
+	var systemSetting models.SystemSetting
+	if err = global.Db.Where("account_id = ?", accountID).First(&systemSetting).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) { // 如果记录不存在则创建新的新的系统设置，并且绑定id
+			systemSetting = models.SystemSetting{
+				AccountID: uint(accountID),
+				FontStyle: input.FontStyle,
+			}
+			if err := global.Db.Create(&systemSetting).Error; err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "插入系统设置失败"})
+				return
+			}
+		} else { // 正常情况下不会出现
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询系统设置失败（正常情况下不会出现）"})
+			return
+		}
+	}
+	systemSetting.FontStyle = input.FontStyle
+	if err := global.Db.Save(&systemSetting).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "更改字体风格失败"})
+	} else {
+		c.JSON(http.StatusOK, gin.H{"success": true, "message": "更改字体风格成功"})
+	}
+}
+
+// IsNotice 是否有个人消息通知的声音
+func IsNotice(c *gin.Context) {
+	ID := c.GetHeader("User-ID")
+	if ID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Header中的User-ID为空"})
+		return
+	}
+	accountID, err := strconv.Atoi(ID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "ID解析失败"})
+		return
+	}
+	var user models.AccountInfo
+	if err := global.Db.Where("account_id = ?", accountID).First(&user).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户未找到"})
+		return
+	}
+	if user.Deactivate == true {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户已注销"})
+		return
+	}
+
+	var input struct {
+		Notice string `json:"notice"`
+	}
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "参数解析失败"})
+		return
+	}
+	var systemSetting models.SystemSetting
+	if err = global.Db.Where("account_id = ?", accountID).First(&systemSetting).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) { // 如果记录不存在则创建新的新的系统设置，并且绑定id
+			systemSetting = models.SystemSetting{
+				AccountID: uint(accountID),
+				Notice:    input.Notice,
+			}
+			if err := global.Db.Create(&systemSetting).Error; err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "插入系统设置失败"})
+				return
+			}
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询系统设置失败（正常情况下不会出现）"})
+			return
+		}
+	}
+	systemSetting.Notice = input.Notice
+	if err := global.Db.Save(&systemSetting).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "更改通知设置失败"})
+	} else {
+		c.JSON(http.StatusOK, gin.H{"success": true, "message": "更改通知设置成功"})
+	}
+}
+
+// IsNoticeGroup 是否有群消息通知的声音
+func IsNoticeGroup(c *gin.Context) {
+	ID := c.GetHeader("User-ID")
+	if ID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Header中的User-ID为空"})
+		return
+	}
+	accountID, err := strconv.Atoi(ID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "ID解析失败"})
+		return
+	}
+	var user models.AccountInfo
+	if err := global.Db.Where("account_id = ?", accountID).First(&user).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户未找到"})
+		return
+	}
+	if user.Deactivate == true {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户已注销"})
+		return
+	}
+
+	var input struct {
+		NoticeGroup string `json:"notice_group"`
+	}
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "参数解析失败"})
+		return
+	}
+	var systemSetting models.SystemSetting
+	if err = global.Db.Where("account_id = ?", accountID).First(&systemSetting).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) { // 如果记录不存在则创建新的新的系统设置，并且绑定id
+			systemSetting = models.SystemSetting{
+				AccountID:   uint(accountID),
+				NoticeGroup: input.NoticeGroup,
+			}
+			if err := global.Db.Create(&systemSetting).Error; err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "插入系统设置失败"})
+				return
+			}
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询系统设置失败（正常情况下不会出现）"})
+			return
+		}
+	}
+	systemSetting.NoticeGroup = input.NoticeGroup
+	if err := global.Db.Save(&systemSetting).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "更改群消息通知声音设置失败"})
+	} else {
+		c.JSON(http.StatusOK, gin.H{"success": true, "message": "更改群消息通知声音设置成功"})
+	}
+}
+
+// ChangeSound 更换提示音
+func ChangeSound(c *gin.Context) {
+	ID := c.GetHeader("User-ID")
+	if ID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Header中的User-ID为空"})
+		return
+	}
+	accountID, err := strconv.Atoi(ID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "ID解析失败"})
+		return
+	}
+	var user models.AccountInfo
+	if err := global.Db.Where("account_id = ?", accountID).First(&user).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户未找到"})
+		return
+	}
+	if user.Deactivate == true {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户已注销"})
+		return
+	}
+
+	var input struct {
+		Sound string `json:"sound"`
+	}
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "参数解析失败"})
+		return
+	}
+	var systemSetting models.SystemSetting
+	if err = global.Db.Where("account_id = ?", accountID).First(&systemSetting).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) { // 如果记录不存在则创建新的新的系统设置，并且绑定id
+			systemSetting = models.SystemSetting{
+				AccountID: uint(accountID),
+				Sound:     input.Sound,
+			}
+			if err := global.Db.Create(&systemSetting).Error; err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "插入新的系统设置失败"})
+				return
+			}
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询系统设置失败（正常情况下不会出现）"})
+			return
+		}
+	}
+	systemSetting.Sound = input.Sound
+	if err := global.Db.Save(&systemSetting).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "更改提示声音成功"})
+	} else {
+		c.JSON(http.StatusOK, gin.H{"success": true, "message": "更改提示声音成功"})
+	}
+}
+
+// SubmitSound 上传新的提示音
+func SubmitSound(c *gin.Context) {
+
+}
+
+// ChangeBackground 更换背景
+func ChangeBackground(c *gin.Context) {
+	ID := c.GetHeader("User-ID")
+	if ID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Header中的User-ID为空"})
+		return
+	}
+	accountID, err := strconv.Atoi(ID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "ID解析失败"})
+		return
+	}
+	var user models.AccountInfo
+	if err := global.Db.Where("account_id = ?", accountID).First(&user).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户未找到"})
+		return
+	}
+	if user.Deactivate == true {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户已注销"})
+		return
+	}
+
+	var input struct {
+		Background string `json:"back_ground"`
+	}
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "参数解析失败"})
+		return
+	}
+	var systemSetting models.SystemSetting
+	if err = global.Db.Where("account_id = ?", accountID).First(&systemSetting).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) { // 如果记录不存在则创建新的新的系统设置，并且绑定id
+			systemSetting = models.SystemSetting{
+				AccountID:  uint(accountID),
+				Background: input.Background,
+			}
+			if err := global.Db.Create(&systemSetting).Error; err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "插入新的系统设置失败"})
+				return
+			}
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询系统设置失败（正常情况下不会出现）"})
+			return
+		}
+	}
+	systemSetting.Background = input.Background
+	if err := global.Db.Save(&systemSetting).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "更改背景成功"})
+	} else {
+		c.JSON(http.StatusOK, gin.H{"success": true, "message": "更改背景成功"})
+	}
+}
+
+// GetSystemSetting 返回系统设置
+func GetSystemSetting(c *gin.Context) {
+	ID := c.GetHeader("User-ID")
+	if ID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Header中的User-ID为空"})
+		return
+	}
+	accountID, err := strconv.Atoi(ID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "ID解析失败"})
+		return
+	}
+	var user models.AccountInfo
+	if err := global.Db.Where("account_id = ?", accountID).First(&user).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户未找到"})
+		return
+	}
+	if user.Deactivate == true {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户已注销"})
+		return
+	}
+
+	var systemSetting models.SystemSetting
+	if err := global.Db.Where("account_id = ?", accountID).First(&systemSetting).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "系统设置未找到"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "系统设置获取成功",
+		"data": gin.H{
+			"theme":       systemSetting.Theme,
+			"fontSize":    systemSetting.FontSize,
+			"fontStyle":   systemSetting.FontStyle,
+			"sound":       systemSetting.Sound,
+			"background":  systemSetting.Background,
+			"notice":      systemSetting.Notice,
+			"noticeGroup": systemSetting.NoticeGroup,
+		},
+	})
+}
+
+// Logout 退出登录
+func Logout(c *gin.Context) {
+	ID := c.GetHeader("User-ID")
+	if ID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Header中的User-ID为空"})
+		return
+	}
+	accountID, err := strconv.Atoi(ID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "ID解析失败"})
+		return
+	}
+	var user models.AccountInfo
+	if err := global.Db.Where("account_id = ?", accountID).First(&user).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户未找到"})
+		return
+	}
+	if user.Deactivate == true {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户已注销"})
+		return
+	}
+
+	// 记录当前时间
+	currentTime := time.Now().Format("2006-01-02 15:04:05") // 获取当前时间
+	if err := global.Db.Model(&user).Update("last_logout", currentTime).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "更新退出时间失败"})
+		return
+	}
+
+	/* 继续完善JWT*/
+	c.JSON(http.StatusOK, gin.H{"success": true, "message": "退出登录成功"})
 }

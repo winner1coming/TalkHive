@@ -1,32 +1,42 @@
 <template>
     <div class="change-password">
       <h3>更改密码</h3>
+
+      <!--原密码的输入框-->
       <div class="text_group">
         <label for="oldPassword">原密码:</label>
-        <input type="password" v-model="oldPassword" :placeholder="oldPassword" />
+        <input type="password" v-model="oldPassword" @blur="validatePassword(oldPassword,'oldp')" :placeholder="oldPassword" />
       </div>
+      <p v-if="errors.oldp" class="error">{{ errors.oldp }}</p>
+
+      <!--新密码输入框-->
       <div class="text_group">
         <label for="newPassword">新密码:</label>
         <div class="password-input">
-          <input :type="showNewPassword ? 'text' : 'password'" v-model="newPassword" :placeholder="newPassword" />
-          <span class="eye-icon" @click="toggleNewPasswordVisibility">
-            <i :class="showNewPassword ? 'fas fa-eye' : 'fas fa-eye-slash'"></i>
-          </span>
+          <input type="password" v-model="newPassword" @blur="validatePassword(newPassword,'newp')" :placeholder="newPassword" />
         </div>
       </div>
+      <p v-if="errors.newp" class="error">{{ errors.newp }}</p>
+
+      <!--验证密码的输入框-->
       <div class="text_group">
         <label for="confirmPassword">确认密码:</label>
         <div class="password-input">
-          <input :type="showConfirmPassword ? 'text' : 'password'" v-model="confirmPassword" :placeholder="confirmPassword" />
+          <input :type="showConfirmPassword ? 'text' : 'password'" v-model="confirmPassword" @input="validateChange" :placeholder="confirmPassword" />
           <span class="eye-icon" @click="toggleConfirmPasswordVisibility">
             <i :class="showConfirmPassword ? 'fas fa-eye' : 'fas fa-eye-slash'"></i>
           </span>
         </div>
       </div>
+      <p v-if="errors.validatep" class="error">{{ errors.validatep }}</p>
+
+      <!--按钮设置-->
       <div class="button_container">
-        <button @click="savePassword">保存</button>
+        <button @click="savepassword">保存</button>
         <button @click="cancel">取消</button>
       </div>
+
+      <!--提供忘记密码的链接-->
       <div class="forgot-password">
         <router-link to="/forgetpassword">忘记密码？</router-link>
       </div>
@@ -34,36 +44,100 @@
   </template>
   
   <script>
+  import { savePassword } from '@/services/settingView.js';
+
   export default {
+    props:{
+      users: {
+        type: Object,
+        required: true,
+      },
+    },
+
     data() {
       return {
         oldPassword: '',
         newPassword: '',
         confirmPassword: '',
-        showNewPassword: false,
         showConfirmPassword: false,
+        errors:{
+            newp:'',
+            oldp:'',
+            validatep:'',
+        },
       };
     },
+
     methods: {
-      savePassword() {
-        if (this.newPassword !== this.confirmPassword) {
-          alert('新密码与确认密码不一致');
-          return;
+      async savepassword() {
+        this.validate_comfirmPassword();
+
+        try{
+          const response = await savePassword({
+            id:this.users.id,
+            newpassword:this.newPassword,
+          });
+          if(response.success){
+            alert('密码已更新，请重新登录')
+            this.$router.push('/login');
+          }else{
+            alert(response.message || '密码更改失败');
+          }
+
+        }catch(error){
+          console.error("更改密码失败:",error);
         }
-        // 调用后端API更新密码
-        alert('密码已更新，请重新登录');
-        // 跳转到登录界面
-        this.$router.push('/login');
+
       },
+
       cancel() {
         // 取消逻辑
         this.oldPassword = '';
         this.newPassword = '';
         this.confirmPassword = '';
+        this.errors.newp ='';
+        this.errors.oldp ='';
+        this.errors.validatep = '';
       },
-      toggleNewPasswordVisibility() {
-        this.showNewPassword = !this.showNewPassword;
+
+
+      validate_comfirmPassword() {
+        const password = this.users.password;
+        if (this.oldPassword !== password) {
+          alert("原密码输入错误");
+        } else if(this.oldPassword == password){
+          alert("新密码与原密码相同！");
+        }
       },
+
+      validatePassword(password , key){
+          if(!password){
+            this.errors[key] = '请输入原密码！';
+          }else if(password.length < 6){
+            this.errors[key] = '密码长度不能小于6位！';
+          }else if(password.length > 20)
+          {
+            this.errors[key] = '密码长度不能超过20位';
+          }else if(/\s/.test(password)){
+            this.errors[key] = '密码不能包含空格！';
+          }else if(!/^[a-zA-Z0-9]+$/.test(password)){
+            this.errors[key] = '密码只能包含字母和数字！';
+          }else{
+            this.errors[key] = '';
+          }
+      },
+
+      validateChange(){
+        if(!this.confirmPassword){
+          this.errors.validatep = '请输入确认密码！';
+        }else if(this.newPassword !== this.confirmPassword){
+          this.errors.validatep = '两次输入的密码不一致！';
+        }
+        else{
+          this.errors.validatep = '';
+        }
+      },
+
       toggleConfirmPasswordVisibility() {
         this.showConfirmPassword = !this.showConfirmPassword;
       },

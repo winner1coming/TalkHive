@@ -10,7 +10,6 @@ import (
 )
 
 func main() {
-
 	// 初始化全局配置，包括数据库和Redis
 	fmt.Println("初始化全局配置...")
 	config.InitConfig()
@@ -20,11 +19,10 @@ func main() {
 	// 初始化 Gin 引擎
 	r := gin.Default()
 
-	// CORS配置
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:5174"}, // 前端的URL
+		AllowOrigins:     []string{"*"},
 		AllowMethods:     []string{"GET", "POST", "OPTIONS"},
-		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization", "tid"}, // 允许的请求头中添加 tid
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization", "User-ID"},
 		AllowCredentials: true,
 	}))
 

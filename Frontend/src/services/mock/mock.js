@@ -1,9 +1,18 @@
 // src/mocks/mock.js
 import Mock from 'mockjs';
-const baseURL = 'http://your-api-url.com';
+import './chatListMock';
+import './contactListMock';
+
+const baseURL = 'http://localhost:8080';
+
 
 Mock.setup({
   timeout: '200-300', // 设置模拟延迟（可选）
+  headers: {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+  }
 });
 
 // 模拟收藏列表接口

@@ -3,7 +3,7 @@
     <!-- 左侧导航栏 -->
     <aside class="sidebar">
       <div class="user-info">
-        <img src="../assets/image/avatar.jpg" alt="Avatar" class="avatar" />
+        <img :src="avatar" alt="Avatar" class="avatar" />
         <span class="nickname">用户昵称</span>
       </div>
       <ul class="nav-links">
@@ -11,11 +11,11 @@
         <li><router-link to="/contact">通讯录</router-link></li>
         <li><router-link to="/setlist">设置</router-link></li>
         <li><router-link to="/workspace">工作区</router-link></li>
+        <li><Link/></li>
+      </ul>
+      <ul class="logout">
         <li>
-          <a href="#" @click="toggleDropdown">更多</a>
-          <ul v-if="showDropdown" class="dropdown">
-            <li><a href="#" @click="logout">Logout</a></li>
-          </ul>
+          <li><a href="#" @click="logout">Logout</a></li>
         </li>
       </ul>
     </aside>
@@ -28,12 +28,17 @@
 </template>
 
 <script>
+import Link from './Link.vue';
 export default {
   name: 'Home',
   data() {
     return {
       showDropdown: false,
+      avatar: this.$store.state.user.avatar,
     };
+  },
+  components:{
+    Link,
   },
   methods: {
     toggleDropdown() {
@@ -55,14 +60,16 @@ export default {
 
 /* 左侧导航栏样式 */
 .sidebar {
-  width: 150px;
+  width: 120px;
   background-color: #6dc79fb1;
   color: white;
-  padding: 20px;
+  padding: 10px;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: space-between;
+  position: relative;
 }
 
 .user-info {
@@ -90,6 +97,7 @@ export default {
 
 .nav-links li {
   margin: 10px 0;
+  position: relative;
 }
 
 .nav-links a {
@@ -128,8 +136,32 @@ export default {
 /* 右侧视图区域样式 */
 .content {
   flex: 1;
-  padding: 20px;
   overflow-y: auto;
   background-color: #f5f5f5;
+}
+
+/* 退出登录按钮样式 */
+.logout {
+  list-style: none;
+  padding: 0;
+  width: 100%;
+  margin-top: auto; /* 将退出按钮推到最底部 */
+}
+
+.logout li {
+  margin: 10px 0;
+}
+
+.logout a {
+  color: white;
+  text-decoration: none;
+  display: block;
+  padding: 10px;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.logout a:hover {
+  background-color: rgba(255, 255, 255, 0.1);
 }
 </style>

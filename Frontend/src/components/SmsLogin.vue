@@ -1,6 +1,6 @@
 <template>
     <div class="smslogin">
-      <img  class="avatar" src = '@/assets/images/avatar.jpg'/>
+      <img  class="avatar" :src ="avatar" />
       
       <div class="input-group">
         <label for="email">邮箱</label>
@@ -13,7 +13,6 @@
           <label for="smsCode">验证码</label>
           <input id="smsCode" type="text" v-model="smsCode" placeholder="请输入验证码" />
         </div>
-
         <button class="send-sms-button" @click="sendSmsCode">获取</button>
       </div>
 
@@ -27,8 +26,9 @@
   </template>
   
   <script>
-  import { smsLogin, sendSmsCode } from '@/services/api'; // 导入登录和发送验证码 API
+  import { smsLogin, sendSmsCode } from '@/services/loginth.js'; // 导入登录和发送验证码 API
   import { mapActions, mapGetters} from 'vuex';
+  import img from '@/assets/images/avatar.jpg';
   
   export default {
     computed: {
@@ -43,7 +43,8 @@
       return {
         email: '',
         smsCode: '',
-        code: '',
+        Code: '',
+        avatar:img,
       };
     },
     
@@ -68,16 +69,18 @@
           });
 
           if(response.success){
+            this.avatar = `data:${response.mimeType};base64,${response.avatar}`;
             this.$store.commit('SET_USER', {
             username: response.nickname,
             id: response.account_id,
-            avatar: response.avatar,
+            avatar: this.avatar,
             });
-
+            this.$store.commit('SET_LINKS',response.links);
+            alert(response.message);
             this.$router.push('/home');
           }
           else {
-            alert(response.message || '登录失败');
+            alert(response.message);
           }
         } catch (error) {
           alert(error || '登录失败');
@@ -109,7 +112,7 @@
             alert('验证码已发送');
             this.Code = response.code;
           } else {
-            alert(response.message || '发送验证码失败');
+            alert(response.message);
           }
         } catch (error) {
           alert(error || '发送验证码失败');

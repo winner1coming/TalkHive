@@ -3,7 +3,7 @@
       <h3>更改邮箱</h3>
       <div class="text_group">
         <label for="oldPhone">原邮箱:</label>
-        <input type="text" v-model="oldEmail" @input="validate_Email1" :placeholder="oldEmail" />
+        <input type="text" v-model="oldEmail" @input="validate_Email1" @blur="validate_oldEmail" :placeholder="oldEmail" />
       </div>
       <p v-if="errors.oldEmail" class="error">{{ errors.oldEmail }}</p>
       <div class="text_group">
@@ -25,7 +25,7 @@
   </template>
   
   <script>
-  import {getCode,saveEdit} from '@/services/api';
+  import {getCode,saveEmail} from '@/services/settingView.js';
 
   export default {
     props:{
@@ -48,8 +48,9 @@
         }
       };
     },
+
     methods: {
-      //验证邮箱的格式
+      //验证旧邮箱的格式
       validate_Email1(){
         if (!this.oldEmail) {
           this.errors.oldEmail = '邮箱不能为空';
@@ -59,6 +60,7 @@
           this.errors.oldEmail = '';
         }
       },
+      //验证新邮箱的格式
       validate_Email2(){
         if (!this.newEmail) {
           this.errors.newEmail = '邮箱不能为空';
@@ -68,6 +70,7 @@
           this.errors.newEmail = '';
         }
       },
+
       //验证邮箱是否相等（验证与数据库的邮箱
       validate_oldEmail() {
         const email = this.users.email;
@@ -77,23 +80,22 @@
           this.errors.oldEmail = '';
         }
       },
-
+      //验证验证码的正确性
       validateCode(){
           if(!this.nowCode){
             this.errors.code = '请输入验证码！';
           }
           else if(this.nowCode !== this.code){
             this.errors.code = '验证码不正确！';
+          }else if(!this.code){
+            this.code = '请先获取验证码~';
           }
           else{
             this.errors.code = '';
           }
       },
-
+      //发送验证码——向后端发送获取验证码请求
       async sendCode(){
-
-        this.validate_oldEmail();
-
         try{
           const response = await getCode({
               id:this.users.ID,
@@ -109,15 +111,16 @@
           console.error("验证码发送失败:",error);
         }
       },
+      //按下保存的按钮
       async saveEmail() {
         this.validateCode();
         try{
-          const response = await saveEdit({
+          const response = await saveEmail({
             id: this.users.ID,
           });
           if(response.success){
             alert('邮箱更改成功');
-            this.$emit('updateUser', { email: this.newEmail});
+            this.$emit('updateUser', { email: this.newEmail}); //修改父组件的email
           }else{
             alert(response.message || '邮箱更改失败');
           }

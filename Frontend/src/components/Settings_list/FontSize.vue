@@ -1,54 +1,150 @@
 <template>
     <div class="font-size-settings">
       <div class="font-view">
+      <div class="set_view">
       <h3>字体大小</h3>
         <div class="preview">
             <div class="message-box">
-            <p :style="{ fontSize: `${fontSize}px` }">预览字体大小</p>
+            <p :style="{ fontSize: `${this.fontSize}px` ,fontFamily:fontStyle }">预览字体大小</p>
             </div>
             <div class="avatar">
                 <img :src="avatar">
             </div>
         </div>
         <div class="slider-container">
+          <label >字体大小:</label>
             <input
             type="range"
             min="12"
-            max="36"
+            max="33"
             v-model="fontSize"
             @input="onFontSizeChange"
             />
-            <span>{{ fontSize }}px</span>
+            <span>{{ fontSize }}</span>
+            <button @click="saveFontSize">完成</button>
         </div>
         <div class="description">
-            <p>拖动下面的滑块，可设置字体大小</p>
+            <p>拖动上面的滑块，可设置字体大小</p>
         </div>
-        <button @click="saveFontSize">完成</button>
+
+              <!-- 字体样式选择 -->
+        <div class="font-style-container">
+          <label for="fontStyle">字体样式:</label>
+          <select ref="fontStyleSelect" v-model="fontStyle" @change="onFontStyleChange">
+            <option value="Microsoft YaHei">微软雅黑</option>
+            <option value="SimSun">宋体</option>
+            <option value="SimHei">黑体</option>
+            <option value="Kaiti">楷体</option>
+            <option value="FangSong">仿宋</option>
+            <option value="LiSu">隶书</option>
+            <option value="YouYuan">幼圆</option>
+            <option value="STSong">华文宋体</option>
+            <option value="STXihei">华文细黑</option>
+            <option value="STKaiti">华文楷体</option>
+          </select>
+          <button @click="saveFontStyle">完成</button>
+        </div>
       </div>
+      </div>
+
+      <Windows 
+        :visible="showModal"
+        :message="modalMessage"
+        @close="showModal = false"
+      />
     </div>
   </template>
 
   
   <script>
-
+  import Windows from '@/components/base/Windows.vue';
   import avatar from '@/assets/images/avatar.jpg';
+  import { changeFontsize,changeFontstyle } from '@/services/settingView.js';
+
   export default {
+    components:{
+      Windows,
+    },
     data() {
       return {
         avatar,
-        fontSize: 16, // 默认字体大小
+        fontSize:this.$store.state.settings.fontSize, // 默认字体大小
+        fontStyle:this.$store.state.settings.fontStyle,
+        showModal:false,
+        modalMessage:'',
       };
+    },
+    mounted() {
+    // 在组件挂载时，设置下拉选择框的默认选项
+    this.setDefaultFontStyle();
     },
     methods: {
       onFontSizeChange() {
         // 处理字体大小变化逻辑
         console.log('Font size changed:', this.fontSize);
       },
-      saveFontSize() {
-        // 保存字体大小逻辑
-        console.log('Font size saved:', this.fontSize);
-        // 你可以在这里调用一个方法来保存字体大小
+      onFontStyleChange() {
+      // 处理字体样式变化逻辑
+      console.log('Font style changed:', this.fontStyle);
+    },
+      async saveFontSize() {
+        try{
+          //向后端发送更改请求
+          const response = await changeFontsize({FontSize:this.fontSize});
+          if(response.success){
+            // 保存字体大小逻辑
+            console.log('Font size saved:', this.fontSize);
+            // 调用一个方法来保存字体大小
+            this.$store.commit('SET_FONTSIZE',`${this.fontSize}px`);
+            this.$emit('updateUser', {fontsize:`${this.fontSize}px`});
+            this.modalMessage = '字体大小修改成功';
+            this.showModal = true;
+          }else{
+            this.modalMessage = response.message;
+            this.showModal =true;
+          }
+        }catch(error){
+          this.modalMessage = '保存失败请重试！';
+          this.showModal = true;
+          console.error(error);
+        }
       },
+
+      async saveFontStyle(){
+        try{
+          //向后端发送更改请求
+          const response = await changeFontstyle({FontStyle:this.fontStyle});
+          if(response.success){
+            // 保存字体大小逻辑
+            console.log('Font style saved:', this.fontStyle);
+            // 调用一个方法来保存字体大小
+            this.$store.commit('SET_FONTSTYLE',this.fontStyle);
+            this.modalMessage = '字体样式修改成功';
+            this.showModal = true;
+          }else{
+            this.modalMessage = response.message;
+            this.showModal =true;
+          }
+        }catch(error){
+          this.modalMessage = '样式保存失败请重试！';
+          this.showModal = true;
+          console.error(error);
+        }
+      },
+
+      setDefaultFontStyle() {
+      // 设置下拉选择框的默认选项
+      const selectElement = this.$refs.fontStyleSelect;
+      if (selectElement) {
+        const options = selectElement.options;
+        for (let i = 0; i < options.length; i++) {
+          if (options[i].value === this.$store.state.settings.fontStyle) {
+            selectElement.selectedIndex = i;
+            break;
+          }
+        }
+      }
+    },
     },
   };
   </script>
@@ -58,7 +154,6 @@
     padding: 20px;
     height: 50vh;
     width: 100%;
-    width: 400px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -67,7 +162,8 @@
   .font-view {
   padding: 20px;
   width: 100%;
-  max-width: 400px; /* 设置最大宽度 */
+  height: 80%;
+  max-width: 500px; /* 设置最大宽度 */
   background-color: #f9f9f9; /* 添加背景色 */
   border-radius: 8px; /* 添加圆角 */
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* 添加阴影 */
@@ -75,15 +171,27 @@
     justify-content: center;
     align-items: center;
     flex-direction: column;
+    gap:10px
+}
+
+.set_view{
+  display: flex;
+  flex-direction: column;
+  width: 350px;
+  height: 450px;
+  justify-content: flex-start;
+  align-items: center;
+  gap:10px;
 }
   
   h3 {
+    margin-top: 10px;
     margin-bottom: 20px;
     color: #000;
     background-color: rgb(173, 229, 210);
     width: 300px;
     border-radius: 8px; /* 添加圆角 */
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* 添加阴影 */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* 添加阴影*/ 
   }
   
   .preview {
@@ -129,6 +237,8 @@
     display: flex;
     align-items: center;
     margin-bottom: 20px;
+    width: 350px;
+    gap:5px;
   }
   
   input[type="range"] {
@@ -139,17 +249,44 @@
   .description {
     margin-bottom: 20px;
   }
+
+  select{
+    flex: 1;
+  }
+
+  .font-style-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    width: 350px;
+    gap:5px;
+  }
+
+  .font-style-container label {
+    margin-right: 10px;
+  }
+
+  .font-style-container select {
+    padding: 5px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+  }
+
   
   button {
-    padding: 10px 20px;
+    padding: 8px 8px;
     background-color: #42b983;
     color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: 10px;
     cursor: pointer;
   }
   
   button:hover {
     background-color: #369f6e;
+  }
+
+  label{
+    margin-right: 10px;
   }
   </style>
