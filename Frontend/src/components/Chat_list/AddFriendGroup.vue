@@ -26,7 +26,7 @@
 </template>
 
 <script>
-import { addFriendGroup, searchFriendGroup } from '@/services/api';
+import { addStranger, searchStrangers } from '@/services/api';
 import SearchBar from '@/components/base/SearchBar.vue';
 export default {
   components: {
@@ -47,10 +47,10 @@ export default {
   },
   methods: {
     async search(query) {
-      this.results = await searchFriendGroup(query);
+      this.results = await searchStrangers(query);
     },
     async add(tid) {
-      await addFriendGroup(tid);
+      await addStranger(tid);
     },
     close() {
       this.$emit('close');

@@ -99,3 +99,7 @@ export const getGroupInfo = (group_id) => {
 export const changeGroupNickname=(group_id, group_nickname)=>{
   return apiClient.post(`/contactList/groups/changeNickname`, {group_id, group_nickname});
 }
+// 搜索群成员
+export const searchGroupMember=(group_id, keyword)=>{
+  return apiClient.post('/contactList/groups/searchMember', {group_id, keyword});
+}

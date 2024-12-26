@@ -71,7 +71,7 @@
 import SearchBar from '@/components/base/SearchBar.vue';
 import ContextMenu from '@/components/base/ContextMenu.vue';
 import * as chatListAPI from '@/services/chatList';
-import { addFriendGroup, createGroup } from '@/services/api';
+import { addStranger, createGroup } from '@/services/api';
 import AddFriendGroup from '@/components/Chat_list/AddFriendGroup.vue';
 import BuildGroup from '@/components/Chat_list/BuildGroup.vue';
 export default {
@@ -319,7 +319,7 @@ export default {
     // 处理添加好友/群聊的逻辑
     async handleAddFriendGroup(key) {
       try {
-        await addFriendGroup(key);
+        await addStranger(key);
         // 添加成功后的逻辑，如提示用户
         alert(`添加成功`);
       } catch (error) {

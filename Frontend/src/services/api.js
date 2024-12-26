@@ -44,12 +44,12 @@ export default apiClient;
     return apiClient.get(`/profileCard/${tid}`, {group_id});
   };
   // 搜索好友/群聊（key可能是id或者昵称）
-  export const searchFriendGroup = (key) => {
-    return apiClient.get('/Stranger/search', { key });  
+  export const searchStrangers = (key) => {
+    return apiClient.post('/Stranger/search', { key });  
   };
   // 添加好友/群聊（id为tid，若为群聊，则为群号）
-  export const addFriendGroup = (id) => {
-    return apiClient.post('/Stranger/add', { id });
+  export const addStranger = (tid) => {
+    return apiClient.post('/Stranger/add', { tid });
   };
   // 新建群聊(tids为成员id列表，其中没有用户自己的)
   export const createGroup = (tids) => {

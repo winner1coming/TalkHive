@@ -10,8 +10,18 @@
     </div>
     <div v-show="componentStatus === 'main'">
       <div>
+        <SearchBar 
+          :isImmidiate="false" 
+          :showButton="false"
+          @search="searchMember" 
+          @button-click="searchMember"/>
         <div class="group-members">
-          <div v-for="member in groupInfo.members" :key="member.account_id" class="member">
+          <div 
+            v-for="member in groupInfo.members" 
+            :key="member.account_id" 
+            class="member"
+            @click="showProfileCard($event, member.account_id)"
+          >
             <img :src="member.avatar" alt="avatar" class="avatar">
             <p class="remark">{{ member.group_nickname.length > this.maxChars ? member.group_nickname.slice(0, this.maxChars)+'...' : member.group_nickname }}</p>
           </div>
@@ -58,26 +68,35 @@
     </div>
     <div v-show="componentStatus === 'history'">
       <p>聊天记录</p>
+      <SearchBar 
+          :isImmidiate="false" 
+          :showButton="false"
+          @search="searchHistory" 
+      />
     </div>
     <div v-show="componentStatus === 'manage'">
       <p>管理员设置</p>
     </div>
   </div>
+  <ProfileCard ref="profileCard" />
 </template>
 
 <script>
 import * as contactListAPI from '@/services/contactList';
 import * as chatListAPI from '@/services/chatList';
+import {getProfileCard} from '@/services/api';
 import { EventBus } from '@/components/base/EventBus';
 import EditableText from '@/components/base/EditableText.vue';
 import SwitchButton from '@/components/base/SwitchButton.vue';
 import { changeGroupNickname } from '../../services/contactList';
 import SearchBar from '@/components/base/SearchBar.vue';
+import ProfileCard from '@/components/base/ProfileCard.vue';
 export default {
   components: {
     EditableText,
     SwitchButton,
     SearchBar,
+    ProfileCard,
   },
   data() {
     return {
@@ -132,6 +151,8 @@ export default {
       },
       newMemberId: '',
       componentStatus: 'main',  // 'main', 'history', 'manage'
+      boundD: null, // 边界的坐标
+      boundR: null, // 边界的坐标
     };
   },
   watch: {
@@ -169,6 +190,39 @@ export default {
         this.hide();
       }else{
         this.componentStatus = 'main';
+      }
+    },
+    async searchMember(key){
+      if(key === ''){
+        this.fetchGroupInfo();
+        return;
+      }
+      try{
+        const response = await contactListAPI.searchGroupMember(key);
+        if(response.status === 200){
+          this.groupInfo.members = response.data;
+        }
+        else{
+          // todo
+        }
+      }
+      catch(error){
+        console.log('search member error:', error);
+      }
+    },
+    async showProfileCard(event, account_id){
+      try{
+        const response = await getProfileCard(account_id);
+        if(response.status === 200){
+          const profile = response.data;
+          this.$refs.profileCard.show(event, profile, this.boundD, this.boundR);
+        }
+        else{
+          // todo
+        }
+      }
+      catch(error){
+        console.log('show profile card error:', error);
       }
     },
     async changeGroupRemark(newRemark){
@@ -300,6 +354,8 @@ export default {
   },
   created(){
     //this.fetchGroupInfo();
+    this.boundD = document.documentElement.clientHeight;
+    this.boundR = document.documentElement.clientWidth;
   },
   mounted() {
     
@@ -311,6 +367,7 @@ export default {
     EventBus.on('close-float-component', (clickedElement) => {
       console.log(clickedElement);
       if (this.visible && !this.$el.contains(clickedElement)) {
+        console.log(this.$el);
         this.hide();
       }
     });
