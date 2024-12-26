@@ -1,6 +1,6 @@
 <template>
   <label class="switch">
-    <input type="checkbox" v-model="checked">
+    <input type="checkbox" v-model="checked" @click="ChangeValue" />
     <span class="slider round"></span>
   </label>
 </template>
@@ -19,8 +19,14 @@ export default {
     };
   },
   watch: {
-    checked(newValue) {
-      this.$emit('update-button', newValue);
+    modelValue(newValue) {
+      this.checked = newValue;
+    },
+    
+  },
+  methods: {
+    ChangeValue() {
+      this.$emit('change-value');  
     }
   }
 };

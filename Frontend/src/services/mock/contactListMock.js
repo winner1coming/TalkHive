@@ -123,7 +123,19 @@ Mock.mock(`${baseURL}/contactList/blackList/add`, 'post', (options) => {
   };
 });
 
-
+// 好友和群聊
+// changeRemark
+Mock.mock(`${baseURL}/contactList/remark`, 'post', (options) => {
+  const { id, remark } = JSON.parse(options.body);
+  const friend = friends.friends.find(friend => friend.account_id === id);
+  if (friend) {
+    friend.remark = remark;
+  }
+  return {
+    status: 200,
+    data: friend,
+  };
+});
 
 let devideList = Mock.mock({
   'devides': {
@@ -191,7 +203,7 @@ let friends = Mock.mock({
       'signature': '@sentence',
       'tag': '@pick(["家人", "朋友", "同事"])',
     }]
-    });
+  });
 Mock.mock(`${baseURL}/contactList/friends`, 'get', () => {
   return friends.friends;
 });
@@ -237,5 +249,38 @@ Mock.mock(new RegExp(`${baseURL}/contactList/groups/\\d+`), 'delete', (options) 
   return {
     status: 200,
     data: groupList,
+  };
+});
+
+let groupInfo = Mock.mock({
+  'groupInfo': {
+    'group_name': '@name',
+    'group_owner': '@id',  // 随机生成群主tid
+    'introduction': '@sentence',  // 随机生成一句话作为介绍
+    'my_group_nickname': '@name',   // 随机生成一个名字作为群昵称
+    'members|10': [
+      {
+        'account_id': '@id',
+        'avatar': '@image("200x200", "#50B347", "#FFF", "Avatar")',
+        'group_role': 'group_owner',
+        'group_nickname': '@name',
+      },
+    ],
+  }
+});
+// 模拟 getGroupInfo 接口
+Mock.mock(new RegExp(`${baseURL}/contactList/groups/groupInfo/\\d+`), 'get', () => {
+  return groupInfo.groupInfo;
+});
+// changeGroupNickname
+Mock.mock(`${baseURL}/contactList/groups/changeNickname`, 'post', (options) => {
+  const { group_id, group_nickname } = JSON.parse(options.body);
+  // const group = groups.groups.find(group => group.account_id === group_id);
+  // if (group) {
+  //   group.remark = group_nickname;
+  // }
+  return {
+    status: 200,
+    
   };
 });

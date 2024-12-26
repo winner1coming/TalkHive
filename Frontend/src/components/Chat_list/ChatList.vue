@@ -137,7 +137,6 @@ export default {
       if(!chats) {
         return chats;
       }
-      console.log(chats);
       // 将置顶的消息排在前面
       return chats.sort((a, b) => {
         const aPinned = a.tags.includes('pinned') ? 1 : 0;
@@ -153,7 +152,8 @@ export default {
     '$store.state.currentChat': {
       handler: function(val) {
         if(val){
-          this.selectChat(val);
+          if(this.selectedChat && val.id!==this.selectedChat.id) this.selectChat(val);
+          this.chats = this.chats.map(chat => chat.id === val.id? val : chat);
         }
       },
       immediate: true,
@@ -162,7 +162,7 @@ export default {
   methods: {
     async fetchChatList() {
       // 从后端获取聊天列表
-      let response = await chatListAPI.getChatList();
+      const response = await chatListAPI.getChatList();
       if(response.status === 200) {
         this.chats = response.data;
       }
@@ -176,6 +176,7 @@ export default {
     },
     // 选中消息，切换到对应的聊天
     async selectChat(chat, tid=null) {
+      console.log("change chat");
       if (!chat) {
         const response = await chatListAPI.getChat(tid);
         chat = response.data;

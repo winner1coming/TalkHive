@@ -175,3 +175,4 @@ Mock.mock(new RegExp(`${baseURL}/messages/\\d+/send`), 'post', (options) => {
     data: newMessage,
   };
 });
+

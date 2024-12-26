@@ -22,7 +22,6 @@
     <!-- 群聊管理弹窗 -->
     <GroupManagement 
       ref="groupManagement"
-      :group="this.$store.state.currentChat" 
       @close="closeGroupManagement"
       @update-group="updateGroupDetails"
     />

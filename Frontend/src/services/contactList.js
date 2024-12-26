@@ -26,6 +26,11 @@ export const groupApplyRequestPend = (account_id, group_id, accept) => {
   return apiClient.post('/contactList/groupRequests/applyPend', { account_id, group_id, accept });
 };
 
+// 好友和群聊
+export const changeRemark = (id, remark)=>{
+  return apiClient.post('/contactList/remark', { id, remark });
+}
+
 // *好友列表
 // 获取好友列表接口
 export const getFriends = () => {
@@ -70,6 +75,7 @@ export const addToBlackList = (account_id) => {
 };
 
 
+// * 群聊
 // 获取群聊列表接口
 export const getGroups = () => {
   return apiClient.get('/contactList/groups');
@@ -84,3 +90,12 @@ export const createGroup = (name) => {
 export const deleteGroup = (group_id) => {
   return apiClient.delete(`/contactList/groups/${group_id}`);
 };
+
+// 获取群聊详细信息
+export const getGroupInfo = (group_id) => {
+  return apiClient.get(`/contactList/groups/groupInfo/${group_id}`);
+};
+// 更改我在群聊内的昵称
+export const changeGroupNickname=(group_id, group_nickname)=>{
+  return apiClient.post(`/contactList/groups/changeNickname`, {group_id, group_nickname});
+}

@@ -2,32 +2,31 @@
   <div v-if="visible" class="group-management">
     <h2>群聊管理</h2>
     <div class="group-members">
-      <div v-for="member in group.members" :key="member.id" class="member">
+      <div v-for="member in groupInfo.members" :key="member.account_id" class="member">
         <img :src="member.avatar" alt="avatar" class="avatar">
-        <p>{{ member.nickname }}</p>
+        <p>{{ member.group_nickname }}</p>
       </div>
     </div>
     <div class="group-info">
-      <p>群聊名称:</p>
-      <EditableText :text="group.name" @update-text="group.name = $event" />  
+      <p>群聊名称:{{groupInfo.group_name  }}</p>
       <p>群介绍:</p>
-      <EditableText :text="group.description" @update-text="group.description = $event" />
+      <p>{{ groupInfo.introduction }}</p>
       <p>群聊备注: </p>
-      <EditableText :text="group.remark" @update-text="group.remark = $event" />
+      <EditableText :text="group_remark" @update-text="changeGroupRemark" />
       <p>我的群昵称: </p>
-      <EditableText :text="group.myNickname" @update-text="myNickname = $event" />
+      <EditableText :text="groupInfo.my_group_nickname" @update-text="changeGroupNickname" />
       <hr class="divider" />
-      <p>是否显示群成员昵称: <SwitchButton v-model="group.showNicknames" /></p>
-      <p>是否消息免打扰: <SwitchButton v-model="group.muteNotifications" /></p>
-      <p>是否屏蔽: <SwitchButton v-model="group.blocked" /></p>
-      <p>是否置顶: <SwitchButton v-model="group.pinned" /></p>
+      <!-- <p>是否显示群成员昵称: <SwitchButton v-model="groupInfo.showNicknames" /></p> -->
+      <p>是否消息免打扰: <SwitchButton v-model="isMute" @change-value="setMute"/></p>
+      <p>是否屏蔽: <SwitchButton v-model="isBlocked" @change-value="setBlock"/></p>
+      <p>是否置顶: <SwitchButton v-model="isPinned" @change-value="setPin"/></p>
       <hr class="divider" />
       <p>聊天记录: <button @click="viewChatHistory">查看</button></p>
       <hr class="divider" />
       <p>管理员设置: <button @click="manageAdmins">设置</button></p>
-      <p>是否全体禁言: <SwitchButton v-model="group.muteAll" /></p>
-      <p>是否可以通过群成员邀请进入: <SwitchButton v-model="group.allowMemberInvite" /></p>
-      <p>是否可以通过群号搜索进入: <SwitchButton v-model="group.allowSearch" /></p>
+      <p>是否全体禁言: <SwitchButton v-model="groupInfo.muteAll" @change-value=""/></p>
+      <p>是否可以通过群成员邀请进入: <SwitchButton v-model="groupInfo.allowMemberInvite" @change-value=""/></p>
+      <p>是否可以通过群号搜索进入: <SwitchButton v-model="groupInfo.allowSearch" @change-value=""/></p>
     </div>
     <div class="group-actions">
       <div>
@@ -41,10 +40,12 @@
 </template>
 
 <script>
-import { getGroups, createGroup, deleteGroup } from '@/services/contactList';
+import * as contactListAPI from '@/services/contactList';
+import * as chatListAPI from '@/services/chatList';
 import { EventBus } from '@/components/base/EventBus';
 import EditableText from '@/components/base/EditableText.vue';
 import SwitchButton from '@/components/base/SwitchButton.vue';
+import { changeGroupNickname } from '../../services/contactList';
 export default {
   components: {
     EditableText,
@@ -53,38 +54,168 @@ export default {
   data() {
     return {
       visible: false,
-      group: {
-        name: '111',
-        id: '111',
-        description: '111',
-        remark: '111',
-        myNickname: 'aa',
+      group_id:'',
+      group_remark:'',
+      isMute: false,
+      isBlocked: false,
+      isPinned: false,
+      // chat的信息
+      // chatInfo:{
+      //   tags: ['mute'],
+      //   name: '111',  // 我的群名备注
+      // },
+      // groupInfo: {
+      //   group_owner: '111',  // 群主tid
+      //   introduction: '111',
+      //   // 入群权限 todo
+        
+      //   my_group_nickname: 'aa',   // 我在本群的群昵称
+      //   members: [
+      //     {
+      //       account_id: '111',
+      //       avatar: 'https://cdn.jsdelivr.net/gh/lin09/dist/img/avatar.jpg',
+      //       group_role: 'group_owner',
+      //       group_nickname: 'aa',
+      //     },
+      //     {
+      //       account_id: '222',
+      //       avatar: 'https://cdn.jsdelivr.net/gh/lin09/dist/img/avatar.jpg',
+      //       group_role: 'group_owner',
+      //       group_nickname: 'bb',
+      //     },
+      //     {
+      //       account_id: '333',
+      //       avatar: 'https://cdn.jsdelivr.net/gh/lin09/dist/img/avatar.jpg',
+      //       group_role: 'group_owner',
+      //       group_nickname: 'cc',
+      //     },
+      //   ],
+      //   // showNicknames: false, 需求没做 todo
+      // },
+      groupInfo:{
+        group_name: '',
+        group_owner: '',  // 群主tid
+        introduction: '',
+        // 入群权限 todo
+        
+        my_group_nickname: '',   // 我在本群的群昵称
         members: [],
-        muteAll: false,
-        allowMemberInvite: false,
-        allowSearch: false,
-        showNicknames: false,
-        muteNotifications: false,
-        blocked: false,
-        pinned: false,
       },
-      
-      newMemberId: ''
+      newMemberId: '',
     };
   },
+  watch: {
+    "$store.state.currentChat": {
+      immediate: true,
+      deep: true,
+      handler(newVal) {
+        if(!newVal) return;
+        this.group_id = newVal.id;
+        this.group_remark = newVal.name;
+        this.isMute = newVal.tags.includes('mute');
+        this.isBlocked = newVal.tags.includes('blocked');
+        this.isPinned = newVal.tags.includes('pinned');
+      }
+    }
+  },
   methods: {
-    show(){
-      this.visible = true;
-      EventBus.emit('float-component-open', this); // 通知其他组件
+    async fetchGroupInfo(){
+      try{
+        const response = await contactListAPI.getGroupInfo(this.group_id);
+        if(response.status === 200){
+          this.groupInfo = response.data;
+        }else{
+          // todo
+          console.log(response.data.message);
+        }
+      }
+      catch(error){
+        console.log('fetch group error:', error);
+      }
+      
     },
-    hide(){
-      this.visible = false;
-      EventBus.emit('hide-float-component'); // 通知其他组件
+    async changeGroupRemark(newRemark){
+      try{
+        const response = await contactListAPI.changeRemark(this.group_id, newRemark);
+        if (response.status === 200) {
+          this.group_remark = newRemark;
+          let chatInfo = { ...this.$store.state.currentChat };
+          chatInfo.name = newRemark;
+          this.$store.dispatch('setChat', chatInfo); // 更新chatList
+        } else {
+          console.log(response.data.message);
+        }
+      }
+      catch(error){
+        console.log('change group remark error:', error)
+      }
+    },
+    async changeGroupNickname(newNickname){
+      try {
+        const response = await contactListAPI.changeGroupNickname(this.group_id, newNickname);
+        if (response.status === 200) {
+          this.groupInfo.my_group_nickname = newNickname;
+        } else {
+          console.log(response.data.message);
+        }
+      } catch (error) {
+        console.log('change group nickname error:', error);
+      }
+    },
+    async setMute(){
+      try{
+        const response = await chatListAPI.setMute(this.group_id, !this.isMute);
+        if(response.status === 200){
+          this.isMute = !this.isMute;
+          let chatInfo = { ...this.$store.state.currentChat };
+          chatInfo.tags = this.isMute ? [...chatInfo.tags, 'mute'] : chatInfo.tags.filter(tag => tag !== 'mute');
+          this.$store.dispatch('setChat',chatInfo); // 更新chatList
+        }else{
+          // todo
+        }
+      }
+      catch(error){
+        // todo  滚动条需要设回去
+        console.error('Failed to set mute:', error);
+      }
+    },
+    async setBlock(){
+      try{
+        const response = await chatListAPI.blockChat(this.group_id, !this.isBlocked);
+        if (response.status === 200) {
+          this.isBlocked = !this.isBlocked;
+          let chatInfo = { ...this.$store.state.currentChat };
+          chatInfo.tags = this.isBlocked ? [...chatInfo.tags, 'blocked'] : chatInfo.tags.filter(tag => tag !== 'blocked');
+          this.$store.dispatch('setChat', chatInfo);  // 更新chatList
+        }else{
+          // todo
+        }
+      }
+      catch(error){
+        // todo
+        
+      }
+    },
+    async setPin() {
+      try {
+        const response = await chatListAPI.pinChat(this.group_id, !this.isPinned);
+        if (response.status === 200) {
+          this.isPinned = !this.isPinned;
+          let chatInfo = { ...this.$store.state.currentChat };
+          chatInfo.tags = this.isPinned ? [...chatInfo.tags, 'pinned'] : chatInfo.tags.filter(tag => tag !== 'pinned');
+          this.$store.dispatch('setChat', chatInfo);  // 更新chatList
+        } else {
+          // todo
+        }
+      } catch (error) {
+        // todo
+        console.error('Failed to set pin:', error);
+      }
     },
     async addMember() {
       try {
-        await addMemberToGroup(this.group.id, this.newMemberId);
-        this.group.members.push({ id: this.newMemberId, name: '新成员' }); // 假设新成员的名字为 '新成员'
+        await addMemberToGroup(this.groupInfo.id, this.newMemberId);
+        this.groupInfo.members.push({ id: this.newMemberId, name: '新成员' }); // 假设新成员的名字为 '新成员'
         this.newMemberId = '';
       } catch (error) {
         console.error('Failed to add member:', error);
@@ -92,16 +223,16 @@ export default {
     },
     async removeMember(memberId) {
       try {
-        await removeMemberFromGroup(this.group.id, memberId);
-        this.group.members = this.group.members.filter(member => member.id !== memberId);
+        await removeMemberFromGroup(this.groupInfo.id, memberId);
+        this.groupInfo.members = this.groupInfo.members.filter(member => member.id !== memberId);
       } catch (error) {
         console.error('Failed to remove member:', error);
       }
     },
     async deleteGroup() {
       try {
-        await deleteGroup(this.group.id);
-        this.$emit('group-deleted', this.group.id);
+        await deleteGroup(this.groupInfo.id);
+        this.$emit('group-deleted', this.groupInfo.id);
         this.hide();
       } catch (error) {
         console.error('Failed to delete group:', error);
@@ -112,9 +243,22 @@ export default {
     },
     manageAdmins() {
       // 管理员设置逻辑
-    }
+    },
+    show(){
+      this.fetchGroupInfo();
+      this.visible = true;
+      EventBus.emit('float-component-open', this); // 通知其他组件
+    },
+    hide(){
+      this.visible = false;
+      EventBus.emit('hide-float-component'); // 通知其他组件
+    },
+  },
+  created(){
+    //this.fetchGroupInfo();
   },
   mounted() {
+    
     EventBus.on('other-float-component', (component) => {
       if (this.visible && component !== this) {
         this.hide();
