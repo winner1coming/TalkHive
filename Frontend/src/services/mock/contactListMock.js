@@ -266,6 +266,7 @@ let groupInfo = Mock.mock({
         'group_nickname': '@name',
       },
     ],
+    'my_group_role': '@pick(["group_owner", "group_manager", "group_ordinary"])',
   }
 });
 // 模拟 getGroupInfo 接口

@@ -1,40 +1,66 @@
 <template>
   <div v-if="visible" class="group-management">
-    <h2>群聊管理</h2>
-    <div class="group-members">
-      <div v-for="member in groupInfo.members" :key="member.account_id" class="member">
-        <img :src="member.avatar" alt="avatar" class="avatar">
-        <p>{{ member.group_nickname }}</p>
-      </div>
+    <div >
+      <button
+        @click="returnTo"
+        class="arrow-button"
+      >
+        <
+      </button>
     </div>
-    <div class="group-info">
-      <p>群聊名称:{{groupInfo.group_name  }}</p>
-      <p>群介绍:</p>
-      <p>{{ groupInfo.introduction }}</p>
-      <p>群聊备注: </p>
-      <EditableText :text="group_remark" @update-text="changeGroupRemark" />
-      <p>我的群昵称: </p>
-      <EditableText :text="groupInfo.my_group_nickname" @update-text="changeGroupNickname" />
-      <hr class="divider" />
-      <!-- <p>是否显示群成员昵称: <SwitchButton v-model="groupInfo.showNicknames" /></p> -->
-      <p>是否消息免打扰: <SwitchButton v-model="isMute" @change-value="setMute"/></p>
-      <p>是否屏蔽: <SwitchButton v-model="isBlocked" @change-value="setBlock"/></p>
-      <p>是否置顶: <SwitchButton v-model="isPinned" @change-value="setPin"/></p>
-      <hr class="divider" />
-      <p>聊天记录: <button @click="viewChatHistory">查看</button></p>
-      <hr class="divider" />
-      <p>管理员设置: <button @click="manageAdmins">设置</button></p>
-      <p>是否全体禁言: <SwitchButton v-model="groupInfo.muteAll" @change-value=""/></p>
-      <p>是否可以通过群成员邀请进入: <SwitchButton v-model="groupInfo.allowMemberInvite" @change-value=""/></p>
-      <p>是否可以通过群号搜索进入: <SwitchButton v-model="groupInfo.allowSearch" @change-value=""/></p>
-    </div>
-    <div class="group-actions">
+    <div v-show="componentStatus === 'main'">
       <div>
-        <input v-model="newMemberId" placeholder="输入成员ID">
-        <button @click="addMember">添加成员</button>
+        <div class="group-members">
+          <div v-for="member in groupInfo.members" :key="member.account_id" class="member">
+            <img :src="member.avatar" alt="avatar" class="avatar">
+            <p class="remark">{{ member.group_nickname.length > this.maxChars ? member.group_nickname.slice(0, this.maxChars)+'...' : member.group_nickname }}</p>
+          </div>
+        </div>
       </div>
-      <button @click="deleteGroup">删除群聊</button>
-      <button @click="hide">关闭</button>
+      
+      <div class="group-info">
+        <p class="title">群聊名称:</p>
+        <p class="detail">{{ groupInfo.group_name }}</p>
+        <p class="title">群介绍:</p>
+        <p class="detail">{{ groupInfo.introduction }}</p>
+        <p class="title">群聊备注: </p>
+        <EditableText class="detail" :text="group_remark" @update-text="changeGroupRemark" />
+        <p class="title">我的群昵称: </p>
+        <EditableText class="detail" :text="groupInfo.my_group_nickname" @update-text="changeGroupNickname" />
+        <hr class="divider" />
+        <!-- <p>是否显示群成员昵称: <SwitchButton v-model="groupInfo.showNicknames" /></p> -->
+        <p class="title">是否消息免打扰: <SwitchButton v-model="isMute" @change-value="setMute"/></p>
+        <p class="title">是否屏蔽: <SwitchButton v-model="isBlocked" @change-value="setBlock"/></p>
+        <p class="title">是否置顶: <SwitchButton v-model="isPinned" @change-value="setPin"/></p>
+        <hr class="divider" />
+        <p class="flex-container" @click="viewChatHistory">
+          <span class="title">聊天记录: </span>
+          <span class="arrow-button" >></span>
+        </p>
+        <hr class="divider" />
+        <p v-show="groupInfo.my_group_role==='group_owner'||groupInfo.my_group_role==='group_manager'" class="flex-container" @click="manageGroups">
+          <span class="title">管理员设置: </span>
+          <span class="arrow-button" >></span>
+        </p>
+        <hr v-show="groupInfo.my_group_role==='group_owner'||groupInfo.my_group_role==='group_manager'" class="divider" />
+        <p>是否全体禁言: <SwitchButton v-model="groupInfo.muteAll" @change-value=""/></p>
+        <p>是否可以通过群成员邀请进入: <SwitchButton v-model="groupInfo.allowMemberInvite" @change-value=""/></p>
+        <p>是否可以通过群号搜索进入: <SwitchButton v-model="groupInfo.allowSearch" @change-value=""/></p>
+      </div>
+      <div class="group-actions">
+        <div>
+          <input v-model="newMemberId" placeholder="输入成员ID">
+          <button @click="addMember">添加成员</button>
+        </div>
+        <button @click="deleteGroup">删除群聊</button>
+        <button @click="hide">关闭</button>
+      </div>
+    </div>
+    <div v-show="componentStatus === 'history'">
+      <p>聊天记录</p>
+    </div>
+    <div v-show="componentStatus === 'manage'">
+      <p>管理员设置</p>
     </div>
   </div>
 </template>
@@ -46,10 +72,12 @@ import { EventBus } from '@/components/base/EventBus';
 import EditableText from '@/components/base/EditableText.vue';
 import SwitchButton from '@/components/base/SwitchButton.vue';
 import { changeGroupNickname } from '../../services/contactList';
+import SearchBar from '@/components/base/SearchBar.vue';
 export default {
   components: {
     EditableText,
-    SwitchButton
+    SwitchButton,
+    SearchBar,
   },
   data() {
     return {
@@ -100,8 +128,10 @@ export default {
         
         my_group_nickname: '',   // 我在本群的群昵称
         members: [],
+        my_group_role:'',
       },
       newMemberId: '',
+      componentStatus: 'main',  // 'main', 'history', 'manage'
     };
   },
   watch: {
@@ -133,6 +163,13 @@ export default {
         console.log('fetch group error:', error);
       }
       
+    },
+    returnTo(){
+      if(this.componentStatus === 'main'){
+        this.hide();
+      }else{
+        this.componentStatus = 'main';
+      }
     },
     async changeGroupRemark(newRemark){
       try{
@@ -239,10 +276,12 @@ export default {
       }
     },
     viewChatHistory() {
-      // 查看聊天记录逻辑
+      // 查看聊天记录
+      this.componentStatus = 'history';
     },
-    manageAdmins() {
-      // 管理员设置逻辑
+    manageGroups() {
+      // 管理员设置
+      this.componentStatus = 'manage';
     },
     show(){
       this.fetchGroupInfo();
@@ -252,6 +291,11 @@ export default {
     hide(){
       this.visible = false;
       EventBus.emit('hide-float-component'); // 通知其他组件
+    },
+  },
+  computed:{
+    maxChars(){  // 可以显示的字体个数
+      return Math.floor(108.0 / parseInt(this.$store.state.settings.fontSize,10)* 0.6);
     },
   },
   created(){
@@ -265,6 +309,7 @@ export default {
       }
     });
     EventBus.on('close-float-component', (clickedElement) => {
+      console.log(clickedElement);
       if (this.visible && !this.$el.contains(clickedElement)) {
         this.hide();
       }
@@ -276,39 +321,71 @@ export default {
 <style scoped src="@/assets/css/chatList.css"></style>
 <style scoped>
 .group-management {
+  width: 200px;
   padding: 20px;
-  background-color: #fff;
+  background-color: #f6f1f1;
   border: 1px solid #ccc;
   border-radius: 5px;
   height: 100%;
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   overflow-y: auto;
+}
+
+.arrow-button {
+  background-color: transparent;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  margin: 0;
+  padding: 0;
 }
 
 .group-members {
   display: flex;
   flex-wrap: wrap;
 }
-
 .member {
-  margin: 10px;
+  margin: 5px;
   text-align: center;
+  width: 35px;
+  height: 75px;
 }
-
+.remark {
+  color: #888;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 0.7rem
+}
 .avatar {
-  width: 50px;
-  height: 50px;
+  width: 35px;
+  height: 35px;
   border-radius: 50%;
 }
+
 
 .group-info {
   margin-top: 20px;
   align-self: flex-start;
 }
-.group-info p {
+.title {
+  color: black;
   text-align: left;
+  font-weight: 500;
 }
+.detail {
+  text-align: left;
+  color: #888;
+}
+
+.flex-container{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .group-actions {
   margin-top: 20px;
   display: flex;
