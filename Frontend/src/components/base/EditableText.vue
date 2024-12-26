@@ -44,6 +44,7 @@ export default {
       });
     },
     saveEdit() {
+      if(!this.isEditing) return;  // 防止被重复调用
       this.isEditing = false;
       this.$emit('update-text', this.editableText);
     }

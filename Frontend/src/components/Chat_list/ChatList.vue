@@ -152,8 +152,8 @@ export default {
     '$store.state.currentChat': {
       handler: function(val) {
         if(val){
-          this.selectChat(val);
-          this.chats = this.chats.filter(chat => chat.id === val.id? val : chat);
+          if(this.selectedChat && val.id!==this.selectedChat.id) this.selectChat(val);
+          this.chats = this.chats.map(chat => chat.id === val.id? val : chat);
         }
       },
       immediate: true,
@@ -162,7 +162,7 @@ export default {
   methods: {
     async fetchChatList() {
       // 从后端获取聊天列表
-      let response = await chatListAPI.getChatList();
+      const response = await chatListAPI.getChatList();
       if(response.status === 200) {
         this.chats = response.data;
       }
@@ -176,6 +176,7 @@ export default {
     },
     // 选中消息，切换到对应的聊天
     async selectChat(chat, tid=null) {
+      console.log("change chat");
       if (!chat) {
         const response = await chatListAPI.getChat(tid);
         chat = response.data;

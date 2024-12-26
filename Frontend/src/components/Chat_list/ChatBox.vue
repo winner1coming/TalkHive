@@ -52,6 +52,7 @@ export default {
       immediate: true,
       handler: function(newVar) {
         if(newVar) {
+          if(this.selectedChat && this.selectedChat.id === newVar.id) return;
           this.selectedChat = newVar;
           this.selectNewChat(newVar.id);
         }
