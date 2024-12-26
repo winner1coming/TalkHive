@@ -70,6 +70,7 @@ export const addToBlackList = (account_id) => {
 };
 
 
+// * 群聊
 // 获取群聊列表接口
 export const getGroups = () => {
   return apiClient.get('/contactList/groups');
@@ -83,4 +84,9 @@ export const createGroup = (name) => {
 // 删除群聊接口
 export const deleteGroup = (group_id) => {
   return apiClient.delete(`/contactList/groups/${group_id}`);
+};
+
+// 获取群聊详细信息
+export const getGroupInfo = (group_id) => {
+  return apiClient.get(`/contactList/groups/${group_id}`);
 };

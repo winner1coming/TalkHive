@@ -137,7 +137,6 @@ export default {
       if(!chats) {
         return chats;
       }
-      console.log(chats);
       // 将置顶的消息排在前面
       return chats.sort((a, b) => {
         const aPinned = a.tags.includes('pinned') ? 1 : 0;
@@ -154,6 +153,7 @@ export default {
       handler: function(val) {
         if(val){
           this.selectChat(val);
+          this.chats = this.chats.filter(chat => chat.id === val.id? val : chat);
         }
       },
       immediate: true,
