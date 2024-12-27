@@ -165,13 +165,13 @@ export default {
           }
         }
         else{
-          this.avatar = '';
+          this.avatar = img;
           this.password='';
         }
       } else {
         this.matchedAccounts = [];
         this.showDropdown = false;
-        this.avatar='';
+        this.avatar=img;
         this.password = '';
       }
     },
