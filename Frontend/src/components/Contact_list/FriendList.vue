@@ -123,7 +123,7 @@ export default {
           this.$root.notify(response.data.message, 'error');
           return;
         }
-        this.tags = response.data.data.divides;
+        this.tags = response.data.divides;
         this.tags.unshift('全部');
       }
       catch(err){

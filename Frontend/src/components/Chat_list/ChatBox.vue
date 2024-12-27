@@ -8,7 +8,7 @@
       </div>
       <div class="chat-name">{{ selectedChat.name }}</div>
       <div style="margin-left: auto;" v-if="selectedChat.tags.includes('group')">
-        <button class="detail-button" @click="clickGroupManagement">···</button>
+        <div class="detail-button" @click="clickGroupManagement">···</div>
       </div>
     </div>
     <!-- 上方的消息历史 -->
@@ -80,7 +80,7 @@ export default {
           this.$root.notify(response.data.message, 'error');
           return;
         }
-        this.messages = response.data.data.messages;
+        this.messages = response.data.data;
         this.$nextTick(() => {
           this.scrollToBottom();
         });
@@ -189,6 +189,7 @@ export default {
     font-weight: bold;
   }
   .detail-button {
+    padding: 15px;
     background-color:transparent;
     border: none;
     cursor: pointer;

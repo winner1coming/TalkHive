@@ -4,23 +4,32 @@
       <h2>加好友/群</h2>
       <SearchBar :isImmidiate="false" @search="search" @button-click="search"/>
       <ul class="items" v-show="results.length">
-      <!-- 每个消息项 -->
-      <li 
-        v-for="result in results" 
-        :key="result.tid"
-      >
-        <div class="avatar">   <!-- 头像-->
-          <img :src="result.avatar" alt="avatar" />
-        </div>
-        <div class="info">   <!-- 信息-->
-          <div class="name">{{ result.nickname }}</div>
-          <div class="remark">{{ result.id }}</div>
-        </div>
-        <div >   
-          <button @click="add(result.tid, result.type)">添加</button>
-        </div>
-      </li>
+        <li 
+          v-for="result in results" 
+          :key="result.tid"
+        >
+          <div class="avatar">   <!-- 头像-->
+            <img :src="result.avatar" alt="avatar" />
+          </div>
+          <div class="info">   <!-- 信息-->
+            <div class="name">{{ result.nickname }}</div>
+            <div class="remark">{{ result.id }}</div>
+          </div>
+          <div >   
+            <button @click="tryAdd(result.tid, result.type)">添加</button>
+          </div>
+        </li>
     </ul>
+    </div>
+  </div>
+  <div class="add-modal" @click.self="close" v-show="isAddVisible">
+    <div class="add-content">
+      <h2>申请理由</h2>
+      <textarea 
+        v-model="reason" 
+        placeholder="输入申请理由.."
+      />
+      <button @click="add(reason)">确认</button>
     </div>
   </div>
 </template>
@@ -44,6 +53,9 @@ export default {
       //   },
       // ],  // 搜索结果
       results: [],
+      isAddVisible: false,
+      tid: '',
+      type: '',
     };
   },
   methods: {
@@ -62,13 +74,18 @@ export default {
       }
       
     },
-    async add(tid, type) {
+    tryAdd(tid, type) {
+      this.tid = tid;
+      this.type = type;
+      this.isAddVisible = true;
+    },
+    async add(reason) {
       try{
         let response;
-        if(type==='group'){
-          response = await contactListAPI.addGroup(tid);
+        if(this.type==='group'){
+          response = await contactListAPI.addGroup(reason, this.tid);
         }else{
-          response = await contactListAPI.addFriend(tid);
+          response = await contactListAPI.addFriend(reason, this.tid);
         }
         if (response.status!==200) {
           this.$root.notify(response.data.message, 'error');
@@ -77,6 +94,7 @@ export default {
       catch (error){
         console.error('Failed to add friend/group',error)
       }
+      this.close();
     },
     close() {
       this.$emit('close');
@@ -110,6 +128,8 @@ export default {
 .items {
   list-style: none;
   padding: 0;
+  max-height: 300px;
+  overflow-y: auto;
 }
 .items li {
   display: flex;
@@ -138,5 +158,37 @@ export default {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.add-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000; /* 确保在最上层 */
+}
+.add-content {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  width: 300px;
+  height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+textarea {
+  margin: 10px;
+  width: 80%;
+  height: 70%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  resize: none;
 }
 </style>
