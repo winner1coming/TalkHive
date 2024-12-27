@@ -82,15 +82,18 @@ export const getGroups = () => {
 };
 
 // 创建群聊接口（未完成）
-export const createGroup = (name) => {
-  return apiClient.post('/contactList/groups/create', { name });
+export const createGroup = (group_name,group_avater,group_description,allow_invite,allow_id_search,allow_name_search) => {
+  return apiClient.post('/contactList/groups/createGroup', { group_name,group_avater,group_description,allow_invite,allow_id_search,allow_name_search });
 };
 
 // 删除群聊接口
 export const deleteGroup = (group_id) => {
   return apiClient.delete(`/contactList/groups/${group_id}`);
 };
-
+// 退出群聊
+export const exitGroup = (group_id) => {
+  return apiClient.post(`/contactList/groups/exit`, { group_id });
+};
 // 获取群聊详细信息
 export const getGroupInfo = (group_id) => {
   return apiClient.get(`/contactList/groups/groupInfo/${group_id}`);
@@ -102,4 +105,12 @@ export const changeGroupNickname=(group_id, group_nickname)=>{
 // 搜索群成员
 export const searchGroupMember=(group_id, keyword)=>{
   return apiClient.post('/contactList/groups/searchMember', {group_id, keyword});
+}
+// 禁言某人
+export const setBanned=(group_id, account_id, is_banned)=>{
+  return apiClient.post('/contactList/groups/banMember',{group_id, account_id, is_banned});
+}
+// 移除某人
+export const removeMember=(group_id, account_id)=>{
+  return apiClient.post('/contactList/groups/removeMember', {group_id, account_id});
 }

@@ -24,6 +24,7 @@
       ref="groupManagement"
       @close="closeGroupManagement"
       @update-group="updateGroupDetails"
+      @group-exited="exitGroup"
     />
   </div>
 </template>
@@ -89,6 +90,10 @@ export default {
       // if (this.selectedChat.id === updatedGroup.id) {
       //   this.selectedChat = updatedGroup;
       // }
+    },
+    exitGroup() {
+      this.$store.dispatch('setChat', null);
+      this.$refs.chatList.fetchChatList();
     },
     handleNewMessage(message) {  // todo！
       // 处理新消息

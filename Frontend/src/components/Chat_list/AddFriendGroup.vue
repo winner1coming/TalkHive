@@ -47,10 +47,30 @@ export default {
   },
   methods: {
     async search(query) {
-      this.results = await searchStrangers(query);
+      if(!query) return;
+      try{
+        const response = await searchStrangers(tid);
+        if (response.status!==200) {
+          console.error('Failed to add friend/group', response.data.message);
+        }else{
+          this.results = response.data;
+        }
+      }
+      catch (error){
+        console.error('Failed to search friend/group',error)
+      }
+      
     },
     async add(tid) {
-      await addStranger(tid);
+      try{
+        const response = await addStranger(tid);
+        if (response.status!==200) {
+          console.error('Failed to add friend/group', response.data.message);
+        }
+      }
+      catch (error){
+        console.error('Failed to add friend/group',error)
+      }
     },
     close() {
       this.$emit('close');

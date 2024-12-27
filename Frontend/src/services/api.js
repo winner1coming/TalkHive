@@ -45,15 +45,11 @@ export default apiClient;
   };
   // 搜索好友/群聊（key可能是id或者昵称）
   export const searchStrangers = (key) => {
-    return apiClient.post('/Stranger/search', { key });  
+    return apiClient.post('/stranger/search', { key });  
   };
   // 添加好友/群聊（id为tid，若为群聊，则为群号）
   export const addStranger = (tid) => {
-    return apiClient.post('/Stranger/add', { tid });
-  };
-  // 新建群聊(tids为成员id列表，其中没有用户自己的)
-  export const createGroup = (tids) => {
-    return apiClient.post('/GroupList/create', { tids });
+    return apiClient.post('/stranger/add', { tid });
   };
 
 

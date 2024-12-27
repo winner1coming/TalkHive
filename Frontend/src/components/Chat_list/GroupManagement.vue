@@ -17,13 +17,24 @@
           @button-click="searchMember"/>
         <div class="group-members">
           <div 
-            v-for="member in groupInfo.members" 
+            v-for="member in displayedMembers" 
             :key="member.account_id" 
             class="member"
-            @click="showProfileCard($event, member.account_id)"
+            @click="showProfileCard($event, member.account_id)" 
+            @contextmenu="showContextMenu($event, member.account_id)"
           >
             <img :src="member.avatar" alt="avatar" class="avatar">
             <p class="remark">{{ member.group_nickname.length > this.maxChars ? member.group_nickname.slice(0, this.maxChars)+'...' : member.group_nickname }}</p>
+          </div>
+          <div v-if="showMoreButton" class="member" @click="showAllMembers">
+            <img src="" alt="plus" class="avatar">
+            <p class="remark">显示更多</p>
+          </div>
+          <div class="member" @click="inviteMember">
+            <div class="avatar add-member">
+              <span>+</span>
+            </div>
+            <p class="remark">邀请新成员</p>
           </div>
         </div>
       </div>
@@ -55,11 +66,7 @@
         <hr v-show="groupInfo.my_group_role==='group_owner'||groupInfo.my_group_role==='group_manager'" class="divider" />
       </div>
       <div class="group-actions">
-        <div>
-          <input v-model="newMemberId" placeholder="输入成员ID">
-          <button @click="addMember">添加成员</button>
-        </div>
-        <button @click="deleteGroup">删除群聊</button>
+        <button @click="exitGroup">退出群聊</button>
         <button @click="hide">关闭</button>
       </div>
     </div>
@@ -70,6 +77,24 @@
           :showButton="false"
           @search="searchHistory" 
       />
+      <div class="history-list">
+        <div
+          v-for="message in filteredHistory"
+          :key="message.message_id"
+          class="message-item"
+        >
+          <div class="message-header">
+            <img :src="message.avatar" alt="avatar" />
+            <div>
+              <p class="message-sender">{{ message.sender }}</p>
+              <p class="message-time">{{ message.create_time }}</p>
+            </div>
+          </div>
+          <div class="message-content">
+            <p class="message-text">{{ message.content }}</p>
+          </div>
+        </div>
+      </div>
     </div>
     <div v-show="componentStatus === 'manage'">
       <p>管理员设置</p>
@@ -83,7 +108,7 @@
         >
           <img :src="member.avatar" alt="avatar" class="avatar">
           <span class="remark">{{ member.group_nickname }}</span>
-          <button @click="removeMember(member.account_id)">解禁</button>
+          <button @click="setBanned(member.account_id, false)">解禁</button>
         </div>
       </div>
       <hr class="divider" />
@@ -95,6 +120,7 @@
       <p class="title">更改群头像<button>上传</button></p>
     </div>
     <ProfileCard ref="profileCard" />
+    <ContextMenu ref="contextMenu" @select-item="handleMenuSelect"/>
   </div>
  
 </template>
@@ -109,12 +135,14 @@ import SwitchButton from '@/components/base/SwitchButton.vue';
 import { changeGroupNickname } from '../../services/contactList';
 import SearchBar from '@/components/base/SearchBar.vue';
 import ProfileCard from '@/components/base/ProfileCard.vue';
+import ContextMenu from '@/components/base/ContextMenu.vue';
 export default {
   components: {
     EditableText,
     SwitchButton,
     SearchBar,
     ProfileCard,
+    ContextMenu,
   },
   data() {
     return {
@@ -124,6 +152,7 @@ export default {
       isMute: false,
       isBlocked: false,
       isPinned: false,
+      showAll:false,
       // chat的信息
       // chatInfo:{
       //   tags: ['mute'],
@@ -170,7 +199,18 @@ export default {
         my_group_role:'',
         members: [],
       },
-      newMemberId: '',
+      history:[
+        {
+          message_id:'1',
+          create_time:'12:20',
+          send_account_id:'1',
+          sender:'Alice',
+          content:'fadaf',
+          type:'text',
+          avatar:'',
+        },
+      ],
+      searchKeyword:'',
       componentStatus: 'main',  // 'main', 'history', 'manage'
       boundD: null, // 边界的坐标
       boundR: null, // 边界的坐标
@@ -327,6 +367,39 @@ export default {
         console.error('Failed to set pin:', error);
       }
     },
+    async setBanned(account_id, is_banned){
+      try {
+        const response = await chatListAPI.setBanned(this.group_id,this.account_id, this.is_banned);
+        if (response.status === 200) {
+          let member = this.groupInfo.members.find(member => member.account_id === account_id);
+          if (member) {
+            member.is_banned = is_banned;
+          }
+        } else {
+          // todo
+        }
+      } catch (error) {
+        // todo
+        console.error('Failed to set pin:', error);
+      }
+    },
+    async exitGroup(){
+      // 退出群聊
+      try{
+        const response = await contactListAPI.exitGroup(this.group_id);
+        if(response.status === 200){
+          this.$emit('group-exited', this.group_id);
+          this.hide();
+        }
+        else{
+          // todo
+          console.log(response.data.message);
+        }
+      }
+      catch(error){
+        console.log('exit group error:', error);
+      }
+    },
     async addMember() {
       try {
         await addMemberToGroup(this.groupInfo.id, this.newMemberId);
@@ -353,9 +426,22 @@ export default {
         console.error('Failed to delete group:', error);
       }
     },
-    viewChatHistory() {
+    async viewChatHistory() {
       // 查看聊天记录
       this.componentStatus = 'history';
+      chatListAPI.getHistory(this.group_id).then(response => {
+        if (response.status === 200) {
+          this.history = response.data;
+        } else {
+          // todo
+          console.log(response.data.message); 
+        }
+      }).catch(error => {
+        console.log('get chat history error:', error);
+      });
+    },
+    searchHistory(keyword){
+      this.searchKeyword = keyword;
     },
     manageGroups() {
       // 管理员设置
@@ -394,6 +480,92 @@ export default {
         console.log('change name permission error:', error);
       }
     },
+    // 右键菜单
+    showContextMenu(event, account_id) {
+      if(account_id === this.groupInfo.group_owner || account_id === this.$store.state.user.id){
+          return;
+      }
+      if(this.groupInfo.members.find(member => member.account_id === account_id).group_role === 'group_manager'){
+        return;
+      }
+      if(this.groupInfo.my_group_role==='group_owner'){
+        let items = ['移除'];
+        if(this.groupInfo.members.find(member => member.account_id === account_id).is_banned){
+          items.unshift('解禁');
+        }else{
+          items.unshift('禁言');
+        }
+        if(this.groupInfo.members.find(member => member.account_id === account_id).group_role === 'group_manager'){
+          items.push('取消管理员');
+        }else{
+          items.push('设为管理员');
+        }
+        items.push('转让群主');
+        this.$refs.contextMenu.show(event, items, account_id, this.boundD, this.boundR);
+      }
+      else if(this.groupInfo.my_group_role==='group_manager'){
+        let items = ['移除'];
+        if(this.groupInfo.members.find(member => member.account_id === account_id).is_banned){
+          items.unshift('解禁');
+        }else{
+          items.unshift('禁言');
+        }
+        this.$refs.contextMenu.show(event, items, account_id, this.boundD, this.boundR);
+      }
+    },
+    async handleMenuSelect(option, account_id){
+      if(option==='禁言'){
+        try{
+          const response = await chatListAPI.setBanned(this.group_id, account_id, true);
+          if(response.status === 200){
+            let member = this.groupInfo.members.find(member => member.account_id === account_id);
+            if(member){
+              member.is_banned = true;
+            }
+          }
+          else{
+            // todo
+            console.log('set banned error:', response.data.message);
+          }
+        }
+        catch(error){
+          console.log('set banned error:', error);
+        }
+      }
+      else if(option==='解禁'){
+        try{
+          const response = await chatListAPI.setBanned(this.group_id, account_id, false);
+          if(response.status === 200){
+            let member = this.groupInfo.members.find(member => member.account_id === account_id);
+            if(member){
+              member.is_banned = false;
+            }
+          }
+          else{
+            console.log('set banned error:', response.data.message);
+          }
+        }
+        catch(error){
+          console.log('set banned error:', error);
+        }
+      }
+      else if(option==='移除'){
+        try{
+          const response = await chatListAPI.removeMember(this.group_id, account_id);
+          if(response.status === 200){
+            this.groupInfo.members = this.groupInfo.members.filter(member => member.account_id !== account_id);
+          }
+          else{
+            console.log('remove member error:', response.data.message);
+          }
+        }
+        catch(error){
+          console.log('remove member error:', error);
+        }
+      }
+    },
+
+    // 显示与隐藏
     show(){
       this.fetchGroupInfo();
       this.visible = true;
@@ -408,6 +580,23 @@ export default {
     maxChars(){  // 可以显示的字体个数
       return Math.floor(108.0 / parseInt(this.$store.state.settings.fontSize,10)* 0.6);
     },
+    filteredHistory(){
+      const keyword = this.searchKeyword;
+      if(!keyword) return this.history;
+      console.log(keyword);
+      return this.history.filter(message => {
+        return (
+          message.sender.includes(keyword) ||
+          message.content.includes(keyword)
+        );
+      });
+    },
+    displayedMembers() {
+      return this.showAll ? this.groupInfo.members : this.groupInfo.members.slice(0, 20);
+    },
+    showMoreButton() {
+      return !this.showAll && this.groupInfo.members.length > 20;
+    },
   },
   created(){
     //this.fetchGroupInfo();
@@ -418,7 +607,6 @@ export default {
     
 
     EventBus.on('close-float-component', (clickedElement) => {
-      console.log(clickedElement);
       if (this.visible && !this.$el.contains(clickedElement)) {
         console.log(this.$el);
         this.hide();
@@ -432,7 +620,7 @@ export default {
 <style scoped>
 .group-management {
   width: 200px;
-  padding: 20px;
+  padding: 10px;
   background-color: #f6f1f1;
   border: 1px solid #ccc;
   border-radius: 5px;
@@ -518,6 +706,48 @@ export default {
   margin: 10px 0;
 }
 
+.history-list {
+  max-height: 500px; 
+  overflow-y: auto;
+  border: 1px solid #e0e0e0; 
+  border-radius: 5px;
+  background-color: #f9f9f9; 
+}
+.message-item {
+  display: flex;
+  align-items: flex-start;
+  border: 1px solid #ccc; 
+  border-radius: 5px; 
+  background-color: #fff; 
+  flex-direction: column;
+}
+.message-header {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #e0e0e0;
+}
+.message-header img {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+.message-content {
+  flex-grow: 1;
+}
+.message-sender {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+.message-text {
+  margin-bottom: 5px;
+}
+.message-time {
+  font-size: 0.8em;
+  color: #888;
+}
+
 .muted-members-list {
   max-height: 300px; 
   overflow-y: auto; 
@@ -525,7 +755,6 @@ export default {
   border-radius: 5px;
   background-color: #f9f9f9; 
 }
-
 .muted-member {
   display: flex;
   align-items: center;
@@ -535,4 +764,11 @@ export default {
   border-radius: 5px; 
   background-color: #fff; 
 }
+.muted-member .avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
 </style>

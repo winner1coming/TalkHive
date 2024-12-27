@@ -2,7 +2,7 @@
   <div class="message-item" >
     <div v-if="this.$store.state.user.id !== message.send_account_id" class="friend-message">
       <div class="avatar">
-        <img :src="avatar" alt="avatar" @click="showProfileCard($event)"/>
+        <img :src="message.avatar" alt="avatar" @click="showProfileCard($event)"/>
       </div>
       <div class="message-content-wrapper">
         <div class="message-header">
@@ -28,7 +28,7 @@
         </div>
       </div>
       <div class="avatar">
-        <img :src="avatar" alt="avatar" @click="showProfileCard($event)"/>
+        <img :src="message.avatar" alt="avatar" @click="showProfileCard($event)"/>
       </div>
     </div>
   </div>
@@ -37,7 +37,7 @@
 <script>
 
 export default {
-  props: ['message', 'avatar'],
+  props: ['message'],
   data() {
     return {
       showMenu: false,
