@@ -50,7 +50,7 @@ export default {
     async search(query) {
       if(!query) return;
       try{
-        const response = await searchStrangers(query);
+        const response = await contactListAPI.searchStrangers(query);
         if (response.status!==200) {
           console.error('Failed to add friend/group', response.data.data.message);
         }else{
