@@ -15,7 +15,7 @@
         </button>
         <button
           :class="{ active: activeComponent === 'SystemSettings' }"
-          @click="setActiveComponent('SystemSettings')"
+          @click="setActiveSystemSetting('SystemSettings')"
         >
           系统设置
         </button>
@@ -41,8 +41,9 @@
   import EditProfile from '@/components/Settings_list/EditProfile.vue';
   import SecuritySettings from '@/components/Settings_list/SecuritySettings.vue';
   import SystemSettings from '@/components/Settings_list/SystemSettings.vue';
-  import {logout} from '@/services/settingView.js';
+  import {logout, getSystemSetting} from '@/services/settingView.js';
   import { mapGetters } from 'vuex';
+import { changeFontstyle, isNotice } from '../services/settingView';
   
   export default {
     components: {
@@ -63,8 +64,29 @@
     },
 
     methods: {
-      setActiveComponent(component) {
+      setActiveComponent(component){
         this.activeComponent = component;
+      },
+      async setActiveSystemSetting(component) {
+        this.activeComponent = component;
+        try{
+          const response = await getSystemSetting();
+          if(response.success){
+            this.store.commit('SET_SETTINGS',{
+              theme:response.data.theme,
+              fontSize:response.data.fontSize,
+              fontStyle:fontStyle,
+              sound:response.data.sound,
+              isNotice: response.data.notice,
+              isNoticeGroup: response.data.noticeGroup,
+              background:response.data.background,
+            });
+          }else{
+            alert(response.message);
+          }
+        }catch(error){
+          alert(error,'获取系统失败，请检查网络')
+        }
       },
       showLogoutConfirmation() {
         this.showConfirmation = true;
@@ -74,9 +96,7 @@
       },
       async confirmLogout() {
         try{
-          const response = await logout({
-            id:this.user.id,
-          });
+          const response = await logout();
           if(response.success){
             alert('已退出登录~');
             this.$router.push('/loginth');

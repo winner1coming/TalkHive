@@ -19,8 +19,10 @@ export default createStore({
       theme: 'light', // 主题颜色
       fontSize: '16px', // 字体大小
       fontStyle: 'Microsoft YaHei', // 字体样式
-      sound:'',
+      sound:'dingdo.mp3',
       background:'',
+      isNotice:true,
+      isNoticeGroup:true,
     },
     links:[],
 
@@ -71,6 +73,14 @@ export default createStore({
 
     SET_SOUND(state,sound){
       state.settings.sound = sound;
+    },
+
+    SET_NOTICE(state, isNotice){
+      state.settings.isNotice = isNotice;
+    },
+
+    SET_GROUPNOTICE(state,isNoticeGroup){
+      state.setting.isNoticeGroup = isNoticeGroup;
     },
 
     SET_BACKGROUND(state,background){
@@ -152,6 +162,8 @@ export default createStore({
       commit('SET_FONTSIZE', settings.fontSize);
       commit('SET_FONTSTYLE',settings.fontStyle);
       commit('SET_SOUND',settings.sound);
+      commit('SET_NOTICE',settings.isNotice);
+      commit('SET_GROUPNOTICE',setting.isNoticeGroup);
       commit('SET_BACKGROUND',settings.background);
     },
 

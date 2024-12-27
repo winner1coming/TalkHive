@@ -4,7 +4,7 @@
     <aside class="sidebar">
       <div class="user-info">
         <img :src="avatar" alt="Avatar" class="avatar" />
-        <span class="nickname">用户昵称</span>
+        <span class="nickname">{{nickname}}</span>
       </div>
       <ul class="nav-links">
         <li><router-link to="/chat">聊天</router-link></li>
@@ -29,12 +29,14 @@
 
 <script>
 import Link from './Link.vue';
+import { logout } from '@/services/settingView';
 export default {
   name: 'Home',
   data() {
     return {
       showDropdown: false,
       avatar: this.$store.state.user.avatar,
+      nickname:this.$store.state.user.username,
     };
   },
   components:{
@@ -44,9 +46,20 @@ export default {
     toggleDropdown() {
       this.showDropdown = !this.showDropdown;
     },
-    logout() {
-      localStorage.removeItem('isLoggedIn');
-      this.$router.push('/login');
+    async logout() {
+      try{
+          const response = await logout();
+          if(response.success){
+            alert('已退出登录~');
+            localStorage.removeItem('isLoggedIn');
+            this.$router.push('/loginth');
+          // 你可以在这里添加退出登录的逻辑
+          }else{
+            alert("退出登录失败，请重试！");
+          }
+        }catch(error){
+          console.error("退出登录失败！");
+      }
     },
   },
 };
