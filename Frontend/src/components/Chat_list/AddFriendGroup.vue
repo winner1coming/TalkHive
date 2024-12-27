@@ -26,7 +26,7 @@
 </template>
 
 <script>
-import { addFriendGroup, searchFriendGroup } from '@/services/api';
+import { addStranger, searchStrangers } from '@/services/api';
 import SearchBar from '@/components/base/SearchBar.vue';
 export default {
   components: {
@@ -47,10 +47,30 @@ export default {
   },
   methods: {
     async search(query) {
-      this.results = await searchFriendGroup(query);
+      if(!query) return;
+      try{
+        const response = await searchStrangers(tid);
+        if (response.status!==200) {
+          console.error('Failed to add friend/group', response.data.message);
+        }else{
+          this.results = response.data;
+        }
+      }
+      catch (error){
+        console.error('Failed to search friend/group',error)
+      }
+      
     },
     async add(tid) {
-      await addFriendGroup(tid);
+      try{
+        const response = await addStranger(tid);
+        if (response.status!==200) {
+          console.error('Failed to add friend/group', response.data.message);
+        }
+      }
+      catch (error){
+        console.error('Failed to add friend/group',error)
+      }
     },
     close() {
       this.$emit('close');

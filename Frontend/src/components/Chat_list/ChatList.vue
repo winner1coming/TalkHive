@@ -54,13 +54,11 @@
     <AddFriendGroup
       v-if="isAddModalVisible"
       @close="isAddModalVisible = false"
-      @add-friend="handleAddFriend"
     />
     <!-- 新建群聊弹窗 -->
     <BuildGroup
       v-if="isBuildModalVisible"
       @close="isBuildModalVisible = false"
-      @build-group="handleBuildGroup"
     />
     <ContextMenu ref="contextMenu"  @select-item="handleMenuSelect" />
   
@@ -71,7 +69,6 @@
 import SearchBar from '@/components/base/SearchBar.vue';
 import ContextMenu from '@/components/base/ContextMenu.vue';
 import * as chatListAPI from '@/services/chatList';
-import { addFriendGroup, createGroup } from '@/services/api';
 import AddFriendGroup from '@/components/Chat_list/AddFriendGroup.vue';
 import BuildGroup from '@/components/Chat_list/BuildGroup.vue';
 export default {
@@ -316,21 +313,21 @@ export default {
       if(this.menuType === 'new') this.handleNewMenu(item);
       if(this.menuType === 'chat') this.handleChatMenu(item, obj);
     },
-    // 处理添加好友/群聊的逻辑
-    async handleAddFriendGroup(key) {
-      try {
-        await addFriendGroup(key);
-        // 添加成功后的逻辑，如提示用户
-        alert(`添加成功`);
-      } catch (error) {
-        console.error('添加失败:', error);
-        alert('添加失败，请重试。');
-      }
-    },
-    // 处理新建群聊的逻辑
-    async handleBuildGroup(tids) {
-      await createGroup(tids);
-    },
+    // // 处理添加好友/群聊的逻辑
+    // async handleAddFriendGroup(key) {
+    //   try {
+    //     await addStranger(key);
+    //     // 添加成功后的逻辑，如提示用户
+    //     alert(`添加成功`);
+    //   } catch (error) {
+    //     console.error('添加失败:', error);
+    //     alert('添加失败，请重试。');
+    //   }
+    // },
+    // // 处理新建群聊的逻辑
+    // async handleBuildGroup(tids) {
+    //   await createGroup(tids);
+    // },
   },
   created () {
     this.fetchChatList();

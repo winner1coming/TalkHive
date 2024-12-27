@@ -16,7 +16,6 @@
       <MessageItem 
         v-for="message in messages" 
         :message="message"
-        :avatar="selectedChat.avatar"
         @show-context-menu="showContextMenu"
         @show-profile-card="showProfileCard"
       />

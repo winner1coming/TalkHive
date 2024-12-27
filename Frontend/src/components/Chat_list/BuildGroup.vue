@@ -2,58 +2,72 @@
   <div class="modal-overlay" @click.self="close">
     <div class="modal-content">
       <div>
-        <SearchBar :isImmidiate="false" @search="search" @button-click="search"/>
-        <ul class="items">
-          <!-- 每个消息项 -->
-          <li 
-            v-for="result in results" 
-            :key="result.tid"
-          >
-            <div class="avatar">   <!-- 头像-->
-              <img :src="result.avatar" alt="avatar" />
-            </div>
-            <div class="info">   <!-- 信息-->
-              <div class="name">{{ result.remark }}</div>
-            </div>
-            <div >   
-              <button @click="">+</button>
-            </div>
-          </li>
-        </ul>
+        <form @submit.prevent="createGroup">
+          <div>
+            <!-- todo 上传头像 -->
+          </div>
+          <div>
+            <p class="title">群聊名称：</p>
+            <textarea 
+              class="group-name" 
+              v-model="group_name" 
+              placeholder="不超过10个字" 
+              maxlength="10"
+              required 
+            />
+          </div>
+          <div>
+            <p class="title">群介绍：</p>
+            <textarea 
+              class="discription" 
+              v-model="group_description" 
+              placeholder="不超过100个字"
+              maxlength="100"
+            />
+          </div>
+          <hr class="divider" />
+          <div>
+              <p class="title">申请入群的方式：</p>
+              <p class="detail" style="margin-left: 15px;">成员邀请: <SwitchButton v-model="allow_invite" @change-value="allow_invite=!allow_invite"/></p>
+              <p class="detail" style="margin-left: 15px;">群号搜索: <SwitchButton v-model="allow_id_search" @change-value="allow_id_search=!allow_id_search"/></p>
+              <p class="detail" style="margin-left: 15px;">群名称搜索: <SwitchButton v-model="allow_name_search" @change-value="allow_name_search!=allow_name_search"/></p>
+          </div>
+          <button type="submit" class="submit-button">创建</button>
+        </form>
       </div>
-    </div>
-    <!-- 已选中部分-->
-    <div>
-      
     </div>
   </div>
 </template>
 
 <script>
-import { addFriendGroup, searchFriendGroup } from '@/services/api';
-import SearchBar from '@/components/base/SearchBar.vue';
+import { createGroup } from '@/services/contactList';
+import SwitchButton from '@/components/base/SwitchButton.vue';
 export default {
-  components: {
-    SearchBar,
-  },
+  components: { SwitchButton },
   data() {
     return {
-      results:[ 
-        {
-          tid: '13872132',   // 若为群聊，则为群号
-          id: '13872132',
-          nickname: 'test',
-          avatar: '',
-        },
-      ],  // 搜索结果
+      group_name: '',
+      group_avater:'',
+      group_description: '',
+      allow_invite: true,
+      allow_id_search: true,
+      allow_name_search: true,
     };
   },
   methods: {
-    async search(query) {
-      this.results = await searchFriendGroup(query);
-    },
-    async add(tid) {
-      await addFriendGroup(tid);
+    async createGroup(){
+      try {
+        // todo 群头像
+        const response = await createGroup(this.group_name,this.group_avater,this.group_description,this.allow_invite,this.allow_id_search,this.allow_name_search);
+        if (response.status===200) {
+          this.$emit('group-created');
+          this.close();
+        } else {
+          console.error('Failed to create group:', response.message);
+        }
+      } catch (error) {
+        console.error('Error creating group:', error);
+      }
     },
     close() {
       this.$emit('close');
@@ -83,36 +97,57 @@ export default {
   width: 300px;
   height: 400px;
 }
-.items {
-  list-style: none;
-  padding: 0;
+
+.group-name {
+  width: 100%;
+  height: 25px;
+  margin-top: 10px;
+  border: 1px solid #e0e0e0;
+  border-radius: 5px;
+  padding: 5px;
+  resize: none;
 }
-.items li {
-  display: flex;
-  align-items: center;
-  padding: 10px;
-  border-bottom: 1px solid #ddd;
-  cursor: pointer;
+.discription {
+  width: 100%;
+  height: 100px;
+  margin-top: 10px;
+  border: 1px solid #e0e0e0;
+  border-radius: 5px;
+  padding: 5px;
+  text-align: start;
+  vertical-align: top;
+  resize: none;
 }
-.avatar img {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
+
+.divider {
+  border: 0;
+  height: 1px;
+  background: #e0e0e0;
+  margin: 10px 0;
 }
-.info {
-  flex: 5;
-  margin-left: 10px;
+.title {
+  color: black;
   text-align: left;
+  font-weight: 500;
 }
-.name{
-  font-weight: bold;
-  font-size: 1.2rem;
-}
-.remark {
-  font-size: 0.8rem;
+.detail {
+  text-align: left;
   color: #888;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
+
+.submit-button{
+  width: 100%;
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: center;
+  margin-top: 20px;
+}
+.submit-button:hover {
+  background-color: #0056b3;
+}
+
 </style>

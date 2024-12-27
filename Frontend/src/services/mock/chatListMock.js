@@ -45,6 +45,7 @@ let messages = Mock.mock({
   'sender': '@name',
   'create_time': '@time("HH:mm")',
   'type': 'text',
+  'avatar':'@image("200x200", "#50B347", "#FFF", "Mock.js")',
   }]
 });
 
@@ -176,3 +177,18 @@ Mock.mock(new RegExp(`${baseURL}/messages/\\d+/send`), 'post', (options) => {
   };
 });
 
+let history = Mock.mock({
+  'history|10-15': [{
+    'message_id': Mock.Random.guid(),
+    'send_account_id': Mock.Random.integer(1, 100),
+    'content': ()=>Mock.Random.csentence(3, 20),
+    'sender': '@name',
+    'create_time': '@time("HH:mm")',
+    'type': 'text',
+    'avatar':'@image("200x200", "#50B347", "#FFF", "Mock.js")',
+  }]
+});
+Mock.mock(`${baseURL}/messages/history`, 'post', (options) => {
+  const tid = parseInt(JSON.parse(options.body).tid);
+  return history.history;
+});
