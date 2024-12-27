@@ -98,13 +98,12 @@
 
 <script>
 import { Register, sendSmsCode } from '@/services/loginth.js'; // 导入注册和发送验证码 API
+import img from '@/assets/images/avatar.jpg';
 
 export default {
-
-
   data() {
     return {
-      avatar:'',
+      avatar:img,
       gender:'',
       id: '',
       nickname: '',
@@ -316,7 +315,12 @@ export default {
       }
 
       this.validateCode();
-      
+      if(!this.file){
+        const response = await fetch(img);
+        const blob = await response.blob();
+        this.file = new File([blob], 'default_avatar.jpg', { type: blob.type });
+      }
+
       try {
         const formData = new FormData();
         formData.append('avatar', this.file);
