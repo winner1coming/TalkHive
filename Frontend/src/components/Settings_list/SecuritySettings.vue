@@ -74,8 +74,7 @@ export default {
   methods: {
     async fetchUserInfo(){
       try{
-        const id = this.user.id;
-        const response = await getUserInfo(id);
+        const response = await getUserInfo();
         if(response.success){
           this.users.ID = this.user.id;
           this.users.email = response.email;
@@ -107,7 +106,7 @@ export default {
     async confirmDeactivate(){
       // 注销账号的逻辑
       try{
-        const response = await confirmDeactivation(this.ID);
+        const response = await confirmDeactivation();
         if(response.success){
           alert('账号已注销');
           this.hideDeactivateConfirmation();

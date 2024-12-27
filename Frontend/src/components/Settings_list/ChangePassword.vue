@@ -74,7 +74,6 @@
 
         try{
           const response = await savePassword({
-            id:this.users.id,
             newpassword:this.newPassword,
           });
           if(response.success){

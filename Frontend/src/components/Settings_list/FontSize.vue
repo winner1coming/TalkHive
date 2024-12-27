@@ -168,11 +168,11 @@
   border-radius: 8px; /* 添加圆角 */
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* 添加阴影 */
   display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    gap:10px
-}
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap:10px
+  }
 
 .set_view{
   display: flex;
