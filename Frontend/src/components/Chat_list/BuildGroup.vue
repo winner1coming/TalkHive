@@ -2,7 +2,7 @@
   <div class="modal-overlay" @click.self="close">
     <div class="modal-content">
       <div>
-        <form @submit.prevent="createGroup">
+        <form @submit.prevent="createNewGroup">
           <!-- 上传头像 -->
           <div class="avatar-container">
             <img class="head-avatar" :src="group_avater" @click="triggerFileInput" />
@@ -72,14 +72,14 @@ export default {
         reader.readAsDataURL(file);
       }
     },
-    async createGroup(){
+    async createNewGroup(){
       try {
         const response = await createGroup(this.group_name,this.group_avater,this.group_description,this.allow_invite,this.allow_id_search,this.allow_name_search);
         if (response.status===200) {
           this.$emit('group-created');
           this.close();
         } else {
-          console.error('Failed to create group:', response.message);
+          this.$root.notify(response.data.message, 'error');
         }
       } catch (error) {
         console.error('Error creating group:', error);

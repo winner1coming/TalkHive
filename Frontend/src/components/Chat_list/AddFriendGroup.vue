@@ -52,7 +52,7 @@ export default {
       try{
         const response = await contactListAPI.searchStrangers(query);
         if (response.status!==200) {
-          console.error('Failed to add friend/group', response.data.data.message);
+          this.$root.notify(response.data.message, 'error');
         }else{
           this.results = response.data.data;
         }
@@ -71,7 +71,7 @@ export default {
           response = await contactListAPI.addFriend(tid);
         }
         if (response.status!==200) {
-          console.error('Failed to add friend/group', response.data.data.message);
+          this.$root.notify(response.data.message, 'error');
         }
       }
       catch (error){
