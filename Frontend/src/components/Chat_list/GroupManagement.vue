@@ -285,10 +285,10 @@ export default {
       try{
         const response = await contactListAPI.getGroupInfo(this.group_id);
         if(response.status === 200){
-          this.groupInfo = response.data;
+          this.groupInfo = response.data.data;
         }else{
           // todo
-          console.log(response.data.message);
+          console.log(response.data.data.message);
         }
       }
       catch(error){
@@ -323,7 +323,7 @@ export default {
       try{
         const response = await getProfileCard(account_id);
         if(response.status === 200){
-          const profile = response.data;
+          const profile = response.data.data;
           this.$refs.profileCard.show(event, profile, this.boundD, this.boundR);
         }
         else{
@@ -347,7 +347,7 @@ export default {
           chatInfo.name = newRemark;
           this.$store.dispatch('setChat', chatInfo); // 更新chatList
         } else {
-          console.log(response.data.message);
+          console.log(response.data.data.message);
         }
       }
       catch(error){
@@ -360,7 +360,7 @@ export default {
         if (response.status === 200) {
           this.groupInfo.my_group_nickname = newNickname;
         } else {
-          console.log(response.data.message);
+          console.log(response.data.data.message);
         }
       } catch (error) {
         console.log('change group nickname error:', error);
@@ -442,7 +442,7 @@ export default {
         }
         else{
           // todo
-          console.log(response.data.message);
+          console.log(response.data.data.message);
         }
       }
       catch(error){
@@ -480,10 +480,10 @@ export default {
       this.componentStatus = 'history';
       chatListAPI.getHistory(this.group_id).then(response => {
         if (response.status === 200) {
-          this.history = response.data;
+          this.history = response.data.data;
         } else {
           // todo
-          console.log(response.data.message); 
+          console.log(response.data.data.message); 
         }
       }).catch(error => {
         console.log('get chat history error:', error);
@@ -574,7 +574,7 @@ export default {
           }
           else{
             // todo
-            console.log('set banned error:', response.data.message);
+            console.log('set banned error:', response.data.data.message);
           }
         }
         catch(error){
@@ -591,7 +591,7 @@ export default {
             }
           }
           else{
-            console.log('set banned error:', response.data.message);
+            console.log('set banned error:', response.data.data.message);
           }
         }
         catch(error){
@@ -605,7 +605,7 @@ export default {
             this.groupInfo.members = this.groupInfo.members.filter(member => member.account_id !== account_id);
           }
           else{
-            console.log('remove member error:', response.data.message);
+            console.log('remove member error:', response.data.data.message);
           }
         }
         catch(error){
@@ -621,7 +621,7 @@ export default {
             }
           }
           else{
-            console.log('set manager error:', response.data.message);
+            console.log('set manager error:', response.data.data.message);
           }
         }
         catch(error){
@@ -637,7 +637,7 @@ export default {
             }
           }
           else{
-            console.log('set manager error:', response.data.message);
+            console.log('set manager error:', response.data.data.message);
           }
         }
         catch(error){
@@ -650,7 +650,7 @@ export default {
             this.groupInfo.group_owner = account_id;
           }
           else{
-            console.log('transfer owner error:', response.data.message);
+            console.log('transfer owner error:', response.data.data.message);
           }
         }
         catch(error){

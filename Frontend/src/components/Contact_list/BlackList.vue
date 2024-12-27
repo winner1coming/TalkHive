@@ -85,11 +85,11 @@ export default {
   methods: {
     async fetchBlackList() {
       const response = await contactListAPI.getBlackList();
-      this.blackList = response.data;
+      this.blackList = response.data.data;
     },
     async showProfileCard(event, send_account_id){
       const response = await getProfileCard(send_account_id); 
-      const profile = response.data;
+      const profile = response.data.data;
       this.$refs.profileCard.show(event, profile, this.boundD, this.boundR);
     },
     async Remove(id) {
@@ -113,7 +113,7 @@ export default {
         this.isBlackListManagementVisible = true;
         this.managementType = 'in';
         const response = await contactListAPI.getFriends();
-        this.managePesons = response.data;
+        this.managePesons = response.data.data;
       }
     },
     async confirmSelection(selectedPersons) {

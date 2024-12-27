@@ -121,16 +121,16 @@ export default {
   methods: {
     async fetchGroups() {
       const response = await contactListAPI.getGroups();
-      this.items = response.data;
+      this.items = response.data.data;
     },
     async fetchTags() {
       const response = await contactListAPI.getDevides('friends');
-      this.tags = response.data.divides;
+      this.tags = response.data.data.divides;
       this.tags.unshift('全部');
     },
     async showProfileCard(event, send_account_id){
       const response = await getProfileCard(send_account_id); 
-      const profile = response.data;
+      const profile = response.data.data;
       this.$refs.profileCard.show(event, profile, this.boundD, this.boundR);
     },
     showContextMenu(event){

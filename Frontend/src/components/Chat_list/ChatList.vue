@@ -165,10 +165,10 @@ export default {
       // 从后端获取聊天列表
       const response = await chatListAPI.getChatList();
       if(response.status === 200) {
-        this.chats = response.data;
+        this.chats = response.data.data;
       }
       else{
-        console.error('获取聊天列表失败:', response.data);
+        console.error('获取聊天列表失败:', response.data.data);
       }
     },
     // 选中tag筛选消息
@@ -180,7 +180,7 @@ export default {
       console.log("change chat");
       if (!chat) {
         const response = await chatListAPI.getChat(tid);
-        chat = response.data;
+        chat = response.data.data;
         this.chats.unshift(chat);
       }
       this.selectedChat = chat;   // todo 滚动到chat

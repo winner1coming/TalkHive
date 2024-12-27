@@ -102,7 +102,7 @@ export default {
   methods: {
     async fetchRequests() {
       const response = await ContactListAPI.getGroupRequests();
-      this.requests = response.data;
+      this.requests = response.data.data;
     },
     async acceptInvitation(accountId,groupId) {
       await ContactListAPI.groupInvitationRequestPend(accountId,groupId, true);

@@ -87,9 +87,9 @@ export default {
       try {
         const response = await contactListAPI.fetchFriendsNotInGroup(this.group_id);
         if (response.status !== 200) {
-          console.error('Failed to fetch friends not in group', response.data.message);
+          console.error('Failed to fetch friends not in group', response.data.data.message);
         } else {
-          this.friends = response.data;
+          this.friends = response.data.data;
         }
       } catch (error) {
         console.error('Failed to fetch friends not in group', error);
@@ -99,7 +99,7 @@ export default {
       try {
         const response = await contactListAPI.inviteMember(this.group_id, friend_id);
         if (response.status !== 200) {
-          console.error('Failed to invite member', response.data.message);
+          console.error('Failed to invite member', response.data.data.message);
         } 
       } catch (error) {
         console.error('Failed to invite member', error);

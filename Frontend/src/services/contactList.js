@@ -1,5 +1,10 @@
 import apiClient from '@/services/api';
 
+  // 搜索好友/群聊（key可能是id或者昵称）
+  export const searchStrangers = (key) => {
+    return apiClient.post('/stranger/search', { key });  
+  };
+
 // 获取好友请求列表接口
 export const getFriendRequests = () => {
   return apiClient.get('/contactList/friendRequests');
