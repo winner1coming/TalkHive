@@ -43,10 +43,7 @@ export default apiClient;
   export const getProfileCard = (tid, group_id=null) => {
     return apiClient.get(`/profileCard/${tid}`, {group_id});
   };
-  // 搜索好友/群聊（key可能是id或者昵称）
-  export const searchStrangers = (key) => {
-    return apiClient.post('/stranger/search', { key });  
-  };
+
   // 添加好友/群聊（id为tid，若为群聊，则为群号）
   export const addStranger = (tid) => {
     return apiClient.post('/stranger/add', { tid });

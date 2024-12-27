@@ -66,9 +66,9 @@ export default {
       try{
         let response;
         if(type==='group'){
-          response = await addGroup(tid);
+          response = await contactListAPI.addGroup(tid);
         }else{
-          response = await addFriend(tid);
+          response = await contactListAPI.addFriend(tid);
         }
         if (response.status!==200) {
           console.error('Failed to add friend/group', response.data.data.message);

@@ -60,7 +60,7 @@ export default {
   methods: {
     async fetchRequests() {
       const response = await contactListAPI.getFriendRequests();
-      this.requests = response.data;
+      this.requests = response.data.data;
       console.log(this.requests);
     },
     async acceptRequest(requestId) {
