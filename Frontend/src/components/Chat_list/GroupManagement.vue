@@ -1,16 +1,16 @@
 <template>
   <div v-if="visible" class="group-management">
-    <div >
-      <button
+    <div style="width: 100%;">
+      <p
         @click="returnTo"
         class="arrow-button"
       >
         <
-      </button>
+      </p>
     </div>
     <!--主页面-->
     <div v-show="componentStatus === 'main'">
-      <div class="search-bar" >
+      <div :class="{'search-bar':true, 'sticky-top':this.showAll}" >
         <input
           type="text"
           v-model="query"
@@ -32,17 +32,20 @@
           <img :src="member.avatar" alt="avatar" class="avatar">
           <p class="remark">{{ member.remark? member.remark : (member.group_nickname?member.group_nickname:member.nickname)}}</p>
         </div>
-        <div v-if="showMoreButton" class="member" @click="showAllMembers">
-          <img src="" alt="plus" class="avatar">
-          <p class="remark">显示更多</p>
-        </div>
+        <!--邀请成员-->
         <div class="member" @click="inviteMember">
           <div>
             <img src="@/assets/images/plus.png" alt="plus" class="avatar">
           </div>
         </div>
       </div>
-      <!--群聊信息-->>
+      <div v-if="showMoreButton" @click="this.showAll = true;">
+        <p class="show-member-hint">显示更多</p>
+      </div>
+      <div v-else @click="this.showAll = false;" class="sticky-bottom">
+        <p class="show-member-hint">收起</p>
+      </div>
+      <!--群聊信息-->
       <div class="group-info">
         <p class="title">群聊名称:</p>
         <p class="detail">{{ groupInfo.group_name }}</p>
@@ -76,7 +79,7 @@
       </div>
     </div>
     <!--搜索群成员-->
-    <div v-show="componentStatus === 'searchMembers'">
+    <div v-show="componentStatus === 'searchMembers'" style="width: 100%;">
       <div class="search-bar" >
         <input
           type="text"
@@ -88,7 +91,7 @@
           ref="searchBar"
         />
       </div>
-      <!--群成员-->
+      <!--群成员列表-->
       <div class="search-members">
         <div 
           v-if="filteredMembers.length !== 0"
@@ -107,7 +110,7 @@
       </div>
     </div>  
     <!--聊天记录-->
-    <div v-show="componentStatus === 'history'">
+    <div v-show="componentStatus === 'history'" style="width: 100%;">
       <p>聊天记录</p>
       <SearchBar 
           :isImmidiate="false" 
@@ -134,7 +137,7 @@
       </div>
     </div>
     <!--管理员设置-->
-    <div v-show="componentStatus === 'manage'">
+    <div v-show="componentStatus === 'manage'" style="width: 100%;">
       <p>管理员设置</p>
       <p class="title">全体禁言: <SwitchButton v-model="groupInfo.muteAll" @change-value=""/></p>
       <p class="detail"> 已禁言的成员：</p>
@@ -334,9 +337,6 @@ export default {
     inviteMember(){
       this.inviteMemberVisible = true;
 
-    },
-    showAllMembers(){
-      this.showAll = true;
     },
     async changeGroupRemark(newRemark){
       try{
@@ -722,7 +722,6 @@ export default {
 <style scoped>
 .group-management {
   width: 300px;
-  padding: 10px;
   background-color: #f6f1f1;
   border: 1px solid #ccc;
   border-radius: 5px;
@@ -740,8 +739,22 @@ export default {
   cursor: pointer;
   margin: 0;
   padding: 0;
+  text-align: left;
 }
 
+/* 固定在首尾 */
+.sticky-top {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: #f6f1f1;
+}
+.sticky-bottom {
+  background-color: #f6f1f1;
+  position: sticky;
+  bottom: 0px;
+  z-index: 10;
+}
 
 .search-bar {
   display: flex;
@@ -775,7 +788,12 @@ export default {
   height: 40px;
   border-radius: 50%;
 }
-
+.show-member-hint {
+  text-align: center;
+  color: #888;
+  cursor: pointer;
+  height: 30px;
+}
 
 .group-info {
   margin-top: 20px;
@@ -785,10 +803,12 @@ export default {
   color: black;
   text-align: left;
   font-weight: 500;
+  padding: 5px;
 }
 .detail {
   text-align: left;
   color: #888;
+  padding: 5px;
 }
 
 .flex-container{
@@ -815,14 +835,16 @@ export default {
 .divider {
   border: 0;
   height: 1px;
+  width: 100%;
   background: #e0e0e0;
   margin: 10px 0;
+
 }
 
 .search-members{
-  flex-direction: flex-start;
   display: flex;
   flex-wrap: wrap;
+  align-content: flex-start;
   height: 600px;
   width: 100%;
   overflow-y: auto;

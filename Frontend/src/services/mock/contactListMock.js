@@ -258,7 +258,7 @@ let groupInfo = Mock.mock({
     'group_owner': '@id',  // 随机生成群主tid
     'introduction':  ()=>Mock.Random.csentence(3, 20),  // 随机生成一句话作为介绍
     'my_group_nickname': '@name',   // 随机生成一个名字作为群昵称
-    'members|30': [
+    'members|50': [
       {
         'account_id': '@id',
         'avatar': '@image("200x200", "#50B347", "#FFF", "Avatar")',
