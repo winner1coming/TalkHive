@@ -7,7 +7,7 @@ let chats = Mock.mock({
     'id|1': /[0-9]{10}/,
     'avatar': '@image("200x200", "#50B347", "#FFF", "Mock.js")',
     'name': '@name',
-    'lastMessage': '@sentence',
+    'lastMessage':  ()=>Mock.Random.csentence(3, 20),
     'lastMessageTime': function() {
       const now = new Date();
       const daysAgo = Math.floor(Math.random() * 7); // 最近7天内
@@ -41,7 +41,7 @@ let messages = Mock.mock({
   'messages|10-15': [{
   'message_id|+1': /[0-9]{10}/,
   'send_account_id|1': ['1','2'],
-  'content': ()=>Mock.Random.csentence(3, 20),
+  'content': ()=>Mock.Random.csentence(3, 30),
   'sender': '@name',
   'create_time': '@time("HH:mm")',
   'type': 'text',
@@ -59,7 +59,7 @@ Mock.mock(`${baseURL}/chatlist/createChat`, 'post', () => {
       'id|1': /[0-9]{10}/,
       'avatar': '@image("200x200", "#50B347", "#FFF", "Mock.js")',
       'name': '@name',
-      'lastMessage': '@sentence',
+      'lastMessage':  ()=>Mock.Random.csentence(3, 20),
       'lastMessageTime': '@time("HH:mm")',
       'unreadCount|0-10': 1,
       'tags': function() {

@@ -23,7 +23,7 @@ let friendRequests = Mock.mock({
   'name': '@name',
   'sender_id|1': /[0-9]{10}/,
   'receiver_id|1': /[0-9]{10}/,
-  'reason': '@sentence',
+  'reason':  ()=>Mock.Random.csentence(3, 20),
   'status': '@pick(["pending", "accepted", "rejected"])',
   'time': '@datetime',
   }]
@@ -38,7 +38,7 @@ let groupRequests = Mock.mock({
   'sender_id|1-100': 1,
   'receiver_id|1-100': 1,
   'group_id|1-100': 1,
-  'reason': '@sentence',
+  'reason':  ()=>Mock.Random.csentence(3, 20),
   'type': '@pick(["groupInvitation", "groupApply", "notification"])',
   'status': '@pick(["pending", "accepted", "rejected", "waiting", "notification"])',
   'time': '@datetime',
@@ -200,7 +200,7 @@ let friends = Mock.mock({
       'remark': '@name',
       'avatar': '@image("200x200", "#50B347", "#FFF", "Mock.js")',
       'status': '@pick(["online", "offline"])',
-      'signature': '@sentence',
+      'signature':  ()=>Mock.Random.csentence(3, 20),
       'tag': '@pick(["家人", "朋友", "同事"])',
     }]
   });
@@ -214,7 +214,7 @@ let groups = Mock.mock({
     'remark': '@name',
     'avatar': '@image("200x200", "#50B347", "#FFF", "Mock.js")',
     'status': '@pick(["online", "offline"])',
-    'signature': '@sentence',
+    'signature':  ()=>Mock.Random.csentence(3, 20),
     'tag': '@pick(["家人", "朋友", "同事"])',
   }]
 });
@@ -229,7 +229,7 @@ Mock.mock(`${baseURL}/contactList/groups/create`, 'post', (options) => {
       'account_id|1': /[0-9]{10}/,
       'remark': name,
       'avatar': '@image("200x200", "#50B347", "#FFF", "Mock.js")',
-      'signature': '@sentence',
+      'signature':  ()=>Mock.Random.csentence(3, 20),
       'tag': '@pick(["家人", "朋友", "同事"])',
     }
   }).group;
@@ -254,16 +254,16 @@ Mock.mock(new RegExp(`${baseURL}/contactList/groups/\\d+`), 'delete', (options) 
 
 let groupInfo = Mock.mock({
   'groupInfo': {
-    'group_name': '@name',
+    'group_name':  ()=>Mock.Random.csentence(3, 10),
     'group_owner': '@id',  // 随机生成群主tid
-    'introduction': '@sentence',  // 随机生成一句话作为介绍
+    'introduction':  ()=>Mock.Random.csentence(3, 20),  // 随机生成一句话作为介绍
     'my_group_nickname': '@name',   // 随机生成一个名字作为群昵称
-    'members|10': [
+    'members|30': [
       {
         'account_id': '@id',
         'avatar': '@image("200x200", "#50B347", "#FFF", "Avatar")',
         'group_role': 'group_owner',
-        'group_nickname': '@name',
+        'group_nickname':  ()=>Mock.Random.csentence(3, 10),
         'is_banned':true,
       },
     ],

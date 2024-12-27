@@ -11,10 +11,11 @@
     <div v-show="componentStatus === 'main'">
       <div>
         <SearchBar 
-          :isImmidiate="false" 
+          :isImmidiate="true" 
           :showButton="false"
           @search="searchMember" 
           @button-click="searchMember"/>
+        <!--群成员-->
         <div class="group-members">
           <div 
             v-for="member in displayedMembers" 
@@ -24,21 +25,20 @@
             @contextmenu="showContextMenu($event, member.account_id)"
           >
             <img :src="member.avatar" alt="avatar" class="avatar">
-            <p class="remark">{{ member.group_nickname.length > this.maxChars ? member.group_nickname.slice(0, this.maxChars)+'...' : member.group_nickname }}</p>
+            <p class="remark">{{ member.remark? member.remark : (member.group_nickname?member.group_nickname:member.nickname)}}</p>
           </div>
           <div v-if="showMoreButton" class="member" @click="showAllMembers">
             <img src="" alt="plus" class="avatar">
             <p class="remark">显示更多</p>
           </div>
           <div class="member" @click="inviteMember">
-            <div class="avatar add-member">
-              <span>+</span>
+            <div>
+              <img src="@/assets/images/plus.png" alt="plus" class="avatar">
             </div>
-            <p class="remark">邀请新成员</p>
           </div>
         </div>
       </div>
-      
+      <!--群聊信息-->>
       <div class="group-info">
         <p class="title">群聊名称:</p>
         <p class="detail">{{ groupInfo.group_name }}</p>
@@ -65,11 +65,13 @@
         </p>
         <hr v-show="groupInfo.my_group_role==='group_owner'||groupInfo.my_group_role==='group_manager'" class="divider" />
       </div>
+      <!--群聊设置-->
       <div class="group-actions">
         <button @click="exitGroup">退出群聊</button>
         <button @click="hide">关闭</button>
       </div>
     </div>
+    <!--聊天记录-->
     <div v-show="componentStatus === 'history'">
       <p>聊天记录</p>
       <SearchBar 
@@ -96,6 +98,7 @@
         </div>
       </div>
     </div>
+    <!--管理员设置-->
     <div v-show="componentStatus === 'manage'">
       <p>管理员设置</p>
       <p class="title">全体禁言: <SwitchButton v-model="groupInfo.muteAll" @change-value=""/></p>
@@ -121,6 +124,7 @@
     </div>
     <ProfileCard ref="profileCard" />
     <ContextMenu ref="contextMenu" @select-item="handleMenuSelect"/>
+    <InviteMember v-show="inviteMemberVisible" @close="inviteMemberVisible=false"/>
   </div>
  
 </template>
@@ -132,10 +136,10 @@ import {getProfileCard} from '@/services/api';
 import { EventBus } from '@/components/base/EventBus';
 import EditableText from '@/components/base/EditableText.vue';
 import SwitchButton from '@/components/base/SwitchButton.vue';
-import { changeGroupNickname } from '../../services/contactList';
 import SearchBar from '@/components/base/SearchBar.vue';
 import ProfileCard from '@/components/base/ProfileCard.vue';
 import ContextMenu from '@/components/base/ContextMenu.vue';
+import InviteMember from '@/components/Chat_list/InviteMember.vue';
 export default {
   components: {
     EditableText,
@@ -143,6 +147,7 @@ export default {
     SearchBar,
     ProfileCard,
     ContextMenu,
+    InviteMember,
   },
   data() {
     return {
@@ -210,8 +215,10 @@ export default {
           avatar:'',
         },
       ],
-      searchKeyword:'',
+      searchHistoryKeyword:'',
+      searchMembersKeyword:'',
       componentStatus: 'main',  // 'main', 'history', 'manage'
+      inviteMemberVisible: false,
       boundD: null, // 边界的坐标
       boundR: null, // 边界的坐标
     };
@@ -256,23 +263,8 @@ export default {
         this.componentStatus = 'main';
       }
     },
-    async searchMember(key){
-      if(key === ''){
-        this.fetchGroupInfo();
-        return;
-      }
-      try{
-        const response = await contactListAPI.searchGroupMember(key);
-        if(response.status === 200){
-          this.groupInfo.members = response.data;
-        }
-        else{
-          // todo
-        }
-      }
-      catch(error){
-        console.log('search member error:', error);
-      }
+    searchMember(key){
+      this.searchMembersKeyword = key;
     },
     async showProfileCard(event, account_id){
       try{
@@ -288,6 +280,13 @@ export default {
       catch(error){
         console.log('show profile card error:', error);
       }
+    },
+    inviteMember(){
+      this.inviteMemberVisible = true;
+
+    },
+    showAllMembers(){
+      this.showAll = true;
     },
     async changeGroupRemark(newRemark){
       try{
@@ -441,7 +440,7 @@ export default {
       });
     },
     searchHistory(keyword){
-      this.searchKeyword = keyword;
+      this.searchHistoryKeyword = keyword;
     },
     manageGroups() {
       // 管理员设置
@@ -562,6 +561,51 @@ export default {
         catch(error){
           console.log('remove member error:', error);
         }
+      }else if(option==='设为管理员'){
+        try{
+          const response = await contactListAPI.setAdmin(this.group_id, account_id, true);
+          if(response.status === 200){
+            let member = this.groupInfo.members.find(member => member.account_id === account_id);
+            if(member){
+              member.group_role = 'group_manager';
+            }
+          }
+          else{
+            console.log('set manager error:', response.data.message);
+          }
+        }
+        catch(error){
+          console.log('set manager error:', error);
+        }
+      }else if(option==='取消管理员'){
+        try{
+          const response = await contactListAPI.setAdmin(this.group_id, account_id, false);
+          if(response.status === 200){
+            let member = this.groupInfo.members.find(member => member.account_id === account_id);
+            if(member){
+              member.group_role = 'group_member';
+            }
+          }
+          else{
+            console.log('set manager error:', response.data.message);
+          }
+        }
+        catch(error){
+          console.log('set manager error:', error);
+        }
+      }else if(option==='转让群主'){
+        try{
+          const response = await contactListAPI.transferOwner(this.group_id, account_id);
+          if(response.status === 200){
+            this.groupInfo.group_owner = account_id;
+          }
+          else{
+            console.log('transfer owner error:', response.data.message);
+          }
+        }
+        catch(error){
+          console.log('transfer owner error:', error);
+        }
       }
     },
 
@@ -573,15 +617,17 @@ export default {
     },
     hide(){
       this.visible = false;
+      this.componentStatus = 'main';
+      this.showAll = false;
       EventBus.emit('hide-float-component'); // 通知其他组件
     },
   },
   computed:{
-    maxChars(){  // 可以显示的字体个数
-      return Math.floor(108.0 / parseInt(this.$store.state.settings.fontSize,10)* 0.6);
-    },
+    // maxChars(){  // 可以显示的字体个数
+    //   return Math.floor(40.0 / parseInt(this.$store.state.settings.fontSize,10) / 0.6);
+    // },
     filteredHistory(){
-      const keyword = this.searchKeyword;
+      const keyword = this.searchHistoryKeyword;
       if(!keyword) return this.history;
       console.log(keyword);
       return this.history.filter(message => {
@@ -589,6 +635,14 @@ export default {
           message.sender.includes(keyword) ||
           message.content.includes(keyword)
         );
+      });
+    },
+    filteredMembers(){
+      const keyword = this.searchMembersKeyword;
+      if(!keyword) return this.groupInfo.members;
+      return this.groupInfo.members.filter(member => {
+        return member.group_nickname.includes(keyword) || member.id.includes(keyword) 
+            || member.remark.includes(keyword) || member.nickname.includes(keyword);
       });
     },
     displayedMembers() {
@@ -604,8 +658,6 @@ export default {
     this.boundR = document.documentElement.clientWidth;
   },
   mounted() {
-    
-
     EventBus.on('close-float-component', (clickedElement) => {
       if (this.visible && !this.$el.contains(clickedElement)) {
         console.log(this.$el);
@@ -619,7 +671,7 @@ export default {
 <style scoped src="@/assets/css/chatList.css"></style>
 <style scoped>
 .group-management {
-  width: 200px;
+  width: 300px;
   padding: 10px;
   background-color: #f6f1f1;
   border: 1px solid #ccc;
@@ -647,19 +699,19 @@ export default {
 .member {
   margin: 5px;
   text-align: center;
-  width: 35px;
-  height: 75px;
+  width: 40px;
+  height: 60px;
 }
 .remark {
   color: #888;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  font-size: 0.7rem
+  font-size: 0.6rem
 }
 .avatar {
-  width: 35px;
-  height: 35px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
 }
 
@@ -728,8 +780,8 @@ export default {
   border-bottom: 1px solid #e0e0e0;
 }
 .message-header img {
-  width: 30px;
-  height: 30px;
+  width: 35px;
+  height: 35px;
   border-radius: 50%;
   margin-right: 10px;
 }

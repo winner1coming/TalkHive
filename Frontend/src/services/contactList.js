@@ -48,7 +48,7 @@ export const createDevide = (type, fd_name) => {   // type: 'friends' or 'groups
 };
 // 删除分组
 export const deleteDevide = (type, fd_name) => {   // type: 'friends' or 'groups'
-  return apiClient.delete(`/contactList/${type}/divides/delete/${fd_name}`);
+  return apiClient.post(`/contactList/${type}/divides/delete`,{ fd_name });
 };
 // 修改分组名称
 export const renameDevide = (type, old_fd_name, new_fd_name) => {   // type: 'friends' or 'groups'
@@ -86,9 +86,9 @@ export const createGroup = (group_name,group_avater,group_description,allow_invi
   return apiClient.post('/contactList/groups/createGroup', { group_name,group_avater,group_description,allow_invite,allow_id_search,allow_name_search });
 };
 
-// 删除群聊接口
-export const deleteGroup = (group_id) => {
-  return apiClient.delete(`/contactList/groups/${group_id}`);
+// 解散群聊接口
+export const dismissGroup = (group_id) => {
+  return apiClient.post(`/contactList/groups/${group_id}`);
 };
 // 退出群聊
 export const exitGroup = (group_id) => {
@@ -102,9 +102,17 @@ export const getGroupInfo = (group_id) => {
 export const changeGroupNickname=(group_id, group_nickname)=>{
   return apiClient.post(`/contactList/groups/changeNickname`, {group_id, group_nickname});
 }
-// 搜索群成员
-export const searchGroupMember=(group_id, keyword)=>{
-  return apiClient.post('/contactList/groups/searchMember', {group_id, keyword});
+// // 搜索群成员
+// export const searchGroupMember=(group_id, keyword)=>{
+//   return apiClient.post('/contactList/groups/searchMember', {group_id, keyword});
+// }
+// 搜索不在群聊内的好友
+export const fetchFriendsNotInGroup=(group_id)=>{
+  return apiClient.post('/contactList/groups/friendsNotInGroup', {group_id});
+}
+// 邀请好友加入群聊
+export const inviteMember=(group_id, account_id)=>{
+  return apiClient.post('/contactList/groups/invite', { account_id,group_id});
 }
 // 禁言某人
 export const setBanned=(group_id, account_id, is_banned)=>{
@@ -113,4 +121,12 @@ export const setBanned=(group_id, account_id, is_banned)=>{
 // 移除某人
 export const removeMember=(group_id, account_id)=>{
   return apiClient.post('/contactList/groups/removeMember', {group_id, account_id});
+}
+// 设为管理员
+export const setAdmin=(group_id, account_id, is_admin)=>{
+  return apiClient.post('/contactList/groups/setAdmin', {group_id, account_id, is_admin});
+}
+// 转让群主
+export const transferOwner=(group_id, account_id)=>{
+  return apiClient.post('/contactList/groups/transferOwner', {group_id, account_id});
 }
