@@ -142,8 +142,7 @@ export default {
     // 从父组件取用户信息
     async fetchProfile() {
       try {
-        const id = this.user.id;
-        const profile = await showProfile(id);
+        const profile = await showProfile();
         if(profile.success){
           this.id = this.user.id;
           this.avatar = this.user.avatar;

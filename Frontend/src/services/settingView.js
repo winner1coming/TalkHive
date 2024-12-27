@@ -2,9 +2,9 @@ import apiClient from '@/services/api';
 
 
   // 获取用户信息接口
-  export const showProfile = async (id) => {
+  export const showProfile = async () => {
     try {
-      const response = await apiClient.get(`/Settings/profile/${id}`);
+      const response = await apiClient.get(`/Settings/profile`);
       return response.data;
     } catch (error) {
       throw error.response?.data.message || error.message;
@@ -22,9 +22,9 @@ import apiClient from '@/services/api';
   };
 
   //获取用户的邮箱（安全设置）
-  export const getUserInfo = async(id)=>{
+  export const getUserInfo = async()=>{
     try{
-      const response = await apiClient.get('/Settings/getInfo',{id});
+      const response = await apiClient.get('/Settings/getInfo');
       return response.data;
 
     }catch(error){
@@ -121,20 +121,59 @@ import apiClient from '@/services/api';
     }
   };
 
+  //开启消息通知
+  export const isNotice = async(data)=>{
+    try{
+      const response = await apiClient.post('/Settings/isNotice',data);
+      return response.data;
+    }catch(error){
+      throw error.response?.data.message || error.message;
+    }
+  };
+
+  //设置群聊通知
+  export const isNoticeGroup = async(data)=>{
+    try{
+      const response = await apiClient.post('/Settings/noticeGroup',data);
+      return response.data;
+    }catch(error){
+      throw error.response?.data.message || error.message;
+    }
+  };
+
+  //更换消息提示音
+  export const changeSound = async(data)=>{
+    try{
+      const response = await apiClient.post('/Settings/changeSound',data);
+      return response.data;
+    }catch(error){
+      throw error.response?.data.message || error.message;
+    }
+  };
+
+  //获取系统设置
+  export const getSystemSetting = async()=>{
+    try{
+      const response = await apiClient.get('/systemSetting');
+      return response.data;
+    }catch(error){
+      throw error.response?.data.message || error.message;
+    }
+  };
 
   //注销账号
-  export const confirmDeactivation = async(id)=>{
+  export const confirmDeactivation = async()=>{
     try{
-      const response = await apiClient.post('/Settings/deactivate',{id});
+      const response = await apiClient.post('/Settings/deactivate');
       return response.data;
     }catch(error){
       throw error.response?.data.message ||error.message;
     }
   };
 
-  export const logout = async(id)=>{
+  export const logout = async()=>{
     try{
-      const response = await apiClient.post('/Logout',{id});
+      const response = await apiClient.post('/Logout');
       return response.data;
     }catch(error){
       throw error.response?.data.message ||error.message;
