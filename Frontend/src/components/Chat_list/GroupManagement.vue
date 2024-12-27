@@ -8,33 +8,37 @@
         <
       </button>
     </div>
+    <!--主页面-->
     <div v-show="componentStatus === 'main'">
-      <div>
-        <SearchBar 
-          :isImmidiate="true" 
-          :showButton="false"
-          @search="searchMember" 
-          @button-click="searchMember"/>
-        <!--群成员-->
-        <div class="group-members">
-          <div 
-            v-for="member in displayedMembers" 
-            :key="member.account_id" 
-            class="member"
-            @click="showProfileCard($event, member.account_id)" 
-            @contextmenu="showContextMenu($event, member.account_id)"
-          >
-            <img :src="member.avatar" alt="avatar" class="avatar">
-            <p class="remark">{{ member.remark? member.remark : (member.group_nickname?member.group_nickname:member.nickname)}}</p>
-          </div>
-          <div v-if="showMoreButton" class="member" @click="showAllMembers">
-            <img src="" alt="plus" class="avatar">
-            <p class="remark">显示更多</p>
-          </div>
-          <div class="member" @click="inviteMember">
-            <div>
-              <img src="@/assets/images/plus.png" alt="plus" class="avatar">
-            </div>
+      <div class="search-bar" >
+        <input
+          type="text"
+          v-model="query"
+          placeholder="搜索群成员..."
+          @compositionstart="isComposing = true"
+          @compositionend="isComposing = false;triggerSearch()"
+          @input="triggerSearch"
+        />
+      </div>
+      <!--群成员-->
+      <div class="group-members">
+        <div 
+          v-for="member in displayedMembers" 
+          :key="member.account_id" 
+          class="member"
+          @click="showProfileCard($event, member.account_id)" 
+          @contextmenu="showContextMenu($event, member.account_id)"
+        >
+          <img :src="member.avatar" alt="avatar" class="avatar">
+          <p class="remark">{{ member.remark? member.remark : (member.group_nickname?member.group_nickname:member.nickname)}}</p>
+        </div>
+        <div v-if="showMoreButton" class="member" @click="showAllMembers">
+          <img src="" alt="plus" class="avatar">
+          <p class="remark">显示更多</p>
+        </div>
+        <div class="member" @click="inviteMember">
+          <div>
+            <img src="@/assets/images/plus.png" alt="plus" class="avatar">
           </div>
         </div>
       </div>
@@ -71,6 +75,37 @@
         <button @click="hide">关闭</button>
       </div>
     </div>
+    <!--搜索群成员-->
+    <div v-show="componentStatus === 'searchMembers'">
+      <div class="search-bar" >
+        <input
+          type="text"
+          v-model="query"
+          placeholder="搜索群成员..."
+          @compositionstart="isComposing = true"
+          @compositionend="isComposing = false;triggerSearch()"
+          @input="triggerSearch"
+          ref="searchBar"
+        />
+      </div>
+      <!--群成员-->
+      <div class="search-members">
+        <div 
+          v-if="filteredMembers.length !== 0"
+          v-for="member in filteredMembers" 
+          :key="member.account_id" 
+          class="member"
+          @click="showProfileCard($event, member.account_id)" 
+          @contextmenu="showContextMenu($event, member.account_id)"
+        >
+          <img :src="member.avatar" alt="avatar" class="avatar">
+          <p class="remark">{{ member.remark? member.remark : (member.group_nickname?member.group_nickname:member.nickname)}}</p>
+        </div>
+        <div v-else class="no-result">
+          <p>无搜索结果</p>
+        </div>
+      </div>
+    </div>  
     <!--聊天记录-->
     <div v-show="componentStatus === 'history'">
       <p>聊天记录</p>
@@ -152,6 +187,8 @@ export default {
   data() {
     return {
       visible: false,
+      query: "", // 搜索关键词
+      isComposing: false, // 是否正在使用输入法输入，防止频繁触发搜索
       group_id:'',
       group_remark:'',
       isMute: false,
@@ -263,9 +300,22 @@ export default {
         this.componentStatus = 'main';
       }
     },
-    searchMember(key){
-      this.searchMembersKeyword = key;
+    // 搜索框
+    triggerSearch() {
+      if (this.isComposing) return; // 正在输入中，不触发搜索
+      if(this.query === ''){
+        this.componentStatus = 'main';
+      }else if(this.componentStatus === 'main'){
+        this.componentStatus = 'searchMembers';
+        this.$nextTick(() => {
+          this.$refs.searchBar.focus();
+        });
+      }
+      this.searchMembersKeyword = this.query;
     },
+    // searchMember(key){
+    //   this.searchMembersKeyword = key;
+    // },
     async showProfileCard(event, account_id){
       try{
         const response = await getProfileCard(account_id);
@@ -692,6 +742,17 @@ export default {
   padding: 0;
 }
 
+
+.search-bar {
+  display: flex;
+  padding: 10px;
+}
+.search-bar input {
+  flex: 1;
+  padding: 5px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
 .group-members {
   display: flex;
   flex-wrap: wrap;
@@ -756,6 +817,19 @@ export default {
   height: 1px;
   background: #e0e0e0;
   margin: 10px 0;
+}
+
+.search-members{
+  flex-direction: flex-start;
+  display: flex;
+  flex-wrap: wrap;
+  height: 600px;
+  width: 100%;
+  overflow-y: auto;
+}
+.no-result {
+  text-align: center;
+  color: #888;
 }
 
 .history-list {
