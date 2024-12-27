@@ -1,44 +1,51 @@
 <template>
   <div v-if="visible" class="group-management">
-    <div >
-      <button
+    <div style="width: 100%;">
+      <p
         @click="returnTo"
         class="arrow-button"
       >
         <
-      </button>
+      </p>
     </div>
+    <!--主页面-->
     <div v-show="componentStatus === 'main'">
-      <div>
-        <SearchBar 
-          :isImmidiate="false" 
-          :showButton="false"
-          @search="searchMember" 
-          @button-click="searchMember"/>
-        <div class="group-members">
-          <div 
-            v-for="member in displayedMembers" 
-            :key="member.account_id" 
-            class="member"
-            @click="showProfileCard($event, member.account_id)" 
-            @contextmenu="showContextMenu($event, member.account_id)"
-          >
-            <img :src="member.avatar" alt="avatar" class="avatar">
-            <p class="remark">{{ member.group_nickname.length > this.maxChars ? member.group_nickname.slice(0, this.maxChars)+'...' : member.group_nickname }}</p>
-          </div>
-          <div v-if="showMoreButton" class="member" @click="showAllMembers">
-            <img src="" alt="plus" class="avatar">
-            <p class="remark">显示更多</p>
-          </div>
-          <div class="member" @click="inviteMember">
-            <div class="avatar add-member">
-              <span>+</span>
-            </div>
-            <p class="remark">邀请新成员</p>
+      <div :class="{'search-bar':true, 'sticky-top':this.showAll}" >
+        <input
+          type="text"
+          v-model="query"
+          placeholder="搜索群成员..."
+          @compositionstart="isComposing = true"
+          @compositionend="isComposing = false;triggerSearch()"
+          @input="triggerSearch"
+        />
+      </div>
+      <!--群成员-->
+      <div class="group-members">
+        <div 
+          v-for="member in displayedMembers" 
+          :key="member.account_id" 
+          class="member"
+          @click="showProfileCard($event, member.account_id)" 
+          @contextmenu="showContextMenu($event, member.account_id)"
+        >
+          <img :src="member.avatar" alt="avatar" class="avatar">
+          <p class="remark">{{ member.remark? member.remark : (member.group_nickname?member.group_nickname:member.nickname)}}</p>
+        </div>
+        <!--邀请成员-->
+        <div class="member" @click="inviteMember">
+          <div>
+            <img src="@/assets/images/plus.png" alt="plus" class="avatar">
           </div>
         </div>
       </div>
-      
+      <div v-if="showMoreButton" @click="this.showAll = true;">
+        <p class="show-member-hint">显示更多</p>
+      </div>
+      <div v-else @click="this.showAll = false;" class="sticky-bottom">
+        <p class="show-member-hint">收起</p>
+      </div>
+      <!--群聊信息-->
       <div class="group-info">
         <p class="title">群聊名称:</p>
         <p class="detail">{{ groupInfo.group_name }}</p>
@@ -65,12 +72,45 @@
         </p>
         <hr v-show="groupInfo.my_group_role==='group_owner'||groupInfo.my_group_role==='group_manager'" class="divider" />
       </div>
+      <!--群聊设置-->
       <div class="group-actions">
         <button @click="exitGroup">退出群聊</button>
         <button @click="hide">关闭</button>
       </div>
     </div>
-    <div v-show="componentStatus === 'history'">
+    <!--搜索群成员-->
+    <div v-show="componentStatus === 'searchMembers'" style="width: 100%;">
+      <div class="search-bar" >
+        <input
+          type="text"
+          v-model="query"
+          placeholder="搜索群成员..."
+          @compositionstart="isComposing = true"
+          @compositionend="isComposing = false;triggerSearch()"
+          @input="triggerSearch"
+          ref="searchBar"
+        />
+      </div>
+      <!--群成员列表-->
+      <div class="search-members">
+        <div 
+          v-if="filteredMembers.length !== 0"
+          v-for="member in filteredMembers" 
+          :key="member.account_id" 
+          class="member"
+          @click="showProfileCard($event, member.account_id)" 
+          @contextmenu="showContextMenu($event, member.account_id)"
+        >
+          <img :src="member.avatar" alt="avatar" class="avatar">
+          <p class="remark">{{ member.remark? member.remark : (member.group_nickname?member.group_nickname:member.nickname)}}</p>
+        </div>
+        <div v-else class="no-result">
+          <p>无搜索结果</p>
+        </div>
+      </div>
+    </div>  
+    <!--聊天记录-->
+    <div v-show="componentStatus === 'history'" style="width: 100%;">
       <p>聊天记录</p>
       <SearchBar 
           :isImmidiate="false" 
@@ -96,7 +136,8 @@
         </div>
       </div>
     </div>
-    <div v-show="componentStatus === 'manage'">
+    <!--管理员设置-->
+    <div v-show="componentStatus === 'manage'" style="width: 100%;">
       <p>管理员设置</p>
       <p class="title">全体禁言: <SwitchButton v-model="groupInfo.muteAll" @change-value=""/></p>
       <p class="detail"> 已禁言的成员：</p>
@@ -121,6 +162,7 @@
     </div>
     <ProfileCard ref="profileCard" />
     <ContextMenu ref="contextMenu" @select-item="handleMenuSelect"/>
+    <InviteMember v-show="inviteMemberVisible" @close="inviteMemberVisible=false"/>
   </div>
  
 </template>
@@ -132,10 +174,10 @@ import {getProfileCard} from '@/services/api';
 import { EventBus } from '@/components/base/EventBus';
 import EditableText from '@/components/base/EditableText.vue';
 import SwitchButton from '@/components/base/SwitchButton.vue';
-import { changeGroupNickname } from '../../services/contactList';
 import SearchBar from '@/components/base/SearchBar.vue';
 import ProfileCard from '@/components/base/ProfileCard.vue';
 import ContextMenu from '@/components/base/ContextMenu.vue';
+import InviteMember from '@/components/Chat_list/InviteMember.vue';
 export default {
   components: {
     EditableText,
@@ -143,10 +185,13 @@ export default {
     SearchBar,
     ProfileCard,
     ContextMenu,
+    InviteMember,
   },
   data() {
     return {
       visible: false,
+      query: "", // 搜索关键词
+      isComposing: false, // 是否正在使用输入法输入，防止频繁触发搜索
       group_id:'',
       group_remark:'',
       isMute: false,
@@ -210,8 +255,10 @@ export default {
           avatar:'',
         },
       ],
-      searchKeyword:'',
+      searchHistoryKeyword:'',
+      searchMembersKeyword:'',
       componentStatus: 'main',  // 'main', 'history', 'manage'
+      inviteMemberVisible: false,
       boundD: null, // 边界的坐标
       boundR: null, // 边界的坐标
     };
@@ -256,24 +303,22 @@ export default {
         this.componentStatus = 'main';
       }
     },
-    async searchMember(key){
-      if(key === ''){
-        this.fetchGroupInfo();
-        return;
+    // 搜索框
+    triggerSearch() {
+      if (this.isComposing) return; // 正在输入中，不触发搜索
+      if(this.query === ''){
+        this.componentStatus = 'main';
+      }else if(this.componentStatus === 'main'){
+        this.componentStatus = 'searchMembers';
+        this.$nextTick(() => {
+          this.$refs.searchBar.focus();
+        });
       }
-      try{
-        const response = await contactListAPI.searchGroupMember(key);
-        if(response.status === 200){
-          this.groupInfo.members = response.data;
-        }
-        else{
-          // todo
-        }
-      }
-      catch(error){
-        console.log('search member error:', error);
-      }
+      this.searchMembersKeyword = this.query;
     },
+    // searchMember(key){
+    //   this.searchMembersKeyword = key;
+    // },
     async showProfileCard(event, account_id){
       try{
         const response = await getProfileCard(account_id);
@@ -288,6 +333,10 @@ export default {
       catch(error){
         console.log('show profile card error:', error);
       }
+    },
+    inviteMember(){
+      this.inviteMemberVisible = true;
+
     },
     async changeGroupRemark(newRemark){
       try{
@@ -441,7 +490,7 @@ export default {
       });
     },
     searchHistory(keyword){
-      this.searchKeyword = keyword;
+      this.searchHistoryKeyword = keyword;
     },
     manageGroups() {
       // 管理员设置
@@ -562,6 +611,51 @@ export default {
         catch(error){
           console.log('remove member error:', error);
         }
+      }else if(option==='设为管理员'){
+        try{
+          const response = await contactListAPI.setAdmin(this.group_id, account_id, true);
+          if(response.status === 200){
+            let member = this.groupInfo.members.find(member => member.account_id === account_id);
+            if(member){
+              member.group_role = 'group_manager';
+            }
+          }
+          else{
+            console.log('set manager error:', response.data.message);
+          }
+        }
+        catch(error){
+          console.log('set manager error:', error);
+        }
+      }else if(option==='取消管理员'){
+        try{
+          const response = await contactListAPI.setAdmin(this.group_id, account_id, false);
+          if(response.status === 200){
+            let member = this.groupInfo.members.find(member => member.account_id === account_id);
+            if(member){
+              member.group_role = 'group_member';
+            }
+          }
+          else{
+            console.log('set manager error:', response.data.message);
+          }
+        }
+        catch(error){
+          console.log('set manager error:', error);
+        }
+      }else if(option==='转让群主'){
+        try{
+          const response = await contactListAPI.transferOwner(this.group_id, account_id);
+          if(response.status === 200){
+            this.groupInfo.group_owner = account_id;
+          }
+          else{
+            console.log('transfer owner error:', response.data.message);
+          }
+        }
+        catch(error){
+          console.log('transfer owner error:', error);
+        }
       }
     },
 
@@ -573,15 +667,17 @@ export default {
     },
     hide(){
       this.visible = false;
+      this.componentStatus = 'main';
+      this.showAll = false;
       EventBus.emit('hide-float-component'); // 通知其他组件
     },
   },
   computed:{
-    maxChars(){  // 可以显示的字体个数
-      return Math.floor(108.0 / parseInt(this.$store.state.settings.fontSize,10)* 0.6);
-    },
+    // maxChars(){  // 可以显示的字体个数
+    //   return Math.floor(40.0 / parseInt(this.$store.state.settings.fontSize,10) / 0.6);
+    // },
     filteredHistory(){
-      const keyword = this.searchKeyword;
+      const keyword = this.searchHistoryKeyword;
       if(!keyword) return this.history;
       console.log(keyword);
       return this.history.filter(message => {
@@ -589,6 +685,14 @@ export default {
           message.sender.includes(keyword) ||
           message.content.includes(keyword)
         );
+      });
+    },
+    filteredMembers(){
+      const keyword = this.searchMembersKeyword;
+      if(!keyword) return this.groupInfo.members;
+      return this.groupInfo.members.filter(member => {
+        return member.group_nickname.includes(keyword) || member.id.includes(keyword) 
+            || member.remark.includes(keyword) || member.nickname.includes(keyword);
       });
     },
     displayedMembers() {
@@ -604,8 +708,6 @@ export default {
     this.boundR = document.documentElement.clientWidth;
   },
   mounted() {
-    
-
     EventBus.on('close-float-component', (clickedElement) => {
       if (this.visible && !this.$el.contains(clickedElement)) {
         console.log(this.$el);
@@ -619,8 +721,7 @@ export default {
 <style scoped src="@/assets/css/chatList.css"></style>
 <style scoped>
 .group-management {
-  width: 200px;
-  padding: 10px;
+  width: 300px;
   background-color: #f6f1f1;
   border: 1px solid #ccc;
   border-radius: 5px;
@@ -638,8 +739,33 @@ export default {
   cursor: pointer;
   margin: 0;
   padding: 0;
+  text-align: left;
 }
 
+/* 固定在首尾 */
+.sticky-top {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: #f6f1f1;
+}
+.sticky-bottom {
+  background-color: #f6f1f1;
+  position: sticky;
+  bottom: 0px;
+  z-index: 10;
+}
+
+.search-bar {
+  display: flex;
+  padding: 10px;
+}
+.search-bar input {
+  flex: 1;
+  padding: 5px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
 .group-members {
   display: flex;
   flex-wrap: wrap;
@@ -647,22 +773,27 @@ export default {
 .member {
   margin: 5px;
   text-align: center;
-  width: 35px;
-  height: 75px;
+  width: 40px;
+  height: 60px;
 }
 .remark {
   color: #888;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  font-size: 0.7rem
+  font-size: 0.6rem
 }
 .avatar {
-  width: 35px;
-  height: 35px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
 }
-
+.show-member-hint {
+  text-align: center;
+  color: #888;
+  cursor: pointer;
+  height: 30px;
+}
 
 .group-info {
   margin-top: 20px;
@@ -672,10 +803,12 @@ export default {
   color: black;
   text-align: left;
   font-weight: 500;
+  padding: 5px;
 }
 .detail {
   text-align: left;
   color: #888;
+  padding: 5px;
 }
 
 .flex-container{
@@ -702,8 +835,23 @@ export default {
 .divider {
   border: 0;
   height: 1px;
+  width: 100%;
   background: #e0e0e0;
   margin: 10px 0;
+
+}
+
+.search-members{
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  height: 600px;
+  width: 100%;
+  overflow-y: auto;
+}
+.no-result {
+  text-align: center;
+  color: #888;
 }
 
 .history-list {
@@ -728,8 +876,8 @@ export default {
   border-bottom: 1px solid #e0e0e0;
 }
 .message-header img {
-  width: 30px;
-  height: 30px;
+  width: 35px;
+  height: 35px;
   border-radius: 50%;
   margin-right: 10px;
 }

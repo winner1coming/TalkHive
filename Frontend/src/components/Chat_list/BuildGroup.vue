@@ -3,8 +3,10 @@
     <div class="modal-content">
       <div>
         <form @submit.prevent="createGroup">
-          <div>
-            <!-- todo 上传头像 -->
+          <!-- 上传头像 -->
+          <div class="avatar-container">
+            <img class="head-avatar" :src="group_avater" @click="triggerFileInput" />
+            <input type="file" ref="fileInput" style="display: none;" @change="handleFileChange" accept="image/*" />
           </div>
           <div>
             <p class="title">群聊名称：</p>
@@ -55,9 +57,23 @@ export default {
     };
   },
   methods: {
+    // 触发文件输入
+    triggerFileInput() {
+      this.$refs.fileInput.click();
+    },
+    // 处理文件选择
+    handleFileChange(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          this.group_avater = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    },
     async createGroup(){
       try {
-        // todo 群头像
         const response = await createGroup(this.group_name,this.group_avater,this.group_description,this.allow_invite,this.allow_id_search,this.allow_name_search);
         if (response.status===200) {
           this.$emit('group-created');
@@ -95,9 +111,22 @@ export default {
   padding: 20px;
   border-radius: 8px;
   width: 300px;
-  height: 400px;
+  height: 500px;
 }
 
+.avatar-container {
+  position: relative;
+  cursor: pointer;
+}
+.head-avatar {
+  width: 80px;
+  height: 80px;
+  margin-top: 10px;
+  margin-bottom: 20px;
+  margin-left: 10px;
+  border-radius: 100%;
+  cursor: pointer;
+}
 .group-name {
   width: 100%;
   height: 25px;

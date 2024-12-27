@@ -1,6 +1,7 @@
 <template>
   <!-- 应用的根元素 -->
   <div id="app" :class="themeClass" :style="rootStyle">
+      <Notification ref="notification" />
       <!-- 路由视图，用于渲染当前路由对应的组件 -->
       <router-view></router-view>
   </div>
@@ -9,10 +10,14 @@
 <script>
 import { mapActions } from 'vuex';
 import { EventBus } from '@/components/base/EventBus';
+import Notification from '@/components/base/Notification.vue';
 import { mapGetters } from 'vuex/dist/vuex.cjs.js';
 export default {
   // 组件名称
   name: 'App',
+  components: {
+    Notification,
+  },
   mounted() {
     window.addEventListener('beforeunload', this.saveState);
   },
@@ -93,6 +98,11 @@ export default {
           return '#ffffff';
       }
     },
+    // 通知
+    notify(message, type) {
+      this.$refs.notification.show(message, type);
+    },
+    // 点击事件
     hideClick(event) {
       const clickedElement = event.target;
       if(this.$store.hasFloatComponent){

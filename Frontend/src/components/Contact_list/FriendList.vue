@@ -75,7 +75,6 @@ export default {
   data() {
     return {
       type: 'friendList',  // friendList, groupList
-      tags: ['家人', '朋友', '同事'],
       tags: [],  // 从后端获取
       // items: [
       //   {
@@ -111,6 +110,7 @@ export default {
     async fetchTags() {
       const response = await contactListAPI.getDevides('friends');
       this.tags = response.data.divides;
+      this.tags.unshift('全部');
     },
     async showProfileCard(event, send_account_id){
       const response = await getProfileCard(send_account_id); 
