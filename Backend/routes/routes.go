@@ -14,6 +14,9 @@ func SetupRoutes(r *gin.Engine) {
 	r.POST("/sendSmsCode", controllers.SendSmsCode)
 	r.POST("/smslogin", controllers.SmsLogin)
 
+	// 添加、搜索好友
+	r.POST("/stranger/search", controllers.SearchStrangers)
+
 	//好友请求部分
 	r.GET("/contactList/friendRequests", controllers.GetFriendRequests)
 	r.POST("/contactList/friendRequests/pend", controllers.FriendRequestPend)
@@ -23,6 +26,7 @@ func SetupRoutes(r *gin.Engine) {
 	r.GET("/contactList/groupRequests", controllers.GetGroupRequests)
 	r.POST("/contactList/groupRequests/applyPend", controllers.DealGroupApplyRequest)
 	r.POST("/contactList/groupRequests/invitePend", controllers.DealGroupInviteRequest)
+	r.POST("/contactList/groupRequests/addGroup", controllers.AddGroup)
 
 	//黑名单部分
 	r.GET("/contactList/blackList", controllers.GetBlackList)
@@ -42,10 +46,16 @@ func SetupRoutes(r *gin.Engine) {
 	// 群聊部分
 	r.GET("/contactList/groups", controllers.GetGroups)
 	r.POST("/contactList/createGroup", controllers.CreateGroup)
+	r.POST("/contactList/group/dismissGroup", controllers.DisMissGroup)
+	r.POST("/contactList/groups/friendsNotInGroup", controllers.FetchFriendsNotInGroup)
 	r.POST("/contactList/group/invite", controllers.Invite)
 	r.POST("/contactList/group/quit", controllers.Quit)
-	r.POST("/contactList/group/dismissGroup", controllers.DisMissGroup)
 	r.GET("/contactList/group/{group_id}", controllers.GetGroupInfo)
+	r.POST("/contactList/groups/changeNickname", controllers.ChangeNickname)
+	r.POST("/contactList/groups/banMember", controllers.SetBanned)
+	r.POST("/contactList/groups/removeMember", controllers.RemoveMember)
+	r.POST("/contactList/groups/setAdmin", controllers.SetAdmin)
+	r.POST("/contactList/groups/transferOwner", controllers.TransferOwner)
 
 	// 资料卡片
 	r.GET("/contactList/card", controllers.GetProfileCard)
