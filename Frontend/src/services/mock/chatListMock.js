@@ -50,8 +50,9 @@ let messages = Mock.mock({
 });
 
 Mock.mock(`${baseURL}/chatlist`, 'get', () => {
-
-  return chats.chats;   // 失败时返回 reason: 失败原因
+  return {
+    data: chats.chats
+  };
 });
 Mock.mock(`${baseURL}/chatlist/createChat`, 'post', () => {
   const chat = Mock.mock({
@@ -69,7 +70,9 @@ Mock.mock(`${baseURL}/chatlist/createChat`, 'post', () => {
       },
     }
   });
-  return chat.chat;
+  return {
+    data: chat.chat
+  };
 });
 Mock.mock(new RegExp(`${baseURL}/chatlist/search/\\w+`), 'get', (options) => {
   const keyword = options.url.split('/').pop();
@@ -156,7 +159,7 @@ Mock.mock(new RegExp(`${baseURL}/messages/\\d+`), 'get', (options) => {
   const tid = parseInt(options.url.split('/').pop());
   return {
     status: 200,
-    messages: messages.messages,
+    data: messages.messages,
   };
 });
 
@@ -190,5 +193,7 @@ let history = Mock.mock({
 });
 Mock.mock(`${baseURL}/messages/history`, 'post', (options) => {
   const tid = parseInt(JSON.parse(options.body).tid);
-  return history.history;
+  return {
+    data: history.history
+  };
 });

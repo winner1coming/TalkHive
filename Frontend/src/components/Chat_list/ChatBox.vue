@@ -72,14 +72,21 @@ export default {
   },
   methods: {
     async selectNewChat(account_id) {
-      // 加载消息历史   
-      const response = await chatListAPI.getMessages(account_id);
-      // 若被禁言  
-      //todo
-      this.messages = response.data.data.messages;
-      this.$nextTick(() => {
-        this.scrollToBottom();
-      });
+      try{
+        const response = await chatListAPI.getMessages(account_id);
+        // 若被禁言  
+        //todo
+        if(response.status !== 200){
+          this.$root.notify(response.data.message, 'error');
+          return;
+        }
+        this.messages = response.data.data.messages;
+        this.$nextTick(() => {
+          this.scrollToBottom();
+        });
+      }catch(e){
+        console.log(e);
+      }
       
     },
     sendMessage(content) {
@@ -109,7 +116,16 @@ export default {
       }else if(option === '转发'){
         this.$emit('forward', message);
       }else if(option === '删除'){
-        chatListAPI.deleteMessage(message.message_id);
+        try{
+          const response = await chatListAPI.deleteMessage(message.message_id);
+          if(response.status !== 200){
+            this.$root.notify(response.data.message, 'error');
+          }else{
+            this.messages = this.messages.filter(item => item.message_id !== message.message_id);
+          }
+        }catch(e){
+          console.log(e);
+        }
       }else if(option === '撤回'){
         chatListAPI.recallMessage(message.message_id);
       }else if(option === '复制'){
@@ -128,19 +144,17 @@ export default {
       if(this.selectedChat.tags.includes('group')){
         group_id = this.selectedChat.id;
       }
-      const response = await getProfileCard(send_account_id, group_id); 
-      const profile = response.data.data;
-      // const profile = {
-      //   tid: '0',  // tid
-      //   avatar: new URL('@/assets/images/avatar.jpg', import.meta.url).href,  // 头像地址
-      //   remark: '',  // 备注
-      //   nickname: '', // 对方设置的昵称
-      //   groupNickname: '',  // 对方的群昵称
-      //   tag: '',  // 分组
-      //   signature: '',  // 个性签名
-      // };
-      
-      this.$refs.profileCard.show(event, profile, this.boundD, this.boundR);
+      try{
+        const response = await getProfileCard(send_account_id, group_id); 
+        if(response.status !== 200){
+          this.$root.notify(response.data.message, 'error');
+          return;
+        }
+        const profile = response.data.data;
+        this.$refs.profileCard.show(event, profile, this.boundD, this.boundR);
+      }catch(e){
+        console.log(e);
+      }
     },
 
     scrollToBottom(){

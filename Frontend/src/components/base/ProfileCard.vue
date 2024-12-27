@@ -48,9 +48,19 @@ export default {
     },
     async sendMessage() {
       this.hide();
-      const response = await getChat(this.profile.tid);
-      this.$store.dispatch('setChat', response.data.data);
-      this.$router.push({name: 'chat'});
+      try{
+        const response = await getChat(this.profile.tid);
+        if(response.status !== 200){
+          this.$root.notify(response.data.message, 'error');
+          return;
+        }
+        this.$store.dispatch('setChat', response.data.data);
+        this.$router.push({name: 'chat'});
+      }catch(e){
+        console.log(e);
+      }
+      
+      
     },
   },
   mounted() {

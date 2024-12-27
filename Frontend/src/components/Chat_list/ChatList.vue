@@ -162,13 +162,17 @@ export default {
   },
   methods: {
     async fetchChatList() {
-      // 从后端获取聊天列表
-      const response = await chatListAPI.getChatList();
-      if(response.status === 200) {
-        this.chats = response.data.data;
-      }
-      else{
-        console.error('获取聊天列表失败:', response.data.data);
+      try{
+        // 从后端获取聊天列表
+        const response = await chatListAPI.getChatList();
+        if(response.status === 200) {
+          this.chats = response.data.data;
+        }
+        else{
+          this.$root.notify(response.data.message, 'error');
+        }
+      }catch(e){
+        console.log(e);
       }
     },
     // 选中tag筛选消息
@@ -177,11 +181,18 @@ export default {
     },
     // 选中消息，切换到对应的聊天
     async selectChat(chat, tid=null) {
-      console.log("change chat");
       if (!chat) {
-        const response = await chatListAPI.getChat(tid);
-        chat = response.data.data;
-        this.chats.unshift(chat);
+        try{
+          const response = await chatListAPI.getChat(tid);
+          if(response.status !== 200){
+            this.$root.notify(response.data.message, 'error');
+            return;
+          }
+          chat = response.data.data;
+          this.chats.unshift(chat);
+        }catch(e){
+          console.log(e);
+        }
       }
       this.selectedChat = chat;   // todo 滚动到chat
       this.$store.dispatch('setChat', chat);
@@ -189,7 +200,14 @@ export default {
       if(chat.tags.includes('unread')) {
         chat.tags = chat.tags.filter(tag => tag !== 'unread');
         chat.unreadCount = 0;
-        await chatListAPI.readMessages(chat.id, true);
+        try{
+          const response = await chatListAPI.readMessages(chat.id, true);
+          if(response.status !== 200){
+            this.$root.notify(response.data.message, 'error');
+          }
+        }catch(e){
+          console.log(e);
+        }
       }
     },
     // 格式化时间
@@ -209,8 +227,17 @@ export default {
     },
     // 搜索消息
     async handleSearch(keyword) {
-      // 搜索聊天列表
-      this.chatList = await chatListAPI.searchChats(keyword);
+      try{
+        // 搜索聊天列表
+        const response = await chatListAPI.searchChats(keyword);
+        if(response.status === 200) {
+          this.chatList = response.data.data;
+        }else{
+          this.$root.notify(response.data.message, 'error');
+        }
+      }catch(e){
+        console.log(e);
+      }
     },
     // 显示新建消息的菜单
     showNewContextMenu(event) {
@@ -261,55 +288,109 @@ export default {
     async handleChatMenu(option, chat){
       if(option === '置顶') {
         // 告知服务器修改消息的置顶状态（并且本地更新）
-        // 置顶聊天
-        chat.tags.push('pinned');
-        // 告知服务器
-        await chatListAPI.pinChat(chat.id, true);
+        try{
+          const response = await chatListAPI.pinChat(chat.id, true);
+          if(response.status === 200) {
+            chat.tags.push('pinned');
+          }else{
+            this.$root.notify(response.data.message, 'error');
+          }
+        }catch(e){
+          console.log(e);
+        }
       }else if(option === '取消置顶') {
-        // 取消置顶聊天
-        chat.tags = chat.tags.filter(tag => tag !== 'pinned');
-        // 告知服务器
-        await chatListAPI.pinChat(chat.id, false);
+        try{
+          const response = await chatListAPI.pinChat(chat.id, false);
+          if(response.status === 200) {
+            chat.tags = chat.tags.filter(tag => tag !== 'pinned');
+          }else{
+            this.$root.notify(response.data.message, 'error');
+          }
+        }catch(e){
+          console.log(e);
+        }
       }else if(option === '删除') {
         // 删除聊天
-        // 告知服务器
-        await chatListAPI.deleteChat(chat.id);
-        // 本地删除
-        this.chats = this.chats.filter(onechat => onechat.id !== chat.id);
+        try{
+          const response = await chatListAPI.deleteChat(chat.id);
+          if(response.status === 200) {
+            this.chats = this.chats.filter(onechat => onechat.id !== chat.id);
+          }else{
+            this.$root.notify(response.data.message, 'error');
+          }
+        }catch(e){
+          console.log(e);
+        }
       }else if(option === '标记为已读') {
         // 标记为已读
-        chat.tags = chat.tags.filter(tag => tag !== 'unread');
-        // 清空未读条数
-        chat.unreadCount = 0;
-        // 告知服务器
-        await chatListAPI.readMessages(chat.id, true);
+        try{
+          const response = await chatListAPI.readMessages(chat.id, true);
+          if(response.status !== 200) {
+            this.$root.notify(response.data.message, 'error');
+          }else{
+            chat.tags = chat.tags.filter(tag => tag !== 'unread');
+            chat.unreadCount = 0;
+          }
+        }catch(e){
+          console.log(e);
+        }
       }else if(option === '标记为未读') {
         // 标记为未读
-        chat.tags.push('unread');
-        // 更改未读条数
-        chat.unreadCount = 1;
-        // 告知服务器
-        await chatListAPI.readMessages(chat.id, false);
+        try{
+          const response = await chatListAPI.readMessages(chat.id, false);
+          if(response.status !== 200) {
+            this.$root.notify(response.data.message, 'error');
+          }else{
+            chat.tags.push('unread');
+            chat.unreadCount = 1;
+          }
+        }catch(e){
+          console.log(e);
+        }
       }else if(option === '消息免打扰') {
-        // 消息免打扰
-        chat.tags.push('mute');
-        // 告知服务器
-        await chatListAPI.setMute(chat.id, true);
+        try{
+          const response = await chatListAPI.setMute(chat.id, true);
+          if(response.status === 200) {
+            chat.tags.push('mute');
+          }else{
+            this.$root.notify(response.data.message, 'error');
+          }
+        }catch(e){
+          console.log(e);
+        }
       }else if(option === '取消消息免打扰') {
-        // 取消消息免打扰
-        chat.tags = chat.tags.filter(tag => tag !== 'mute');
-        // 告知服务器
-        await chatListAPI.setMute(chat.id, false);
+        try{
+          const response = await chatListAPI.setMute(chat.id, false);
+          if(response.status === 200) {
+            chat.tags = chat.tags.filter(tag => tag !== 'mute');
+          }else{
+            this.$root.notify(response.data.message, 'error');
+          }
+        }catch(e){
+          console.log(e);
+        }
       }else if(option === '屏蔽') {
-        // 屏蔽
-        chat.tags.push('blocked');
-        // 告知服务器
-        await chatListAPI.blockChat(chat.id, true);
+        try{
+          const response = await chatListAPI.blockChat(chat.id, true);
+          if(response.status === 200) {
+            chat.tags.push('blocked');
+          }else{
+            this.$root.notify(response.data.message, 'error');
+          }
+        }catch(e){
+          console.log(e);
+        }
       }else if(option === '取消屏蔽') {
-        // 取消屏蔽
-        chat.tags = chat.tags.filter(tag => tag !== 'blocked');
-        // 告知服务器
-        await chatListAPI.blockChat(chat.id, false);
+        try{
+          const response = await chatListAPI.blockChat(chat.id, false);
+          if(response.status === 200) {
+            chat.tags = chat.tags.filter(tag => tag !== 'blocked');
+          }else{
+            this.$root.notify(response.data.message, 'error');
+          }
+        }catch(e){
+          console.log(e);
+        }
       }
     },
     // 处理菜单的点击事件
