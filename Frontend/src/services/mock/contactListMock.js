@@ -4,7 +4,6 @@ const baseURL = 'http://localhost:8080';
 Mock.setup({
   timeout: '200-300', // 设置模拟延迟（可选）
 });
-
 const addCorsHeaders = (response) => {
   return {
     ...response,
@@ -15,6 +14,41 @@ const addCorsHeaders = (response) => {
     }
   };
 };
+
+// 搜索陌生人
+Mock.mock(`${baseURL}/stranger/search`, 'post', (options) => {
+  const { key } = JSON.parse(options.body);
+  const results = [];
+
+  friends.friends.forEach(friend => {
+    if (friend.account_id.includes(key) || friend.remark.includes(key)) {
+      results.push({
+        tid: friend.account_id,
+        id: friend.account_id,
+        nickname: friend.remark,
+        avatar: friend.avatar,
+        type: 'friend'
+      });
+    }
+  });
+
+  groups.groups.forEach(group => {
+    if (group.account_id.includes(key) || group.remark.includes(key)) {
+      results.push({
+        tid: group.account_id,
+        id: group.account_id,
+        nickname: group.remark,
+        avatar: group.avatar,
+        type: 'group'
+      });
+    }
+  });
+
+  return {
+    status: 200,
+    data: results,
+  };
+});
 
 let friendRequests = Mock.mock({
   'requests|5-10': [{
@@ -45,10 +79,11 @@ let groupRequests = Mock.mock({
   }]
 });
 
+// 获取好友请求列表
 Mock.mock(`${baseURL}/contactList/friendRequests`, 'get', () => {
   return { data: friendRequests.requests };
 });
-
+// 处理好友请求
 Mock.mock(`${baseURL}/contactList/friendRequests/pend`, 'post', (options) => {
   const { account_id, accept } = JSON.parse(options.body);
   const request = friendRequests.requests.find(req => req.sender_id === account_id);
@@ -60,11 +95,33 @@ Mock.mock(`${baseURL}/contactList/friendRequests/pend`, 'post', (options) => {
     data: request,
   };
 });
+// 添加好友
+Mock.mock(`${baseURL}/contactList/friendRequests/addFriend`, 'post', (options) => {
+  const { account_id, reason } = JSON.parse(options.body);
+  const newFriend = Mock.mock({
+    'friend': {
+      'apply_id': friendRequests.requests.length + 1,
+      'avatar': '@image("200x200", "#50B347", "#FFF", "Mock.js")',
+      'name': '@name',
+      'sender_id': account_id,
+      'receiver_id': '1000000000',
+      'reason': reason,
+      'status': 'pending',
+      'time': '@datetime',
+    }
+  }).friend;
+  friendRequests.requests.push(newFriend);
+  return {
+    status: 200,
+    data: newFriend,
+  };
+});
 
+// 获取群聊请求列表
 Mock.mock(`${baseURL}/contactList/groupRequests`, 'get', () => {
   return { data: groupRequests.requests };
 });
-
+// 处理群聊邀请请求
 Mock.mock(`${baseURL}/contactList/groupRequests/invitationPend`, 'post', (options) => {
   const { account_id, group_id, accept } = JSON.parse(options.body);
   const request = groupRequests.requests.find(req => req.sender_id === account_id && req.group_id === group_id);
@@ -76,7 +133,7 @@ Mock.mock(`${baseURL}/contactList/groupRequests/invitationPend`, 'post', (option
     data: request,
   };
 });
-
+// 处理群聊申请请求
 Mock.mock(`${baseURL}/contactList/groupRequests/applyPend`, 'post', (options) => {
   const { account_id, group_id, accept } = JSON.parse(options.body);
   const request = groupRequests.requests.find(req => req.sender_id === account_id && req.group_id === group_id);
@@ -88,7 +145,32 @@ Mock.mock(`${baseURL}/contactList/groupRequests/applyPend`, 'post', (options) =>
     data: request,
   };
 });
+// 发送群聊申请请求
+Mock.mock(`${baseURL}/contactList/groupRequests/addGroup`, 'post', (options) => {
+  const { group_id, reason } = JSON.parse(options.body);
+  const newRequest = Mock.mock({
+    'request': {
+      'apply_id': groupRequests.requests.length + 1,
+      'avatar': '@image("200x200", "#50B347", "#FFF", "Mock.js")',
+      'group_name': '@name',
+      'account_name': '@name',
+      'sender_id': '1000000000',
+      'receiver_id': '1000000000',
+      'group_id': group_id,
+      'reason': reason,
+      'type': 'groupApply',
+      'status': 'pending',
+      'time': '@datetime',
+    }
+  }).request;
+  groupRequests.requests.push(newRequest);
+  return {
+    status: 200,
+    data: newRequest,
+  };
+});
 
+// 黑名单
 let blackList = Mock.mock({
   'blackList|5-10': [{
     'account_id|1': /[0-9]{10}/,
@@ -143,7 +225,7 @@ let divideList = Mock.mock({
 });
 Mock.mock(new RegExp(`${baseURL}/contactList/\\w+/divides`), 'get', (options) => {
   const type = options.url.match(/\/contactList\/(.*?)\/divides/)[1];
-  return { data: divideList.divides };
+  return divideList.divides ;
 });
 Mock.mock(new RegExp(`${baseURL}/contactList/\\w+/divides/create`), 'post', (options) => {
   const { fd_name } = JSON.parse(options.body);
