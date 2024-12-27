@@ -4,11 +4,15 @@ import apiClient from '@/services/api';
 export const getFriendRequests = () => {
   return apiClient.get('/contactList/friendRequests');
 };
-
 // 处理好友请求接口
 export const friendRequestPend = (account_id, accept) => {
   return apiClient.post('/contactList/friendRequests/pend', { account_id, accept});
 };
+// 添加好友
+export const addFriend = (account_id, reason) => {
+  return apiClient.post('/contactList/friendRequests/addFriend', { account_id, reason });
+}
+
 
 // 获取群聊请求列表接口
 export const getGroupRequests = () => {
@@ -19,7 +23,10 @@ export const getGroupRequests = () => {
 export const groupInvitationRequestPend = (account_id, group_id, accept) => {
   return apiClient.post('/contactList/groupRequests/invitationPend', { account_id, group_id, accept });
 };
-
+// 发送群聊
+export const addGroup = (group_id, reason) => {
+  return apiClient.post('/contactList/groupRequests/addGroup', { group_id, reason });
+}
 
 // 处理群聊申请请求接口
 export const groupApplyRequestPend = (account_id, group_id, accept) => {
