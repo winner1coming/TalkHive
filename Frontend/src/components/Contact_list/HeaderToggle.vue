@@ -2,7 +2,10 @@
 	<div style="width: 100%;">
 	  <div class="header-toggle">
 			<p class="toggle" @click="toggleContent">
-				<span :class="{'arrow-down': showFullContent, 'arrow-right': !showFullContent}"></span>
+				<span :class="{'arrow-down': showFullContent, 'arrow-right': !showFullContent}">
+					<img v-show="!showFullContent" src="@/assets/images/arrow-right.png" class="arrow-right-img"/>
+					<img v-show="showFullContent" src="@/assets/images/arrow-down.png" class="arrow-down-img"/>
+				</span>
 			</p>
 			<p class="title">{{ previewText }}</p>
 			<button 
@@ -61,25 +64,32 @@ export default {
 	align-items: center;
 	border: 0.5px solid #888282;
 	margin-bottom: 3px;
+	height: 100%;
 }
 .toggle {
 	display: flex;
 	cursor: pointer;
-	margin: 5px;
-	align-self: start;
+	margin: 8px;
+	align-self: stretch;
 	align-items: center;
 	height: 100%;
 }
 .arrow-right::before {
-	content: '>';
 	transition: transform 0.2s ease, opacity 0.2s ease;
 	opacity: 1;
 }
+.arrow-right-img{
+	width: 20px;
+	height: 20px;
+}
 .arrow-down::before {
-	content: '▼';
 	transition: transform 0.2s ease, opacity 0.2s ease;
 	transform: rotate(180deg);
 	opacity: 1;
+}
+.arrow-down-img{
+	width: 20px;
+	height: 20px;
 }
 .title{
 	align-self: center;

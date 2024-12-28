@@ -38,7 +38,7 @@ chats.chats.sort((a, b) => {
   return timeB - timeA;
 });
 let messages = Mock.mock({
-  'messages|10-15': [{
+  'messages|20-30': [{
   'message_id|+1': /[0-9]{10}/,
   'send_account_id|1': ['1','2'],
   'content': ()=>Mock.Random.csentence(3, 30),
@@ -184,9 +184,9 @@ let history = Mock.mock({
   'history|10-15': [{
     'message_id': Mock.Random.guid(),
     'send_account_id': Mock.Random.integer(1, 100),
-    'content': ()=>Mock.Random.csentence(3, 20),
+    'content': ()=>Mock.Random.csentence(3, 50),
     'sender': '@name',
-    'create_time': '@time("HH:mm")',
+    'create_time': '@time("yyyy-MM-dd HH:mm")',
     'type': 'text',
     'avatar':'@image("200x200", "#50B347", "#FFF", "Mock.js")',
   }]
