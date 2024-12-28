@@ -61,10 +61,7 @@ func Login(c *gin.Context) {
 
 		fileContents, err := io.ReadAll(file)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"success": false,
-				"message": "读取头像文件内容失败",
-			})
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "读取头像文件内容失败"})
 			return
 		}
 		avatarBase64 = base64.StdEncoding.EncodeToString(fileContents)
@@ -83,6 +80,7 @@ func Login(c *gin.Context) {
 			"account": account.ID,
 			"token":   token,
 		},
+		"email":    account.Email,
 		"avatar":   avatarBase64,
 		"mimeType": mimeType,
 	})
@@ -280,14 +278,40 @@ func SmsLogin(c *gin.Context) {
 		return
 	}
 
-	response := gin.H{
-		"success":    true,
-		"avatar":     account.Avatar,
-		"nickname":   account.Nickname,
-		"account_id": account.ID,
-		"message":    "登录成功",
+	var avatarBase64 string
+	var mimeType string
+	if account.Avatar != "" {
+		avatarPath := account.Avatar
+		file, err := os.Open(avatarPath)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"success": false,
+				"message": "读取头像文件失败",
+			})
+			return
+		}
+		defer file.Close()
+
+		fileContents, err := io.ReadAll(file)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "读取头像文件内容失败"})
+			return
+		}
+		avatarBase64 = base64.StdEncoding.EncodeToString(fileContents)
+		mimeType = mime.TypeByExtension(filepath.Ext(avatarPath))
+		if mimeType == "" {
+			mimeType = "image/jpg"
+		}
 	}
-	c.JSON(http.StatusOK, response)
+
+	c.JSON(http.StatusOK, gin.H{
+		"success":    true,
+		"message":    "登录成功",
+		"nickname":   account.Nickname,
+		"account_id": account.AccountID,
+		"avatar":     avatarBase64,
+		"mimeType":   mimeType,
+	})
 }
 
 // ResetPassword 重置密码
