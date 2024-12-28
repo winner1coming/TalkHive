@@ -12,14 +12,19 @@
       </div>
     </div>
     <!-- 上方的消息历史 -->
-    <div class="messages" ref="messages" :style="messagesStyle">
+    <div class="messages" ref="messages" :style="messagesStyle" @scroll="handleScroll">
       <MessageItem 
         v-for="message in messages" 
         :message="message"
         @show-context-menu="showContextMenu"
         @show-profile-card="showProfileCard"
       />
+      <!-- 滚动到底部按钮 -->
+      <p v-show="showScrollButton" class="scroll-to-bottom" @click="scrollToBottom">
+        <img src="@/assets/images/down.png" class="scroll-to-bottom-img"/>
+      </p>
     </div>
+    
     <!-- 下方的输入框 -->
     <MessageInput @send-message="sendMessage" />
     <!-- 右键菜单 -->
@@ -45,6 +50,7 @@ export default {
       boundD: 0,
       boundR: 0,
       selectedChat: null,  // 当前选中的聊天
+      showScrollButton: false, // 控制滚动按钮的显示
       backgroundImage:this.$store.state.settings.background,
     }
   },
@@ -157,6 +163,10 @@ export default {
       }
     },
 
+    handleScroll() {
+      const messages = this.$refs.messages;
+      this.showScrollButton = messages.scrollTop < messages.scrollHeight - messages.clientHeight;
+    },
     scrollToBottom(){
       const messages = this.$refs.messages;
       if (messages) {
@@ -171,35 +181,61 @@ export default {
 };
 </script>
   
-  <style scoped src="@/assets/css/chatList.css"></style>
-  <style scoped>
-  .chat-box {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-  }
-  .chat-header {
-    display: flex;
-    align-items: center;
-    padding: 10px;
-    background-color: #687aec91;
-  }
-  .chat-name {
-    margin-left: 10px;
-    font-weight: bold;
-  }
-  .detail-button {
-    padding: 15px;
-    background-color:transparent;
-    border: none;
-    cursor: pointer;
-  }
-  .messages {
-    flex: 1;
-    padding: 10px;
-    background-color: #f0f0f0;
-    display: block;
-    overflow-y: auto; /* 允许垂直滚动 */
-    overflow-x: hidden; /* 隐藏水平滚动条 */
-  }
+<style scoped src="@/assets/css/chatList.css"></style>
+<style scoped>
+.chat-box {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.chat-header {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  background-color: #687aec91;
+}
+.chat-name {
+  margin-left: 10px;
+  font-weight: bold;
+}
+.detail-button {
+  padding: 15px;
+  background-color:transparent;
+  border: none;
+  cursor: pointer;
+}
+.messages {
+  position: relative;
+  flex: 1;
+  padding: 10px;
+  background-color: #f0f0f0;
+  display: block;
+  overflow-y: auto; /* 允许垂直滚动 */
+  overflow-x: hidden; /* 隐藏水平滚动条 */
+}
+
+.scroll-to-bottom {
+  position: sticky;
+  bottom: 5px;
+  right: 5px;
+  background-color: #f0f4f9cf;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin-left: auto;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+.scroll-to-bottom:hover {
+  background-color: #c3c7cbe7;
+}
+.scroll-to-bottom-img{
+  width: 20px;
+  height: 20px;
+}
   </style>
