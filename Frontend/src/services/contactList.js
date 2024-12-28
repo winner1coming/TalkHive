@@ -88,20 +88,26 @@ export const addToBlackList = (account_id) => {
 
 
 // * 群聊
-// 获取群聊列表接口
+// 获取群聊列表
 export const getGroups = () => {
   return apiClient.get('/contactList/groups');
 };
-
-// 创建群聊接口（未完成）
+// 创建群聊
 export const createGroup = (group_name,group_avatar,group_description,allow_invite,allow_id_search,allow_name_search) => {
   return apiClient.post('/contactList/groups/createGroup', { group_name,group_avatar,group_description,allow_invite,allow_id_search,allow_name_search });
 };
-
 // 解散群聊接口
 export const dismissGroup = (group_id) => {
-  return apiClient.post(`/contactList/groups/${group_id}`);
+  return apiClient.post(`/contactList/groups/dismissGroup`, { group_id });
 };
+// 搜索不在群聊内的好友
+export const fetchFriendsNotInGroup=(group_id)=>{
+  return apiClient.post('/contactList/groups/friendsNotInGroup', {group_id});
+}
+// 邀请他人入群
+export const inviteMember=(group_id, account_id)=>{
+  return apiClient.post('/contactList/groups/invite', { account_id,group_id});
+}
 // 退出群聊
 export const exitGroup = (group_id) => {
   return apiClient.post(`/contactList/groups/exit`, { group_id });
@@ -118,13 +124,22 @@ export const changeGroupNickname=(group_id, group_nickname)=>{
 // export const searchGroupMember=(group_id, keyword)=>{
 //   return apiClient.post('/contactList/groups/searchMember', {group_id, keyword});
 // }
-// 搜索不在群聊内的好友
-export const fetchFriendsNotInGroup=(group_id)=>{
-  return apiClient.post('/contactList/groups/friendsNotInGroup', {group_id});
+
+// 设置是否允许群成员邀请他人
+export const setAllowInvite=(group_id, allow_invite)=>{
+  return apiClient.post('/contactList/groups/setAllowInvite', {group_id, allow_invite});
 }
-// 邀请好友加入群聊
-export const inviteMember=(group_id, account_id)=>{
-  return apiClient.post('/contactList/groups/invite', { account_id,group_id});
+// 设置是否允许通过ID搜索群
+export const setAllowIdSearch=(group_id, allow_id_search)=>{
+  return apiClient.post('/contactList/groups/setAllowIdSearch', {group_id, allow_id_search});
+}
+// 设置是否允许通过昵称搜索群
+export const setAllowNameSearch=(group_id, allow_name_search)=>{
+  return apiClient.post('/contactList/groups/setAllowNameSearch', {group_id, allow_name_search});
+}
+// 是否全体禁言
+export const setAllBanned=(group_id, is_all_banned)=>{
+  return apiClient.post('/contactList/groups/setAllBanned', {group_id, is_all_banned});
 }
 // 禁言某人
 export const setBanned=(group_id, account_id, is_banned)=>{
@@ -141,4 +156,8 @@ export const setAdmin=(group_id, account_id, is_admin)=>{
 // 转让群主
 export const transferOwner=(group_id, account_id)=>{
   return apiClient.post('/contactList/groups/transferOwner', {group_id, account_id});
+}
+// 更改群头像
+export const changeGroupAvatar=(group_id, group_avatar)=>{
+  return apiClient.post('/contactList/groups/changeAvatar', {group_id, group_avatar});
 }
