@@ -1,14 +1,23 @@
 import apiClient from '@/services/api';
 
+  // 搜索好友/群聊（key可能是id或者昵称）
+  export const searchStrangers = (key) => {
+    return apiClient.post('/stranger/search', { key });  
+  };
+
 // 获取好友请求列表接口
 export const getFriendRequests = () => {
   return apiClient.get('/contactList/friendRequests');
 };
-
 // 处理好友请求接口
 export const friendRequestPend = (account_id, accept) => {
   return apiClient.post('/contactList/friendRequests/pend', { account_id, accept});
 };
+// 添加好友
+export const addFriend = (account_id, reason) => {
+  return apiClient.post('/contactList/friendRequests/addFriend', { account_id, reason });
+}
+
 
 // 获取群聊请求列表接口
 export const getGroupRequests = () => {
@@ -19,7 +28,10 @@ export const getGroupRequests = () => {
 export const groupInvitationRequestPend = (account_id, group_id, accept) => {
   return apiClient.post('/contactList/groupRequests/invitationPend', { account_id, group_id, accept });
 };
-
+// 发送群聊
+export const addGroup = (group_id, reason) => {
+  return apiClient.post('/contactList/groupRequests/addGroup', { group_id, reason });
+}
 
 // 处理群聊申请请求接口
 export const groupApplyRequestPend = (account_id, group_id, accept) => {
@@ -40,23 +52,23 @@ export const getFriends = () => {
 // *分组
 // 获取分组名
 export const getDevides = (type) => {   // type: 'friends' or 'groups'
-  return apiClient.get(`/contactList/${type}/devides`);
+  return apiClient.get(`/contactList/${type}/divides`);
 };
 // 新建分组
 export const createDevide = (type, fd_name) => {   // type: 'friends' or 'groups'
-  return apiClient.post(`/contactList/${type}/devides/create`, { fd_name });
+  return apiClient.post(`/contactList/${type}/divides/create`, { fd_name });
 };
 // 删除分组
 export const deleteDevide = (type, fd_name) => {   // type: 'friends' or 'groups'
-  return apiClient.delete(`/contactList/${type}/devides/delete/${fd_name}`);
+  return apiClient.post(`/contactList/${type}/divides/delete`,{ fd_name });
 };
 // 修改分组名称
 export const renameDevide = (type, old_fd_name, new_fd_name) => {   // type: 'friends' or 'groups'
-  return apiClient.post(`/contactList/${type}/devides/rename`, {old_fd_name, new_fd_name });
+  return apiClient.post(`/contactList/${type}/divides/rename`, {old_fd_name, new_fd_name });
 };
 // 移动好友到分组
 export const moveInDevide = (type, tid, divide) => {
-  return apiClient.post(`/contactList/${type}/devides/moveIn`, { tid, divide });
+  return apiClient.post(`/contactList/${type}/divides/moveIn`, { tid, divide });
 };
 
 
@@ -82,15 +94,18 @@ export const getGroups = () => {
 };
 
 // 创建群聊接口（未完成）
-export const createGroup = (name) => {
-  return apiClient.post('/contactList/groups/create', { name });
+export const createGroup = (group_name,group_avater,group_description,allow_invite,allow_id_search,allow_name_search) => {
+  return apiClient.post('/contactList/groups/createGroup', { group_name,group_avater,group_description,allow_invite,allow_id_search,allow_name_search });
 };
 
-// 删除群聊接口
-export const deleteGroup = (group_id) => {
-  return apiClient.delete(`/contactList/groups/${group_id}`);
+// 解散群聊接口
+export const dismissGroup = (group_id) => {
+  return apiClient.post(`/contactList/groups/${group_id}`);
 };
-
+// 退出群聊
+export const exitGroup = (group_id) => {
+  return apiClient.post(`/contactList/groups/exit`, { group_id });
+};
 // 获取群聊详细信息
 export const getGroupInfo = (group_id) => {
   return apiClient.get(`/contactList/groups/groupInfo/${group_id}`);
@@ -98,4 +113,32 @@ export const getGroupInfo = (group_id) => {
 // 更改我在群聊内的昵称
 export const changeGroupNickname=(group_id, group_nickname)=>{
   return apiClient.post(`/contactList/groups/changeNickname`, {group_id, group_nickname});
+}
+// // 搜索群成员
+// export const searchGroupMember=(group_id, keyword)=>{
+//   return apiClient.post('/contactList/groups/searchMember', {group_id, keyword});
+// }
+// 搜索不在群聊内的好友
+export const fetchFriendsNotInGroup=(group_id)=>{
+  return apiClient.post('/contactList/groups/friendsNotInGroup', {group_id});
+}
+// 邀请好友加入群聊
+export const inviteMember=(group_id, account_id)=>{
+  return apiClient.post('/contactList/groups/invite', { account_id,group_id});
+}
+// 禁言某人
+export const setBanned=(group_id, account_id, is_banned)=>{
+  return apiClient.post('/contactList/groups/banMember',{group_id, account_id, is_banned});
+}
+// 移除某人
+export const removeMember=(group_id, account_id)=>{
+  return apiClient.post('/contactList/groups/removeMember', {group_id, account_id});
+}
+// 设为管理员
+export const setAdmin=(group_id, account_id, is_admin)=>{
+  return apiClient.post('/contactList/groups/setAdmin', {group_id, account_id, is_admin});
+}
+// 转让群主
+export const transferOwner=(group_id, account_id)=>{
+  return apiClient.post('/contactList/groups/transferOwner', {group_id, account_id});
 }

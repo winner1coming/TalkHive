@@ -13,12 +13,12 @@
 			<ul class="items">
 				<!-- 每个分组 -->
 				<li 
-					v-for="(devide, index) in devides" 
+					v-for="(divide, index) in divides" 
 					:key="index"
-					@click="toggleDevideSelection(devide)"
+					@click="toggleDevideSelection(divide)"
 				>
-					<input type="checkbox" v-model="selectedDevides" :value="devide">
-					<span>{{ devide }}</span>
+					<input type="checkbox" v-model="selectedDevides" :value="divide">
+					<span>{{ divide }}</span>
 				</li>
 			</ul>
 			<button class="confirm-button" @click="confirmSelection">确认</button>
@@ -29,7 +29,7 @@
 <script>
 
 export default {
-	props:['devides'],
+	props:['divides'],
 	data() {
 	  return {
 			selectAll: false,
@@ -39,7 +39,7 @@ export default {
 	},
 	methods: {
 	  async confirmSelection() {
-			this.$emit('delete-devides', this.selectedDevides);
+			this.$emit('delete-divides', this.selectedDevides);
 			//await deleteFriendGroup(this.selectedDevides);  // selectedDevides是被选择的分组的名称的数组
 			this.close();
 	  },
@@ -49,21 +49,21 @@ export default {
 			this.$refs.selectAllCheckbox.indeterminate = false;
 			this.$emit('close');
 	  },
-		toggleDevideSelection(devide) {
-        const index = this.selectedDevides.indexOf(devide);
+		toggleDevideSelection(divide) {
+        const index = this.selectedDevides.indexOf(divide);
         if (index === -1) {
-            this.selectedDevides.push(devide);
+            this.selectedDevides.push(divide);
         } else {
             this.selectedDevides.splice(index, 1);
         }
     },
 	  toggleSelectAll() {
-			this.selectedDevides = this.selectAll ? [...this.devides] : [];
+			this.selectedDevides = this.selectAll ? [...this.divides] : [];
 	  }
 	},
 	mounted() {
 		this.watchSection = this.$watch('selectedDevides', (val) => {
-			const totalDevides = this.devides.length;
+			const totalDevides = this.divides.length;
 			this.selectAll = val.length === totalDevides && totalDevides > 0;
 			this.$refs.selectAllCheckbox.indeterminate = val.length > 0 && val.length < totalDevides;
 		}, { deep: true, immediate: true });

@@ -63,7 +63,7 @@
       async toggleIdStatus() {
         const jud = this.idStatus === 'on' ? true : false;
         try{
-          const response = await isIDAdd({id:this.ID,friend_permissionID :jud});
+          const response = await isIDAdd({friend_permissionID :jud});
           if(response.success){
             this.msg1 = 'ID权限设置成功！';
             this.idStatus = this.idStatus === 'on' ? 'off' : 'on';
@@ -80,7 +80,7 @@
       async toggleNicknameStatus() {
         const jud = this.nicknameStatus === 'on' ? true : false;
         try{
-          const response = await isNicknameAdd({id:this.ID,friend_permissionNickname :jud});
+          const response = await isNicknameAdd({friend_permissionNickname :jud});
           if(response.success){
             this.msg2 = '昵称权限设置成功！';
             this.nicknameStatus = this.nicknameStatus === 'on' ? 'off' : 'on';

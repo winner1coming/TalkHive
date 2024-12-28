@@ -23,7 +23,7 @@ let friendRequests = Mock.mock({
   'name': '@name',
   'sender_id|1': /[0-9]{10}/,
   'receiver_id|1': /[0-9]{10}/,
-  'reason': '@sentence',
+  'reason':  ()=>Mock.Random.csentence(3, 20),
   'status': '@pick(["pending", "accepted", "rejected"])',
   'time': '@datetime',
   }]
@@ -38,7 +38,7 @@ let groupRequests = Mock.mock({
   'sender_id|1-100': 1,
   'receiver_id|1-100': 1,
   'group_id|1-100': 1,
-  'reason': '@sentence',
+  'reason':  ()=>Mock.Random.csentence(3, 20),
   'type': '@pick(["groupInvitation", "groupApply", "notification"])',
   'status': '@pick(["pending", "accepted", "rejected", "waiting", "notification"])',
   'time': '@datetime',
@@ -137,48 +137,48 @@ Mock.mock(`${baseURL}/contactList/remark`, 'post', (options) => {
   };
 });
 
-let devideList = Mock.mock({
-  'devides': {
-    'devides':["家人", "朋友", "同事"]
+let divideList = Mock.mock({
+  'divides': {
+    'divides':["家人", "朋友", "同事"]
   }
 });
-Mock.mock(new RegExp(`${baseURL}/contactList/\\w+/devides`), 'get', (options) => {
-  const type = options.url.match(/\/contactList\/(.*?)\/devides/)[1];
-  return devideList.devides;
+Mock.mock(new RegExp(`${baseURL}/contactList/\\w+/divides`), 'get', (options) => {
+  const type = options.url.match(/\/contactList\/(.*?)\/divides/)[1];
+  return divideList.divides;
 });
-Mock.mock(new RegExp(`${baseURL}/contactList/\\w+/devides/create`), 'post', (options) => {
+Mock.mock(new RegExp(`${baseURL}/contactList/\\w+/divides/create`), 'post', (options) => {
   const { fd_name } = JSON.parse(options.body);
-  devideList.devides.devides.push(fd_name);
+  divideList.divides.divides.push(fd_name);
   return {
     status: 200,
-    data: devideList.devides,
+    data: divideList.divides,
   };
 });
-Mock.mock(new RegExp(`${baseURL}/contactList/\\w+/devides/delete/\\w+`), 'delete', (options) => {
+Mock.mock(new RegExp(`${baseURL}/contactList/\\w+/divides/delete/\\w+`), 'delete', (options) => {
  // todo 对url内中文无法识别
   const fd_name = decodeURIComponent(options.url.match(/\/delete\/(.*)$/)[1]);
   console.log(fd_name);
-  devideList.devides.devides = devideList.devides.devides.filter(devide => devide !== fd_name);
+  divideList.divides.divides = divideList.divides.divides.filter(divide => divide !== fd_name);
   return addCorsHeaders({
     status: 200,
-    data: devideList.devides,
+    data: divideList.divides,
   });
 });
-Mock.mock(new RegExp(`${baseURL}/contactList/\\w+/devides/rename`), 'post', (options) => {
+Mock.mock(new RegExp(`${baseURL}/contactList/\\w+/divides/rename`), 'post', (options) => {
   const { old_fd_name, new_fd_name } = JSON.parse(options.body);
   console.log(old_fd_name, new_fd_name);
-  const index = devideList.devides.devides.indexOf(old_fd_name);
+  const index = divideList.divides.divides.indexOf(old_fd_name);
   if (index !== -1) {
-    devideList.devides.devides.splice(index, 1, new_fd_name);
+    divideList.divides.divides.splice(index, 1, new_fd_name);
   }
   
-  console.log(devideList.devides);
+  console.log(divideList.divides);
   return {
     status: 200,
-    data: devideList.devides,
+    data: divideList.divides,
   };
 });
-Mock.mock(new RegExp(`${baseURL}/contactList/\\w+/devides/moveIn`), 'post', (options) => {
+Mock.mock(new RegExp(`${baseURL}/contactList/\\w+/divides/moveIn`), 'post', (options) => {
   const { tid, divide } = JSON.parse(options.body);
   // 模拟移动好友到分组的逻辑
   friends.friends.forEach(friend => {
@@ -200,7 +200,7 @@ let friends = Mock.mock({
       'remark': '@name',
       'avatar': '@image("200x200", "#50B347", "#FFF", "Mock.js")',
       'status': '@pick(["online", "offline"])',
-      'signature': '@sentence',
+      'signature':  ()=>Mock.Random.csentence(3, 20),
       'tag': '@pick(["家人", "朋友", "同事"])',
     }]
   });
@@ -214,7 +214,7 @@ let groups = Mock.mock({
     'remark': '@name',
     'avatar': '@image("200x200", "#50B347", "#FFF", "Mock.js")',
     'status': '@pick(["online", "offline"])',
-    'signature': '@sentence',
+    'signature':  ()=>Mock.Random.csentence(3, 20),
     'tag': '@pick(["家人", "朋友", "同事"])',
   }]
 });
@@ -229,7 +229,7 @@ Mock.mock(`${baseURL}/contactList/groups/create`, 'post', (options) => {
       'account_id|1': /[0-9]{10}/,
       'remark': name,
       'avatar': '@image("200x200", "#50B347", "#FFF", "Mock.js")',
-      'signature': '@sentence',
+      'signature':  ()=>Mock.Random.csentence(3, 20),
       'tag': '@pick(["家人", "朋友", "同事"])',
     }
   }).group;
@@ -254,18 +254,23 @@ Mock.mock(new RegExp(`${baseURL}/contactList/groups/\\d+`), 'delete', (options) 
 
 let groupInfo = Mock.mock({
   'groupInfo': {
-    'group_name': '@name',
+    'group_name':  ()=>Mock.Random.csentence(3, 10),
     'group_owner': '@id',  // 随机生成群主tid
-    'introduction': '@sentence',  // 随机生成一句话作为介绍
+    'introduction':  ()=>Mock.Random.csentence(3, 20),  // 随机生成一句话作为介绍
     'my_group_nickname': '@name',   // 随机生成一个名字作为群昵称
-    'members|10': [
+    'members|50': [
       {
         'account_id': '@id',
         'avatar': '@image("200x200", "#50B347", "#FFF", "Avatar")',
         'group_role': 'group_owner',
-        'group_nickname': '@name',
+        'group_nickname':  ()=>Mock.Random.csentence(3, 10),
+        'id': '@id',
+        'remark': '@name',
+        'nickname' : '@name',
+        'is_banned':true,
       },
     ],
+    'my_group_role': '@pick(["group_owner", "group_manager", "group_ordinary"])',
   }
 });
 // 模拟 getGroupInfo 接口

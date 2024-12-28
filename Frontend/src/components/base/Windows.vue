@@ -50,6 +50,7 @@
 
   .modal-content p{
     color: black;
+    gap:10px;
   }
   
   button {

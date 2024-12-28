@@ -35,12 +35,16 @@
         @click = selectChat(chat)
         :class="{pinned: chat.tags.includes('pinned'), selected: selectedChat && chat.id === selectedChat.id}"
       >
-        <div class="chat-avatar">   <!-- 头像-->
-          <img :src="chat.avatar" alt="avatar" />
-        </div>
-        <div class="chat-info">   <!-- 信息-->
-          <div class="chat-name">{{ chat.name }}</div>
-          <div class="chat-last-chat">{{chat.lastMessage.length > this.maxChars ? chat.lastMessage.slice(0, this.maxChars) + '...' : chat.lastMessage}}</div>
+        <div class="left-part">
+          <!-- 头像-->
+          <div class="chat-avatar">  
+            <img :src="chat.avatar" alt="avatar" />
+          </div>
+          <!-- 信息-->
+          <div class="chat-info">   
+            <div class="chat-name" :style="{width: `${chatListWidth-155}px`}">{{ chat.name }}</div>
+            <div class="chat-last-chat" :style="{width: `${chatListWidth-155}px`}">{{chat.lastMessage}}</div>
+          </div>
         </div>
         <div class="chat-meta">   <!-- 时间和未读-->
           <div class="chat-time">{{ formatTime(chat.lastMessageTime) }}</div>
@@ -54,13 +58,11 @@
     <AddFriendGroup
       v-if="isAddModalVisible"
       @close="isAddModalVisible = false"
-      @add-friend="handleAddFriend"
     />
     <!-- 新建群聊弹窗 -->
     <BuildGroup
       v-if="isBuildModalVisible"
       @close="isBuildModalVisible = false"
-      @build-group="handleBuildGroup"
     />
     <ContextMenu ref="contextMenu"  @select-item="handleMenuSelect" />
   
@@ -71,7 +73,6 @@
 import SearchBar from '@/components/base/SearchBar.vue';
 import ContextMenu from '@/components/base/ContextMenu.vue';
 import * as chatListAPI from '@/services/chatList';
-import { addFriendGroup, createGroup } from '@/services/api';
 import AddFriendGroup from '@/components/Chat_list/AddFriendGroup.vue';
 import BuildGroup from '@/components/Chat_list/BuildGroup.vue';
 export default {
@@ -144,9 +145,9 @@ export default {
         return bPinned - aPinned;
       });
     },
-    maxChars(){  // 可以显示的字体个数
-      return Math.floor((this.chatListWidth - 50) / 12);
-    },
+    // maxChars(){  // 可以显示的字体个数
+    //   return Math.floor((this.chatListWidth - 120) / parseInt(this.$store.state.settings.fontSize,10));
+    // },
   },
   watch:{
     '$store.state.currentChat': {
@@ -164,10 +165,10 @@ export default {
       // 从后端获取聊天列表
       const response = await chatListAPI.getChatList();
       if(response.status === 200) {
-        this.chats = response.data;
+        this.chats = response.data.data;
       }
       else{
-        console.error('获取聊天列表失败:', response.data);
+        console.error('获取聊天列表失败:', response.data.data);
       }
     },
     // 选中tag筛选消息
@@ -179,7 +180,7 @@ export default {
       console.log("change chat");
       if (!chat) {
         const response = await chatListAPI.getChat(tid);
-        chat = response.data;
+        chat = response.data.data;
         this.chats.unshift(chat);
       }
       this.selectedChat = chat;   // todo 滚动到chat
@@ -316,21 +317,6 @@ export default {
       if(this.menuType === 'new') this.handleNewMenu(item);
       if(this.menuType === 'chat') this.handleChatMenu(item, obj);
     },
-    // 处理添加好友/群聊的逻辑
-    async handleAddFriendGroup(key) {
-      try {
-        await addFriendGroup(key);
-        // 添加成功后的逻辑，如提示用户
-        alert(`添加成功`);
-      } catch (error) {
-        console.error('添加失败:', error);
-        alert('添加失败，请重试。');
-      }
-    },
-    // 处理新建群聊的逻辑
-    async handleBuildGroup(tids) {
-      await createGroup(tids);
-    },
   },
   created () {
     this.fetchChatList();
@@ -340,7 +326,6 @@ export default {
 
 <style scoped src="@/assets/css/chatList.css"></style>
 <style scoped>
-/* 消息列表页面的样式 */
 .chat-list {
   width: 30%;
   height: 100%;
@@ -366,6 +351,7 @@ export default {
   padding-bottom: 0px;
   border-bottom: 1px solid #ddd;
   cursor: pointer;
+  justify-content: space-between;
 }
 .chat-items li.pinned {
   background-color: #e3e0e0
@@ -373,18 +359,24 @@ export default {
 .chat-items li.selected {
   background-color: #d5d2d2
 }
+.left-part {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+}
 .chat-avatar img {
   width: 40px;
   height: 40px;
   border-radius: 50%;
 }
 .chat-info {
-  flex: 5;
   margin-left: 10px;
   text-align: left;
 }
 .chat-name{
   font-weight: bold;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 .chat-last-chat {
   color: #888;
@@ -392,10 +384,11 @@ export default {
   overflow: hidden;
   text-overflow: ellipsis;
   font-size: 0.8rem
+
 }
 .chat-meta {
   text-align: right;
-  flex: 1;
+  width: 71px;
 }
 .chat-time {
   color: #888;

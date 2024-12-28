@@ -16,7 +16,6 @@
       <MessageItem 
         v-for="message in messages" 
         :message="message"
-        :avatar="selectedChat.avatar"
         @show-context-menu="showContextMenu"
         @show-profile-card="showProfileCard"
       />
@@ -77,7 +76,7 @@ export default {
       const response = await chatListAPI.getMessages(account_id);
       // 若被禁言  
       //todo
-      this.messages = response.data.messages;
+      this.messages = response.data.data.messages;
       this.$nextTick(() => {
         this.scrollToBottom();
       });
@@ -130,7 +129,7 @@ export default {
         group_id = this.selectedChat.id;
       }
       const response = await getProfileCard(send_account_id, group_id); 
-      const profile = response.data;
+      const profile = response.data.data;
       // const profile = {
       //   tid: '0',  // tid
       //   avatar: new URL('@/assets/images/avatar.jpg', import.meta.url).href,  // 头像地址

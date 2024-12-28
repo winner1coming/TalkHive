@@ -3,7 +3,7 @@
     <div class="modal-content">
       <h2>加好友/群</h2>
       <SearchBar :isImmidiate="false" @search="search" @button-click="search"/>
-      <ul class="items">
+      <ul class="items" v-show="results.length">
       <!-- 每个消息项 -->
       <li 
         v-for="result in results" 
@@ -17,7 +17,7 @@
           <div class="remark">{{ result.id }}</div>
         </div>
         <div >   
-          <button @click="add(result.tid)">添加</button>
+          <button @click="add(result.tid, result.type)">添加</button>
         </div>
       </li>
     </ul>
@@ -26,7 +26,7 @@
 </template>
 
 <script>
-import { addFriendGroup, searchFriendGroup } from '@/services/api';
+import * as contactListAPI from '@/services/contactList';
 import SearchBar from '@/components/base/SearchBar.vue';
 export default {
   components: {
@@ -34,22 +34,49 @@ export default {
   },
   data() {
     return {
-      results:[
-        {
-          tid: '13872132',   // 若为群聊，则为群号
-          id: '13872132',
-          nickname: 'test',
-          avatar: '',
-        },
-      ],  // 搜索结果
+      // results:[
+      //   {
+      //     tid: '13872132',   // 若为群聊，则为群号
+      //     id: '13872132',
+      //     nickname: 'test',
+      //     avatar: '',
+      //     type:''
+      //   },
+      // ],  // 搜索结果
+      results: [],
     };
   },
   methods: {
     async search(query) {
-      this.results = await searchFriendGroup(query);
+      if(!query) return;
+      try{
+        const response = await contactListAPI.searchStrangers(query);
+        if (response.status!==200) {
+          console.error('Failed to add friend/group', response.data.data.message);
+        }else{
+          this.results = response.data.data;
+        }
+      }
+      catch (error){
+        console.error('Failed to search friend/group',error)
+      }
+      
     },
-    async add(tid) {
-      await addFriendGroup(tid);
+    async add(tid, type) {
+      try{
+        let response;
+        if(type==='group'){
+          response = await contactListAPI.addGroup(tid);
+        }else{
+          response = await contactListAPI.addFriend(tid);
+        }
+        if (response.status!==200) {
+          console.error('Failed to add friend/group', response.data.data.message);
+        }
+      }
+      catch (error){
+        console.error('Failed to add friend/group',error)
+      }
     },
     close() {
       this.$emit('close');

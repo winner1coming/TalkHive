@@ -24,6 +24,7 @@
       ref="groupManagement"
       @close="closeGroupManagement"
       @update-group="updateGroupDetails"
+      @group-exited="exitGroup"
     />
   </div>
 </template>
@@ -77,7 +78,9 @@ export default {
       }
     },
     closeGroupManagement() {
-      this.showGroupManagement = false;
+      if (this.$store.state.currentChat.tags.includes('group')) {
+        this.$refs.groupManagement.hide();
+      }
     },
     updateGroupDetails(updatedGroup) {
       // 更新群聊信息
@@ -87,6 +90,10 @@ export default {
       // if (this.selectedChat.id === updatedGroup.id) {
       //   this.selectedChat = updatedGroup;
       // }
+    },
+    exitGroup() {
+      this.$store.dispatch('setChat', null);
+      this.$refs.chatList.fetchChatList();
     },
     handleNewMessage(message) {  // todo！
       // 处理新消息

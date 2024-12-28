@@ -43,3 +43,8 @@ export const getMessages = (tid) => {
 export const sendMessage = (tid, content) => {
   return apiClient.post(`/messages/${tid}/send`, { content });
 };
+
+// 获取历史记录
+export const getHistory = (tid) => {
+  return apiClient.post(`/messages/history`,{tid});
+};

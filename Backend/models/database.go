@@ -50,7 +50,7 @@ type SystemSetting struct {
 
 // ApplyInfo 表示申请通知表
 type ApplyInfo struct {
-	ApplyID    string `gorm:"primaryKey" json:"apply_id"`
+	ApplyID    uint   `gorm:"primaryKey;autoIncrement" json:"apply_id"`
 	ApplyType  string `json:"apply_type"`
 	SenderID   uint   `json:"sender_id"`
 	ReceiverID uint   `json:"receiver_id"`
