@@ -176,7 +176,7 @@ func GetFriendRequests(c *gin.Context) {
 		friendRequests = append(friendRequests, friendRequest)
 	}
 
-	c.JSON(http.StatusOK, gin.H{"success": true, "message": "成功！", "friend_requests": friendRequests})
+	c.JSON(http.StatusOK, gin.H{"success": true, "message": "成功！", "data": friendRequests})
 }
 
 // FriendRequestPend 处理好友请求(其他人申请当前id用户为好友)
@@ -1261,8 +1261,7 @@ func GetGroups(c *gin.Context) {
 
 	// 查询用户所属的群聊信息
 	var contacts []models.Contacts
-	err = global.Db.Where("owner_id = ? AND is_group_chat = ? AND is_blocked = ?", accountID, true, false).
-		Find(&contacts).Error
+	err = global.Db.Where("owner_id = ? AND is_group_chat = ? AND is_blocked = ?", accountID, true, false).Find(&contacts).Error
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询群聊失败"})
 		return
@@ -1287,7 +1286,7 @@ func GetGroups(c *gin.Context) {
 			"tag":        contact.Divide,          // 分组名称
 		})
 	}
-	c.JSON(http.StatusOK, gin.H{"success": true, "data": groupList})
+	c.JSON(http.StatusOK, gin.H{"success": true, "message": "成功", "data": groupList})
 }
 
 // CreateGroup 创建群聊
@@ -1313,8 +1312,12 @@ func CreateGroup(c *gin.Context) {
 	}
 
 	var input struct {
-		GroupAvatar string `json:"group_avatar"`
-		GroupName   string `json:"group_name"`
+		GroupName        string `json:"group_name"`
+		GroupAvatar      string `json:"group_avatar"`
+		GroupDescription string `json:"group_description"`
+		AllowInvite      bool   `json:"allow_invite"`
+		AllowIDSearch    bool   `json':"allow_id_search"`
+		AllowNameSearch  bool   `json:"allow_name_search"`
 	}
 
 	// 解析请求体
@@ -1331,12 +1334,48 @@ func CreateGroup(c *gin.Context) {
 		return
 	}
 
-	group := models.GroupChatInfo{
-		// GroupID自增自动生成
-		GroupAvatar: input.GroupAvatar,
-		GroupName:   input.GroupName,
+	// 写入群聊总表
+	groupchat := models.GroupChatInfo{
+		GroupAvatar:       input.GroupAvatar,
+		GroupName:         input.GroupName,
+		IsAllBanned:       false,
+		GroupOwner:        uint(accountID),
+		GroupIntroduction: input.GroupDescription,
+		ALlowNameSearch:   input.AllowNameSearch,
+		AllowIDSearch:     input.AllowIDSearch,
+		AllowInvite:       input.AllowInvite,
 	}
-	if err := global.Db.Create(&group).Error; err != nil {
+	if err := global.Db.Create(&groupchat).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "创建群聊失败"})
+		return
+	}
+
+	// 群聊表/通讯录表
+	contact := models.Contacts{
+		OwnerID:     uint(accountID),
+		ContactID:   groupchat.GroupID,
+		IsBlacklist: false,
+		IsPinned:    false,
+		IsGroupChat: true,
+		Divide:      "未分组",
+		IsMute:      false,
+		IsBlocked:   false,
+		Remark:      "",
+	}
+	if err := global.Db.Create(&contact).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "创建群聊失败"})
+		return
+	}
+
+	// 群成员表
+	groupmember := models.GroupMemberInfo{
+		AccountID:     uint(accountID),
+		GroupID:       groupchat.GroupID,
+		GroupNickname: input.GroupName,
+		IsBanned:      false,
+		GroupRole:     "group_owner",
+	}
+	if err := global.Db.Create(&groupmember).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "创建群聊失败"})
 		return
 	}

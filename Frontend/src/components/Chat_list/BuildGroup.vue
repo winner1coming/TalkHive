@@ -5,7 +5,7 @@
         <form @submit.prevent="createGroup">
           <!-- 上传头像 -->
           <div class="avatar-container">
-            <img class="head-avatar" :src="group_avater" @click="triggerFileInput" />
+            <img class="head-avatar" :src="group_avatar" @click="triggerFileInput" />
             <input type="file" ref="fileInput" style="display: none;" @change="handleFileChange" accept="image/*" />
           </div>
           <div>
@@ -49,7 +49,7 @@ export default {
   data() {
     return {
       group_name: '',
-      group_avater:'',
+      group_avatar:'',
       group_description: '',
       allow_invite: true,
       allow_id_search: true,
@@ -67,14 +67,14 @@ export default {
       if (file) {
         const reader = new FileReader();
         reader.onload = (e) => {
-          this.group_avater = e.target.result;
+          this.group_avatar = e.target.result;
         };
         reader.readAsDataURL(file);
       }
     },
     async createGroup(){
       try {
-        const response = await createGroup(this.group_name,this.group_avater,this.group_description,this.allow_invite,this.allow_id_search,this.allow_name_search);
+        const response = await createGroup(this.group_name,this.group_avatar,this.group_description,this.allow_invite,this.allow_id_search,this.allow_name_search);
         if (response.status===200) {
           this.$emit('group-created');
           this.close();

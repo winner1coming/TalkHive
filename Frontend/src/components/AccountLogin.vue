@@ -5,7 +5,22 @@
       
       <div class="input-group">
         <label for="account">账号:</label>
-        <input id="account" type="text" v-model="account" placeholder="请输入账号" />
+        <input 
+          id="account" 
+          type="text" 
+          v-model="account" 
+          @blur="hideDropdown" 
+          @input="handleInput" 
+          placeholder="请输入账号" />
+        <ul v-if="showDropdown" class="dropdown">
+        <li
+          v-for="matchedAccount in matchedAccounts"
+          :key="matchedAccount"
+          @mousedown="selectAccount(matchedAccount)"
+        >
+            {{ matchedAccount }}
+          </li>
+        </ul>
       </div>
       
       <div class="input-group">
@@ -19,7 +34,7 @@
       <label for="rememberMe">记住密码</label>
       </div>
 
-      <button class="login-button" @click="testlogin">登录</button>
+      <button class="login-button" @click="login">登录</button>
       
       <div class = "link">
         <!-- 注册链接 -->
@@ -45,6 +60,9 @@ export default {
       rememberMe:false,
       encryptionKey: 'TalkHiveProject',
       avatar:img,
+      users:[],
+      matchedAccounts: [],
+      showDropdown:false,
     };
   },
 
@@ -69,12 +87,6 @@ export default {
 
     // //检查账号密码是否为空（与后端连接需要把测试登录testlogin函数直接删除即可）
 
-    async testlogin(){
-    //         // 检查账号和密码是否为空
-    //   // 调用登录方法
-       await this.login();
-      this.$router.push('/home');
-     },
     async login() {
 
       if (!this.account) {
@@ -92,17 +104,6 @@ export default {
             password: this.password,
           });
 
-        //如果记住密码
-        if (this.rememberMe) {
-          const encryptedPassword = this.encryptPassword(this.password);
-          localStorage.setItem('rememberedAccount', this.account);
-          localStorage.setItem('rememberedPassword', encryptedPassword);
-        } else {
-          // 如果未勾选“记住密码”，则清除之前保存的账号和密码
-          localStorage.removeItem('rememberedAccount');
-          localStorage.removeItem('rememberedPassword');
-        }
-
         if (response.success) {
           this.avatar = `data:${response.mimeType};base64,${response.avatar}`;
           //更新全局变量
@@ -112,6 +113,24 @@ export default {
             avatar: this.avatar,
           });
           this.$store.commit('SET_LINKS',response.links);
+
+          let users = JSON.parse(localStorage.getItem('users')) || [];
+          //本地缓存的处理
+          const userInfo = {
+            account : this.account,
+            avatar: this.avatar,
+            email: response.email || '',
+            password: this.rememberMe ? this.encryptPassword(this.password) : '',
+          };
+          //是否已经存在账号
+          const index = users.findIndex(user => user.account === this.account);
+          if(index !== -1){
+            users[index] = userInfo;
+          }else{
+            users.push(userInfo);
+          }
+          localStorage.setItem('users', JSON.stringify(users));
+
           alert(response.message);
           this.$router.push('/home');
         } else {
@@ -121,18 +140,64 @@ export default {
         alert(error || '登录失败');
       }
     },
-  },
+
+    handleInput() {
+      if (this.account) {
+        // 模糊匹配账号（最左匹配）
+        this.matchedAccounts = this.users
+          .map(user => user.account)
+          .filter(account => account.startsWith(this.account));
+        this.showDropdown = this.matchedAccounts.length > 0; // 如果有匹配的账号，显示下拉框
+
+        const matchedUser = this.users.find(user => user.account === this.account);
+        if (matchedUser) {
+          this.avatar = matchedUser.avatar; // 如果账号存在，设置头像
+          if (matchedUser.password) {
+            this.password = this.decryptPassword(matchedUser.password);
+          }else{
+            this.password = '';
+          }
+        }
+        else{
+          this.avatar = img;
+          this.password='';
+        }
+      } else {
+        this.matchedAccounts = [];
+        this.showDropdown = false;
+        this.avatar=img;
+        this.password = '';
+      }
+    },
+
+    // 选择账号
+    selectAccount(account) {
+      this.account = account; // 填充账号到输入框
+      this.showDropdown = false; // 隐藏下拉框
+
+      // 直接从缓存中获取对应的头像
+      const matchedUser = this.users.find(user => user.account === account);
+      if(matchedUser){
+        this.avatar = matchedUser.avatar; // 设置头像  
+        // 如果该账号存储了加密的密码，则解密并填充到密码输入框
+        if (matchedUser.password) {
+          this.password = this.decryptPassword(matchedUser.password);
+        }else{
+          this.password = '';
+        }      
+      }
+    },
+
+    // 隐藏下拉框
+    hideDropdown() {
+      setTimeout(() => {
+          this.showDropdown = false;
+      }, 200); // 延迟隐藏，避免点击下拉框时立即隐藏
+    },
+},
 
   mounted() {
-    // 页面加载时，检查是否有记住的账号和密码
-    const rememberedAccount = localStorage.getItem('rememberedAccount');
-    const encryptedPassword = localStorage.getItem('rememberedPassword');
-
-    if (rememberedAccount && encryptedPassword) {
-      this.phone = rememberedAccount;
-      this.password = this.decryptPassword(encryptedPassword); // 解密密码
-      this.rememberMe = true; // 自动勾选“记住密码”
-    }
+    this.users = JSON.parse(localStorage.getItem('users')) || [];
   },
 
 };
@@ -170,6 +235,7 @@ export default {
 }
 
 .input-group {
+  position: relative;
   display: flex;
   margin-left: 20px;
   margin-bottom: 20px;
@@ -252,5 +318,43 @@ p a {
 
 p a:hover {
   text-decoration: underline;
+}
+
+.dropdown {
+  position: absolute;
+  width: 85%;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #fff;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 100px;
+  overflow-y: auto;
+  z-index: 1000;
+  top:100%;
+  left: 45px;
+}
+
+.dropdown li {
+  padding: 8px 20px;
+  cursor: pointer;
+}
+
+.dropdown li:hover {
+  background-color: #f0f0f0;
+}
+
+.dropdown::-webkit-scrollbar {
+  width: 8px; /* 滚动条宽度 */
+}
+
+.dropdown::-webkit-scrollbar-thumb {
+  background-color: #ccc; /* 滚动条颜色 */
+  border-radius: 4px; /* 滚动条圆角 */
+}
+
+.dropdown::-webkit-scrollbar-track {
+  background-color: #f0f0f0; /* 滚动条轨道颜色 */
 }
 </style>

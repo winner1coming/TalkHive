@@ -4,8 +4,14 @@ import (
 	"TalkHive/global"
 	"TalkHive/models"
 	"TalkHive/utils"
+	"encoding/base64"
 	"github.com/gin-gonic/gin"
+	"io"
+	"mime"
+	"mime/multipart"
 	"net/http"
+	"os"
+	"path/filepath"
 	"time"
 )
 
@@ -39,34 +45,63 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	// 构建返回的 JSON 数据
+	var avatarBase64 string
+	var mimeType string
+	if account.Avatar != "" {
+		avatarPath := account.Avatar
+		file, err := os.Open(avatarPath)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"success": false,
+				"message": "读取头像文件失败",
+			})
+			return
+		}
+		defer file.Close()
+
+		fileContents, err := io.ReadAll(file)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"success": false,
+				"message": "读取头像文件内容失败",
+			})
+			return
+		}
+		avatarBase64 = base64.StdEncoding.EncodeToString(fileContents)
+		mimeType = mime.TypeByExtension(filepath.Ext(avatarPath))
+		if mimeType == "" {
+			mimeType = "image/jpg"
+		}
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"success":    true,
 		"message":    "登录成功",
-		"avatar":     account.Avatar,
 		"nickname":   account.Nickname,
 		"account_id": account.AccountID,
 		"data": gin.H{
 			"account": account.ID,
 			"token":   token,
 		},
+		"avatar":   avatarBase64,
+		"mimeType": mimeType,
 	})
 }
 
 // Register 注册处理
 func Register(c *gin.Context) {
 	var input struct {
-		Avatar   string `json:"avatar"`
-		ID       string `json:"id"`
-		Nickname string `json:"nickname"`
-		Gender   string `json:"gender"`
-		Birthday string `json:"birthday"`
-		Email    string `json:"email"`
-		Phone    string `json:"phone"`
-		Password string `json:"password"`
+		Avatar   *multipart.FileHeader `form:"avatar"`
+		ID       string                `form:"id"`
+		Nickname string                `form:"nickname"`
+		Gender   string                `form:"gender"`
+		Birthday string                `form:"birthday"`
+		Email    string                `form:"email"`
+		Phone    string                `form:"phone"`
+		Password string                `form:"password"`
 	}
 
-	if err := c.ShouldBindJSON(&input); err != nil {
+	if err := c.ShouldBind(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Json解析失败"})
 		return
 	}
@@ -96,9 +131,32 @@ func Register(c *gin.Context) {
 		return
 	}
 
-	// 创建新用户
+	// 保存头像文件到 images 文件夹
+	var avatarPath string
+	if input.Avatar != nil {
+		// 构建目标文件夹路径//但是这个是在现有文件夹下的，感觉可以让用户选择一个文件夹，或者默认在C盘什么的
+		baseDir := "D:/TalkHive" // 用户默认的 TalkHive 文件夹
+		avatarDir := filepath.Join(baseDir, "images")
+
+		// 确保文件夹存在，如果不存在则创建
+		if err := os.MkdirAll(avatarDir, os.ModePerm); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "创建文件夹失败"})
+			return
+		}
+
+		// 构建文件路径
+		avatarPath = filepath.Join(avatarDir, input.Avatar.Filename)
+
+		// 保存文件
+		if err := c.SaveUploadedFile(input.Avatar, avatarPath); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "保存头像失败"})
+			return
+		}
+	}
+
+	// 创建用户
 	newUser := models.AccountInfo{
-		Avatar:                   input.Avatar,
+		Avatar:                   avatarPath,
 		ID:                       input.ID,
 		Nickname:                 input.Nickname,
 		Gender:                   input.Gender,
@@ -109,18 +167,27 @@ func Register(c *gin.Context) {
 		FriendPermissionID:       true,
 		FriendPermissionNickName: true,
 	}
-
-	// 保存到数据库
 	if err := global.Db.Create(&newUser).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "保存用户信息失败"})
 		return
 	}
 
-	// 返回成功响应
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"message": "注册成功",
-	})
+	// 创建系统设置
+	newUserSetting := models.SystemSetting{
+		AccountID:   newUser.AccountID,
+		Background:  "",
+		FontStyle:   "Microsoft YaHei",
+		FontSize:    16,
+		Theme:       "light",
+		Sound:       "dingdo.mp3",
+		Notice:      true,
+		NoticeGroup: true,
+	}
+	if err := global.Db.Create(&newUserSetting).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "保存用户设置失败"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"success": true, "message": "注册成功"})
 }
 
 // SendSmsCode 发送验证码

@@ -38,12 +38,12 @@ func ContactListRoutes(r *gin.Engine) {
 
 	// 群聊部分
 	r.GET("/contactList/groups", controllers.GetGroups)
-	r.POST("/contactList/createGroup", controllers.CreateGroup)
-	r.POST("/contactList/group/dismissGroup", controllers.DisMissGroup)
+	r.POST("/contactList/groups/createGroup", controllers.CreateGroup)
+	r.POST("/contactList/groups/dismissGroup", controllers.DisMissGroup)
 	r.POST("/contactList/groups/friendsNotInGroup", controllers.FetchFriendsNotInGroup)
-	r.POST("/contactList/group/invite", controllers.Invite)
-	r.POST("/contactList/group/quit", controllers.Quit)
-	r.GET("/contactList/group/{group_id}", controllers.GetGroupInfo)
+	r.POST("/contactList/groups/invite", controllers.Invite)
+	r.POST("/contactList/groups/quit", controllers.Quit)
+	r.GET("/contactList/groups/{group_id}", controllers.GetGroupInfo)
 	r.POST("/contactList/groups/changeNickname", controllers.ChangeNickname)
 	r.POST("/contactList/groups/banMember", controllers.SetBanned)
 	r.POST("/contactList/groups/removeMember", controllers.RemoveMember)

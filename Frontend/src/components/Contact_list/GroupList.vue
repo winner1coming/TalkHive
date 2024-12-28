@@ -125,7 +125,7 @@ export default {
     },
     async fetchTags() {
       const response = await contactListAPI.getDevides('friends');
-      this.tags = response.data.data.divides;
+      this.tags = response.data.divides;
       this.tags.unshift('全部');
     },
     async showProfileCard(event, send_account_id){

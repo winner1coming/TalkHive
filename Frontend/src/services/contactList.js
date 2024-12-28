@@ -94,8 +94,8 @@ export const getGroups = () => {
 };
 
 // 创建群聊接口（未完成）
-export const createGroup = (group_name,group_avater,group_description,allow_invite,allow_id_search,allow_name_search) => {
-  return apiClient.post('/contactList/groups/createGroup', { group_name,group_avater,group_description,allow_invite,allow_id_search,allow_name_search });
+export const createGroup = (group_name,group_avatar,group_description,allow_invite,allow_id_search,allow_name_search) => {
+  return apiClient.post('/contactList/groups/createGroup', { group_name,group_avatar,group_description,allow_invite,allow_id_search,allow_name_search });
 };
 
 // 解散群聊接口

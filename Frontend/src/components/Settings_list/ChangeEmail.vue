@@ -29,7 +29,7 @@
 
   export default {
     props:{
-      users: {
+      user: {
         type: Object,
         required: true,
       },
@@ -73,7 +73,7 @@
 
       //验证邮箱是否相等（验证与数据库的邮箱
       validate_oldEmail() {
-        const email = this.users.email;
+        const email = this.user.email;
         if (this.oldEmail !== email) {
           this.errors.oldEmail = '原邮箱不正确';
         } else {
@@ -98,8 +98,7 @@
       async sendCode(){
         try{
           const response = await getCode({
-              id:this.users.ID,
-              newEmail:this.newEmail,
+              new_email:this.newEmail,
           });
           if(response.success){
             alert('验证码已发送');
@@ -116,7 +115,7 @@
         this.validateCode();
         try{
           const response = await saveEmail({
-            id: this.users.ID,
+            new_email : this.newEmail,
           });
           if(response.success){
             alert('邮箱更改成功');

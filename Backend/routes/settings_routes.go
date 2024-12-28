@@ -16,7 +16,7 @@ func SettingsRoutes(r *gin.Engine) {
 	r.POST("/Settings/savePassword", controllers.SavePassword)
 	r.POST("/Settings/isIDAdd", controllers.IsIDAdd)
 	r.POST("/Settings/isNicknameAdd", controllers.IsNickNameAdd)
-	r.POST("/Settings/deactivation", controllers.ConfirmDeactivation)
+	r.POST("/Settings/deactivate", controllers.ConfirmDeactivation)
 
 	// 系统设置
 	r.POST("/Settings/changeTheme", controllers.ChangeTheme)
@@ -30,5 +30,5 @@ func SettingsRoutes(r *gin.Engine) {
 	r.GET("/systemSetting", controllers.GetSystemSetting)
 
 	// 退出登录
-	r.POST("/logout", controllers.Logout)
+	r.POST("/Logout", controllers.Logout)
 }

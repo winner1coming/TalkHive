@@ -4,6 +4,15 @@ import (
 	"time"
 )
 
+// MessageInfo 表示消息表
+type MessageInfo struct {
+	MessageID     uint      `gorm:"primaryKey" json:"message_id"`
+	CreateTime    time.Time `json:"create_time"`
+	SendAccountID uint      `json:"send_account_id"`
+	Content       string    `json:"content"`
+	Type          string    `json:"type"`
+}
+
 // AccountInfo 表示账号信息表
 type AccountInfo struct {
 	AccountID                uint   `gorm:"primaryKey" json:"account_id"`
@@ -41,11 +50,11 @@ type SystemSetting struct {
 	AccountID   uint   `gorm:"primaryKey" json:"account_id"`
 	Background  string `json:"background"`
 	FontStyle   string `json:"font_style"`
-	FontSize    int    `json:"font_size"`
+	FontSize    uint   `json:"font_size"`
 	Theme       string `json:"theme"`
 	Sound       string `json:"sound"`
-	Notice      string `json:"notice"`
-	NoticeGroup string `json:"noticeGroup"`
+	Notice      bool   `json:"notice"`
+	NoticeGroup bool   `json:"noticeGroup"`
 }
 
 // ApplyInfo 表示申请通知表
@@ -59,14 +68,16 @@ type ApplyInfo struct {
 	Reason     string `json:"reason"`
 }
 
-// GroupChatInfo 表示群聊总表
+// GroupChatInfo 表示群聊	总表
 type GroupChatInfo struct {
 	GroupID           uint   `gorm:"primaryKey" json:"group_id"`
 	GroupOwner        uint   `json:"group_owner"`
 	GroupAvatar       string `json:"group_avatar"`
 	GroupName         string `json:"group_name"`
 	GroupIntroduction string `json:"group_introduction"`
-	EnterPermission   string `json:"enter_permission"`
+	AllowInvite       bool   `json:"allow_invite"`
+	AllowIDSearch     bool   `json:"allow_id_search"`
+	ALlowNameSearch   bool   `json:"allow_name_search"`
 	IsAllBanned       bool   `json:"is_all_banned"`
 }
 
@@ -144,15 +155,6 @@ type Links struct {
 	URL     string `gorm:"primaryKey" json:"url"`
 	URLName string `json:"url_name"`
 	Icon    string `json:"icon"`
-}
-
-// MessageInfo 表示消息表
-type MessageInfo struct {
-	MessageID     uint      `gorm:"primaryKey" json:"message_id"`
-	CreateTime    time.Time `json:"create_time"`
-	SendAccountID uint      `json:"send_account_id"`
-	Content       string    `json:"content"`
-	Type          string    `json:"type"`
 }
 
 // DeleteInfo 表示删除消息表

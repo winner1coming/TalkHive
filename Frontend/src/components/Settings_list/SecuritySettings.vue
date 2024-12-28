@@ -76,7 +76,7 @@ export default {
       try{
         const response = await getUserInfo();
         if(response.success){
-          this.users.ID = this.user.id;
+          this.users.ID = response.id;
           this.users.email = response.email;
           this.users.password =  response.password;
           this.users.friend_permissionID = response.friend_permissionID ? 'on':'off';

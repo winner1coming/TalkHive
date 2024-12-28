@@ -5,6 +5,7 @@ import (
 	"TalkHive/models"
 	"TalkHive/utils"
 	"errors"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 	"net/http"
@@ -132,6 +133,7 @@ func GetUserInfo(c *gin.Context) {
 		"success": true,
 		"message": "成功获取用户信息",
 		"data": gin.H{
+			"id":                        user.ID,
 			"email":                     user.Email,
 			"password":                  user.Password,
 			"friend_permissionID":       user.FriendPermissionID,
@@ -169,7 +171,7 @@ func GetCode(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "无效的请求体"})
 		return
 	}
-
+	fmt.Println("新邮箱", input.NewEmail)
 	if !utils.ValidateEmail(input.NewEmail) {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "邮箱格式不正确"})
 		return
@@ -225,7 +227,6 @@ func SaveEmail(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户已注销"})
 		return
 	}
-
 	var input struct {
 		NewEmail string `json:"new_email"`
 	}
@@ -488,7 +489,7 @@ func ChangeFontsize(c *gin.Context) {
 		return
 	}
 	var input struct {
-		FontSize int `json:"font_size"`
+		FontSize uint `json:"font_size"`
 	}
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "参数解析失败"})
@@ -595,7 +596,7 @@ func IsNotice(c *gin.Context) {
 	}
 
 	var input struct {
-		Notice string `json:"notice"`
+		Notice bool `json:"notice"`
 	}
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "参数解析失败"})
@@ -648,7 +649,7 @@ func IsNoticeGroup(c *gin.Context) {
 	}
 
 	var input struct {
-		NoticeGroup string `json:"notice_group"`
+		NoticeGroup bool `json:"notice_group"`
 	}
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "参数解析失败"})
