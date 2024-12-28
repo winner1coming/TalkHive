@@ -101,24 +101,64 @@ export default {
   },
   methods: {
     async fetchRequests() {
-      const response = await ContactListAPI.getGroupRequests();
-      this.requests = response.data.data;
+      try{
+        const response = await ContactListAPI.getGroupRequests();
+        if(response.status !== 200){
+          this.$root.notify(response.data.message, 'error');
+          return;
+        }
+        this.requests = response.data.data;
+      }catch(err){
+        console.error(err);
+      }
     },
     async acceptInvitation(accountId,groupId) {
-      await ContactListAPI.groupInvitationRequestPend(accountId,groupId, true);
-      this.fetchRequests();
+      try{
+        const response = await ContactListAPI.groupInvitationRequestPend(accountId,groupId, true);
+        if(response.status !== 200){
+          this.$root.notify(response.data.message, 'error');
+          return;
+        }
+        this.fetchRequests();
+      }catch(err){
+        console.error(err);
+      }
     },
     async rejectInvitation(accountId,groupId) {
-      await ContactListAPI.groupInvitationRequestPend(accountId,groupId, false);
-      this.fetchRequests();
+      try{
+        const response = await ContactListAPI.groupInvitationRequestPend(accountId,groupId, false);
+        if(response.status !== 200){
+          this.$root.notify(response.data.message, 'error');
+          return;
+        }
+        this.fetchRequests();
+      }catch(err){
+        console.error(err);
+      }
     },
     async acceptApply(accountId,groupId) {
-      await ContactListAPI.groupApplyRequestPend(accountId, groupId, true);
-      this.fetchRequests();
+      try{
+        const response = await ContactListAPI.groupApplyRequestPend(accountId, groupId, true);
+        if(response.status !== 200){
+          this.$root.notify(response.data.message, 'error');
+          return;
+        }
+        this.fetchRequests();
+      }catch(err){
+        console.error(err);
+      }
     },
     async rejectApply(accountId,groupId) {
-      await ContactListAPI.groupApplyRequestPend(accountId, groupId, false);
-      this.fetchRequests();
+      try{
+        const response = await ContactListAPI.groupApplyRequestPend(accountId, groupId, false);
+        if(response.status !== 200){
+          this.$root.notify(response.data.message, 'error');
+          return;
+        }
+        this.fetchRequests();
+      }catch(err){
+        console.error(err);
+      }
     },
   },
   created() {

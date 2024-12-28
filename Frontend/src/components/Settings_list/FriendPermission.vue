@@ -29,7 +29,7 @@
     },
     //从父组件获取信息
     props:{
-      user: {
+      users: {
         type: Object,
         required: true,
         default: () => ({
@@ -47,8 +47,8 @@
       return {
         ID:this.$store.state.user.id,
         nickname:this.$store.state.user.username,
-        idStatus: this.user.friend_permissionID, // 'on' or 'off'
-        nicknameStatus: this.user.friend_permissionNickname, // 'on' or 'off'
+        idStatus: this.users.friend_permissionID, // 'on' or 'off'
+        nicknameStatus: this.users.friend_permissionNickname, // 'on' or 'off'
         modalVisible: false,
         modalMessage: '',
         msg1:'',

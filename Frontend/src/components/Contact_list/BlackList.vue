@@ -84,17 +84,42 @@ export default {
   },
   methods: {
     async fetchBlackList() {
-      const response = await contactListAPI.getBlackList();
-      this.blackList = response.data.data;
+      try{
+        const response = await contactListAPI.getBlackList();
+        if(response.status !== 200){
+          this.$root.notify(response.data.message, 'error');
+          return;
+        }
+        this.blackList = response.data.data;
+      }catch(err){
+        console.log(err);
+      } 
     },
     async showProfileCard(event, send_account_id){
-      const response = await getProfileCard(send_account_id); 
-      const profile = response.data.data;
-      this.$refs.profileCard.show(event, profile, this.boundD, this.boundR);
+      try{
+        const response = await getProfileCard(send_account_id); 
+        if(response.status !== 200){
+          this.$root.notify(response.data.message, 'error');
+          return;
+        }
+        const profile = response.data.data;
+        this.$refs.profileCard.show(event, profile, this.boundD, this.boundR);
+      }catch(err){
+        console.log(err);
+      }
+      
     },
     async Remove(id) {
-      const response = await contactListAPI.removeFromBlackList(id);
-      this.blackList = this.blackList.filter(person => person.account_id !== id);
+      try{
+        const response = await contactListAPI.removeFromBlackList(id);
+        if(response.status !== 200){
+          this.$root.notify(response.data.message, 'error');
+          return;
+        }
+        this.blackList = this.blackList.filter(person => person.account_id !== id);
+      }catch(err){
+        console.log(err);
+      }
     },
     showContextMenu(event){
       const items = [
@@ -112,19 +137,41 @@ export default {
       else {
         this.isBlackListManagementVisible = true;
         this.managementType = 'in';
-        const response = await contactListAPI.getFriends();
-        this.managePesons = response.data.data;
+        try{
+          const response = await contactListAPI.getFriends();
+          if(response.status !== 200){
+            this.$root.notify(response.data.message, 'error');
+            return;
+          }
+          this.managePesons = response.data.data;
+        }catch(err){
+          console.log(err);
+        }
       }
     },
     async confirmSelection(selectedPersons) {
       if(this.managementType === 'out') {
         for(const person of selectedPersons) {
-          await contactListAPI.removeFromBlackList(person.account_id);  
+          try{
+            const response = await contactListAPI.removeFromBlackList(person.account_id);
+            if(response.status !== 200){
+              this.$root.notify(response.data.message, 'error');
+            }
+          }catch(err){
+            console.log(err);
+          }
         }
       }
       else {
         for(const person of selectedPersons) {
-          await contactListAPI.addToBlackList(person.account_id);  
+          try{
+            const response = await contactListAPI.addToBlackList(person.account_id);
+            if(response.status !== 200){
+              this.$root.notify(response.data.message, 'error');
+            }
+          }catch(err){
+            console.log(err);
+          }
         }
       }
       this.fetchBlackList();

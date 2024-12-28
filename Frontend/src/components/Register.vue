@@ -2,98 +2,98 @@
   <!-- 注册页面容器 -->
   <div class="register">
     <div class="container">
-      <!-- 页面标题 -->
-      <h2>注册</h2>
+    <!-- 页面标题 -->
+    <h2>注册</h2>
 
-      <div class="avatar-container">
-        <img class="headavatar" :src="avatar" @click="triggerFileInput" />
-        <input type="file" ref="fileInput" style="display: none;" @change="handleFileChange" accept="image/*" />
-      </div>
-
-      <!--性别填写（同样设置为必填项）-->
-      <div class="input-group">
-        <label>性别*:</label>
-        <div class="radio-group">
-          <label> <input type="radio" v-model="gender" value="男" /> 男</label>
-          <label> <input type="radio" v-model="gender" value="女" /> 女</label>
-        </div>
-      </div>
-      <p v-if="errors.gender" class="error">{{ errors.gender }}</p>
-
-      <!-- ID 输入框 -->
-      <div class="input-group">
-        <label for="id">账号*:</label>
-        <input id="id" type="text" v-model="id" placeholder="" @blur="validateId" />
-      </div>
-      <p v-if="errors.id" class="error">{{ errors.id }}</p>
-
-
-      <!-- 昵称输入框 -->
-      <div class="input-group">
-        <label for="nickname">昵称*:</label>
-        <input id="nickname" type="text" v-model="nickname" placeholder="" @blur="validateNickname" />
-      </div>
-      <p v-if="errors.nickname" class="error">{{ errors.nickname }}</p>
-
-      <!--生日输入-->
-      <div class="input-group">
-        <label for="birthday">生日*:</label>
-        <div class="birthday-input-group">
-          <!-- 日期选择器 -->
-          <input
-              type="date"
-              v-model="birthday"
-              id="birthday"
-              placeholder=" "
-              @change="validateBirthday"
-              class="date-picker"
-          />
-        </div>
-      </div>
-      <p v-if="errors.birthday" class="error">{{ errors.birthday }}</p>
-
-      <!-- 手机号输入框 -->
-      <div class="input-group">
-        <label for="phoneNumber">手机号:</label>
-        <input id="phoneNumber" type="text" v-model="phoneNumber" placeholder="" @blur="validatePhoneNumber" />
-      </div>
-      <p v-if="errors.phoneNumber" class="error">{{ errors.phoneNumber }}</p>
-
-
-      <!-- 邮箱输入框 -->
-      <div class="input-group">
-        <label for="email">邮箱*:</label>
-        <input id="email" type="text" v-model="email" placeholder="" @blur="validateEmail" />
-      </div>
-      <p v-if="errors.email" class="error">{{ errors.email }}</p>
-
-      <!-- 密码输入框 -->
-      <div class="input-group">
-        <label for="password">密码*:</label>
-        <input id="password" type="password" v-model="password" placeholder="" @blur="validatePassword" />
-      </div>
-      <p v-if="errors.password" class="error">{{ errors.password }}</p>
-
-      <!-- 确认密码输入框 -->
-      <div class="input-group">
-        <label for="confirmPassword">确认密码*:</label>
-        <input id="confirmPassword" type="password" v-model="confirmPassword" placeholder="" @blur="validateConfirmPassword" />
-      </div>
-      <p v-if="errors.confirmPassword" class="error">{{ errors.confirmPassword }}</p>
-
-      <!-- 验证码输入框 -->
-      <div class="input-group">
-        <label for="verificationCode">验证码*:</label>
-        <input id="verificationCode" type="text" v-model="verificationCode" placeholder=""  />
-        <button class="send-verification-code" @click="sendSmsCode" :disabled="isCountingDown" :class="{ 'counting-down': isCountingDown }">
-          {{ isCountingDown ? `${countdown}秒后重试` : '获取' }}</button>
-      </div>
-      <p v-if="errors.verificationCode" class="error">{{ errors.verificationCode }}</p>
-
-      <!-- 注册按钮 -->
-      <button class="register-button" @click="register">注册</button>
+    <div class="avatar-container">
+      <img class="headavatar" :src="avatar" @click="triggerFileInput" />
+      <input type="file" ref="fileInput" style="display: none;" @change="handleFileChange" accept="image/*" />
     </div>
-  </div>
+
+    <!--性别填写（同样设置为必填项）-->
+    <div class="input-group">
+      <label>性别*:</label>
+      <div class="radio-group">
+        <label> <input type="radio" v-model="gender" value="男" /> 男</label>
+        <label> <input type="radio" v-model="gender" value="女" /> 女</label>
+      </div>
+    </div>
+    <p v-if="errors.gender" class="error">{{ errors.gender }}</p>
+
+    <!-- ID 输入框 -->
+    <div class="input-group">
+      <label for="id">账号*:</label>
+      <input id="id" type="text" v-model="id" placeholder="" @blur="validateId" />
+    </div>
+    <p v-if="errors.id" class="error">{{ errors.id }}</p>
+    
+    
+    <!-- 昵称输入框 -->
+    <div class="input-group">
+      <label for="nickname">昵称*:</label>
+      <input id="nickname" type="text" v-model="nickname" placeholder="" @blur="validateNickname" />
+    </div>
+    <p v-if="errors.nickname" class="error">{{ errors.nickname }}</p>
+    
+    <!--生日输入-->
+    <div class="input-group">
+      <label for="birthday">生日*:</label>
+      <div class="birthday-input-group">
+        <!-- 日期选择器 -->
+        <input
+          type="date"
+          v-model="birthday"
+          id="birthday"
+          placeholder=" "
+          @change="validateBirthday"
+          class="date-picker"
+        />
+      </div>
+    </div>
+    <p v-if="errors.birthday" class="error">{{ errors.birthday }}</p>
+
+    <!-- 手机号输入框 -->
+    <div class="input-group">
+    <label for="phoneNumber">手机号:</label>
+    <input id="phoneNumber" type="text" v-model="phoneNumber" placeholder="" @blur="validatePhoneNumber" />
+    </div>
+    <p v-if="errors.phoneNumber" class="error">{{ errors.phoneNumber }}</p>
+ 
+
+    <!-- 邮箱输入框 -->
+    <div class="input-group">
+      <label for="email">邮箱*:</label>
+      <input id="email" type="text" v-model="email" placeholder="" @blur="validateEmail" />
+    </div>
+    <p v-if="errors.email" class="error">{{ errors.email }}</p>
+    
+    <!-- 密码输入框 -->
+    <div class="input-group">
+      <label for="password">密码*:</label>
+      <input id="password" type="password" v-model="password" placeholder="" @blur="validatePassword" />
+    </div>
+    <p v-if="errors.password" class="error">{{ errors.password }}</p>
+    
+    <!-- 确认密码输入框 -->
+    <div class="input-group">
+      <label for="confirmPassword">确认密码*:</label>
+      <input id="confirmPassword" type="password" v-model="confirmPassword" placeholder="" @blur="validateConfirmPassword" />
+    </div>
+    <p v-if="errors.confirmPassword" class="error">{{ errors.confirmPassword }}</p>
+    
+    <!-- 验证码输入框 -->
+    <div class="input-group">
+      <label for="verificationCode">验证码*:</label>
+      <input id="verificationCode" type="text" v-model="verificationCode" placeholder=""  />
+      <button class="send-verification-code" @click="sendSmsCode" :disabled="isCountingDown" :class="{ 'counting-down': isCountingDown }">
+          {{ isCountingDown ? `${countdown}秒后重试` : '获取' }}</button>
+    </div>
+    <p v-if="errors.verificationCode" class="error">{{ errors.verificationCode }}</p>
+    
+    <!-- 注册按钮 -->
+    <button class="register-button" @click="register">注册</button>
+    </div>
+ </div>
 </template>
 
 <script>
@@ -131,7 +131,7 @@ export default {
       countdown:60,
     };
   },
-
+  
   methods: {
     // 触发文件输入
     triggerFileInput() {
@@ -151,17 +151,17 @@ export default {
     },
 
     validateId() {
-      if (!this.id) {
-        this.errors.id = '账号 不能为空';
-      } else if (/\s/.test(this.id)) {
-        this.errors.id = '账号 不能包含空格';
-      } else if (this.id.length < 6 || this.id.length > 12) {
-        this.errors.id = '账号 长度必须在 6 到 12 个字符之间';
-      } else if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(this.id)) {
-        this.errors.id = '账号只能包含字母、数字和下划线，且开头只能是字母或下划线';
-      } else {
-        this.errors.id = '';
-      }
+        if (!this.id) {
+          this.errors.id = '账号 不能为空';
+        } else if (/\s/.test(this.id)) {
+          this.errors.id = '账号 不能包含空格';
+        } else if (this.id.length < 6 || this.id.length > 12) {
+          this.errors.id = '账号 长度必须在 6 到 12 个字符之间';
+        } else if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(this.id)) {
+          this.errors.id = '账号只能包含字母、数字和下划线，且开头只能是字母或下划线';
+        } else {
+          this.errors.id = '';
+        }
     },
 
     // 验证性别
@@ -172,7 +172,7 @@ export default {
         this.errors.gender = '';
       }
     },
-
+    
     // 验证昵称
     validateNickname() {
       if (!this.nickname) {
@@ -191,7 +191,7 @@ export default {
         this.errors.birthday = '';
       }
     },
-
+    
     // 验证手机号
     validatePhoneNumber() {
       if (this.phoneNumber &&!/^1[3-9]\d{9}$/.test(this.phoneNumber)) {
@@ -200,32 +200,32 @@ export default {
         this.errors.phoneNumber = '';
       }
     },
-
+    
     // 验证邮箱
     validateEmail() {
-      if (!this.email) {
-        this.errors.email = '邮箱不能为空';
-      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email)) {
-        this.errors.email = '邮箱格式不正确';
-      } else {
-        this.errors.email = '';
-      }
+        if (!this.email) {
+          this.errors.email = '邮箱不能为空';
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email)) {
+          this.errors.email = '邮箱格式不正确';
+        } else {
+          this.errors.email = '';
+        }
     },
 
     validatePassword() {
-      if (!this.password) {
-        this.errors.password = '密码不能为空';
-      } else if (this.password.length < 6) {
-        this.errors.password = '密码长度不能少于6位';
-      } else if (/\s/.test(this.password)) {
-        this.errors.password = '密码不能包含空格';
-      } else if (!/^[a-zA-Z0-9]+$/.test(this.password)) {
-        this.errors.password = '密码只能是数字和字母的组合';
-      } else {
-        this.errors.password = '';
-      }
+        if (!this.password) {
+          this.errors.password = '密码不能为空';
+        } else if (this.password.length < 6) {
+          this.errors.password = '密码长度不能少于6位';
+        } else if (/\s/.test(this.password)) {
+          this.errors.password = '密码不能包含空格';
+        } else if (!/^[a-zA-Z0-9]+$/.test(this.password)) {
+          this.errors.password = '密码只能是数字和字母的组合';
+        } else {
+          this.errors.password = '';
+        }
     },
-
+    
     // 验证确认密码
     validateConfirmPassword() {
       if (!this.confirmPassword) {
@@ -236,7 +236,7 @@ export default {
         this.errors.confirmPassword = '';
       }
     },
-
+    
     // 验证验证码
     validateVerificationCode() {
       if (!this.verificationCode) {
@@ -247,18 +247,18 @@ export default {
     },
 
     async validateCode(){
-      if(this.Code){
-        if(this.Code !== this.verificationCode){
-          alert('验证码错误');
+        if(this.Code){
+          if(this.Code !== this.verificationCode){
+              alert('验证码错误');
+              return;
+          }
+        }
+        else{
+          alert('请先获取验证码！');
           return;
         }
-      }
-      else{
-        alert('请先获取验证码！');
-        return;
-      }
-    },
-
+      },
+    
     // 发送验证码
     async sendSmsCode() {
       this.validateEmail();
@@ -296,8 +296,8 @@ export default {
       }, 1000);
     },
 
-
-
+    
+    
     // 注册方法
     async register() {
       this.validateId();
@@ -309,7 +309,7 @@ export default {
       this.validateConfirmPassword();
       this.validateVerificationCode();
       this.validateBirthday();
-
+      
       if (Object.values(this.errors).some(error => error)) {
         return;
       }
@@ -328,11 +328,10 @@ export default {
         formData.append('id', this.id);
         formData.append('nickname', this.nickname);
         formData.append('birthday', this.birthday);
-        formData.append('phone',this.phoneNumber);
-        formData.append('email', this.email);
+        formData.append('phone',this.phone);
         formData.append('password',this.password);
         const response = await Register(formData);
-
+        
         if (response.success) {
           alert(response.message);
           this.$router.push('/loginth');
@@ -362,17 +361,17 @@ export default {
 }
 
 .container {
-  display:flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 添加阴影效果 */
-  border-radius: 8px; /* 添加圆角效果 */
-  background-color: #fff; /* 添加背景色 */
-  margin-top: 15px;
-  width: 400px;
-  flex-wrap: nowrap;
-}
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 添加阴影效果 */
+    border-radius: 8px; /* 添加圆角效果 */
+    background-color: #fff; /* 添加背景色 */
+    margin-top: 15px;
+    width: 400px;
+    flex-wrap: nowrap;
+  }
 
 h2 {
   margin-bottom: 10px;

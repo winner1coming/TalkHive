@@ -118,7 +118,7 @@ export default createStore({
     },
 
     connectWebSocket({ commit, state }) {
-      const socket = new WebSocket(`ws://your-websocket-url.com/${state.user.id}`);   // todo
+      const socket = new WebSocket(`ws://localhost:8080/${state.user.id}`);  
       socket.onmessage = (event) => {
         const data = JSON.parse(event.data);
         // 除了对应内容外还需要type字段   todo todo

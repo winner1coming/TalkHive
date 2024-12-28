@@ -94,7 +94,7 @@
       <!--群成员列表-->
       <div class="search-members">
         <div 
-          v-if="filteredMembers.length !== 0"
+          v-if="!filteredMembers && filteredMembers.length !== 0"
           v-for="member in filteredMembers" 
           :key="member.account_id" 
           class="member"
@@ -112,28 +112,52 @@
     <!--聊天记录-->
     <div v-show="componentStatus === 'history'" style="width: 100%;">
       <p>聊天记录</p>
-      <SearchBar 
-          :isImmidiate="false" 
-          :showButton="false"
-          @search="searchHistory" 
+      <div class="search-bar" >
+        <input
+          type="text"
+          v-model="searchHistoryKeyword"
+          placeholder="搜索..."
+        />
+      </div>
+      <!--搜索类型-->
+      <div class="search-type">
+        <span @click="searchHistoryType='all'">全部</span>
+        <span @click="searchHistoryType='image'">图片</span>
+        <span @click="searchHistoryType='file'">文件</span>
+        <span @click="searchHistoryType='date'">日期</span>
+        <span @click="searchHistoryType='member'">成员</span>
+      </div>
+      <input
+        type="date"
+        v-show="searchHistoryType==='date'"
+        v-model="searchHistoryDate"
       />
-      <div class="history-list">
+      <!--筛选好的历史记录--> 
+      <div v-if="filteredHistory" class="history-list">
         <div
-          v-for="message in filteredHistory"
+          v-for="(message, index) in filteredHistory"
           :key="message.message_id"
+          :ref="'message-' + index"
           class="message-item"
         >
           <div class="message-header">
             <img :src="message.avatar" alt="avatar" />
-            <div>
-              <p class="message-sender">{{ message.sender }}</p>
-              <p class="message-time">{{ message.create_time }}</p>
-            </div>
+            <p class="message-sender">{{ message.sender }}</p>
+            <p class="message-time">{{ message.create_time }}</p>
+          </div>
+          <div>
+
           </div>
           <div class="message-content">
             <p class="message-text">{{ message.content }}</p>
           </div>
         </div>
+      </div>
+      <div v-else-if="searchHistoryKeyword" class="no-result">
+        <p>无搜索结果</p>
+      </div>
+      <div v-else class="no-result">
+        <p>输入关键词或按类型查找</p>
       </div>
     </div>
     <!--管理员设置-->
@@ -255,7 +279,13 @@ export default {
           avatar:'',
         },
       ],
+      // 搜索历史方面
       searchHistoryKeyword:'',
+      searchHistoryType:'all', // 'all', 'image', 'file', 'date','member'
+      searchHistoryDate:'',
+      searchHistoryMember:'',
+      
+
       searchMembersKeyword:'',
       componentStatus: 'main',  // 'main', 'history', 'manage'
       inviteMemberVisible: false,
@@ -287,8 +317,7 @@ export default {
         if(response.status === 200){
           this.groupInfo = response.data.data;
         }else{
-          // todo
-          console.log(response.data.data.message);
+          this.$root.notify(response.data.message, 'error');
         }
       }
       catch(error){
@@ -296,10 +325,20 @@ export default {
       }
       
     },
+    initialize(){
+      this.query = '';
+      this.showAll = false;
+      this.searchHistoryKeyword = '';
+      this.searchHistoryType = 'all';
+      this.searchHistoryDate = '';
+      this.searchHistoryMember = '';
+      this.searchMembersKeyword = '';
+    },
     returnTo(){
       if(this.componentStatus === 'main'){
         this.hide();
       }else{
+        this.initialize();
         this.componentStatus = 'main';
       }
     },
@@ -327,7 +366,7 @@ export default {
           this.$refs.profileCard.show(event, profile, this.boundD, this.boundR);
         }
         else{
-          // todo
+          this.$root.notify(response.data.message, 'error');
         }
       }
       catch(error){
@@ -347,7 +386,7 @@ export default {
           chatInfo.name = newRemark;
           this.$store.dispatch('setChat', chatInfo); // 更新chatList
         } else {
-          console.log(response.data.data.message);
+          this.$root.notify(response.data.message, 'error');
         }
       }
       catch(error){
@@ -360,7 +399,7 @@ export default {
         if (response.status === 200) {
           this.groupInfo.my_group_nickname = newNickname;
         } else {
-          console.log(response.data.data.message);
+          this.$root.notify(response.data.message, 'error');
         }
       } catch (error) {
         console.log('change group nickname error:', error);
@@ -375,7 +414,7 @@ export default {
           chatInfo.tags = this.isMute ? [...chatInfo.tags, 'mute'] : chatInfo.tags.filter(tag => tag !== 'mute');
           this.$store.dispatch('setChat',chatInfo); // 更新chatList
         }else{
-          // todo
+          this.$root.notify(response.data.message, 'error');
         }
       }
       catch(error){
@@ -392,7 +431,7 @@ export default {
           chatInfo.tags = this.isBlocked ? [...chatInfo.tags, 'blocked'] : chatInfo.tags.filter(tag => tag !== 'blocked');
           this.$store.dispatch('setChat', chatInfo);  // 更新chatList
         }else{
-          // todo
+          this.$root.notify(response.data.message, 'error');
         }
       }
       catch(error){
@@ -409,7 +448,7 @@ export default {
           chatInfo.tags = this.isPinned ? [...chatInfo.tags, 'pinned'] : chatInfo.tags.filter(tag => tag !== 'pinned');
           this.$store.dispatch('setChat', chatInfo);  // 更新chatList
         } else {
-          // todo
+          this.$root.notify(response.data.message, 'error');
         }
       } catch (error) {
         // todo
@@ -418,14 +457,14 @@ export default {
     },
     async setBanned(account_id, is_banned){
       try {
-        const response = await chatListAPI.setBanned(this.group_id,this.account_id, this.is_banned);
+        const response = await contactListAPI.setBanned(this.group_id,this.account_id, this.is_banned);
         if (response.status === 200) {
           let member = this.groupInfo.members.find(member => member.account_id === account_id);
           if (member) {
             member.is_banned = is_banned;
           }
         } else {
-          // todo
+          this.$root.notify(response.data.message, 'error');
         }
       } catch (error) {
         // todo
@@ -441,8 +480,7 @@ export default {
           this.hide();
         }
         else{
-          // todo
-          console.log(response.data.data.message);
+          this.$root.notify(response.data.message, 'error');
         }
       }
       catch(error){
@@ -475,6 +513,8 @@ export default {
         console.error('Failed to delete group:', error);
       }
     },
+
+    // 聊天记录
     async viewChatHistory() {
       // 查看聊天记录
       this.componentStatus = 'history';
@@ -482,8 +522,7 @@ export default {
         if (response.status === 200) {
           this.history = response.data.data;
         } else {
-          // todo
-          console.log(response.data.data.message); 
+          this.$root.notify(response.data.message, 'error');
         }
       }).catch(error => {
         console.log('get chat history error:', error);
@@ -492,6 +531,15 @@ export default {
     searchHistory(keyword){
       this.searchHistoryKeyword = keyword;
     },
+    scrollToMessage(index) {
+      this.$nextTick(() => {
+        const messageElement = this.$refs['message-' + index];
+        if (messageElement && messageElement[0]) {
+          messageElement[0].scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    },
+
     manageGroups() {
       // 管理员设置
       this.componentStatus = 'manage';
@@ -500,7 +548,7 @@ export default {
       try{
         const response = await contactListAPI.changeInvitePermission(this.group_id, this.groupInfo.allow_invite);
         if(response.status !== 200){
-          // todo
+          this.$root.notify(response.data.message, 'error');
         }
       }
       catch(error){
@@ -511,7 +559,7 @@ export default {
       try{
         const response = await contactListAPI.changeIdPermission(this.group_id, this.groupInfo.allow_id_search);
         if(response.status !== 200){
-          // todo
+          this.$root.notify(response.data.message, 'error');
         }
       }
       catch(error){
@@ -522,13 +570,14 @@ export default {
       try{
         const response = await contactListAPI.changeNamePermission(this.group_id, this.groupInfo.allow_name_search);
         if(response.status !== 200){
-          // todo
+          this.$root.notify(response.data.message, 'error');
         }
       }
       catch(error){
         console.log('change name permission error:', error);
       }
     },
+
     // 右键菜单
     showContextMenu(event, account_id) {
       if(account_id === this.groupInfo.group_owner || account_id === this.$store.state.user.id){
@@ -565,7 +614,7 @@ export default {
     async handleMenuSelect(option, account_id){
       if(option==='禁言'){
         try{
-          const response = await chatListAPI.setBanned(this.group_id, account_id, true);
+          const response = await contactListAPI.setBanned(this.group_id, account_id, true);
           if(response.status === 200){
             let member = this.groupInfo.members.find(member => member.account_id === account_id);
             if(member){
@@ -573,8 +622,7 @@ export default {
             }
           }
           else{
-            // todo
-            console.log('set banned error:', response.data.data.message);
+            this.$root.notify(response.data.message, 'error');
           }
         }
         catch(error){
@@ -583,7 +631,7 @@ export default {
       }
       else if(option==='解禁'){
         try{
-          const response = await chatListAPI.setBanned(this.group_id, account_id, false);
+          const response = await contactListAPI.setBanned(this.group_id, account_id, false);
           if(response.status === 200){
             let member = this.groupInfo.members.find(member => member.account_id === account_id);
             if(member){
@@ -591,7 +639,7 @@ export default {
             }
           }
           else{
-            console.log('set banned error:', response.data.data.message);
+            this.$root.notify(response.data.message, 'error');
           }
         }
         catch(error){
@@ -605,7 +653,7 @@ export default {
             this.groupInfo.members = this.groupInfo.members.filter(member => member.account_id !== account_id);
           }
           else{
-            console.log('remove member error:', response.data.data.message);
+            this.$root.notify(response.data.message, 'error');
           }
         }
         catch(error){
@@ -621,7 +669,7 @@ export default {
             }
           }
           else{
-            console.log('set manager error:', response.data.data.message);
+            this.$root.notify(response.data.message, 'error');
           }
         }
         catch(error){
@@ -637,7 +685,7 @@ export default {
             }
           }
           else{
-            console.log('set manager error:', response.data.data.message);
+            this.$root.notify(response.data.message, 'error');
           }
         }
         catch(error){
@@ -650,7 +698,7 @@ export default {
             this.groupInfo.group_owner = account_id;
           }
           else{
-            console.log('transfer owner error:', response.data.data.message);
+            this.$root.notify(response.data.message, 'error');
           }
         }
         catch(error){
@@ -668,7 +716,7 @@ export default {
     hide(){
       this.visible = false;
       this.componentStatus = 'main';
-      this.showAll = false;
+      initialize();
       EventBus.emit('hide-float-component'); // 通知其他组件
     },
   },
@@ -678,14 +726,42 @@ export default {
     // },
     filteredHistory(){
       const keyword = this.searchHistoryKeyword;
-      if(!keyword) return this.history;
-      console.log(keyword);
-      return this.history.filter(message => {
-        return (
-          message.sender.includes(keyword) ||
-          message.content.includes(keyword)
-        );
-      });
+      if(this.searchHistoryType === 'all'){
+        if(!keyword) return null;
+        return this.history.filter(message => {
+          return (
+            message.type === 'text' &&
+            message.content.includes(keyword)
+          );
+        });
+      }
+      else if(this.searchHistoryType === 'image'){  // todo
+        return this.history.filter(message => {
+          return message.type === 'image' && message.content.includes(keyword);
+        });
+      }
+      else if(this.searchHistoryType === 'file'){  // todo
+        return this.history.filter(message => {
+          return message.type === 'file' && message.content.includes(keyword);
+        });
+      }
+      else if(this.searchHistoryType === 'date'){ 
+        if(!this.searchHistoryDate) return null;
+        if(!this.searchHistoryKeyword){
+          this.scrollToMessage(this.history.findIndex(message => message.create_time.includes(this.searchHistoryDate)));
+          return this.history;
+        }
+        return this.history.filter(message => {
+          return message.create_time.includes(this.searchHistoryDate) &&
+            message.content.includes(keyword)
+        });
+      }
+      else if(this.searchHistoryType === 'member'){
+        return this.history.filter(message => {
+          return message.send_account_id===this.searchHistoryMember 
+            && message.content.includes(keyword);
+        });
+      }
     },
     filteredMembers(){
       const keyword = this.searchMembersKeyword;
@@ -852,8 +928,15 @@ export default {
 .no-result {
   text-align: center;
   color: #888;
+  margin-top: 20px;
+  width: 100%;
 }
 
+.search-type{
+  display: flex;
+  justify-content: space-around;
+  padding: 5px;
+}
 .history-list {
   max-height: 500px; 
   overflow-y: auto;
@@ -872,28 +955,26 @@ export default {
 .message-header {
   display: flex;
   align-items: center;
-  padding: 10px;
   border-bottom: 1px solid #e0e0e0;
+  width: 100%;
+  font-size: 0.8em;
+  color: #888;
+  justify-content: space-between;
 }
 .message-header img {
   width: 35px;
   height: 35px;
   border-radius: 50%;
   margin-right: 10px;
+  padding: 3px;
 }
 .message-content {
   flex-grow: 1;
 }
-.message-sender {
-  font-weight: bold;
-  margin-bottom: 5px;
-}
 .message-text {
   margin-bottom: 5px;
-}
-.message-time {
-  font-size: 0.8em;
-  color: #888;
+  text-align: left;
+  padding: 3px;
 }
 
 .muted-members-list {

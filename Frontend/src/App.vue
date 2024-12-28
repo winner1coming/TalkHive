@@ -124,7 +124,7 @@ export default {
       this.$store.replaceState(JSON.parse(savedState));
     }
     // 全局监视器
-    // this.connectWebSocket();
+    //this.$store.dispatch('connectWebSocket');
     window.addEventListener('click', this.hideClick, true); // 使用 capture 选项
     window.addEventListener('contextmenu', this.hideContext, true); // 使用 capture 选项
     EventBus.on('float-component-open', (component) => {

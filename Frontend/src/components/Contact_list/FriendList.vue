@@ -104,18 +104,44 @@ export default {
   },
   methods: {
     async fetchFriends() {
-      const response = await contactListAPI.getFriends();
-      this.items = response.data.data;
+      try{
+        const response = await contactListAPI.getFriends();
+        if(response.status !== 200){
+          this.$root.notify(response.data.message, 'error');
+          return;
+        }
+        this.items = response.data.data;
+      }
+      catch(err){
+        console.log(err);
+      }
     },
     async fetchTags() {
-      const response = await contactListAPI.getDevides('friends');
-      this.tags = response.data.divides;
-      this.tags.unshift('全部');
+      try{
+        const response = await contactListAPI.getDevides('friends');
+        if(response.status !== 200){
+          this.$root.notify(response.data.message, 'error');
+          return;
+        }
+        this.tags = response.data.divides;
+        this.tags.unshift('全部');
+      }
+      catch(err){
+        console.log(err);
+      }
     },
     async showProfileCard(event, send_account_id){
-      const response = await getProfileCard(send_account_id); 
-      const profile = response.data.data;
-      this.$refs.profileCard.show(event, profile, this.boundD, this.boundR);
+      try{
+        const response = await getProfileCard(send_account_id); 
+        if(response.status !== 200){
+          this.$root.notify(response.data.message, 'error');
+          return;
+        }
+        const profile = response.data.data;
+        this.$refs.profileCard.show(event, profile, this.boundD, this.boundR);
+      }catch(err){
+        console.log(err);
+      }
     },
     showContextMenu(event){
       const items = [
@@ -159,9 +185,17 @@ export default {
         this.persons = this.items.filter(person => person.tag === obj);
       }
       else if(item === '删除'){
-        await contactListAPI.deleteDevide('friends', obj);   // obj为分组名
-        this.tags = this.tags.filter(tag => tag !== obj);
-        await this.fetchFriends();
+        try {
+          const response = await contactListAPI.deleteDevide('friends', obj);   // obj为分组名
+          if(response.status !== 200){
+            this.$root.notify(response.data.message, 'error');
+            return;
+          }
+          this.tags = this.tags.filter(tag => tag !== obj);
+          await this.fetchFriends();
+        } catch (error) {
+          console.log(error);
+        }
       }
       else if(item === '更名'){
         this.$refs.divideAdd.type = 'rename';
@@ -175,8 +209,16 @@ export default {
         this.obj = obj;
       }
       else if(item === '拉黑'){
-        await contactListAPI.addToBlackList(obj.account_id);   // obj为好友对象
-        this.items = this.items.filter(person => person !== obj);
+        try{
+          const response = await contactListAPI.addToBlackList(obj.account_id);   // obj为好友对象
+          if(response.status !== 200){
+            this.$root.notify(response.data.message, 'error');
+            return;
+          }
+          this.items = this.items.filter(person => person !== obj);
+        }catch(err){
+          console.log(err);
+        }
       }
     },
     async addDevide(newDevide){
@@ -184,40 +226,69 @@ export default {
         alert('分组名已存在');
         return;
       }
-      await contactListAPI.createDevide('friends', newDevide); 
-      this.tags.push(newDevide);
+      try{
+        const response = await contactListAPI.createDevide('friends', newDevide); 
+        if(response.status !== 200){
+          this.$root.notify(response.data.message, 'error');
+          return;
+        }
+        this.tags.push(newDevide);
+      }catch(err){
+        console.log(err);
+      }
     },
     async renameDevide(newDevide){
       if(this.obj===newDevide){
         //alert('分组名已存在');
         return;
       }
-      await contactListAPI.renameDevide('friends', this.obj, newDevide); 
+      const response = await contactListAPI.renameDevide('friends', this.obj, newDevide); 
+      if(response.status !== 200){
+        this.$root.notify(response.data.message, 'error');
+        return;
+      }
       this.tags = this.tags.map(tag => tag === this.obj ? newDevide : tag);
       await this.fetchFriends();
     },
     async deleteDevides(divides){
       divides.forEach(async (divide) => {
         try {
-          await contactListAPI.deleteDevide('friends', divide);   
+          const response = await contactListAPI.deleteDevide('friends', divide);   
+          if(response.status !== 200){
+            this.$root.notify(response.data.message, 'error');
+            return;
+          }
         } catch (error) {
-          alert('删除分组失败！');
+          console.log(error);
         }
       });
       await this.fetchTags();
       await this.fetchFriends();
     },
     async divideMove(divide){
-      await contactListAPI.moveInDevide('friends', this.obj.account_id,divide);   // obj为好友对象
-      this.obj.tag = divide;   // obj为好友对象
+      try{
+        const response = await contactListAPI.moveInDevide('friends', this.obj.account_id,divide);   // obj为好友对象
+        if(response.status !== 200){
+          this.$root.notify(response.data.message, 'error');
+          return;
+        }
+        this.obj.tag = divide;   // obj为好友对象
+      }
+      catch(err){
+        console.log(err);
+      }
     },
     divideIn(selectedPersons){
       selectedPersons.forEach(async (person) => {
         try {
-          await contactListAPI.moveInDevide('friends', person.account_id,this.obj);   
+          const response = await contactListAPI.moveInDevide('friends', person.account_id,this.obj);   
+          if(response.status !== 200){
+            this.$root.notify(response.data.message, 'error');
+            return;
+          }
           person.tag = this.obj; 
         } catch (error) {
-          alert('移入分组失败！');
+          console.log(error);
         }
       });
     },
@@ -230,10 +301,14 @@ export default {
     dividesMove(divide){
       this.selectedPersons.forEach(async (person) => {
         try {
-          await contactListAPI.moveInDevide('friends', person.account_id,divide);  
+          const response = await contactListAPI.moveInDevide('friends', person.account_id,divide);  
+          if(response.status !== 200){
+            this.$root.notify(response.data.message, 'error');
+            return;
+          }
           person.tag = divide; 
         } catch (error) {
-          alert('移入分组失败！');
+          console.log(error);
         }
       });
     },

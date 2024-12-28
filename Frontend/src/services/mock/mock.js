@@ -145,5 +145,5 @@ Mock.mock(new RegExp(`${baseURL}/profileCard/\\d+`), 'get', (options) => {
 		'tag': '@pick(["家人", "朋友", "同事"])',
 		}
 	});
-	return profileCard.profileCard;
+	return {data:profileCard.profileCard};
 });
