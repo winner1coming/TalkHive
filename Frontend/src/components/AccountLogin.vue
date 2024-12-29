@@ -241,6 +241,7 @@ export default {
 }
 
 .input-group {
+  position: relative;
   display: flex;
   margin-left: 20px;
   margin-bottom: 20px;

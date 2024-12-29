@@ -44,7 +44,7 @@ import apiClient from '@/services/api';
   //保存Email的修改
   export const saveEmail = async (data) => {
     try {
-      const response = await apiClient.post('/Settings/saveEmail', data);
+      const response = await apiClient.post('/Settings/saveEmail',data);
       return response.data;
     } catch (error) {
       throw error.response?.data.message || error.message;
@@ -64,7 +64,7 @@ import apiClient from '@/services/api';
   //是否可以通过ID添加我
   export const isIDAdd = async(data)=>{
     try{
-      const response = await apiClient.get('/Settings/isIDAdd',data);
+      const response = await apiClient.post('/Settings/isIDAdd',data);
       return response.data;
     }catch(error){
       throw error.response?.data.message || error.message;
@@ -74,7 +74,7 @@ import apiClient from '@/services/api';
   //是否可以通过昵称查找并添加我
   export const isNicknameAdd = async(data)=>{
     try{
-      const response = await apiClient.get('/Settings/isNicknameAdd',data);
+      const response = await apiClient.post('/Settings/isNicknameAdd',data);
       return response.data;
     }catch(error){
       throw error.response?.data.message || error.message;

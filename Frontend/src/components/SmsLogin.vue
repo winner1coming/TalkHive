@@ -4,7 +4,16 @@
       
       <div class="input-group">
         <label for="email">邮箱</label>
-        <input id="email" type="text" v-model="email" placeholder="请输入邮箱" />
+        <input id="email" type="text" v-model="email" @blur="hideDropdown" @input="handleInput" placeholder="请输入邮箱" />
+        <ul v-if="showDropdown" class="dropdown">
+          <li
+            v-for="matchedAccount in matchedAccounts"
+            :key="matchedAccount"
+            @mousedown="selectAccount(matchedAccount)"
+          >
+            {{ matchedAccount }}
+          </li>
+        </ul>
         <p v-if="!isEmailValid && email" class="error-message">请输入有效的邮箱地址</p>
       </div>
       
@@ -45,6 +54,9 @@
         smsCode: '',
         Code: '',
         avatar:img,
+        users:[],
+        matchedAccounts: [],
+        showDropdown:false,
       };
     },
     
@@ -61,7 +73,9 @@
           alert("验证码不能为空！");
         }
 
-        this.validateCode();  
+        if(this.validateCode()){
+          return;
+        } 
           
         try {
           const response = await smsLogin({
@@ -76,6 +90,24 @@
             avatar: this.avatar,
             });
             this.$store.commit('SET_LINKS',response.links);
+
+            let users = JSON.parse(localStorage.getItem('users')) || [];
+            //本地缓存的处理
+            const userInfo = {
+              account : '',
+              avatar: this.avatar,
+              email: this.email,
+              password:'',
+            };
+            //是否已经存在账号
+            const index = users.findIndex(user => user.email === this.email);
+            if(index !== -1){
+              users[index] = userInfo;
+            }else{
+              users.push(userInfo);
+            }
+            localStorage.setItem('users', JSON.stringify(users));
+
             alert(response.message);
             this.$router.push('/home');
           }
@@ -118,7 +150,50 @@
           alert(error || '发送验证码失败');
         }
       },
-      
+
+        handleInput() {
+        if (this.email) {
+          // 模糊匹配账号（最左匹配）
+          this.matchedAccounts = this.users
+            .map(user => user.email)
+            .filter(email => email.startsWith(this.email));
+          this.showDropdown = this.matchedAccounts.length > 0; // 如果有匹配的账号，显示下拉框
+          const matchedUser = this.users.find(user => user.email === this.email);
+          if (matchedUser) {
+            this.avatar = matchedUser.avatar; // 如果账号存在，设置头像
+          }
+          else{
+            this.avatar = img;
+          }
+        } else {
+          this.matchedAccounts = [];
+          this.showDropdown = false;
+          this.avatar=img;
+        }
+      },
+
+      // 选择账号
+      selectAccount(email) {
+        this.email = email; // 填充账号到输入框
+        this.showDropdown = false; // 隐藏下拉框
+
+        // 直接从缓存中获取对应的头像
+        const matchedUser = this.users.find(user => user.email === email);
+        if(matchedUser){
+          this.avatar = matchedUser.avatar; // 设置头像       
+        }
+      },
+
+      // 隐藏下拉框
+      hideDropdown() {
+        setTimeout(() => {
+            this.showDropdown = false;
+        }, 200); // 延迟隐藏，避免点击下拉框时立即隐藏
+      },
+    },
+
+    mounted() {
+    this.users = JSON.parse(localStorage.getItem('users')) || [];
     },
 
   };
@@ -143,9 +218,10 @@
   margin-bottom: 20px;
   margin-left:35px;
   border-radius: 100%;
-}
+  }
 
   .input-group {
+    position: relative;
     display: flex;
     align-items: center;
     justify-items: center;
@@ -239,5 +315,43 @@
   font-size: 12px;
   margin-top: 5px;
   flex-direction: column;
+}
+
+.dropdown {
+  position: absolute;
+  width: 85%;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #fff;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 100px;
+  overflow-y: auto;
+  z-index: 1000;
+  top:100%;
+  left: 45px;
+}
+
+.dropdown li {
+  padding: 8px 20px;
+  cursor: pointer;
+}
+
+.dropdown li:hover {
+  background-color: #f0f0f0;
+}
+
+.dropdown::-webkit-scrollbar {
+  width: 8px; /* 滚动条宽度 */
+}
+
+.dropdown::-webkit-scrollbar-thumb {
+  background-color: #ccc; /* 滚动条颜色 */
+  border-radius: 4px; /* 滚动条圆角 */
+}
+
+.dropdown::-webkit-scrollbar-track {
+  background-color: #f0f0f0; /* 滚动条轨道颜色 */
 }
   </style>
