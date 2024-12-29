@@ -14,6 +14,7 @@ import Notes from "@/components/WorkSpace/Notes.vue";
 import NoteEditor from "@/components/WorkSpace/NoteEditor.vue";
 import Code from "@/components/WorkSpace/Code.vue"
 import DdlList from "@/components/WorkSpace/DdlList.vue"
+import Recycle from "@/components/WorkSpace/Recycle.vue"
 
 //import GroupChat from '@/components/GroupChat.vue';
 //import Profile from '@/components/Profile.vue';
@@ -65,13 +66,18 @@ const routes = [
             props: true,
           },
           {
-            path: "/workspace/notes/:id",
+            path: "/workspace/notes/editor",
+            component: NoteEditor,
+            props: true,
+          },          
+          {
+            path: "/workspace/code/:id",
             component: NoteEditor,
             props: true,
           },
           {
-            path: "/workspace/code/:id",
-            component: NoteEditor,
+            path: "/workspace/recycle",
+            component: Recycle,
             props: true,
           },
           // 添加其他子路由

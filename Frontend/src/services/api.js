@@ -50,32 +50,35 @@ export default apiClient;
   };
 
 
-  // 获取笔记列表接口
-  export const getNotes = () => {
-    return apiClient.get('/notes');
-  };
 
-  // 创建笔记接口
-  export const createNote = (title, content) => {
-    return apiClient.post('/notes', { title, content });
-  };
 
-  // 获取收藏列表接口
-  export const getFavorites = () => {
-    return apiClient.get('/favorites');
-  };
 
-  // 添加收藏接口
-  export const addFavorite = (itemId) => {
-    return apiClient.post('/favorites', { itemId });
-  };
+// 获取笔记列表接口
+export const getNotes = () => {
+  return apiClient.get('/notes');
+};
 
-  // 获取 DDL 列表接口
-  export const getDDLs = () => {
-    return apiClient.get('/ddls');
-  };
+// 创建笔记接口
+export const createNote = (title, content) => {
+  return apiClient.post('/notes', { title, content });
+};
 
-  // 创建 DDL 接口
-  export const createDDL = (title, deadline) => {
-    return apiClient.post('/ddls', { title, deadline });
-  };
+// 获取收藏列表接口
+export const getFavorites = () => {
+  return apiClient.get('/favorites');
+};
+
+// 添加收藏接口
+export const addFavorite = (itemId) => {
+  return apiClient.post('/favorites', { itemId });
+};
+
+// 获取 DDL 列表接口
+export const getDDLs = () => {
+  return apiClient.get('/ddls');
+};
+
+// 创建 DDL 接口
+export const createDDL = (title, deadline) => {
+  return apiClient.post('/ddls', { title, deadline });
+};

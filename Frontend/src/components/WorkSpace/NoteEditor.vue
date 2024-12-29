@@ -3,7 +3,19 @@
     <!-- 工具栏 -->
     <div class="editor-toolbar">
       <div class="toolbar-item">
-        <label for="language">语言选择：</label>
+        <label for="noteFilename">文件名：</label>
+        <input type="text" v-model="currentNote.filename" placeholder="输入文件名" />
+      </div>
+
+      <div class="toolbar-item">
+        <label for="noteCategory">分类：</label>
+        <select v-model="currentNote.category">
+          <option v-for="category in categories" :key="category" :value="category">{{ category }}</option>
+        </select>
+      </div>
+
+      <div class="toolbar-item">
+        <label for="language">语言：</label>
         <select v-model="selectedLanguage" @change="changeLanguage">
           <option value="markdown">Markdown</option>
           <option value="javascript">JavaScript</option>
@@ -15,7 +27,7 @@
       </div>
 
       <div class="toolbar-item">
-        <label for="fontSize">字体大小：</label>
+        <label for="fontSize">字体：</label>
         <select v-model="fontSize" @change="changeFontSize">
           <option value="12">12px</option>
           <option value="14">14px</option>
@@ -26,7 +38,7 @@
       </div>
 
       <div class="toolbar-item">
-        <label for="bgColor">背景颜色：</label>
+        <label for="bgColor">背景：</label>
         <input type="color" v-model="backgroundColor" @input="changeBackgroundColor">
       </div>
 
@@ -38,50 +50,71 @@
 
     <!-- Monaco 编辑器 -->
     <div ref="monacoEditor" class="monaco-editor-container"></div>
-
   </div>
 </template>
 
 <script>
 import * as monaco from 'monaco-editor';
-import { ref, onMounted,toRaw, nextTick } from 'vue';
+import { toRaw, nextTick } from 'vue';
+import * as WorkSpaceAPI from '@/services/workspace_api';
 
 export default {
   name: "NoteEditor",
-  props: ["id"],
+  computed: {
+    currentNote() {
+      return this.$store.getters.getCurrentNote;  // 从 Vuex 获取 currentNote
+    },
+    categories() {
+      this.localCategory = this.$store.getters.getCategories;
+      this.localCategory.push('');
+      return this.localCategory; 
+    }
+  },
   data() {
     return {
-      note: null,
       noteContent: "",
       selectedLanguage: 'markdown',
       fontSize: '14',
       backgroundColor: '#ffffff',
       editor: null,
+      // categories: ['工作', '学习', '个人', '项目'],  // 模拟从后端获取分类
+      // 用于处理 v-model 的本地数据
+      localFilename: this.note_filename,
+      localCategory: this.note_category
     };
   },
-  created() {
-    const notes = [
-      { id: 1, filename: "Vue学习笔记.md", content: "这是 Vue 学习笔记的内容..." },
-      { id: 2, filename: "项目需求分析.docx", content: "这是项目需求分析的内容..." },
-      { id: 3, filename: "代码优化方案.txt", content: "这是代码优化方案的内容..." },
-    ];
-    this.note = notes.find(note => note.id === Number(this.id));
-    if (this.note) {
-      this.noteContent = this.note.content;
-    } else {
-      alert("笔记未找到！");
-      this.$router.push("/workspace/notes");
-    }
-  },
+  // created() {
+  //   // 模拟从后端获取笔记数据
+  //   const notes = [
+  //     { id: 1, filename: "Vue学习笔记.md", content: "这是 Vue 学习笔记的内容...", category: '学习' },
+  //     { id: 2, filename: "项目需求分析.docx", content: "这是项目需求分析的内容...", category: '工作' },
+  //     { id: 3, filename: "代码优化方案.txt", content: "这是代码优化方案的内容...", category: '项目' },
+  //   ];
+
+  //   // 查找当前笔记，根据传递的 note_id
+  //   this.note = notes.find(note => note.id === Number(this.note_id));
+  //   if (this.note) {
+  //     this.noteContent = this.note.content;
+  //   } else {
+  //     alert("笔记未找到！");
+  //     this.$router.push("/workspace/notes");
+  //   }
+  // },
   mounted() {
-    nextTick(() => {
+    if (this.currentNote) {
+      console.log("currentNote:", this.currentNote);
+    } else {
+      console.log("currentNote is not loaded yet.");
+    }
+    nextTick(async() => {
       if (this.$refs.monacoEditor) {
+        await this.getNoteContent(this.currentNote.note_id);
         this.editor = monaco.editor.create(this.$refs.monacoEditor, {
           value: this.noteContent,
           language: this.selectedLanguage,
           automaticLayout: true,
-          fontSize: parseInt(this.fontSize),  // 初始化字体大小
-          theme: 'vs',  // 默认主题
+          fontSize: parseInt(this.fontSize),
+          theme: 'vs',
           backgroundColor: this.backgroundColor,
         });
       }
@@ -100,60 +133,61 @@ export default {
     },
     backgroundColor(newColor) {
       if (this.editor) {
-        // 更新背景颜色
         const editorContainer = this.$refs.monacoEditor;
         editorContainer.style.backgroundColor = newColor;
       }
     },
   },
   methods: {
+    // // 更新笔记文件名
+    // updateNoteFilename() {
+    //   this.$emit('update:note_filename', this.localFilename); // 通过事件通知父组件更新
+    // },
+
+    // updateNoteCategory() {
+    //   // 更新分类
+    //   this.$store.dispatch('updateCategory', this.currentNote.category);
+    // },
+    async getNoteContent(noteID) {
+      const response = await WorkSpaceAPI.getNoteContent(noteID);
+      const data = response.data.data;
+      console.log(noteID);
+      this.noteContent = data;
+    },
+
+
+    // 语言切换
     changeLanguage() {
       if (this.editor) {
-        const model = toRaw(this.editor.getModel()); // 获取当前模型
+        const model = toRaw(this.editor.getModel());
         if (model) {
-          // 使用 monaco.editor.setModelLanguage 来更改模型的语言
           monaco.editor.setModelLanguage(model, this.selectedLanguage);
         }
       }
     },
+
+    // 字体大小调整
     changeFontSize() {
       if (this.editor) {
         this.editor.updateOptions({ fontSize: parseInt(this.fontSize) });
       }
     },
+
+    // 背景颜色调整
     changeBackgroundColor() {
       if (this.editor) {
         const editorContainer = this.$refs.monacoEditor;
-        console.log(editorContainer)
-        console.log(this.$refs.monacoEditor)
         editorContainer.style.backgroundColor = this.backgroundColor;
-        console.log(this.backgroundColor)
-        console.log(editorContainer.style.backgroundColor)
       }
     },
+
+    // 保存笔记
     saveNote() {
       alert(`笔记已保存:\n${this.noteContent}`);
       this.$router.push("/workspace/notes");
     },
-    
-    // async saveFile() {
-    //   try {
-    //     // 发送请求到后端，保存新建的文件
-    //     const response = await axios.post('/workspace/create-file', {
-    //       filename: this.newFile.filename + this.newFile.filetype,  // 文件名和文件格式拼接
-    //     });
 
-    //     if (response.data.status === 200) {
-    //       alert('文件创建成功');
-    //       this.showCreateFile = false;  // 关闭编辑框
-    //     } else {
-    //       alert(response.data.message);
-    //     }
-    //   } catch (error) {
-    //     console.error('无法创建文件:', error);
-    //     alert('创建文件失败！');
-    //   }
-    // },
+    // 取消编辑
     cancelEdit() {
       this.$router.push("/workspace/notes");
     },
@@ -169,7 +203,7 @@ export default {
 
 .editor-toolbar {
   display: flex;
-  gap: 20px;
+  gap: 10px;
   margin-bottom: 10px;
   align-items: center;
 }
@@ -185,7 +219,8 @@ export default {
 }
 
 select,
-input[type="color"] {
+input[type="color"],
+input[type="text"] {
   padding: 5px 10px;
   font-size: 14px;
   border-radius: 5px;
