@@ -25,7 +25,6 @@ export default {
 	data() {
 	  return {
 			//divides:['家人', '好友', '同事','a','b','c','d','e','f', 'g'], 
-			selectAll: false,
 			selectedDevide: null,
 			multiple: false,
 	  };

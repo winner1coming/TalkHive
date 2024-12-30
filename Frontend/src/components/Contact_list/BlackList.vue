@@ -31,7 +31,7 @@
   
 <script>
 import * as contactListAPI from '@/services/contactList';
-import { getProfileCard } from '@/services/api';
+import { getPersonProfileCard } from '@/services/api';
 
 
 import BlackListManagement from './BlackListManagement.vue';
@@ -97,7 +97,7 @@ export default {
     },
     async showProfileCard(event, send_account_id){
       try{
-        const response = await getProfileCard(send_account_id); 
+        const response = await getPersonProfileCard(send_account_id); 
         if(response.status !== 200){
           this.$root.notify(response.data.message, 'error');
           return;
