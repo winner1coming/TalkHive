@@ -85,7 +85,8 @@ export default {
         if(this.type==='group'){
           response = await contactListAPI.addGroup(this.tid, reason);
         }else{
-          response = await contactListAPI.addFriend(this.tid, reason);
+          response = await contactListAPI.addFriend(this.tid,reason);
+
         }
         if (response.status!==200) {
           this.$root.notify(response.data.message, 'error');

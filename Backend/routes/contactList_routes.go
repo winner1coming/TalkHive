@@ -9,6 +9,7 @@ import (
 func ContactListRoutes(r *gin.Engine) {
 	// 添加、搜索好友
 	r.POST("/stranger/search", controllers.SearchStrangers)
+	r.POST("/contactList/remark", controllers.ChangeRemark)
 
 	//好友请求部分
 	r.GET("/contactList/friendRequests", controllers.GetFriendRequests)
@@ -45,10 +46,15 @@ func ContactListRoutes(r *gin.Engine) {
 	r.POST("/contactList/groups/quit", controllers.Quit)
 	r.GET("/contactList/groups/{group_id}", controllers.GetGroupInfo)
 	r.POST("/contactList/groups/changeNickname", controllers.ChangeNickname)
+	r.POST("/contactList/groups/setAllowInvite", controllers.SetAllowInvite)
+	r.POST("/contactList/groups/setAllowIdSearch", controllers.SetAllowIdSearch)
+	r.POST("/contactList/groups/setAllowNameSearch", controllers.SetAllowNameSearch)
+	r.POST("/contactList/groups/setAllBanned", controllers.SetAllBanned)
 	r.POST("/contactList/groups/banMember", controllers.SetBanned)
 	r.POST("/contactList/groups/removeMember", controllers.RemoveMember)
 	r.POST("/contactList/groups/setAdmin", controllers.SetAdmin)
 	r.POST("/contactList/groups/transferOwner", controllers.TransferOwner)
+	r.POST("/contactList/groups/changeAvatar", controllers.ChangeGroupAvatar)
 
 	// 资料卡片
 	r.GET("/contactList/card", controllers.GetProfileCard)
