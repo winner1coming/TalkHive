@@ -849,18 +849,17 @@ func Logout(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户未找到"})
 		return
 	}
-	if user.Deactivate == true {
+	if user.Deactivate {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户已注销"})
 		return
 	}
 
-	// 记录当前时间
-	currentTime := time.Now().Format("2006-01-02 15:04:05") // 获取当前时间
-	if err := global.Db.Model(&user).Update("last_logout", currentTime).Error; err != nil {
+	// 用户登出
+	user.Status = "offline"
+	user.LastLogout = time.Now().Format("2006-01-02 15:04:05")
+	if err := global.Db.Model(&user).Updates(models.AccountInfo{Status: "offline", LastLogout: user.LastLogout}).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "更新退出时间失败"})
 		return
 	}
-
-	/* 继续完善JWT*/
 	c.JSON(http.StatusOK, gin.H{"success": true, "message": "退出登录成功"})
 }
