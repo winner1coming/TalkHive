@@ -3,11 +3,11 @@
     <div class="modal-content">
       <h2>{{type==='add'?"新建分组":"重命名分组"}}</h2>
       <input 
-        v-model="newDevide" 
+        v-model="newDivide" 
         placeholder="输入分组名称"
-        @keyup.enter="addDevide"
+        @keyup.enter="addDivide"
       />
-      <button @click="addDevide">确认</button>
+      <button @click="addDivide">确认</button>
     </div>
   </div>
 </template>
@@ -17,17 +17,17 @@
 export default {
   data() {
     return {
-      newDevide: '',
+      newDivide: '',
       type: '',  // add, rename
     };
   },
   methods: {
-    async addDevide() {
-			if (this.newDevide.trim()) {
+    async addDivide() {
+			if (this.newDivide.trim()) {
         if(this.type === 'rename'){
-          this.$emit('rename-divide', this.newDevide);
+          this.$emit('rename-divide', this.newDivide);
         }else{
-          this.$emit('add-divide', this.newDevide);
+          this.$emit('add-divide', this.newDivide);
         }
 				this.close();
 			}else{
@@ -35,7 +35,7 @@ export default {
       }
 		},
     close() {
-      this.newDevide = '';
+      this.newDivide = '';
       this.$emit('close');
     },
   },
