@@ -59,16 +59,16 @@ export const getDivides = (type) => {   // type: 'friends' or 'groups'
   return apiClient.get(`/contactList/${type}/divides`);
 };
 // 新建分组
-export const createDivide = (type, fd_name) => {   // type: 'friends' or 'groups'
-  return apiClient.post(`/contactList/${type}/divides/create`, { fd_name });
+export const createDivide = (type, divide) => {   // type: 'friends' or 'groups'
+  return apiClient.post(`/contactList/${type}/divides/create`, { divide });
 };
 // 删除分组
-export const deleteDivide = (type, fd_name) => {   // type: 'friends' or 'groups'
-  return apiClient.post(`/contactList/${type}/divides/delete`,{ fd_name });
+export const deleteDivide = (type, divide) => {   // type: 'friends' or 'groups'
+  return apiClient.post(`/contactList/${type}/divides/delete`,{ divide });
 };
 // 修改分组名称
-export const renameDivide = (type, old_fd_name, new_fd_name) => {   // type: 'friends' or 'groups'
-  return apiClient.post(`/contactList/${type}/divides/rename`, {old_fd_name, new_fd_name });
+export const renameDivide = (type, old_divide, new_divide) => {   // type: 'friends' or 'groups'
+  return apiClient.post(`/contactList/${type}/divides/rename`, {old_divide, new_divide });
 };
 // 移动好友到分组
 export const moveInDivide = (type, tid, divide) => {
