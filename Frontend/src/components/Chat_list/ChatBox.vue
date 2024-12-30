@@ -98,7 +98,7 @@ export default {
     async sendMessage(content) {
       // todo api
       try{
-        const response = await chatListAPI.sendMessage(this.selectedChat.id, content);
+        const response = await chatListAPI.sendMessage(this.selectedChat.id, content, 'text');
         if(response.status !== 200){
           this.$root.notify(response.data.message, 'error');
           return;
