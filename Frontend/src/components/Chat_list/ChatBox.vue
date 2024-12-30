@@ -95,17 +95,28 @@ export default {
       }
       
     },
-    sendMessage(content) {
+    async sendMessage(content) {
       // todo api
-      this.messages.push({
-        message_id: '0',  // 消息编号
-        send_account_id: this.$store.state.user.id,  // 发送者的id
-        content: content,
-        sender: this.$store.state.user.username,   // 发送者的备注
-        create_time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),  // 发送时间
-        type: 'text',   // 消息类型
-      });
-      this.scrollToBottom();
+      try{
+        const response = await chatListAPI.sendMessage(this.selectedChat.id, content);
+        if(response.status !== 200){
+          this.$root.notify(response.data.message, 'error');
+          return;
+        }else{
+          this.messages.push({
+            message_id: '0',  // 消息编号
+            send_account_id: this.$store.state.user.id,  // 发送者的id
+            content: content,
+            sender: this.$store.state.user.username,   // 发送者的备注
+            create_time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),  // 发送时间
+            type: 'text',   // 消息类型
+          });
+          this.scrollToBottom();
+        }
+      }catch(e){
+        console.log(e);
+      }
+      
     },
     clickGroupManagement() {
       // 打开群聊管理弹窗
