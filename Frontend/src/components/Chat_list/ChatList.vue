@@ -89,24 +89,7 @@ export default {
     return {
       // 消息列表（从后端获取）
       chats: [],
-      // chats: [{
-      //     id: '0',   // 好友的tid
-      //     avatar: new URL('@/assets/images/avatar.jpg', import.meta.url).href,
-      //     name: 'Alice',  // 好友的备注 remark
-      //     lastMessage: 'hi',
-      //     lastMessageTime: '10:00',
-      //     unreadCount: 1,
-      //     tags: ['unread','pinned'],   // friend, group, unread, pinned, blocked
-      //   },
-      //   {
-      //     id: '1',
-      //     avatar: new URL('@/assets/images/avatar.jpg', import.meta.url).href,
-      //     name: 'Bob',
-      //     lastMessage: 'hello',
-      //     lastMessageTime: '11:00',
-      //     unreadCount: 0,
-      //     tags: ['unread', 'group'],
-      //   }], 
+      
       // 选中的聊天
       selectedChat: null,
       // 消息标签

@@ -41,7 +41,7 @@ export const getMessages = (tid) => {
 }
 // 发送消息接口
 export const sendMessage = (tid, content) => {
-  return apiClient.post(`/messages/${tid}/send`, { content });
+  return apiClient.post(`/messages/send`, { tid, content });
 };
 
 // 获取历史记录
