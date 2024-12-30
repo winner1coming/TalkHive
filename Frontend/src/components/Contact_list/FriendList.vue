@@ -72,8 +72,43 @@ export default {
     DevideMove,
     ContextMenu,
   },
+  components: {
+    itemList,
+    ProfileCard,
+    DevideDelete,
+    DevideAdd,
+    DevideManagement,
+    DevideMove,
+    ContextMenu,
+  },
   data() {
     return {
+      type: 'friendList',  // friendList, groupList
+      tags: [],  // 从后端获取
+      // items: [
+      //   {
+      //     avatar: '',
+      //     account_id: '1',
+      //     remark: 'John',   // 好友备注
+      //     status: 'online',   // online, offline
+      //     signature: '爱拼才会赢',    // 签名
+      //     tag: '家人',   
+      //   },
+      // ],
+      items: [],   // 好友列表
+      boundD: 0,
+      boundR: 0,
+      isDevideManagementVisible: false,
+      isDevideDeleteVisible: false,
+      isDevideManagementVisible: false,
+      isDevideAddVisible:false,
+      isDevideMoveVisible: false,
+      // persons:[
+			// ],//  （type为in时是除该分组外的所有好友，out时为当前分组内的好友）
+      persons: [],  // 用于移入移出分组
+      managementType: '',
+      obj: null,
+      selectedPersons: [],
       type: 'friendList',  // friendList, groupList
       tags: [],  // 从后端获取
       // items: [

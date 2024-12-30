@@ -71,6 +71,15 @@ export default {
     DevideMove,
     ContextMenu,
   },
+  components: {
+    itemList,
+    ProfileCard,
+    DevideDelete,
+    DevideAdd,
+    DevideManagement,
+    DevideMove,
+    ContextMenu,
+  },
   data() {
     return {
       type: 'groupList',  // friendList, groupList
@@ -322,11 +331,16 @@ export default {
     this.fetchTags();
     this.boundD = document.documentElement.clientHeight;
     this.boundR = document.documentElement.clientWidth;
+    this.fetchTags();
+    this.boundD = document.documentElement.clientHeight;
+    this.boundR = document.documentElement.clientWidth;
   },
 };
 </script>
 
 <style scoped src="@/assets/css/contactList.css"></style>
+<style scoped src="@/assets/css/contactList.css"></style>
 <style scoped>
+
 
 </style>

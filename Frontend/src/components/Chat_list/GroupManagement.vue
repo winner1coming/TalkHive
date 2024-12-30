@@ -219,6 +219,14 @@ export default {
     ContextMenu,
     InviteMember,
   },
+  components: {
+    EditableText,
+    SwitchButton,
+    SearchBar,
+    ProfileCard,
+    ContextMenu,
+    InviteMember,
+  },
   data() {
     return {
       visible: false,
