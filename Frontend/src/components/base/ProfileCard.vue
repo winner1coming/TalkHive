@@ -15,11 +15,11 @@
     </div>
     <button v-show="profile.is_friend" @click="sendMessage">发信息</button>
     <ContextMenu ref="contextMenu"  @select-item="handleMenuSelect" />
-    <DevideMove
+    <DivideMove
       :divides = "divides"
-      v-show="isDevideMoveVisible"
+      v-show="isDivideMoveVisible"
       @divide-move="divideMove"
-      @close="isDevideMoveVisible = false"
+      @close="isDivideMoveVisible = false"
       ref="divideMove"
     />
   </div>
@@ -28,13 +28,13 @@
 <script>
 import { EventBus } from '@/components/base/EventBus';
 import ContextMenu from '@/components/base/ContextMenu';
-import DevideMove from '@/components/Contact_list/DevideMove.vue';
+import DivideMove from '@/components/Contact_list/DivideMove.vue';
 import * as chatListAPI from '@/services/chatList';
 import * as contactListAPI from '@/services/contactList';
 export default {
   components: {
     ContextMenu,
-    DevideMove,
+    DivideMove,
   },
   data() {
     return {
@@ -43,7 +43,7 @@ export default {
       y: 0,
       profile: null,
       type: 'friends',  // 'friends' or 'groups'
-      isDevideMoveVisible: false,
+      isDivideMoveVisible: false,
       divides: [],
       boundD: null,
       boundR: null,
@@ -106,8 +106,8 @@ export default {
         }catch(e){
           console.log(e);
         }
-        this.isDevideMoveVisible = true;
-        this.$refs.divideMove.selectedDevide = this.profile.tag;
+        this.isDivideMoveVisible = true;
+        this.$refs.divideMove.selectedDivide = this.profile.tag;
         this.$refs.divideMove.multiple = false;
       }
       else if(item === '置顶'){
@@ -248,7 +248,7 @@ export default {
     },
     async divideMove(divide){
       try{
-        const response = await contactListAPI.moveInDevide(this.type,this.profile.account_id, divide);
+        const response = await contactListAPI.moveInDivide(this.type,this.profile.account_id, divide);
         if(response.status !== 200){
           this.$root.notify(response.data.message, 'error');
           return;

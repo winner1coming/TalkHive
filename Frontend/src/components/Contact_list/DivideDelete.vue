@@ -15,9 +15,9 @@
 				<li 
 					v-for="(divide, index) in divides" 
 					:key="index"
-					@click="toggleDevideSelection(divide)"
+					@click="toggleDivideSelection(divide)"
 				>
-					<input type="checkbox" v-model="selectedDevides" :value="divide">
+					<input type="checkbox" v-model="selectedDivides" :value="divide">
 					<span>{{ divide }}</span>
 				</li>
 			</ul>
@@ -33,39 +33,39 @@ export default {
 	data() {
 	  return {
 			selectAll: false,
-			selectedDevides: [],
+			selectedDivides: [],
 			watchSection: null,
 	  };
 	},
 	methods: {
 	  async confirmSelection() {
-			this.$emit('delete-divides', this.selectedDevides);
-			//await deleteFriendGroup(this.selectedDevides);  // selectedDevides是被选择的分组的名称的数组
+			this.$emit('delete-divides', this.selectedDivides);
+			//await deleteFriendGroup(this.selectedDivides);  // selectedDivides是被选择的分组的名称的数组
 			this.close();
 	  },
 	  close() {
 			this.selectAll = false;
-			this.selectedDevides = [];
+			this.selectedDivides = [];
 			this.$refs.selectAllCheckbox.indeterminate = false;
 			this.$emit('close');
 	  },
-		toggleDevideSelection(divide) {
-        const index = this.selectedDevides.indexOf(divide);
+		toggleDivideSelection(divide) {
+        const index = this.selectedDivides.indexOf(divide);
         if (index === -1) {
-            this.selectedDevides.push(divide);
+            this.selectedDivides.push(divide);
         } else {
-            this.selectedDevides.splice(index, 1);
+            this.selectedDivides.splice(index, 1);
         }
     },
 	  toggleSelectAll() {
-			this.selectedDevides = this.selectAll ? [...this.divides] : [];
+			this.selectedDivides = this.selectAll ? [...this.divides] : [];
 	  }
 	},
 	mounted() {
-		this.watchSection = this.$watch('selectedDevides', (val) => {
-			const totalDevides = this.divides.length;
-			this.selectAll = val.length === totalDevides && totalDevides > 0;
-			this.$refs.selectAllCheckbox.indeterminate = val.length > 0 && val.length < totalDevides;
+		this.watchSection = this.$watch('selectedDivides', (val) => {
+			const totalDivides = this.divides.length;
+			this.selectAll = val.length === totalDivides && totalDivides > 0;
+			this.$refs.selectAllCheckbox.indeterminate = val.length > 0 && val.length < totalDivides;
 		}, { deep: true, immediate: true });
 	},
 	beforeUnmount() {

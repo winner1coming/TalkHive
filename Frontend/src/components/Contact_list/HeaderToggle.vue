@@ -10,7 +10,7 @@
 			<p class="title">{{ previewText }}</p>
 			<button 
 				:style="{visibility: visibility}" 
-				@click="manageDevide" 
+				@click="manageDivide" 
 				class="toggle-button"
 			>管理</button>
 	  </div>
@@ -48,7 +48,7 @@ export default {
 	  toggleContent() {
 			this.showFullContent = !this.showFullContent;
 	  },
-	  manageDevide(event) {
+	  manageDivide(event) {
 			this.$emit('manage-divide', event);
 	  },
 	}

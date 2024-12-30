@@ -7,9 +7,9 @@
 				<li 
 					v-for="(divide, index) in divides" 
 					:key="index"
-					@click="selectedDevide = divide"
+					@click="selectedDivide = divide"
 				>
-					<input type="radio" v-model="selectedDevide" :value="divide">
+					<input type="radio" v-model="selectedDivide" :value="divide">
 					<span>{{ divide }}</span>
 				</li>
 			</ul>
@@ -25,14 +25,14 @@ export default {
 	data() {
 	  return {
 			//divides:['家人', '好友', '同事','a','b','c','d','e','f', 'g'], 
-			selectedDevide: null,
+			selectedDivide: null,
 			multiple: false,
 	  };
 	},
 	methods: {
 	  async confirmSelection() {
-			if(this.multiple===false) this.$emit('divide-move', this.selectedDevide);
-			else this.$emit('divides-move', this.selectedDevide);
+			if(this.multiple===false) this.$emit('divide-move', this.selectedDivide);
+			else this.$emit('divides-move', this.selectedDivide);
 			this.close();
 	  },
 	  close() {
