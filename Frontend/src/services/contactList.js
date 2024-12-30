@@ -4,6 +4,10 @@ import apiClient from '@/services/api';
 export const searchStrangers = (key) => {
   return apiClient.post('/stranger/search', { key });  
 };
+// 搜索通讯录
+export const searchContacts = (keyword) => {
+  return apiClient.post('/contactList/search', { keyword });
+};
 
 // 获取好友请求列表接口
 export const getFriendRequests = () => {

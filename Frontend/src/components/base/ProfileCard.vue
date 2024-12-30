@@ -14,7 +14,20 @@
       <div class="remark">个性签名: {{ profile.signature }}</div>
     </div>
     <button v-show="profile.is_friend" @click="sendMessage">发信息</button>
+    <!--菜单-->
     <ContextMenu ref="contextMenu"  @select-item="handleMenuSelect" />
+    <!--添加好友-->
+    <div class="add-modal" @click.self="hide" v-show="isAddVisible">
+      <div class="add-content">
+        <h2>申请理由</h2>
+        <textarea 
+          v-model="reason" 
+          placeholder="输入申请理由.."
+        />
+        <button @click="add(reason)">确认</button>
+      </div>
+    </div>
+    <!--更改分组-->
     <DivideMove
       :divides = "divides"
       v-show="isDivideMoveVisible"
@@ -43,6 +56,7 @@ export default {
       y: 0,
       profile: null,
       type: 'friends',  // 'friends' or 'groups'
+      isAddVisible: false,
       isDivideMoveVisible: false,
       divides: [],
       boundD: null,
@@ -83,17 +97,7 @@ export default {
     },
     async handleMenuSelect(item){
       if(item === '添加好友'){
-        try{
-          // 添加弹窗 todo
-          const response = await contactListAPI.addFriend(this.profile.account_id);
-          if(response.status !== 200){
-            this.$root.notify(response.data.message, 'error');
-            return;
-          }
-          
-        }catch(e){
-          console.log(e);
-        }
+        this.isAddVisible = true;
       }
       else if(item === '更改分组'){
         try{
@@ -246,6 +250,19 @@ export default {
         }
       }
     },
+    async add(reason) {
+      try{
+        let response;
+        response = await contactListAPI.addFriend(this.profile.account_id, reason);
+        if (response.status!==200) {
+          this.$root.notify(response.data.message, 'error');
+        }
+      }
+      catch (error){
+        console.error('Failed to add friend',error)
+      }
+      this.hide();
+    },
     async divideMove(divide){
       try{
         const response = await contactListAPI.moveInDivide(this.type,this.profile.account_id, divide);
@@ -291,6 +308,8 @@ export default {
     },
     hide() {
       this.visible = false;
+      this.isAddVisible = false;
+      this.isDivideMoveVisible = false;
       EventBus.emit('hide-float-component'); // 通知其他组件
     },
   },
@@ -351,6 +370,38 @@ export default {
   margin-top: 5px;
   font-size: 0.9rem;
   color: #666;
+}
+
+.add-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000; /* 确保在最上层 */
+}
+.add-content {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  width: 300px;
+  height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+textarea {
+  margin: 10px;
+  width: 80%;
+  height: 70%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  resize: none;
 }
 
 button {
