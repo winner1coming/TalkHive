@@ -134,14 +134,16 @@ type Recycle struct {
 
 // GroupDivide 表示群聊分组表
 type GroupDivide struct {
-	GDName    string `gorm:"primaryKey" json:"gd_name"`
-	AccountID uint   `json:"account_id"`
+	GroupDivideId uint   `gorm:"primaryKey" json:"group_divide_id"`
+	GDName        string `json:"gd_name"`
+	AccountID     uint   `json:"account_id"`
 }
 
-// FriendDivide 表示好友分组表
+// FriendDivide 好友分组
 type FriendDivide struct {
-	FDName    string `gorm:"primaryKey" json:"fd_name"`
-	AccountID uint   `json:"account_id"`
+	FriendDivideId uint   `gorm:"primaryKey" json:"friend_divide_id"`
+	FDName         string `json:"fd_name"`
+	AccountID      uint   `json:"account_id"`
 }
 
 // NoteDivide 表示笔记分类表

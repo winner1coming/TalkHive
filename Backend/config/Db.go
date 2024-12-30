@@ -8,9 +8,6 @@ import (
 	"log"
 )
 
-// DB 全局数据库连接实例
-var DB *gorm.DB
-
 // InitDB 初始化数据库连接
 func InitDB() {
 	// 确保配置文件中的 DSN 已正确加载
