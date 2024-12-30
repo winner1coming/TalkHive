@@ -72,6 +72,7 @@
 <script>
 import SearchBar from '@/components/base/SearchBar.vue';
 import ContextMenu from '@/components/base/ContextMenu.vue';
+import { EventBus } from '@/components/base/EventBus';  
 import * as chatListAPI from '@/services/chatList';
 import AddFriendGroup from '@/components/Chat_list/AddFriendGroup.vue';
 import BuildGroup from '@/components/Chat_list/BuildGroup.vue';
@@ -401,6 +402,54 @@ export default {
   },
   created () {
     this.fetchChatList();
+    EventBus.on('set-mute', (tid, is_mute) => {
+      for (let i = 0; i < this.chats.length; i++) {
+        if (this.chats[i].id === tid) {
+          if (is_mute) {
+            this.chats[i].tags.push('mute');
+          } else {
+            this.chats[i].tags = this.chats[i].tags.filter(tag => tag !== 'mute');
+          }
+          break; 
+        }
+      } 
+    });
+    EventBus.on('set-pinned', (tid, is_pinned) => {
+      for (let i = 0; i < this.chats.length; i++) {
+        if (this.chats[i].id === tid) {
+          if (is_pinned) {
+            this.chats[i].tags.push('pinned');
+          } else {
+            this.chats[i].tags = this.chats[i].tags.filter(tag => tag !== 'pinned');
+          }
+          break; 
+        }
+      } 
+    });
+    EventBus.on('set-blocked', (tid, is_blocked) => {
+      for (let i = 0; i < this.chats.length; i++) {
+        if (this.chats[i].id === tid) {
+          if (is_blocked) {
+            this.chats[i].tags.push('blocked');
+          } else {
+            this.chats[i].tags = this.chats[i].tags.filter(tag => tag !== 'blocked');
+          }
+          break; 
+        }
+      } 
+    });
+    EventBus.on('set-blacklist', (tid, is_blacklist) => {
+      for (let i = 0; i < this.chats.length; i++) {
+        if (this.chats[i].id === tid) {
+          if (is_blacklist) {
+            this.chats = this.chats.filter(chat => chat.id !== tid);
+          } else {
+            
+          }
+          break; 
+        }
+      } 
+    });
   },
 };
 </script>

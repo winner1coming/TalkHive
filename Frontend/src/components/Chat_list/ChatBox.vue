@@ -40,7 +40,7 @@ import MessageInput from './MessageInput.vue';
 import ContextMenu from '@/components/base/ContextMenu.vue';
 import ProfileCard from '@/components/base/ProfileCard.vue';
 import * as chatListAPI from '@/services/chatList';
-import { getProfileCard } from '@/services/api';
+import { getPersonProfileCard } from '@/services/api';
 
 export default {
   components: {MessageItem, MessageInput, ContextMenu, ProfileCard},
@@ -151,7 +151,7 @@ export default {
         group_id = this.selectedChat.id;
       }
       try{
-        const response = await getProfileCard(send_account_id, group_id); 
+        const response = await getPersonProfileCard(send_account_id, group_id); 
         if(response.status !== 200){
           this.$root.notify(response.data.message, 'error');
           return;
