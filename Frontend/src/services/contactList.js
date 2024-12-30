@@ -48,10 +48,14 @@ export const changeRemark = (id, remark)=>{
 export const getFriends = () => {
   return apiClient.get('/contactList/friends');
 };
+// 删除好友
+export const deleteFriend = (account_id) => {
+  return apiClient.post('/contactList/friends/delete', { account_id });
+};
 
 // *分组
 // 获取分组名
-export const getDevides = (type) => {   // type: 'friends' or 'groups'
+export const getDivides = (type) => {   // type: 'friends' or 'groups'
   return apiClient.get(`/contactList/${type}/divides`);
 };
 // 新建分组

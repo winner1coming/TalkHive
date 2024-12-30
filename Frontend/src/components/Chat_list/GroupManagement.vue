@@ -202,7 +202,7 @@
 <script>
 import * as contactListAPI from '@/services/contactList';
 import * as chatListAPI from '@/services/chatList';
-import {getProfileCard} from '@/services/api';
+import {getPersonProfileCard} from '@/services/api';
 import { EventBus } from '@/components/base/EventBus';
 import EditableText from '@/components/base/EditableText.vue';
 import SwitchButton from '@/components/base/SwitchButton.vue';
@@ -369,7 +369,7 @@ export default {
     // },
     async showProfileCard(event, account_id){
       try{
-        const response = await getProfileCard(account_id);
+        const response = await getPersonProfileCard(account_id, this.group_id);
         if(response.status === 200){
           const profile = response.data.data;
           this.$refs.profileCard.show(event, profile, this.boundD, this.boundR);
@@ -386,6 +386,20 @@ export default {
       this.inviteMemberVisible = true;
 
     },
+    
+    async changeGroupNickname(newNickname){
+      try {
+        const response = await contactListAPI.changeGroupNickname(this.group_id, newNickname);
+        if (response.status === 200) {
+          this.groupInfo.my_group_nickname = newNickname;
+        } else {
+          this.$root.notify(response.data.message, 'error');
+        }
+      } catch (error) {
+        console.log('change group nickname error:', error);
+      }
+    },
+    // 对群的个人设置
     async changeGroupRemark(newRemark){
       try{
         const response = await contactListAPI.changeRemark(this.group_id, newRemark);
@@ -400,18 +414,6 @@ export default {
       }
       catch(error){
         console.log('change group remark error:', error)
-      }
-    },
-    async changeGroupNickname(newNickname){
-      try {
-        const response = await contactListAPI.changeGroupNickname(this.group_id, newNickname);
-        if (response.status === 200) {
-          this.groupInfo.my_group_nickname = newNickname;
-        } else {
-          this.$root.notify(response.data.message, 'error');
-        }
-      } catch (error) {
-        console.log('change group nickname error:', error);
       }
     },
     async setMute(){

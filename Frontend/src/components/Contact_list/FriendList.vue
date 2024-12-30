@@ -17,7 +17,7 @@
     />
     <ProfileCard ref="profileCard" />
     <DevideDelete
-      :divides="tags"
+      :divides="tags.filter(tag => tag !== '全部')"
       v-show="isDevideDeleteVisible"
       @close="isDevideDeleteVisible = false"
       @delete-divides="deleteDevides"
@@ -38,7 +38,7 @@
       @close="isDevideManagementVisible = false"
     />
     <DevideMove
-      :divides="tags"
+      :divides="tags.filter(tag => tag !== '全部')"
       v-show="isDevideMoveVisible"
       @divide-move="divideMove"
       @divides-move="dividesMove"
@@ -51,7 +51,7 @@
 
 <script>
 import * as contactListAPI from '@/services/contactList';
-import { getProfileCard } from '@/services/api';
+import { getPersonProfileCard } from '@/services/api';
 
 import itemList from './itemList.vue';
 import DevideDelete from './DevideDelete.vue';
@@ -118,7 +118,7 @@ export default {
     },
     async fetchTags() {
       try{
-        const response = await contactListAPI.getDevides('friends');
+        const response = await contactListAPI.getDivides('friends');
         if(response.status !== 200){
           this.$root.notify(response.data.message, 'error');
           return;
@@ -132,7 +132,7 @@ export default {
     },
     async showProfileCard(event, send_account_id){
       try{
-        const response = await getProfileCard(send_account_id); 
+        const response = await getPersonProfileCard(send_account_id); 
         if(response.status !== 200){
           this.$root.notify(response.data.message, 'error');
           return;
@@ -163,6 +163,7 @@ export default {
       const items = [
         '移动',
         '拉黑',
+        '删除好友',
       ];
       this.$refs.contextMenu.show(event, items, person, this.boundD, this.boundR, 60, 76);
     },
@@ -211,6 +212,17 @@ export default {
       else if(item === '拉黑'){
         try{
           const response = await contactListAPI.addToBlackList(obj.account_id);   // obj为好友对象
+          if(response.status !== 200){
+            this.$root.notify(response.data.message, 'error');
+            return;
+          }
+          this.items = this.items.filter(person => person !== obj);
+        }catch(err){
+          console.log(err);
+        }
+      }else if(item === '删除好友'){
+        try{
+          const response = await contactListAPI.deleteFriend(obj.account_id);  
           if(response.status !== 200){
             this.$root.notify(response.data.message, 'error');
             return;

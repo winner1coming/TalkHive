@@ -17,7 +17,7 @@
     />
     <ProfileCard ref="profileCard" />
     <DevideDelete
-      :divides="tags"
+      :divides="tags.filter(tag => tag !== '全部')"
       v-show="isDevideDeleteVisible"
       @close="isDevideDeleteVisible = false"
       @delete-divides="deleteDevides"
@@ -38,7 +38,7 @@
       @close="isDevideManagementVisible = false"
     />
     <DevideMove
-      :divides="tags"
+      :divides="tags.filter(tag => tag !== '全部')"
       v-show="isDevideMoveVisible"
       @divide-move="divideMove"
       @divides-move="dividesMove"
@@ -51,7 +51,7 @@
 
 <script>
 import * as contactListAPI from '@/services/contactList';
-import { getProfileCard } from '@/services/api';
+import { getGroupProfileCard } from '@/services/api';
 
 import itemList from './itemList.vue';
 import DevideDelete from './DevideDelete.vue';
@@ -75,43 +75,14 @@ export default {
     return {
       type: 'groupList',  // friendList, groupList
       tags: [],  // 从后端获取
-      // items: [   // 从后端获取
-      //   {
-      //     avatar: '',
-      //     account_id: '1',   // 群id
-      //     signature: '这是一个群聊',  // 群介绍
-      //     remark: 'John',   // 群聊备注或群名称
-      //     tag: '家人',
-      //   },
-      // ],
       items: [],   // 群组列表
       boundD: 0,
       boundR: 0,
-      isDevideManagementVisible: false,
       isDevideDeleteVisible: false,
       isDevideManagementVisible: false,
       isDevideAddVisible:false,
       isDevideMoveVisible: false,
-      // groups:[
-			// 	{
-			// 		acount_id: '13872131',   
-			// 		name: 'test',   // 备注或名称
-			// 		avatar: '',
-			// 		signature: '爱拼才会赢',    // 签名
-			// 	},
-			// 	{
-			// 		acount_id: '13872132',  
-			// 		name: 'test',
-			// 		avatar: '',
-			// 		signature: '爱拼才会赢',    // 签名
-			// 	},
-			// 	{
-			// 		acount_id: '13872133',   
-			// 		name: 'test',
-			// 		avatar: '',
-			// 		signature: '爱拼才会赢',    // 签名
-			// 	},
-			// ],// （type为in时是除该分组外的所有好友，out时为当前分组内的好友）
+     
       groups: [],    // 用于移入移出分组
       managementType: '',
       obj: null,
@@ -133,12 +104,13 @@ export default {
     },
     async fetchTags() {
       try {
-        const response = await contactListAPI.getDevides('friends');
+        const response = await contactListAPI.getDivides('friends');
         if(response.status !== 200){
           this.$root.notify(response.data.message, 'error');
           return;
         }
         this.tags = response.data.divides;
+        this.tags.unshift('我创建的');
         this.tags.unshift('全部');
       } catch (error) {
         console.log(error);
@@ -146,7 +118,7 @@ export default {
     },
     async showProfileCard(event, send_account_id){
       try{
-        const response = await getProfileCard(send_account_id); 
+        const response = await getGroupProfileCard(send_account_id); 
         if(response.status !== 200){
           this.$root.notify(response.data.message, 'error');
           return;
@@ -175,9 +147,14 @@ export default {
       this.$refs.contextMenu.show(event, items, tag, this.boundD, this.boundR, 60, 76);
     },
     showPersonContextMenu(event, person){
-      const items = [
+      let items = [
         '移动',
       ];
+      if(person.group_owner === this.$store.state.account_id){
+        items.push('解散群聊');
+      }else{
+        items.push('退出群聊');
+      }
       this.$refs.contextMenu.show(event, items, person, this.boundD, this.boundR, 60, 76);
     },
     async handleMenuSelect(item, obj=null){
@@ -221,6 +198,28 @@ export default {
         this.$refs.divideMove.selectedDevide = obj.tag;
         this.$refs.divideMove.multiple = false;
         this.obj = obj;
+      }else if(item === '解散群聊'){
+        try{
+          const response = await contactListAPI.dismissGroup(obj.account_id);   // obj为好友对象
+          if(response.status !== 200){
+            this.$root.notify(response.data.message, 'error');
+            return;
+          }
+          this.items = this.items.filter(person => person.account_id !== obj.account_id);
+        }catch(err){
+          console.error(err);
+        }
+      }else if(item === '退出群聊'){
+        try{
+          const response = await contactListAPI.exitGroup(obj.account_id);   // obj为好友对象
+          if(response.status !== 200){
+            this.$root.notify(response.data.message, 'error');
+            return;
+          }
+          this.items = this.items.filter(person => person.account_id !== obj.account_id);
+        }catch(err){
+          console.error(err);
+        }
       }
     },
     async addDevide(newDevide){

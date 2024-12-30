@@ -1,5 +1,5 @@
 <template>
-	<HeaderToggle v-for="tag in tags" :previewText="tag" :manageable="tag==='全部'?false:true" @manage-divide="manageDevide($event, tag)">
+	<HeaderToggle v-for="tag in tags" :previewText="tag" :manageable="tag==='全部'||tag==='我创建的'?false:true" @manage-divide="manageDevide($event, tag)">
 			<div 
 				v-for="item in filteredItemsByTag(tag)" 
 				:key="item.account_id" 
@@ -27,6 +27,7 @@ export default {
 	methods: {
 		filteredItemsByTag(tag) {
 			if(tag === '全部') return this.items;
+			if(tag === '我创建的') return this.items.filter(item => item.group_owner === this.$store.state.account_id);
 			return this.items.filter(item => item.tag === tag);
 		},
 		showProfileCard(event, tid){
