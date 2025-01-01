@@ -46,15 +46,16 @@ type AccountInfo struct {
 
 // Contacts 好友/群聊表
 type Contacts struct {
-	OwnerID     uint   `json:"owner_id"`
-	ContactID   uint   `gorm:"primaryKey" json:"contact_id"`
-	IsBlacklist bool   `json:"is_blacklist"`
-	IsPinned    bool   `json:"is_pinned"`
-	Divide      string `json:"divide"`
-	IsMute      bool   `json:"is_mute"`
-	IsBlocked   bool   `json:"is_blocked"`
-	IsGroupChat bool   `json:"is_group_chat"`
-	Remark      string `json:"remark"`
+	OwnerID          uint   `json:"owner_id"`
+	ContactID        uint   `gorm:"primaryKey" json:"contact_id"`
+	IsBlacklist      bool   `json:"is_blacklist"`
+	IsPinned         bool   `json:"is_pinned"`
+	Divide           string `json:"divide"`
+	IsMute           bool   `json:"is_mute"`
+	IsBlocked        bool   `json:"is_blocked"`
+	IsGroupChat      bool   `json:"is_group_chat"`
+	Remark           string `json:"remark"`
+	UnreadMessageNum uint   `json:"unread_message_num"`
 }
 
 // SystemSetting 系统环境设置表
