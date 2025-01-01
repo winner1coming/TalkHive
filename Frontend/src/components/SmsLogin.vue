@@ -123,12 +123,13 @@
         if(this.Code){
           if(this.Code !== this.smsCode){
               alert('验证码错误');
-              return;
+              return false;
           }
+          return true;
         }
         else{
           alert('请先获取验证码！');
-          return;
+          return false;
         }
       },
       // 发送验证码方法
