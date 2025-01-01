@@ -48,7 +48,7 @@
 
   export default {
     props:{
-      users: {
+      user: {
         type: Object,
         required: true,
       },
@@ -70,7 +70,10 @@
 
     methods: {
       async savepassword() {
-        this.validate_comfirmPassword();
+
+        if(!this.validate_comfirmPassword()){
+          return;
+        }
 
         try{
           const response = await savePassword({
@@ -101,11 +104,13 @@
 
 
       validate_comfirmPassword() {
-        const password = this.users.password;
+        const password = this.user.password;
         if (this.oldPassword !== password) {
           alert("原密码输入错误");
+          return false;
         } else if(this.oldPassword == password){
           alert("新密码与原密码相同！");
+          return false;
         }
       },
 

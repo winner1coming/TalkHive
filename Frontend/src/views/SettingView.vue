@@ -43,7 +43,6 @@
   import SystemSettings from '@/components/Settings_list/SystemSettings.vue';
   import {logout, getSystemSetting} from '@/services/settingView.js';
   import { mapGetters } from 'vuex';
-import { changeFontstyle, isNotice } from '../services/settingView';
   
   export default {
     components: {
