@@ -19,7 +19,8 @@ import (
 // SearchCode - 获取用户的代码列表
 func SearchCode(c *gin.Context) {
 	// 1. 获取请求参数中的 id
-	userID := c.Param("id")
+	//userID := c.Param("id")
+	userID := c.GetHeader("id")
 	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
 		return
@@ -71,7 +72,8 @@ func CreateCode(c *gin.Context) {
 	}
 
 	// 获取用户ID
-	userID := c.Param("id")
+	//userID := c.Param("id")
+	userID := c.GetHeader("id")
 	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
 		return
@@ -134,7 +136,8 @@ func GetCode(c *gin.Context) {
 		return
 	}
 
-	userID := c.Param("id")
+	//userID := c.Param("id")
+	userID := c.GetHeader("id")
 	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
 		return
@@ -216,7 +219,8 @@ func EditCode(c *gin.Context) {
 	}
 
 	// 获取用户ID
-	userID := c.Param("id")
+	//userID := c.Param("id")
+	userID := c.GetHeader("id")
 	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
 		return
@@ -287,7 +291,8 @@ func ShareCode(c *gin.Context) {
 	}
 
 	// 获取用户ID
-	userID := c.Param("id")
+	//userID := c.Param("id")
+	userID := c.GetHeader("id")
 	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
 		return
@@ -344,7 +349,8 @@ func ChangeName(c *gin.Context) {
 	}
 
 	// 获取用户ID
-	userID := c.Param("id")
+	//userID := c.Param("id")
+	userID := c.GetHeader("id")
 	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
 		return
@@ -375,7 +381,8 @@ func DeleteCode(c *gin.Context) {
 	}
 
 	// 获取用户ID
-	userID := c.Param("id")
+	//userID := c.Param("id")
+	userID := c.GetHeader("id")
 	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
 		return

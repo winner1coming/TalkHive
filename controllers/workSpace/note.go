@@ -36,7 +36,8 @@ func CreateNote(c *gin.Context) {
 	}
 
 	// 获取用户ID
-	userID := c.Param("id")
+	//userID := c.Param("id")
+	userID := c.GetHeader("id")
 	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
 		return
@@ -124,7 +125,8 @@ func CreateNote(c *gin.Context) {
 // GetNotesList - 获取用户的笔记列表
 func GetNotesList(c *gin.Context) {
 	// 1. 从请求中获取 user_id 参数
-	id := c.Param("id") // 使用 c.Param 获取路径参数
+	//id := c.Param("id") // 使用 c.Param 获取路径参数
+	userID := c.GetHeader("id")
 	if id == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "User ID is required"})
 		return
@@ -167,7 +169,8 @@ func GetNotesList(c *gin.Context) {
 // GetNote - 获取笔记
 func GetNote(c *gin.Context) {
 	// 1. 从请求中获取 code_id 参数
-	userID := c.Param("id") // 使用 c.Param 获取路径参数
+	//userID := c.Param("id") // 使用 c.Param 获取路径参数
+	userID := c.GetHeader("id")
 	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "User ID is required"})
 		return
@@ -231,7 +234,8 @@ func EditNote(c *gin.Context) {
 	}
 
 	// 获取用户ID
-	userID := c.Param("id")
+	//userID := c.Param("id")
+	userID := c.GetHeader("id")
 	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
 		return
@@ -300,7 +304,8 @@ func ShareNote(c *gin.Context) {
 	}
 
 	// 获取用户ID
-	userID := c.Param("id")
+	//userID := c.Param("id")
+	userID := c.GetHeader("id")
 	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
 		return
@@ -357,7 +362,8 @@ func ChangeNoteName(c *gin.Context) {
 	}
 
 	// 获取用户ID
-	userID := c.Param("id")
+	//userID := c.Param("id")
+	userID := c.GetHeader("id")
 	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
 		return
@@ -401,7 +407,8 @@ func DeleteNote(c *gin.Context) {
 	}
 
 	// 获取用户ID
-	userID := c.Param("id")
+	//userID := c.Param("id")
+	userID := c.GetHeader("id")
 	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
 		return
@@ -444,7 +451,8 @@ func DeleteNote(c *gin.Context) {
 // GetTypeList - 获取用户的笔记分类列表
 func GetTypeList(c *gin.Context) {
 	// 获取用户ID
-	userID := c.Param("id")
+	//userID := c.Param("id")
+	userID := c.GetHeader("id")
 	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status":  400,
@@ -481,7 +489,8 @@ func GetTypeList(c *gin.Context) {
 func GetNotesByCategory(c *gin.Context) {
 	// 获取路径参数
 	// 获取用户ID
-	userID := c.Param("id")
+	//userID := c.Param("id")
+	userID := c.GetHeader("id")
 	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
 		return
@@ -557,7 +566,8 @@ func EditNoteType(c *gin.Context) {
 	}
 
 	// 获取用户 ID
-	userID := c.Param("id")
+	//userID := c.Param("id")
+	userID := c.GetHeader("id")
 	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
 		return
@@ -607,7 +617,8 @@ func DeleteType(c *gin.Context) {
 	}
 
 	// 获取用户ID
-	userID := c.Param("id")
+	//userID := c.Param("id")
+	userID := c.GetHeader("id")
 	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
 		return
@@ -657,7 +668,8 @@ func ChangeTypeName(c *gin.Context) {
 	}
 
 	// 获取用户ID
-	userID := c.Param("id")
+	//userID := c.Param("id")
+	userID := c.GetHeader("id")
 	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
 		return
@@ -708,7 +720,8 @@ func CreateType(c *gin.Context) {
 	}
 
 	// 获取用户ID
-	userID := c.Param("id")
+	//userID := c.Param("id")
+	userID := c.GetHeader("id")
 	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
 		return

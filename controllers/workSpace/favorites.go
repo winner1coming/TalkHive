@@ -26,7 +26,8 @@ import (
 // ⑧	Time都可以从三个表中获取
 func GetFavorites(c *gin.Context) {
 	// 获取用户ID
-	userID := c.Param("id")
+	//userID := c.Param("id")
+	userID := c.GetHeader("id")
 	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
 		return
@@ -107,7 +108,8 @@ func ViewFavorite(c *gin.Context) {
 	}
 
 	// 2. 获取用户ID
-	userID := c.Param("id")
+	//userID := c.Param("id")
+	userID := c.GetHeader("id")
 	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
 		return
@@ -147,7 +149,8 @@ func AddFavorite(c *gin.Context) {
 	}
 
 	// 2. 获取用户ID
-	userID := c.Param("id")
+	//userID := c.Param("id")
+	userID := c.GetHeader("id")
 	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
 		return
@@ -234,7 +237,8 @@ func DeleteFavorite(c *gin.Context) {
 	}
 
 	// 2. 获取用户ID
-	userID := c.Param("id")
+	//userID := c.Param("id")
+	userID := c.GetHeader("id")
 	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
 		return
@@ -307,7 +311,8 @@ func DeleteMultipleFavorites(c *gin.Context) {
 	}
 
 	// 2. 获取用户ID
-	userID := c.Param("id")
+	//userID := c.Param("id")
+	userID := c.GetHeader("id")
 	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
 		return

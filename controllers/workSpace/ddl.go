@@ -34,7 +34,8 @@ func CreateDDL(c *gin.Context) {
 	}
 
 	// 从 URL 路径中获取用户 ID（:id）
-	userID := c.Param("id")
+	//userID := c.Param("id")
+	userID := c.GetHeader("id")
 	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
 		return
@@ -80,7 +81,8 @@ func CreateDDL(c *gin.Context) {
 // GetUncompletedDDL - 获取用户待完成的DDL列表
 func GetUncompletedDDL(c *gin.Context) {
 	// 1.获取用户 ID：string
-	userID := c.Param("id")
+	//userID := c.Param("id")
+	userID := c.GetHeader("id")
 	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
 		return
@@ -111,7 +113,8 @@ func GetUncompletedDDL(c *gin.Context) {
 // GetCompletedDDL - 查看已完成DDL事件
 func GetCompletedDDL(c *gin.Context) {
 	// 1.获取用户 ID：string
-	userID := c.Param("id")
+	//userID := c.Param("id")
+	userID := c.GetHeader("id")
 	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
 		return
@@ -155,7 +158,8 @@ func EditDDL(c *gin.Context) {
 		return
 	}
 
-	userID := c.Param("id")
+	//userID := c.Param("id")
+	userID := c.GetHeader("id")
 	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
 		return
@@ -211,7 +215,8 @@ func MarkDDLComplete(c *gin.Context) {
 		return
 	}
 
-	userID := c.Param("id")
+	//userID := c.Param("id")
+	userID := c.GetHeader("id")
 	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
 		return
@@ -256,7 +261,8 @@ func DeleteDDL(c *gin.Context) {
 		return
 	}
 
-	userID := c.Param("id")
+	//userID := c.Param("id")
+	userID := c.GetHeader("id")
 	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
 		return

@@ -40,7 +40,8 @@ func SearchByKeyword(c *gin.Context) {
 // GetTrashItems - 返回回收站列表
 func GetTrashItems(c *gin.Context) {
 	// 获取用户 ID 参数
-	userID := c.Param("id")
+	//userID := c.Param("id")
+	userID := c.GetHeader("id")
 	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
 		return
@@ -82,7 +83,8 @@ func RestoreItem(c *gin.Context) {
 	}
 
 	// 获取用户 ID 参数
-	userID := c.Param("id")
+	//userID := c.Param("id")
+	userID := c.GetHeader("id")
 	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
 		return
@@ -144,7 +146,8 @@ func DeletePermanently(c *gin.Context) {
 	}
 
 	// 获取用户 ID 参数
-	userID := c.Param("id")
+	//userID := c.Param("id")
+	userID := c.GetHeader("id")
 	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
 		return
