@@ -1,7 +1,7 @@
 <template>
 	<div class="modal-overlay" @click.self="close">
 	  <div class="modal-content">
-			<h4>删除分组</h4>
+			<h4>{{ this.type==="in"? "移入" : "移出" }}</h4>
 			<div class="select-all">
 				<input 
 					type="checkbox" 
@@ -11,14 +11,17 @@
 				>
 			</div>
 			<ul class="items">
-				<!-- 每个分组 -->
 				<li 
-					v-for="(devide, index) in devides" 
-					:key="index"
-					@click="toggleDevideSelection(devide)"
-				>
-					<input type="checkbox" v-model="selectedDevides" :value="devide">
-					<span>{{ devide }}</span>
+					v-for="person in persons" 
+					:key="acount_id"
+					@click="togglePersonSelection(person)"
+				> 
+					<input type="checkbox" v-model="selectedPersons" :value="person">
+					<img :src="person.avatar" alt="avatar" width="50" height="50" />
+					<div class="left">
+						<p class="name">{{ person.remark }}</p>
+						<p class="remark">{{ (`签名：${person.signature.length > this.maxChars ? person.signature.slice(0, this.maxChars) + '...' : person.signature}`)}}</p>
+					</div>
 				</li>
 			</ul>
 			<button class="confirm-button" @click="confirmSelection">确认</button>
@@ -29,48 +32,55 @@
 <script>
 
 export default {
-	props:['devides'],
+	props:['type', 'persons'],
 	data() {
 	  return {
 			selectAll: false,
-			selectedDevides: [],
-			watchSection: null,
+			selectedPersons: [],
+			maxChars: 20,
 	  };
+	},
+	watch:{
+		selectedPersons:{
+			handler(val){
+				const totalPersons = this.persons.length;
+				this.selectAll = val.length === totalPersons;
+				if (this.$refs.selectAllCheckbox) {
+					this.$refs.selectAllCheckbox.indeterminate = val.length > 0 && val.length < totalPersons;
+				}
+			},
+			deep: true,
+			immediate: true,
+		}
 	},
 	methods: {
 	  async confirmSelection() {
-			this.$emit('delete-devides', this.selectedDevides);
-			//await deleteFriendGroup(this.selectedDevides);  // selectedDevides是被选择的分组的名称的数组
+			if(this.type === "in"){
+				this.$emit('divide-in', this.selectedPersons);
+			}
+			else{
+				this.$emit('divide-out', this.selectedPersons);
+			}
 			this.close();
 	  },
 	  close() {
 			this.selectAll = false;
-			this.selectedDevides = [];
+			this.selectedPersons = [];
 			this.$refs.selectAllCheckbox.indeterminate = false;
 			this.$emit('close');
 	  },
-		toggleDevideSelection(devide) {
-        const index = this.selectedDevides.indexOf(devide);
-        if (index === -1) {
-            this.selectedDevides.push(devide);
-        } else {
-            this.selectedDevides.splice(index, 1);
-        }
+	  togglePersonSelection(person) {
+			const index = this.selectedPersons.indexOf(person);
+			if (index === -1) {
+				this.selectedPersons.push(person);
+			} else {
+				this.selectedPersons.splice(index, 1);
+			}
     },
 	  toggleSelectAll() {
-			this.selectedDevides = this.selectAll ? [...this.devides] : [];
+			this.selectedPersons = this.selectAll ? [...this.persons] : [];
 	  }
 	},
-	mounted() {
-		this.watchSection = this.$watch('selectedDevides', (val) => {
-			const totalDevides = this.devides.length;
-			this.selectAll = val.length === totalDevides && totalDevides > 0;
-			this.$refs.selectAllCheckbox.indeterminate = val.length > 0 && val.length < totalDevides;
-		}, { deep: true, immediate: true });
-	},
-	beforeUnmount() {
-		this.watchSection();
-	}
 };
 </script>
   

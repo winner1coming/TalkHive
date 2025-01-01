@@ -4,6 +4,7 @@
       :currentTab="currentTab" 
       :style="{ width: functionBarWidth + 'px' }"
       @tab-selected="handleTabChange" 
+      @search="handleSearch"
       class="function-bar"
     />
 
@@ -11,7 +12,12 @@
     <div class="resizer" @mousedown="startResize"></div>
     
     <div class="main-content">
-      <component :is="currentTabComponent" />
+      <FriendRequests v-show="currentTab === 'friendRequests'" />
+      <GroupNotifications v-show="currentTab === 'groupNotifications'" />
+      <FriendList v-show="currentTab === 'friendList'" />
+      <GroupList v-show="currentTab === 'groupList'" />
+      <Blacklist v-show="currentTab === 'blacklist'" />
+      <SearchList v-show="currentTab === 'searchList'" :keyword="searchKeyword"/>
     </div>
   </div>
 </template>
@@ -23,6 +29,7 @@ import GroupNotifications from "@/components/Contact_list/GroupNotifications.vue
 import FriendList from "@/components/Contact_list/FriendList.vue";
 import GroupList from "@/components/Contact_list/GroupList.vue";
 import Blacklist from "@/components/Contact_list/Blacklist.vue";
+import SearchList from "@/components/Contact_list/SearchList.vue";
 
 export default {
   components: {
@@ -32,31 +39,37 @@ export default {
     FriendList,
     GroupList,
     Blacklist,
+    SearchList,
   },
   data() {
     return {
       currentTab: "FriendRequests", // 默认展示“好友申请”
+      searchKeyword: "",  // 搜索关键词
       functionBarWidth: 230,  // 功能栏的宽度
       leftComponentWidth: 130,  // 左侧组件的宽度 todo
     };
   },
-  computed: {
-    currentTabComponent() {
-      const components = {
-        friendRequests: "FriendRequests",
-        groupNotifications: "GroupNotifications",
-        friendList: "FriendList",
-        groupList: "GroupList",
-        blacklist: "Blacklist",
-      };
-      return components[this.currentTab];
-    },
-  },
+  // computed: {
+  //   currentTabComponent() {
+  //     const components = {
+  //       friendRequests: "FriendRequests",
+  //       groupNotifications: "GroupNotifications",
+  //       friendList: "FriendList",
+  //       groupList: "GroupList",
+  //       blacklist: "Blacklist",
+  //       searchList: "SearchList",
+  //     };
+  //     return components[this.currentTab];
+  //   },
+  // },
   methods: {
     handleTabChange(tabName) {
       this.currentTab = tabName;
     },
-
+    handleSearch(query) {
+      this.currentTab = "searchList";
+      this.searchKeyword = query;
+    },
     // 拖动条的逻辑
     startResize(event) {
       this.isResizing = true;
@@ -97,7 +110,7 @@ export default {
   width: 100%;
 }
 .resizer {
-  width: 4px;
+  width: 3px;
   height: 100%;
   cursor: ew-resize;
   background-color: #ccc;

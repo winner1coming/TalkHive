@@ -1,16 +1,24 @@
 <template>
 	<div class="modal-overlay" @click.self="close">
 	  <div class="modal-content">
-			<h4>移动至</h4>
+			<h4>删除分组</h4>
+			<div class="select-all">
+				<input 
+					type="checkbox" 
+					v-model="selectAll" 
+					@change="toggleSelectAll"
+					ref="selectAllCheckbox"
+				>
+			</div>
 			<ul class="items">
 				<!-- 每个分组 -->
 				<li 
-					v-for="(devide, index) in devides" 
+					v-for="(divide, index) in divides" 
 					:key="index"
-					@click="selectedDevide = devide"
+					@click="toggleDivideSelection(divide)"
 				>
-					<input type="radio" v-model="selectedDevide" :value="devide">
-					<span>{{ devide }}</span>
+					<input type="checkbox" v-model="selectedDivides" :value="divide">
+					<span>{{ divide }}</span>
 				</li>
 			</ul>
 			<button class="confirm-button" @click="confirmSelection">确认</button>
@@ -21,28 +29,52 @@
 <script>
 
 export default {
-	props:['devides'],
+	props:['divides'],
 	data() {
 	  return {
-			//devides:['家人', '好友', '同事','a','b','c','d','e','f', 'g'], 
 			selectAll: false,
-			selectedDevide: null,
-			multiple: false,
+			selectedDivides: [],
+			watchSection: null,
 	  };
 	},
 	methods: {
 	  async confirmSelection() {
-			if(this.multiple===false) this.$emit('devide-move', this.selectedDevide);
-			else this.$emit('devides-move', this.selectedDevide);
+			this.$emit('delete-divides', this.selectedDivides);
+			//await deleteFriendGroup(this.selectedDivides);  // selectedDivides是被选择的分组的名称的数组
 			this.close();
 	  },
 	  close() {
+			this.selectAll = false;
+			this.selectedDivides = [];
+			this.$refs.selectAllCheckbox.indeterminate = false;
 			this.$emit('close');
 	  },
+		toggleDivideSelection(divide) {
+        const index = this.selectedDivides.indexOf(divide);
+        if (index === -1) {
+            this.selectedDivides.push(divide);
+        } else {
+            this.selectedDivides.splice(index, 1);
+        }
+    },
+	  toggleSelectAll() {
+			this.selectedDivides = this.selectAll ? [...this.divides] : [];
+	  }
 	},
+	mounted() {
+		this.watchSection = this.$watch('selectedDivides', (val) => {
+			const totalDivides = this.divides.length;
+			this.selectAll = val.length === totalDivides && totalDivides > 0;
+			this.$refs.selectAllCheckbox.indeterminate = val.length > 0 && val.length < totalDivides;
+		}, { deep: true, immediate: true });
+	},
+	beforeUnmount() {
+		this.watchSection();
+	}
 };
 </script>
   
+<style scoped src="@/assets/css/contactList.css"></style>
 <style scoped>
 .modal-overlay {
 	position: fixed;

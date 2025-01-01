@@ -1,90 +1,90 @@
 <template>
-    <div class="smslogin">
-      <img  class="avatar" :src ="avatar" />
-      
-      <div class="input-group">
-        <label for="email">邮箱</label>
-        <input id="email" type="text" v-model="email" @blur="hideDropdown" @input="handleInput" placeholder="请输入邮箱" />
-        <ul v-if="showDropdown" class="dropdown">
-          <li
+  <div class="smslogin">
+    <img  class="avatar" :src ="avatar" />
+
+    <div class="input-group">
+      <label for="email">邮箱</label>
+      <input id="email" type="text" v-model="email" @blur="hideDropdown" @input="handleInput" placeholder="请输入邮箱" />
+      <ul v-if="showDropdown" class="dropdown">
+        <li
             v-for="matchedAccount in matchedAccounts"
             :key="matchedAccount"
             @mousedown="selectAccount(matchedAccount)"
-          >
-            {{ matchedAccount }}
-          </li>
-        </ul>
-        <p v-if="!isEmailValid && email" class="error-message">请输入有效的邮箱地址</p>
-      </div>
-      
-      <div class="verificate">
-        <div class="input-group">
-          <label for="smsCode">验证码</label>
-          <input id="smsCode" type="text" v-model="smsCode" placeholder="请输入验证码" />
-        </div>
-        <button class="send-sms-button" @click="sendSmsCode">获取</button>
-      </div>
+        >
+          {{ matchedAccount }}
+        </li>
+      </ul>
+      <p v-if="!isEmailValid && email" class="error-message">请输入有效的邮箱地址</p>
+    </div>
 
-      <button class="login-button" @click="smsLogin">登录</button>
-      <div class = "link">
+    <div class="verificate">
+      <div class="input-group">
+        <label for="smsCode">验证码</label>
+        <input id="smsCode" type="text" v-model="smsCode" placeholder="请输入验证码" />
+      </div>
+      <button class="send-sms-button" @click="sendSmsCode">获取</button>
+    </div>
+
+    <button class="login-button" @click="smsLogin">登录</button>
+    <div class = "link">
       <!-- 注册链接 -->
       <router-link to = "/register" class=" register">注册</router-link>
       <router-link to = "/forgetpassword" class=" reset">忘记密码</router-link>
-      </div>
     </div>
-  </template>
-  
-  <script>
-  import { smsLogin, sendSmsCode } from '@/services/loginth.js'; // 导入登录和发送验证码 API
-  import { mapActions, mapGetters} from 'vuex';
-  import img from '@/assets/images/avatar.jpg';
-  
-  export default {
-    computed: {
-      ...mapGetters(['user']), // 从 Vuex 获取用户信息
-      isEmailValid() {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return emailRegex.test(this.email);
-      },
+  </div>
+</template>
+
+<script>
+import { smsLogin, sendSmsCode } from '@/services/loginth.js'; // 导入登录和发送验证码 API
+import { mapActions, mapGetters} from 'vuex';
+import img from '@/assets/images/avatar.jpg';
+
+
+export default {
+  computed: {
+    ...mapGetters(['user']), // 从 Vuex 获取用户信息
+    isEmailValid() {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return emailRegex.test(this.email);
     },
+  },
 
-    data() {
-      return {
-        email: '',
-        smsCode: '',
-        Code: '',
-        avatar:img,
-        users:[],
-        matchedAccounts: [],
-        showDropdown:false,
-      };
-    },
-    
-    methods: {
-      ...mapActions(['login']), // 映射 Vuex 的 login 方法
+  data() {
+    return {
+      email: '',
+      smsCode: '',
+      Code: '',
+      avatar:img,
+      users:[],
+      matchedAccounts: [],
+      showDropdown:false,
+    };
+  },
 
+  methods: {
+    ...mapActions(['login']), // 映射 Vuex 的 login 方法
 
-      // 登录方法
-      async smsLogin() {
-        if(!this.email){
-          alert("邮箱不能为空！");
-        }
-        else if(!this.smsCode){
-          alert("验证码不能为空！");
-        }
+    // 登录方法
+    async smsLogin() {
+      if(!this.email){
+        alert("邮箱不能为空！");
+      }
+      else if(!this.smsCode){
+        alert("验证码不能为空！");
+      }
 
-        if(this.validateCode()){
+      if(!this.validateCode()){
           return;
-        } 
-          
-        try {
-          const response = await smsLogin({
-            email : this.email,
-          });
+      }
 
-          if(response.success){
-            this.avatar = `data:${response.mimeType};base64,${response.avatar}`;
-            this.$store.commit('SET_USER', {
+      try {
+        const response = await smsLogin({
+          email : this.email,
+        });
+
+        if(response.success){
+          this.avatar = `data:${response.mimeType};base64,${response.avatar}`;
+          this.$store.commit('SET_USER', {
             username: response.nickname,
             id: response.account_id,
             avatar: this.avatar,
@@ -107,112 +107,111 @@
               users.push(userInfo);
             }
             localStorage.setItem('users', JSON.stringify(users));
-
             alert(response.message);
             this.$router.push('/home');
-          }
-          else {
-            alert(response.message);
-          }
-        } catch (error) {
-          alert(error || '登录失败');
         }
-      },
-      
-      async validateCode(){
-        if(this.Code){
-          if(this.Code !== this.smsCode){
-              alert('验证码错误');
-              return false;
-          }
-          return true;
+        else {
+          alert(response.message);
         }
-        else{
-          alert('请先获取验证码！');
+      } catch (error) {
+        alert(error || '登录失败');
+      }
+    },
+
+    async validateCode(){
+      if(this.Code){
+        if(this.Code !== this.smsCode){
+          alert('验证码错误');
           return false;
         }
-      },
-      // 发送验证码方法
-      async sendSmsCode() {
-        
-        try {
-          const response = await sendSmsCode({
-            command:'smsLogin',
-            email:this.email,
-          });
+        return true;
+      }
+      else{
+        alert('请先获取验证码！');
+        return false;
+      }
+    },
+    // 发送验证码方法
+    async sendSmsCode() {
 
-          if (response.success) {
-            alert('验证码已发送');
-            this.Code = response.code;
-          } else {
-            alert(response.message);
-          }
-        } catch (error) {
-          alert(error || '发送验证码失败');
+      try {
+        const response = await sendSmsCode({
+          command:'smsLogin',
+          email:this.email,
+        });
+
+        if (response.success) {
+          alert('验证码已发送');
+          this.Code = response.code;
+        } else {
+          alert(response.message);
         }
-      },
+      } catch (error) {
+        alert(error || '发送验证码失败');
+      }
+    },
 
-        handleInput() {
-        if (this.email) {
-          // 模糊匹配账号（最左匹配）
-          this.matchedAccounts = this.users
+    handleInput() {
+      if (this.email) {
+        // 模糊匹配账号（最左匹配）
+        this.matchedAccounts = this.users
             .map(user => user.email)
             .filter(email => email.startsWith(this.email));
-          this.showDropdown = this.matchedAccounts.length > 0; // 如果有匹配的账号，显示下拉框
-          const matchedUser = this.users.find(user => user.email === this.email);
-          if (matchedUser) {
-            this.avatar = matchedUser.avatar; // 如果账号存在，设置头像
-          }
-          else{
-            this.avatar = img;
-          }
-        } else {
-          this.matchedAccounts = [];
-          this.showDropdown = false;
-          this.avatar=img;
+        this.showDropdown = this.matchedAccounts.length > 0; // 如果有匹配的账号，显示下拉框
+        const matchedUser = this.users.find(user => user.email === this.email);
+        if (matchedUser) {
+          this.avatar = matchedUser.avatar; // 如果账号存在，设置头像
         }
-      },
-
-      // 选择账号
-      selectAccount(email) {
-        this.email = email; // 填充账号到输入框
-        this.showDropdown = false; // 隐藏下拉框
-
-        // 直接从缓存中获取对应的头像
-        const matchedUser = this.users.find(user => user.email === email);
-        if(matchedUser){
-          this.avatar = matchedUser.avatar; // 设置头像       
+        else{
+          this.avatar = img;
         }
-      },
-
-      // 隐藏下拉框
-      hideDropdown() {
-        setTimeout(() => {
-            this.showDropdown = false;
-        }, 200); // 延迟隐藏，避免点击下拉框时立即隐藏
-      },
+      } else {
+        this.matchedAccounts = [];
+        this.showDropdown = false;
+        this.avatar=img;
+      }
     },
 
-    mounted() {
+    // 选择账号
+    selectAccount(email) {
+      this.email = email; // 填充账号到输入框
+      this.showDropdown = false; // 隐藏下拉框
+
+      // 直接从缓存中获取对应的头像
+      const matchedUser = this.users.find(user => user.email === email);
+      if(matchedUser){
+        this.avatar = matchedUser.avatar; // 设置头像
+      }
+    },
+
+    // 隐藏下拉框
+    hideDropdown() {
+      setTimeout(() => {
+        this.showDropdown = false;
+      }, 200); // 延迟隐藏，避免点击下拉框时立即隐藏
+    },
+  },
+
+  mounted() {
     this.users = JSON.parse(localStorage.getItem('users')) || [];
-    },
+  },
 
-  };
-  </script>
-  
-  <style scoped>
+};
+</script>
 
-  .smslogin{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 60vh; /* 设置高度为视口高度 */
-    padding: 10px;
-    box-sizing: border-box;
-  }
+<style scoped>
 
-  .avatar{
+.smslogin{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 60vh; /* 设置高度为视口高度 */
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.avatar{
   width: 100px;
   height: 100px;
   margin-top: 10px;
@@ -221,54 +220,55 @@
   border-radius: 100%;
   }
 
-  .input-group {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-items: center;
-    margin-bottom: 20px;
-    margin-left: 60px;
-    width: 100%;
-    max-width: 300px;
-  }
 
-  .verificate{
-    display: flex;
-    align-items: center;
-    justify-self: start;
-    justify-content: center;
-  }
-  
-  .input-group label {
-    margin-right: 10px;
-    font-size: 14px;
-    color: #666;
-    white-space: nowrap; /* 防止标签换行 */
-  }
-  
-  .input-group input {
-    flex: 0; /* 使输入框占据剩余空间 */
-    padding: 10px;
-    font-size: 16px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-  }
-  
-  .send-sms-button {
-    padding: 10px;
-    font-size: 14px;
-    width: 100%;
-    color: #fff;
-    background-color: #42b983;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    margin-right: 10px;
-    margin-bottom: 20px;
-    
-  }
-  
-  .login-button {
+.input-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-items: center;
+  margin-bottom: 20px;
+  margin-left: 60px;
+  width: 100%;
+  max-width: 300px;
+}
+
+.verificate{
+  display: flex;
+  align-items: center;
+  justify-self: start;
+  justify-content: center;
+}
+
+.input-group label {
+  margin-right: 10px;
+  font-size: 14px;
+  color: #666;
+  white-space: nowrap; /* 防止标签换行 */
+}
+
+.input-group input {
+  flex: 0; /* 使输入框占据剩余空间 */
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.send-sms-button {
+  padding: 10px;
+  font-size: 14px;
+  width: 100%;
+  color: #fff;
+  background-color: #42b983;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 10px;
+  margin-bottom: 20px;
+
+}
+
+.login-button {
   width: 100%;
   max-width: 100px;
   padding: 10px;
@@ -286,7 +286,7 @@
   background-color: #369f6e;
 }
 
-  .link {
+.link {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;

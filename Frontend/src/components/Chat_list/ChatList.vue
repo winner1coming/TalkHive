@@ -35,12 +35,16 @@
         @click = selectChat(chat)
         :class="{pinned: chat.tags.includes('pinned'), selected: selectedChat && chat.id === selectedChat.id}"
       >
-        <div class="chat-avatar">   <!-- 头像-->
-          <img :src="chat.avatar" alt="avatar" />
-        </div>
-        <div class="chat-info">   <!-- 信息-->
-          <div class="chat-name">{{ chat.name }}</div>
-          <div class="chat-last-chat">{{chat.lastMessage.length > this.maxChars ? chat.lastMessage.slice(0, this.maxChars) + '...' : chat.lastMessage}}</div>
+        <div class="left-part">
+          <!-- 头像-->
+          <div class="chat-avatar">  
+            <img :src="chat.avatar" alt="avatar" />
+          </div>
+          <!-- 信息-->
+          <div class="chat-info">   
+            <div class="chat-name" :style="{width: `${chatListWidth-155}px`}">{{ chat.name }}</div>
+            <div class="chat-last-chat" :style="{width: `${chatListWidth-155}px`}">{{chat.lastMessage}}</div>
+          </div>
         </div>
         <div class="chat-meta">   <!-- 时间和未读-->
           <div class="chat-time">{{ formatTime(chat.lastMessageTime) }}</div>
@@ -54,13 +58,11 @@
     <AddFriendGroup
       v-if="isAddModalVisible"
       @close="isAddModalVisible = false"
-      @add-friend="handleAddFriend"
     />
     <!-- 新建群聊弹窗 -->
     <BuildGroup
       v-if="isBuildModalVisible"
       @close="isBuildModalVisible = false"
-      @build-group="handleBuildGroup"
     />
     <ContextMenu ref="contextMenu"  @select-item="handleMenuSelect" />
   
@@ -70,8 +72,8 @@
 <script>
 import SearchBar from '@/components/base/SearchBar.vue';
 import ContextMenu from '@/components/base/ContextMenu.vue';
+import { EventBus } from '@/components/base/EventBus';  
 import * as chatListAPI from '@/services/chatList';
-import { addFriendGroup, createGroup } from '@/services/api';
 import AddFriendGroup from '@/components/Chat_list/AddFriendGroup.vue';
 import BuildGroup from '@/components/Chat_list/BuildGroup.vue';
 export default {
@@ -87,24 +89,7 @@ export default {
     return {
       // 消息列表（从后端获取）
       chats: [],
-      // chats: [{
-      //     id: '0',   // 好友的tid
-      //     avatar: new URL('@/assets/images/avatar.jpg', import.meta.url).href,
-      //     name: 'Alice',  // 好友的备注 remark
-      //     lastMessage: 'hi',
-      //     lastMessageTime: '10:00',
-      //     unreadCount: 1,
-      //     tags: ['unread','pinned'],   // friend, group, unread, pinned, blocked
-      //   },
-      //   {
-      //     id: '1',
-      //     avatar: new URL('@/assets/images/avatar.jpg', import.meta.url).href,
-      //     name: 'Bob',
-      //     lastMessage: 'hello',
-      //     lastMessageTime: '11:00',
-      //     unreadCount: 0,
-      //     tags: ['unread', 'group'],
-      //   }], 
+      
       // 选中的聊天
       selectedChat: null,
       // 消息标签
@@ -137,7 +122,6 @@ export default {
       if(!chats) {
         return chats;
       }
-      console.log(chats);
       // 将置顶的消息排在前面
       return chats.sort((a, b) => {
         const aPinned = a.tags.includes('pinned') ? 1 : 0;
@@ -145,15 +129,16 @@ export default {
         return bPinned - aPinned;
       });
     },
-    maxChars(){  // 可以显示的字体个数
-      return Math.floor((this.chatListWidth - 50) / 12);
-    },
+    // maxChars(){  // 可以显示的字体个数
+    //   return Math.floor((this.chatListWidth - 120) / parseInt(this.$store.state.settings.fontSize,10));
+    // },
   },
   watch:{
     '$store.state.currentChat': {
       handler: function(val) {
         if(val){
-          this.selectChat(val);
+          if(this.selectedChat && val.id!==this.selectedChat.id) this.selectChat(val);
+          this.chats = this.chats.map(chat => chat.id === val.id? val : chat);
         }
       },
       immediate: true,
@@ -161,13 +146,17 @@ export default {
   },
   methods: {
     async fetchChatList() {
-      // 从后端获取聊天列表
-      let response = await chatListAPI.getChatList();
-      if(response.status === 200) {
-        this.chats = response.data;
-      }
-      else{
-        console.error('获取聊天列表失败:', response.data);
+      try{
+        // 从后端获取聊天列表
+        const response = await chatListAPI.getChatList();
+        if(response.status === 200) {
+          this.chats = response.data.data;
+        }
+        else{
+          this.$root.notify(response.data.message, 'error');
+        }
+      }catch(e){
+        console.log(e);
       }
     },
     // 选中tag筛选消息
@@ -177,9 +166,17 @@ export default {
     // 选中消息，切换到对应的聊天
     async selectChat(chat, tid=null) {
       if (!chat) {
-        const response = await chatListAPI.getChat(tid);
-        chat = response.data;
-        this.chats.unshift(chat);
+        try{
+          const response = await chatListAPI.getChat(tid);
+          if(response.status !== 200){
+            this.$root.notify(response.data.message, 'error');
+            return;
+          }
+          chat = response.data.data;
+          this.chats.unshift(chat);
+        }catch(e){
+          console.log(e);
+        }
       }
       this.selectedChat = chat;   // todo 滚动到chat
       this.$store.dispatch('setChat', chat);
@@ -187,7 +184,14 @@ export default {
       if(chat.tags.includes('unread')) {
         chat.tags = chat.tags.filter(tag => tag !== 'unread');
         chat.unreadCount = 0;
-        await chatListAPI.readMessages(chat.id, true);
+        try{
+          const response = await chatListAPI.readMessages(chat.id, true);
+          if(response.status !== 200){
+            this.$root.notify(response.data.message, 'error');
+          }
+        }catch(e){
+          console.log(e);
+        }
       }
     },
     // 格式化时间
@@ -207,8 +211,17 @@ export default {
     },
     // 搜索消息
     async handleSearch(keyword) {
-      // 搜索聊天列表
-      this.chatList = await chatListAPI.searchChats(keyword);
+      try{
+        // 搜索聊天列表
+        const response = await chatListAPI.searchChats(keyword);
+        if(response.status === 200) {
+          this.chatList = response.data.data;
+        }else{
+          this.$root.notify(response.data.message, 'error');
+        }
+      }catch(e){
+        console.log(e);
+      }
     },
     // 显示新建消息的菜单
     showNewContextMenu(event) {
@@ -259,55 +272,109 @@ export default {
     async handleChatMenu(option, chat){
       if(option === '置顶') {
         // 告知服务器修改消息的置顶状态（并且本地更新）
-        // 置顶聊天
-        chat.tags.push('pinned');
-        // 告知服务器
-        await chatListAPI.pinChat(chat.id, true);
+        try{
+          const response = await chatListAPI.pinChat(chat.id, true);
+          if(response.status === 200) {
+            chat.tags.push('pinned');
+          }else{
+            this.$root.notify(response.data.message, 'error');
+          }
+        }catch(e){
+          console.log(e);
+        }
       }else if(option === '取消置顶') {
-        // 取消置顶聊天
-        chat.tags = chat.tags.filter(tag => tag !== 'pinned');
-        // 告知服务器
-        await chatListAPI.pinChat(chat.id, false);
+        try{
+          const response = await chatListAPI.pinChat(chat.id, false);
+          if(response.status === 200) {
+            chat.tags = chat.tags.filter(tag => tag !== 'pinned');
+          }else{
+            this.$root.notify(response.data.message, 'error');
+          }
+        }catch(e){
+          console.log(e);
+        }
       }else if(option === '删除') {
         // 删除聊天
-        // 告知服务器
-        await chatListAPI.deleteChat(chat.id);
-        // 本地删除
-        this.chats = this.chats.filter(onechat => onechat.id !== chat.id);
+        try{
+          const response = await chatListAPI.deleteChat(chat.id);
+          if(response.status === 200) {
+            this.chats = this.chats.filter(onechat => onechat.id !== chat.id);
+          }else{
+            this.$root.notify(response.data.message, 'error');
+          }
+        }catch(e){
+          console.log(e);
+        }
       }else if(option === '标记为已读') {
         // 标记为已读
-        chat.tags = chat.tags.filter(tag => tag !== 'unread');
-        // 清空未读条数
-        chat.unreadCount = 0;
-        // 告知服务器
-        await chatListAPI.readMessages(chat.id, true);
+        try{
+          const response = await chatListAPI.readMessages(chat.id, true);
+          if(response.status !== 200) {
+            this.$root.notify(response.data.message, 'error');
+          }else{
+            chat.tags = chat.tags.filter(tag => tag !== 'unread');
+            chat.unreadCount = 0;
+          }
+        }catch(e){
+          console.log(e);
+        }
       }else if(option === '标记为未读') {
         // 标记为未读
-        chat.tags.push('unread');
-        // 更改未读条数
-        chat.unreadCount = 1;
-        // 告知服务器
-        await chatListAPI.readMessages(chat.id, false);
+        try{
+          const response = await chatListAPI.readMessages(chat.id, false);
+          if(response.status !== 200) {
+            this.$root.notify(response.data.message, 'error');
+          }else{
+            chat.tags.push('unread');
+            chat.unreadCount = 1;
+          }
+        }catch(e){
+          console.log(e);
+        }
       }else if(option === '消息免打扰') {
-        // 消息免打扰
-        chat.tags.push('mute');
-        // 告知服务器
-        await chatListAPI.setMute(chat.id, true);
+        try{
+          const response = await chatListAPI.setMute(chat.id, true);
+          if(response.status === 200) {
+            chat.tags.push('mute');
+          }else{
+            this.$root.notify(response.data.message, 'error');
+          }
+        }catch(e){
+          console.log(e);
+        }
       }else if(option === '取消消息免打扰') {
-        // 取消消息免打扰
-        chat.tags = chat.tags.filter(tag => tag !== 'mute');
-        // 告知服务器
-        await chatListAPI.setMute(chat.id, false);
+        try{
+          const response = await chatListAPI.setMute(chat.id, false);
+          if(response.status === 200) {
+            chat.tags = chat.tags.filter(tag => tag !== 'mute');
+          }else{
+            this.$root.notify(response.data.message, 'error');
+          }
+        }catch(e){
+          console.log(e);
+        }
       }else if(option === '屏蔽') {
-        // 屏蔽
-        chat.tags.push('blocked');
-        // 告知服务器
-        await chatListAPI.blockChat(chat.id, true);
+        try{
+          const response = await chatListAPI.blockChat(chat.id, true);
+          if(response.status === 200) {
+            chat.tags.push('blocked');
+          }else{
+            this.$root.notify(response.data.message, 'error');
+          }
+        }catch(e){
+          console.log(e);
+        }
       }else if(option === '取消屏蔽') {
-        // 取消屏蔽
-        chat.tags = chat.tags.filter(tag => tag !== 'blocked');
-        // 告知服务器
-        await chatListAPI.blockChat(chat.id, false);
+        try{
+          const response = await chatListAPI.blockChat(chat.id, false);
+          if(response.status === 200) {
+            chat.tags = chat.tags.filter(tag => tag !== 'blocked');
+          }else{
+            this.$root.notify(response.data.message, 'error');
+          }
+        }catch(e){
+          console.log(e);
+        }
       }
     },
     // 处理菜单的点击事件
@@ -315,31 +382,63 @@ export default {
       if(this.menuType === 'new') this.handleNewMenu(item);
       if(this.menuType === 'chat') this.handleChatMenu(item, obj);
     },
-    // 处理添加好友/群聊的逻辑
-    async handleAddFriendGroup(key) {
-      try {
-        await addFriendGroup(key);
-        // 添加成功后的逻辑，如提示用户
-        alert(`添加成功`);
-      } catch (error) {
-        console.error('添加失败:', error);
-        alert('添加失败，请重试。');
-      }
-    },
-    // 处理新建群聊的逻辑
-    async handleBuildGroup(tids) {
-      await createGroup(tids);
-    },
   },
   created () {
     this.fetchChatList();
+    EventBus.on('set-mute', (tid, is_mute) => {
+      for (let i = 0; i < this.chats.length; i++) {
+        if (this.chats[i].id === tid) {
+          if (is_mute) {
+            this.chats[i].tags.push('mute');
+          } else {
+            this.chats[i].tags = this.chats[i].tags.filter(tag => tag !== 'mute');
+          }
+          break; 
+        }
+      } 
+    });
+    EventBus.on('set-pinned', (tid, is_pinned) => {
+      for (let i = 0; i < this.chats.length; i++) {
+        if (this.chats[i].id === tid) {
+          if (is_pinned) {
+            this.chats[i].tags.push('pinned');
+          } else {
+            this.chats[i].tags = this.chats[i].tags.filter(tag => tag !== 'pinned');
+          }
+          break; 
+        }
+      } 
+    });
+    EventBus.on('set-blocked', (tid, is_blocked) => {
+      for (let i = 0; i < this.chats.length; i++) {
+        if (this.chats[i].id === tid) {
+          if (is_blocked) {
+            this.chats[i].tags.push('blocked');
+          } else {
+            this.chats[i].tags = this.chats[i].tags.filter(tag => tag !== 'blocked');
+          }
+          break; 
+        }
+      } 
+    });
+    EventBus.on('set-blacklist', (tid, is_blacklist) => {
+      for (let i = 0; i < this.chats.length; i++) {
+        if (this.chats[i].id === tid) {
+          if (is_blacklist) {
+            this.chats = this.chats.filter(chat => chat.id !== tid);
+          } else {
+            
+          }
+          break; 
+        }
+      } 
+    });
   },
 };
 </script>
 
 <style scoped src="@/assets/css/chatList.css"></style>
 <style scoped>
-/* 消息列表页面的样式 */
 .chat-list {
   width: 30%;
   height: 100%;
@@ -365,6 +464,7 @@ export default {
   padding-bottom: 0px;
   border-bottom: 1px solid #ddd;
   cursor: pointer;
+  justify-content: space-between;
 }
 .chat-items li.pinned {
   background-color: #e3e0e0
@@ -372,18 +472,24 @@ export default {
 .chat-items li.selected {
   background-color: #d5d2d2
 }
+.left-part {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+}
 .chat-avatar img {
   width: 40px;
   height: 40px;
   border-radius: 50%;
 }
 .chat-info {
-  flex: 5;
   margin-left: 10px;
   text-align: left;
 }
 .chat-name{
   font-weight: bold;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 .chat-last-chat {
   color: #888;
@@ -391,10 +497,11 @@ export default {
   overflow: hidden;
   text-overflow: ellipsis;
   font-size: 0.8rem
+
 }
 .chat-meta {
   text-align: right;
-  flex: 1;
+  width: 71px;
 }
 .chat-time {
   color: #888;

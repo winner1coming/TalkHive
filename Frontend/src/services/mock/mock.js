@@ -129,13 +129,11 @@ Mock.mock(/\/workspace\/ddl\/completed/, 'get', (options) => {
 
 
 // 资料卡片
-
-
-// 拦截 /profileCard 的 GET 请求
-Mock.mock(new RegExp(`${baseURL}/profileCard/\\d+`), 'get', (options) => {
+Mock.mock(new RegExp(`${baseURL}/profileCard/person`), 'get', (options) => {
 	const profileCard = Mock.mock({
 		'profileCard': {
-		'tid|1': '2',
+		'account_id|1': '2',
+    'id': '2',
 		'remark': '@name',
 		'nickname': '@name',
 		'groupNickname': '@name',
@@ -143,7 +141,12 @@ Mock.mock(new RegExp(`${baseURL}/profileCard/\\d+`), 'get', (options) => {
 		'status': '@pick(["online", "offline"])',
 		'signature': '@sentence',
 		'tag': '@pick(["家人", "朋友", "同事"])',
+    'is_friend': '@boolean',
+    'is_blacklist': '@boolean',
+    'is_mute': '@boolean',
+    'is_pinned': '@boolean',
+    'is_blocked': '@boolean',
 		}
 	});
-	return profileCard.profileCard;
+	return {data:profileCard.profileCard};
 });

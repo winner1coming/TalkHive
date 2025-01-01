@@ -10,7 +10,13 @@
       <i v-if="showEditIcon" class="edit-icon" >✏️</i>
     </div>
     <div v-else class="text-edit">
-      <input type="text" v-model="editableText" @blur="saveEdit" @keyup.enter="saveEdit" />
+      <input 
+        type="text" 
+        v-model="editableText" 
+        @blur="saveEdit" 
+        @keyup.enter="saveEdit" 
+        ref="editInput"
+      />
     </div>
   </div>
 </template>
@@ -38,6 +44,7 @@ export default {
       });
     },
     saveEdit() {
+      if(!this.isEditing) return;  // 防止被重复调用
       this.isEditing = false;
       this.$emit('update-text', this.editableText);
     }
@@ -46,7 +53,7 @@ export default {
     text(newText) {
       this.editableText = newText;
     }
-  }
+  },
 };
 </script>
 

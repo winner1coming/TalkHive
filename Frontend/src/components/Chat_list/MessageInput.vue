@@ -59,6 +59,7 @@ export default {
 };
 </script>
 
+<style scoped src="@/assets/css/chatList.css"></style>
 <style scoped>
 .message-input {
   display: flex;
