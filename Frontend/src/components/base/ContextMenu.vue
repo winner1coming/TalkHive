@@ -33,6 +33,7 @@ export default {
 				this.x = x;
 				this.y = y;
 			}
+			console.log('context')
 			this.items = items;
 			this.visible = true;
 			this.obj = obj;
@@ -65,7 +66,7 @@ export default {
 
 <style scoped>
 .context-menu {
-	position: absolute;
+	position: fixed;
 	background-color: white;
 	border: 1px solid #ccc;
 	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);

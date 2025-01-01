@@ -40,6 +40,11 @@ export const getMessages = (tid) => {
   return apiClient.get(`/messages/${tid}`);
 }
 // 发送消息接口
-export const sendMessage = (tid, content) => {
-  return apiClient.post(`/messages/${tid}/send`, { content });
+export const sendMessage = (tid, content, type) => {
+  return apiClient.post(`/messages/send`, { tid, content, type });
+};
+
+// 获取历史记录
+export const getHistory = (tid) => {
+  return apiClient.post(`/messages/history`,{tid});
 };

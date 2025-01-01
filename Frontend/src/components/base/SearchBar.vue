@@ -19,14 +19,23 @@
         @compositionend="isComposing = false;triggerSearch()"
         @keydown.enter="triggerSearch"
       />
-      <button @click="triggerSearch">搜索</button>
+      <button v-show="showButton" @click="triggerSearch">搜索</button>
     </div>
 
   </template>
   
   <script>
   export default {
-    props:['isImmidiate'],
+    props:{
+      isImmidiate:{
+        type:Boolean,
+        default:true
+      },
+      showButton:{
+        type:Boolean,
+        default:true,
+      }
+    },
     data() {
       return {
         query: "", // 搜索关键词
@@ -41,6 +50,9 @@
       },
       buttonClick(event){
         this.$emit("button-click", event);
+      },
+      clear(){
+        this.query = "";
       }
     },
   };

@@ -59,17 +59,40 @@ export default {
   },
   methods: {
     async fetchRequests() {
-      const response = await contactListAPI.getFriendRequests();
-      this.requests = response.data;
-      console.log(this.requests);
+      try {
+        const response = await contactListAPI.getFriendRequests();
+        if(response.status !== 200) {
+          this.$root.notify(response.data.message, 'error');
+          return;
+        }
+        this.requests = response.data.data;
+      } catch (error) {
+        console.error(error);
+      }
     },
     async acceptRequest(requestId) {
-      await contactListAPI.friendRequestPend(requestId, true);
-      this.fetchRequests();
+      try{
+        const response = await contactListAPI.friendRequestPend(requestId, true);
+        if(response.status !== 200) {
+          this.$root.notify(response.data.message, 'error');
+          return;
+        }
+        this.fetchRequests();
+      } catch (error) {
+        console.error(error);
+      }
     },
     async rejectRequest(requestId) {
-      await contactListAPI.friendRequestPend(requestId, false);
-      this.fetchRequests();
+      try {
+        const response = await contactListAPI.friendRequestPend(requestId, false);
+        if(response.status !== 200) {
+          this.$root.notify(response.data.message, 'error');
+          return;
+        }
+        this.fetchRequests();
+      } catch (error) {
+        console.error(error);
+      }
     },
   },
   created() {

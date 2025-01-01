@@ -12,10 +12,20 @@ const apiClient = axios.create({
 apiClient.interceptors.request.use(config => {
   const userId = store.state.user.id; // 从 Vuex 存储中获取用户 ID
   if (userId) {
-    config.headers['tid'] = userId; // 在请求头中添加用户 ID
+    config.headers['User-ID'] = userId; // 在请求头中添加用户 ID
   }
+  console.log('请求拦截器:', config); // 打印请求信息
   return config;
 }, error => {
+  return Promise.reject(error);
+});
+
+// 添加响应拦截器
+apiClient.interceptors.response.use(response => {
+  console.log('响应拦截器:', response); // 打印响应信息
+  return response;
+}, error => {
+  console.error('响应错误拦截器:', error); // 打印响应错误信息
   return Promise.reject(error);
 });
 
@@ -30,20 +40,16 @@ export default apiClient;
 
   // chat和contact
   // 资料卡片
-  export const getProfileCard = (tid, group_id=null) => {
-    return apiClient.get(`/profileCard/${tid}`, {group_id});
+  export const getPersonProfileCard = (account_id, group_id=null) => {
+    return apiClient.get(`/profileCard/person`, {account_id, group_id});
   };
-  // 搜索好友/群聊（key可能是id或者昵称）
-  export const searchFriendGroup = (key) => {
-    return apiClient.get('/Stranger/search', { key });  
-  };
+  export const getGroupProfileCard = (group_id) => {
+    return apiClient.get(`/profileCard/group`,{group_id});
+  }
+
   // 添加好友/群聊（id为tid，若为群聊，则为群号）
-  export const addFriendGroup = (id) => {
-    return apiClient.post('/Stranger/add', { id });
-  };
-  // 新建群聊(tids为成员id列表，其中没有用户自己的)
-  export const createGroup = (tids) => {
-    return apiClient.post('/GroupList/create', { tids });
+  export const addStranger = (tid) => {
+    return apiClient.post('/stranger/add', { tid });
   };
 
 

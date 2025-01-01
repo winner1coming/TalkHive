@@ -1,6 +1,7 @@
 <template>
   <!-- 应用的根元素 -->
   <div id="app" :class="themeClass" :style="rootStyle">
+      <Notification ref="notification" />
       <!-- 路由视图，用于渲染当前路由对应的组件 -->
       <router-view></router-view>
   </div>
@@ -9,10 +10,14 @@
 <script>
 import { mapActions } from 'vuex';
 import { EventBus } from '@/components/base/EventBus';
+import Notification from '@/components/base/Notification.vue';
 import { mapGetters } from 'vuex/dist/vuex.cjs.js';
 export default {
   // 组件名称
   name: 'App',
+  components: {
+    Notification,
+  },
   mounted() {
     window.addEventListener('beforeunload', this.saveState);
   },
@@ -44,21 +49,6 @@ export default {
     saveState: function() {
       sessionStorage.setItem("state", JSON.stringify(this.$store.state));
       this.$store.state.user,id;
-    },
-    hideClick(component=null) {
-      if(this.$store.hasFloatCompoent){
-        EventBus.emit('hide-float-component', component); // 通知其他组件
-        if(component===null){
-          this.$store.hasFloatCompoent = false;
-        }
-      }
-    },
-    hideContext(event) {
-      event.preventDefault();
-      const clickedElement = event.target;
-      if(this.$store.hasFloatComponent){
-        EventBus.emit('close-float-component', clickedElement); // 通知其他组件
-      }
     },
     getBackgroundColor() {
       switch (this.settings.theme) {
@@ -108,6 +98,24 @@ export default {
           return '#ffffff';
       }
     },
+    // 通知
+    notify(message, type) {
+      this.$refs.notification.show(message, type);
+    },
+    // 点击事件
+    hideClick(event) {
+      const clickedElement = event.target;
+      if(this.$store.hasFloatComponent){
+        EventBus.emit('close-float-component', clickedElement); // 通知其他组件
+      }
+    },
+    hideContext(event) {
+      event.preventDefault();
+      const clickedElement = event.target;
+      if(this.$store.hasFloatComponent){
+        EventBus.emit('close-float-component', clickedElement); // 通知其他组件
+      }
+    },
   },
   created() {
     //恢复vuex状态
@@ -115,7 +123,8 @@ export default {
     if (savedState) {
       this.$store.replaceState(JSON.parse(savedState));
     }
-    // this.connectWebSocket();
+    // 全局监视器
+    //this.$store.dispatch('connectWebSocket');
     window.addEventListener('click', this.hideClick, true); // 使用 capture 选项
     window.addEventListener('contextmenu', this.hideContext, true); // 使用 capture 选项
     EventBus.on('float-component-open', (component) => {
