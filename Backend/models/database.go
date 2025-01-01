@@ -4,16 +4,28 @@ import (
 	"time"
 )
 
-// MessageInfo 表示消息表
+// MessageInfo 消息表
 type MessageInfo struct {
-	MessageID     uint      `gorm:"primaryKey" json:"message_id"`
-	CreateTime    time.Time `json:"create_time"`
-	SendAccountID uint      `json:"send_account_id"`
-	Content       string    `json:"content"`
-	Type          string    `json:"type"`
+	MessageID     uint   `gorm:"primaryKey" json:"message_id"`
+	CreateTime    string `json:"create_time"`
+	SendAccountID uint   `json:"send_account_id"`
+	TargetID      uint   `json:"receive_account_id"`
+	Content       string `json:"content"`
+	Type          string `json:"type"`
+	ChatID        uint   `json:"chat_id" gorm:"foreignKey:ChatID;references:ChatID"`
+	IsRead        bool   `json:"is_read"`
 }
 
-// AccountInfo 表示账号信息表
+// ChatInfo 聊天记录表
+type ChatInfo struct {
+	ChatID     uint   `gorm:"primaryKey" json:"chat_id"`
+	CreateTime string `json:"create_time"`
+	AccountID  uint   `json:"account_id"`
+	TargetID   uint   `json:"target_id"`
+	IsGroup    bool   `json:"is_group"`
+}
+
+// AccountInfo 账号信息表
 type AccountInfo struct {
 	AccountID                uint   `gorm:"primaryKey" json:"account_id"`
 	ID                       string `gorm:"unique" json:"id"`
@@ -32,7 +44,7 @@ type AccountInfo struct {
 	Deactivate               bool   `json:"deactivate"`
 }
 
-// Contacts 表示好友/群聊表
+// Contacts 好友/群聊表
 type Contacts struct {
 	OwnerID     uint   `json:"owner_id"`
 	ContactID   uint   `gorm:"primaryKey" json:"contact_id"`
@@ -45,7 +57,7 @@ type Contacts struct {
 	Remark      string `json:"remark"`
 }
 
-// SystemSetting 表示系统环境设置表
+// SystemSetting 系统环境设置表
 type SystemSetting struct {
 	AccountID   uint   `gorm:"primaryKey" json:"account_id"`
 	Background  string `json:"background"`
@@ -57,7 +69,7 @@ type SystemSetting struct {
 	NoticeGroup bool   `json:"noticeGroup"`
 }
 
-// ApplyInfo 表示申请通知表
+// ApplyInfo 申请通知表
 type ApplyInfo struct {
 	ApplyID    uint   `gorm:"primaryKey;autoIncrement" json:"apply_id"`
 	ApplyType  string `json:"apply_type"`
@@ -68,7 +80,7 @@ type ApplyInfo struct {
 	Reason     string `json:"reason"`
 }
 
-// GroupChatInfo 表示群聊	总表
+// GroupChatInfo 群聊	总表
 type GroupChatInfo struct {
 	GroupID           uint   `gorm:"primaryKey" json:"group_id"`
 	GroupOwner        uint   `json:"group_owner"`
@@ -81,7 +93,7 @@ type GroupChatInfo struct {
 	IsAllBanned       bool   `json:"is_all_banned"`
 }
 
-// GroupMemberInfo 表示群成员信息表
+// GroupMemberInfo 群成员信息表
 type GroupMemberInfo struct {
 	AccountID     uint   `gorm:"primaryKey" json:"account_id"`
 	GroupID       uint   `gorm:"primaryKey" json:"group_id"`
@@ -90,7 +102,7 @@ type GroupMemberInfo struct {
 	GroupRole     string `json:"group_role"`
 }
 
-// Notes 表示笔记表
+// Notes 笔记表
 type Notes struct {
 	NoteID    uint   `gorm:"primaryKey" json:"note_id"`
 	Type      string `json:"type"`
@@ -99,14 +111,14 @@ type Notes struct {
 	IsShow    bool   `json:"is_show"`
 }
 
-// Favorites 表示收藏表
+// Favorites 收藏表
 type Favorites struct {
 	TableName string `gorm:"primaryKey" json:"table_name"`
 	ID        uint   `json:"id"`
 	AccountID uint   `json:"account_id"`
 }
 
-// Codes 表示代码表
+// Codes 代码表
 type Codes struct {
 	CodeID    uint      `gorm:"primaryKey" json:"code_id"`
 	SaveTime  time.Time `json:"save_time"`
@@ -116,7 +128,7 @@ type Codes struct {
 	IsShow    bool      `json:"is_show"`
 }
 
-// DDLS 表示DDL表
+// DDLS DDL表
 type DDLS struct {
 	DDLID       uint      `gorm:"primaryKey" json:"ddl_id"`
 	AccountID   uint      `json:"account_id"`
@@ -126,13 +138,13 @@ type DDLS struct {
 	Urgency     string    `json:"urgency"`
 }
 
-// Recycle 表示回收站表
+// Recycle 回收站表
 type Recycle struct {
 	RecycleID   uint      `gorm:"primaryKey" json:"recycle_id"`
 	RecycleTime time.Time `json:"recycle_time"`
 }
 
-// GroupDivide 表示群聊分组表
+// GroupDivide 群聊分组表
 type GroupDivide struct {
 	GroupDivideId uint   `gorm:"primaryKey" json:"group_divide_id"`
 	GDName        string `json:"gd_name"`
@@ -146,20 +158,20 @@ type FriendDivide struct {
 	AccountID      uint   `json:"account_id"`
 }
 
-// NoteDivide 表示笔记分类表
+// NoteDivide 笔记分类表
 type NoteDivide struct {
 	NDName    string `gorm:"primaryKey" json:"nd_name"`
 	AccountID uint   `json:"account_id"`
 }
 
-// Links 表示网页链接器表
+// Links 网页链接器表
 type Links struct {
 	URL     string `gorm:"primaryKey" json:"url"`
 	URLName string `json:"url_name"`
 	Icon    string `json:"icon"`
 }
 
-// DeleteInfo 表示删除消息表
+// DeleteInfo 删除消息表
 type DeleteInfo struct {
 	TargetID uint   `gorm:"primaryKey" json:"target_id"`
 	Range    string `json:"range"`
