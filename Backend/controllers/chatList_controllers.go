@@ -37,7 +37,7 @@ func GetChatList(c *gin.Context) {
 	// 获取用户的聊天记录
 	var chatList []models.ChatInfo
 	if err := global.Db.Where("account_id = ?", accountID).Find(&chatList).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询聊天记录失败"})
+		c.JSON(http.StatusOK, gin.H{"success": true, "message": "当前用户无聊天记录"})
 		return
 	}
 
