@@ -37,7 +37,7 @@ func CreateNote(c *gin.Context) {
 
 	// 获取用户ID
 	//userID := c.Param("id")
-	userID := c.GetHeader("id")
+	userID := c.GetHeader("User-Id")
 	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
 		return
@@ -126,8 +126,8 @@ func CreateNote(c *gin.Context) {
 func GetNotesList(c *gin.Context) {
 	// 1. 从请求中获取 user_id 参数
 	//id := c.Param("id") // 使用 c.Param 获取路径参数
-	userID := c.GetHeader("id")
-	if id == "" {
+	userID := c.GetHeader("User-Id")
+	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "User ID is required"})
 		return
 	}
@@ -144,7 +144,7 @@ func GetNotesList(c *gin.Context) {
 	var notes []NoteResponse
 	if err := global.Db.Table("notes").
 		Select("note_id, name as note_name, save_time as last_modified_time, type, is_show").
-		Where("account_id = ? AND is_show = ?", id, true).
+		Where("account_id = ? AND is_show = ?", userID, true).
 		Scan(&notes).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch notes"})
 		return
@@ -170,7 +170,7 @@ func GetNotesList(c *gin.Context) {
 func GetNote(c *gin.Context) {
 	// 1. 从请求中获取 code_id 参数
 	//userID := c.Param("id") // 使用 c.Param 获取路径参数
-	userID := c.GetHeader("id")
+	userID := c.GetHeader("User-Id")
 	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "User ID is required"})
 		return
@@ -235,7 +235,7 @@ func EditNote(c *gin.Context) {
 
 	// 获取用户ID
 	//userID := c.Param("id")
-	userID := c.GetHeader("id")
+	userID := c.GetHeader("User-Id")
 	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
 		return
@@ -305,7 +305,7 @@ func ShareNote(c *gin.Context) {
 
 	// 获取用户ID
 	//userID := c.Param("id")
-	userID := c.GetHeader("id")
+	userID := c.GetHeader("User-Id")
 	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
 		return
@@ -363,7 +363,7 @@ func ChangeNoteName(c *gin.Context) {
 
 	// 获取用户ID
 	//userID := c.Param("id")
-	userID := c.GetHeader("id")
+	userID := c.GetHeader("User-Id")
 	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
 		return
@@ -408,7 +408,7 @@ func DeleteNote(c *gin.Context) {
 
 	// 获取用户ID
 	//userID := c.Param("id")
-	userID := c.GetHeader("id")
+	userID := c.GetHeader("User-Id")
 	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
 		return
@@ -452,7 +452,7 @@ func DeleteNote(c *gin.Context) {
 func GetTypeList(c *gin.Context) {
 	// 获取用户ID
 	//userID := c.Param("id")
-	userID := c.GetHeader("id")
+	userID := c.GetHeader("User-Id")
 	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status":  400,
@@ -490,7 +490,7 @@ func GetNotesByCategory(c *gin.Context) {
 	// 获取路径参数
 	// 获取用户ID
 	//userID := c.Param("id")
-	userID := c.GetHeader("id")
+	userID := c.GetHeader("User-Id")
 	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
 		return
@@ -567,7 +567,7 @@ func EditNoteType(c *gin.Context) {
 
 	// 获取用户 ID
 	//userID := c.Param("id")
-	userID := c.GetHeader("id")
+	userID := c.GetHeader("User-Id")
 	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
 		return
@@ -618,7 +618,7 @@ func DeleteType(c *gin.Context) {
 
 	// 获取用户ID
 	//userID := c.Param("id")
-	userID := c.GetHeader("id")
+	userID := c.GetHeader("User-Id")
 	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
 		return
@@ -669,7 +669,7 @@ func ChangeTypeName(c *gin.Context) {
 
 	// 获取用户ID
 	//userID := c.Param("id")
-	userID := c.GetHeader("id")
+	userID := c.GetHeader("User-Id")
 	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
 		return
@@ -721,7 +721,7 @@ func CreateType(c *gin.Context) {
 
 	// 获取用户ID
 	//userID := c.Param("id")
-	userID := c.GetHeader("id")
+	userID := c.GetHeader("User-Id")
 	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
 		return
