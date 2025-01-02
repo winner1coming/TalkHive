@@ -74,7 +74,7 @@ export default {
       }
 
       if(!this.validateCode()){
-          return;
+          return; 
       }
 
       try {
