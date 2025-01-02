@@ -167,7 +167,7 @@ export default {
     async selectChat(chat, tid=null) {
       if (!chat) {
         try{
-          const response = await chatListAPI.getChat(tid);
+          const response = await chatListAPI.getChat(tid, chat.tags.includes('friend')? false : true);
           if(response.status !== 200){
             this.$root.notify(response.data.message, 'error');
             return;

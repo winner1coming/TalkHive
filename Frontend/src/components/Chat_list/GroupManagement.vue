@@ -197,7 +197,7 @@
         <input type="file" ref="fileInput" style="display: none;" @change="handleFileChange" accept="image/*" />
       </p>
     </div>
-    <ProfileCard ref="profileCard" />
+    <PersonProfileCard ref="profileCard" />
     <ContextMenu ref="contextMenu" @select-item="handleMenuSelect"/>
     <InviteMember v-show="inviteMemberVisible" @close="inviteMemberVisible=false"/>
   </div>
@@ -212,7 +212,7 @@ import { EventBus } from '@/components/base/EventBus';
 import EditableText from '@/components/base/EditableText.vue';
 import SwitchButton from '@/components/base/SwitchButton.vue';
 import SearchBar from '@/components/base/SearchBar.vue';
-import ProfileCard from '@/components/base/ProfileCard.vue';
+import PersonProfileCard from '@/components/base/PersonProfileCard.vue';
 import ContextMenu from '@/components/base/ContextMenu.vue';
 import InviteMember from '@/components/Chat_list/InviteMember.vue';
 export default {
@@ -220,7 +220,7 @@ export default {
     EditableText,
     SwitchButton,
     SearchBar,
-    ProfileCard,
+    PersonProfileCard,
     ContextMenu,
     InviteMember,
   },
@@ -228,7 +228,7 @@ export default {
     EditableText,
     SwitchButton,
     SearchBar,
-    ProfileCard,
+    PersonProfileCard,
     ContextMenu,
     InviteMember,
   },
