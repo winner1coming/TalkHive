@@ -19,5 +19,7 @@ func ChatListRoutes(r *gin.Engine) {
 	//聊天消息
 	r.GET("/messages/:tid", controllers.GetMessages)
 	r.POST("/messages/send", controllers.SendMessage)
-
+	r.POST("/messages/collect", controllers.CollectMessage)
+	r.POST("/messages/reply", controllers.ReplyMessage)
+	r.POST("/messages/forward", controllers.ForwardMessage)
 }

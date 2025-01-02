@@ -937,14 +937,17 @@ func SendMessage(c *gin.Context) {
 			},
 		})
 
-	} else { // 处理单聊消息
-		// 查询目标用户是否存在
+	} else {
+		// 查询目标用户是否存在和注销
 		var friend models.AccountInfo
 		if err := global.Db.Where("account_id = ?", input.Tid).First(&friend).Error; err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "目标用户不存在"})
 			return
 		}
-
+		if friend.Deactivate {
+			c.JSON(http.StatusUnauthorized, gin.H{"success": false, "message": "目标用户已注销"})
+			return
+		}
 		// 查询当前用户与该群聊的聊天记录，如果没有则创建聊天记录
 		var chat models.ChatInfo
 		if err := global.Db.Where("account_id = ? AND target_id = ?", me.AccountID, friend.AccountID).First(&chat).Error; err != nil {
@@ -989,4 +992,19 @@ func SendMessage(c *gin.Context) {
 			},
 		})
 	}
+}
+
+// CollectMessage 收藏消息
+func CollectMessage(c *gin.Context) {
+
+}
+
+// ReplyMessage 回复消息
+func ReplyMessage(c *gin.Context) {
+
+}
+
+// ForwardMessage 转发聊天记录
+func ForwardMessage(c *gin.Context) {
+
 }
