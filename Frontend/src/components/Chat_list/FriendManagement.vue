@@ -96,7 +96,7 @@
         <p>输入关键词或按类型查找</p>
       </div>
     </div>
-    <ProfileCard ref="profileCard" />
+    <PersonProfileCard ref="profileCard" />
     <!--更改分组-->
     <DivideMove
       :divides = "divides"
@@ -116,14 +116,14 @@ import { EventBus } from '@/components/base/EventBus';
 import EditableText from '@/components/base/EditableText.vue';
 import SwitchButton from '@/components/base/SwitchButton.vue';
 import SearchBar from '@/components/base/SearchBar.vue';
-import ProfileCard from '@/components/base/ProfileCard.vue';
+import PersonProfileCard from '@/components/base/PersonProfileCard.vue';
 import DivideMove from '@/components/Contact_list/DivideMove.vue';
 export default {
   components: {
     EditableText,
     SwitchButton,
     SearchBar,
-    ProfileCard,
+    PersonProfileCard,
     DivideMove,
   },
   data() {

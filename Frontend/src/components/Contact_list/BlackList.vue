@@ -24,7 +24,7 @@
       @close="isBlackListManagementVisible = false"
       @confirm="confirmSelection"
     />
-    <ProfileCard ref="profileCard" />
+    <PersonProfileCard ref="profileCard" />
     <ContextMenu ref="contextMenu"  @select-item="handleMenuSelect" />
   </div>
 </template>
@@ -36,12 +36,12 @@ import { getPersonProfileCard } from '@/services/api';
 
 import BlackListManagement from './BlackListManagement.vue';
 import ContextMenu from '@/components/base/ContextMenu.vue';
-import ProfileCard from '@/components/base/ProfileCard.vue';
+import PersonProfileCard from '@/components/base/PersonProfileCard.vue';
 
 export default {
   components: {
     BlackListManagement,
-    ProfileCard,
+    PersonProfileCard,
     ContextMenu,
   },
   data() {
