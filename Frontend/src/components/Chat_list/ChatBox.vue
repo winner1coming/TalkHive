@@ -7,8 +7,8 @@
         <img :src="selectedChat.avatar" alt="avatar" />
       </div>
       <div class="chat-name">{{ selectedChat.name }}</div>
-      <div style="margin-left: auto;" v-if="selectedChat.tags.includes('group')">
-        <div class="detail-button" @click="clickGroupManagement">···</div>
+      <div style="margin-left: auto;">
+        <div class="detail-button" @click="clickManagement">···</div>
       </div>
     </div>
     <!-- 上方的消息历史 -->
@@ -118,9 +118,9 @@ export default {
       }
       
     },
-    clickGroupManagement() {
+    clickManagement() {
       // 打开群聊管理弹窗
-      this.$emit('clickGroupManagement');
+      this.$emit('click-management');
     },
     showContextMenu(event, message) {
       const items = ['引用', '转发', '删除', '撤回', '复制', '多选', '收藏', '置顶'];

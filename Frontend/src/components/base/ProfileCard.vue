@@ -101,7 +101,7 @@ export default {
       }
       else if(item === '更改分组'){
         try{
-          const response = await contactListAPI.getDivides();
+          const response = await contactListAPI.getDivides('friends');
           if(response.status !== 200){
             this.$root.notify(response.data.message, 'error');
             return;

@@ -113,7 +113,7 @@ export default {
     },
     async fetchTags() {
       try {
-        const response = await contactListAPI.getDivides('friends');
+        const response = await contactListAPI.getDivides('groups');
         if(response.status !== 200){
           this.$root.notify(response.data.message, 'error');
           return;

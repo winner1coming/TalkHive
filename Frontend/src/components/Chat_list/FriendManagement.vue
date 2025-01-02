@@ -1,5 +1,5 @@
 <template>
-  <div v-if="visible" class="group-management">
+  <div v-if="visible" class="friend-management">
     <div style="width: 100%;">
       <p
         @click="returnTo"
@@ -11,15 +11,18 @@
     <!--主页面-->
     <div v-show="componentStatus === 'main'">
       <!--好友信息-->
-      <div class="group-info">
-        <p class="title">好友名称:</p>
-        <p class="detail">{{ friendInfo.group_name }}</p>
+      <div class="friend-info">
+        <p class="title">好友昵称:</p>
+        <p class="detail">{{ friendInfo.nickname }}</p>
         <p class="title">签名:</p>
-        <p class="detail">{{ friendInfo.introduction }}</p>
+        <p class="detail">{{ friendInfo.signature }}</p>
         <p class="title">备注: </p>
-        <EditableText class="detail" :text="group_remark" @update-text="changeFriendRemark" />
+        <EditableText class="detail" :text="remark" @update-text="changeFriendRemark" />
         <p class="title">分组: </p>
-        <EditableText class="detail" :text="friendInfo.my_group_nickname" @update-text="changeGroupNickname" />
+        <p class="detail">
+          {{ friendInfo.tag }} 
+          <button @click="showDivideMove">更改</button>
+        </p>
         <hr class="divider" />
         <p class="title">是否消息免打扰: <SwitchButton v-model="isMute" @change-value="setMute"/></p>
         <p class="title">是否屏蔽: <SwitchButton v-model="isBlocked" @change-value="setBlock"/></p>
@@ -32,8 +35,8 @@
         <hr class="divider" />
       </div>
       <!--退出-->
-      <div class="group-actions">
-        <button @click="exitGroup">删除好友</button>
+      <div class="friend-actions">
+        <button @click="deleteFriend">删除好友</button>
         <button @click="hide">关闭</button>
       </div>
     </div>
@@ -94,7 +97,14 @@
       </div>
     </div>
     <ProfileCard ref="profileCard" />
-    <ContextMenu ref="contextMenu" @select-item="handleMenuSelect"/>
+    <!--更改分组-->
+    <DivideMove
+      :divides = "divides"
+      v-show="isDivideMoveVisible"
+      @divide-move="divideMove"
+      @close="isDivideMoveVisible = false"
+      ref="divideMove"
+    />
   </div>
  
 </template>
@@ -107,36 +117,28 @@ import EditableText from '@/components/base/EditableText.vue';
 import SwitchButton from '@/components/base/SwitchButton.vue';
 import SearchBar from '@/components/base/SearchBar.vue';
 import ProfileCard from '@/components/base/ProfileCard.vue';
-import ContextMenu from '@/components/base/ContextMenu.vue';
-import InviteMember from '@/components/Chat_list/InviteMember.vue';
+import DivideMove from '@/components/Contact_list/DivideMove.vue';
 export default {
   components: {
     EditableText,
     SwitchButton,
     SearchBar,
     ProfileCard,
-    ContextMenu,
-    InviteMember,
-  },
-  components: {
-    EditableText,
-    SwitchButton,
-    SearchBar,
-    ProfileCard,
-    ContextMenu,
-    InviteMember,
+    DivideMove,
   },
   data() {
     return {
       visible: false,
-      query: "", // 搜索关键词
-      isComposing: false, // 是否正在使用输入法输入，防止频繁触发搜索
+
+      isDivideMoveVisible: false,
+      divides:[],
+
       account_id:'',
-      group_remark:'',
+      remark:'',
       isMute: false,
       isBlocked: false,
       isPinned: false,
-      showAll:false,
+      friendInfo: null,
       history:[
         {
           message_id:'1',
@@ -153,6 +155,7 @@ export default {
       searchHistoryType:'all', // 'all', 'image', 'file', 'date','member'
       searchHistoryDate:'',
       searchHistoryMember:'',
+
       componentStatus: 'main',  // 'main', 'history', 'manage'
       boundD: null, // 边界的坐标
       boundR: null, // 边界的坐标
@@ -168,7 +171,7 @@ export default {
           this.hide();
         }
         this.account_id = newVal.id;
-        this.group_remark = newVal.name;
+        this.remark = newVal.name;
         this.isMute = newVal.tags.includes('mute');
         this.isBlocked = newVal.tags.includes('blocked');
         this.isPinned = newVal.tags.includes('pinned');
@@ -178,20 +181,31 @@ export default {
   methods: {
     async fetchFriendInfo(){
       try{
-        const response = await contactListAPI.getPersonProfileCard(this.account_id);
+        const response = await getPersonProfileCard(this.account_id);
         if(response.status === 200){
           this.friendInfo = response.data.data;
         }else{
           this.$root.notify(response.data.message, 'error');
         }
+        const response2 = await contactListAPI.getDivides('friends');
+        if(response2.status === 200){
+          this.divides = response2.data.divides;
+        }else{
+          this.$root.notify(response2.data.message, 'error');
+        }
       }
       catch(error){
-        console.log('fetch group error:', error);
+        console.log('fetch friend error:', error);
       }
       
     },
     initialize(){
-      
+      this.query = '';
+      this.searchHistoryKeyword = '';
+      this.searchHistoryType = 'all';
+      this.searchHistoryDate = '';
+      this.searchHistoryMember = '';
+      this.searchMembersKeyword = '';
     },
     returnTo(){
       if(this.componentStatus === 'main'){
@@ -203,7 +217,7 @@ export default {
     },
     async showProfileCard(event, account_id){
       try{
-        const response = await getPersonProfileCard(account_id, this.account_id);
+        const response = await getPersonProfileCard(account_id);
         if(response.status === 200){
           const profile = response.data.data;
           this.$refs.profileCard.show(event, profile, this.boundD, this.boundR);
@@ -219,9 +233,9 @@ export default {
     // 对好友的个人设置
     async changeFriendRemark(newRemark){
       try{
-        const response = await contactListAPI.changeRemark(this.account_id, newRemark);
+        const response = await contactListAPI.changeRemark(this.account_id, false, newRemark);
         if (response.status === 200) {
-          this.group_remark = newRemark;
+          this.remark = newRemark;
           let chatInfo = { ...this.$store.state.currentChat };
           chatInfo.name = newRemark;
           this.$store.dispatch('setChat', chatInfo); // 更新chatList
@@ -230,12 +244,32 @@ export default {
         }
       }
       catch(error){
-        console.log('change group remark error:', error)
+        console.log('change friend remark error:', error)
+      }
+    },
+    // 更改分组
+    showDivideMove(){
+      this.isDivideMoveVisible = true;
+      this.$refs.divideMove.selectedDivide = this.friendInfo.tag;
+      this.$refs.divideMove.multiple = false;
+    },
+    async divideMove(divide){
+      try{
+        const response = await contactListAPI.moveInDivide('friends',this.account_id, divide);
+        if(response.status !== 200){
+          this.$root.notify(response.data.message, 'error');
+          return;
+        }
+        else{
+          this.friendInfo.tag = divide;
+        }
+      }catch(e){
+        console.log(e);
       }
     },
     async setMute(){
       try{
-        const response = await chatListAPI.setMute(this.account_id, !this.isMute, true);
+        const response = await chatListAPI.setMute(this.account_id, !this.isMute, false);
         if(response.status === 200){
           this.isMute = !this.isMute;
           let chatInfo = { ...this.$store.state.currentChat };
@@ -252,7 +286,7 @@ export default {
     },
     async setBlock(){
       try{
-        const response = await chatListAPI.blockChat(this.account_id, !this.isBlocked, true);
+        const response = await chatListAPI.blockChat(this.account_id, !this.isBlocked, false);
         if (response.status === 200) {
           this.isBlocked = !this.isBlocked;
           let chatInfo = { ...this.$store.state.currentChat };
@@ -269,7 +303,7 @@ export default {
     },
     async setPin() {
       try {
-        const response = await chatListAPI.pinChat(this.account_id, !this.isPinned, true);
+        const response = await chatListAPI.pinChat(this.account_id, !this.isPinned, false);
         if (response.status === 200) {
           this.isPinned = !this.isPinned;
           let chatInfo = { ...this.$store.state.currentChat };
@@ -283,29 +317,13 @@ export default {
         console.error('Failed to set pin:', error);
       }
     },
-    async setBanned(account_id, is_banned){
-      try {
-        const response = await contactListAPI.setBanned(this.account_id,this.account_id, this.is_banned);
-        if (response.status === 200) {
-          let member = this.groupInfo.members.find(member => member.account_id === account_id);
-          if (member) {
-            member.is_banned = is_banned;
-          }
-        } else {
-          this.$root.notify(response.data.message, 'error');
-        }
-      } catch (error) {
-        // todo
-        console.error('Failed to set pin:', error);
-      }
-    },
     async deleteFriend(){
       try{
         const response = await contactListAPI.deleteFriend(this.account_id);
         if(response.status === 200){
-          this.$root.notify('删除成功', 'success');
+          this.$emit('delete-friend');
           this.hide();
-          this.$store.dispatch('deleteChat', this.account_id);
+          
         }else{
           this.$root.notify(response.data.message, 'error');
         }
@@ -317,7 +335,7 @@ export default {
     async viewChatHistory() {
       // 查看聊天记录
       this.componentStatus = 'history';
-      chatListAPI.getHistory(this.group_id).then(response => {
+      chatListAPI.getHistory(this.account_id).then(response => {
         if (response.status === 200) {
           this.history = response.data.data;
         } else {
@@ -341,7 +359,7 @@ export default {
 
     // 显示与隐藏
     show(){
-      this.fetchGroupInfo();
+      this.fetchFriendInfo();
       this.visible = true;
       EventBus.emit('float-component-open', this); // 通知其他组件
     },
@@ -397,7 +415,6 @@ export default {
     },
   },
   created(){
-    //this.fetchGroupInfo();
     this.boundD = document.documentElement.clientHeight;
     this.boundR = document.documentElement.clientWidth;
   },
@@ -417,7 +434,7 @@ export default {
 
 <style scoped src="@/assets/css/chatList.css"></style>
 <style scoped>
-.group-management {
+.friend-management {
   width: 300px;
   background-color: #f6f1f1;
   border: 1px solid #ccc;
@@ -471,16 +488,6 @@ export default {
   border: 1px solid #ddd;
   border-radius: 4px;
 }
-.group-members {
-  display: flex;
-  flex-wrap: wrap;
-}
-.member {
-  margin: 5px;
-  text-align: center;
-  width: 40px;
-  height: 60px;
-}
 .remark {
   color: #888;
   white-space: nowrap;
@@ -500,7 +507,7 @@ export default {
   height: 30px;
 }
 
-.group-info {
+.friend-info {
   margin-top: 20px;
   align-self: flex-start;
 }
@@ -522,7 +529,7 @@ export default {
   align-items: center;
 }
 
-.group-actions {
+.friend-actions {
   margin-top: 20px;
   display: flex;
   flex-direction: column;
@@ -530,10 +537,10 @@ export default {
   padding: 10px;
 }
 
-.group-actions input {
+.friend-actions input {
   margin-right: 10px;
 }
-.group-actions button {
+.friend-actions button {
   margin-top: 10px;
 }
 
@@ -632,27 +639,6 @@ export default {
   padding: 3px;
 }
 
-.muted-members-list {
-  max-height: 300px; 
-  overflow-y: auto; 
-  border: 1px solid #e0e0e0;
-  border-radius: 5px;
-  background-color: #f9f9f9; 
-}
-.muted-member {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 10px;
-  border: 1px solid #ccc; 
-  border-radius: 5px; 
-  background-color: #fff; 
-}
-.muted-member .avatar {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  margin-right: 10px;
-}
+
 
 </style>

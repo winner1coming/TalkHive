@@ -43,8 +43,8 @@ export const groupApplyRequestPend = (account_id, group_id, accept) => {
 };
 
 // 好友和群聊
-export const changeRemark = (id, remark)=>{
-  return apiClient.post('/contactList/remark', { id, remark });
+export const changeRemark = (id, is_group_chat, remark)=>{
+  return apiClient.post('/contactList/remark', { id, is_group_chat ,remark });
 }
 
 // *好友列表

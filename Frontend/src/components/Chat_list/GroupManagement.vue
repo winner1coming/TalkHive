@@ -55,6 +55,11 @@
         <EditableText class="detail" :text="group_remark" @update-text="changeGroupRemark" />
         <p class="title">我的群昵称: </p>
         <EditableText class="detail" :text="groupInfo.my_group_nickname" @update-text="changeGroupNickname" />
+        <p class="title">分组: </p>
+        <p class="detail">
+          {{ groupInfo.divide }} 
+          <button @click="showDivideMove">更改</button>
+        </p>
         <hr class="divider" />
         <!-- <p>是否显示群成员昵称: <SwitchButton v-model="groupInfo.showNicknames" /></p> -->
         <p class="title">是否消息免打扰: <SwitchButton v-model="isMute" @change-value="setMute"/></p>
@@ -230,6 +235,10 @@ export default {
   data() {
     return {
       visible: false,
+
+      isDivideMoveVisible: false,
+      divides:[],
+
       query: "", // 搜索关键词
       isComposing: false, // 是否正在使用输入法输入，防止频繁触发搜索
       group_id:'',
@@ -336,6 +345,12 @@ export default {
         }else{
           this.$root.notify(response.data.message, 'error');
         }
+        const response2 = await contactListAPI.getDivides('groups');
+        if(response2.status === 200){
+          this.divides = response2.data.divides;
+        }else{
+          this.$root.notify(response2.data.message, 'error');
+        }
       }
       catch(error){
         console.log('fetch group error:', error);
@@ -410,7 +425,7 @@ export default {
     // 对群的个人设置
     async changeGroupRemark(newRemark){
       try{
-        const response = await contactListAPI.changeRemark(this.group_id, newRemark);
+        const response = await contactListAPI.changeRemark(this.group_id, true,newRemark);
         if (response.status === 200) {
           this.group_remark = newRemark;
           let chatInfo = { ...this.$store.state.currentChat };
@@ -422,6 +437,26 @@ export default {
       }
       catch(error){
         console.log('change group remark error:', error)
+      }
+    },
+    // 更改分组
+    showDivideMove(){
+      this.isDivideMoveVisible = true;
+      this.$refs.divideMove.selectedDivide = this.groupInfo.divide;
+      this.$refs.divideMove.multiple = false;
+    },
+    async divideMove(divide){
+      try{
+        const response = await contactListAPI.moveInDivide('groups',this.account_id, divide);
+        if(response.status !== 200){
+          this.$root.notify(response.data.message, 'error');
+          return;
+        }
+        else{
+          this.groupInfo.divide = divide;
+        }
+      }catch(e){
+        console.log(e);
       }
     },
     async setMute(){
