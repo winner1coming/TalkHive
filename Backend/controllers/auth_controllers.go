@@ -5,7 +5,6 @@ import (
 	"TalkHive/models"
 	"TalkHive/utils"
 	"encoding/base64"
-	"github.com/gin-gonic/gin"
 	"io"
 	"mime"
 	"mime/multipart"
@@ -13,6 +12,8 @@ import (
 	"os"
 	"path/filepath"
 	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 // Login 登录处理
@@ -141,7 +142,7 @@ func Register(c *gin.Context) {
 	if input.Avatar != nil {
 		// 构建目标文件夹路径//但是这个是在现有文件夹下的，感觉可以让用户选择一个文件夹，或者默认在C盘什么的
 		baseDir := "D:/TalkHive" // 用户默认的 TalkHive 文件夹
-		avatarDir := filepath.Join(baseDir, "images")
+		avatarDir := filepath.Join(baseDir, "User_Avatar")
 
 		// 确保文件夹存在，如果不存在则创建
 		if err := os.MkdirAll(avatarDir, os.ModePerm); err != nil {

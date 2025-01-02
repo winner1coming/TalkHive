@@ -147,6 +147,8 @@ export default {
           this.avatar = e.target.result;
         };
         reader.readAsDataURL(file);
+        
+        this.file = file;
       }
     },
 
