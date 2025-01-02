@@ -10,6 +10,7 @@ func ContactListRoutes(r *gin.Engine) {
 	// 添加、搜索好友
 	r.POST("/stranger/search", controllers.SearchStrangers)
 	r.POST("/contactList/remark", controllers.ChangeRemark)
+	r.POST("/contactList/search", controllers.SearchContacts)
 
 	//好友请求部分
 	r.GET("/contactList/friendRequests", controllers.GetFriendRequests)
@@ -29,11 +30,12 @@ func ContactListRoutes(r *gin.Engine) {
 
 	// 好友列表
 	r.GET("/contactList/friends", controllers.GetFriends)
+	r.POST("/contactList/friends/delete", controllers.DeleteFriend)
 
 	// 分组部分
 	r.GET("/contactList/:type/divides", controllers.GetDivides)
 	r.POST("/contactList/:type/divides/create", controllers.CreateDivide)
-	r.DELETE("/contactList/:type/divides/delete/{fd_name}", controllers.DeleteDivide)
+	r.POST("/contactList/:type/divides/delete", controllers.DeleteDivide)
 	r.POST("/contactList/:type/divides/rename", controllers.RenameDivide)
 	r.POST("/contactList/:type/divides/moveIn", controllers.MoveInDivide)
 
@@ -57,5 +59,6 @@ func ContactListRoutes(r *gin.Engine) {
 	r.POST("/contactList/groups/changeAvatar", controllers.ChangeGroupAvatar)
 
 	// 资料卡片
-	r.GET("/contactList/card", controllers.GetProfileCard)
+	r.POST("/profileCard/person", controllers.GetPersonProfileCard)
+	r.POST("/profileCard/group", controllers.GetGroupProfileCard)
 }

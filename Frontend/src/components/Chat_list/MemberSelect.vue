@@ -50,7 +50,7 @@ export default {
     async sendMessage() {
       this.hide();
       try{
-        const response = await getChat(this.profile.tid);
+        const response = await getChat(this.profile.tid, false);
         if(response.status !== 200){
           this.$root.notify(response.data.message, 'error');
           return;

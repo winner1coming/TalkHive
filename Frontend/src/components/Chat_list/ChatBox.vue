@@ -7,8 +7,8 @@
         <img :src="selectedChat.avatar" alt="avatar" />
       </div>
       <div class="chat-name">{{ selectedChat.name }}</div>
-      <div style="margin-left: auto;" v-if="selectedChat.tags.includes('group')">
-        <div class="detail-button" @click="clickGroupManagement">···</div>
+      <div style="margin-left: auto;">
+        <div class="detail-button" @click="clickManagement">···</div>
       </div>
     </div>
     <!-- 上方的消息历史 -->
@@ -30,7 +30,7 @@
     <!-- 右键菜单 -->
     <ContextMenu ref="contextMenu"  @select-item="handleMenuSelect" />
     <!-- 个人名片 -->
-    <ProfileCard ref="profileCard"/>
+    <PersonProfileCard ref="profileCard"/>
   </div>
 </template>
   
@@ -38,12 +38,12 @@
 import MessageItem from './MessageItem.vue';
 import MessageInput from './MessageInput.vue';
 import ContextMenu from '@/components/base/ContextMenu.vue';
-import ProfileCard from '@/components/base/ProfileCard.vue';
+import PersonProfileCard from '@/components/base/PersonProfileCard.vue';
 import * as chatListAPI from '@/services/chatList';
 import { getPersonProfileCard } from '@/services/api';
 
 export default {
-  components: {MessageItem, MessageInput, ContextMenu, ProfileCard},
+  components: {MessageItem, MessageInput, ContextMenu, PersonProfileCard},
   data() {
     return {
       messages: [],  // 当前聊天的消息历史
@@ -79,7 +79,7 @@ export default {
   methods: {
     async selectNewChat(account_id) {
       try{
-        const response = await chatListAPI.getMessages(account_id);
+        const response = await chatListAPI.getMessages(account_id, this.selectedChat.tags.includes('group') ? true : false);
         // 若被禁言  
         //todo
         if(response.status !== 200){
@@ -98,7 +98,7 @@ export default {
     async sendMessage(content) {
       // todo api
       try{
-        const response = await chatListAPI.sendMessage(this.selectedChat.id, content, 'text');
+        const response = await chatListAPI.sendMessage(this.selectedChat.id, content, 'text', this.selectedChat.tags.includes('group') ? true : false);
         if(response.status !== 200){
           this.$root.notify(response.data.message, 'error');
           return;
@@ -118,9 +118,9 @@ export default {
       }
       
     },
-    clickGroupManagement() {
+    clickManagement() {
       // 打开群聊管理弹窗
-      this.$emit('clickGroupManagement');
+      this.$emit('click-management');
     },
     showContextMenu(event, message) {
       const items = ['引用', '转发', '删除', '撤回', '复制', '多选', '收藏', '置顶'];
