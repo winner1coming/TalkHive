@@ -426,7 +426,7 @@ export default {
     },
     async setMute(){
       try{
-        const response = await chatListAPI.setMute(this.group_id, !this.isMute);
+        const response = await chatListAPI.setMute(this.group_id, !this.isMute, true);
         if(response.status === 200){
           this.isMute = !this.isMute;
           let chatInfo = { ...this.$store.state.currentChat };
@@ -443,7 +443,7 @@ export default {
     },
     async setBlock(){
       try{
-        const response = await chatListAPI.blockChat(this.group_id, !this.isBlocked);
+        const response = await chatListAPI.blockChat(this.group_id, !this.isBlocked, true);
         if (response.status === 200) {
           this.isBlocked = !this.isBlocked;
           let chatInfo = { ...this.$store.state.currentChat };
@@ -460,7 +460,7 @@ export default {
     },
     async setPin() {
       try {
-        const response = await chatListAPI.pinChat(this.group_id, !this.isPinned);
+        const response = await chatListAPI.pinChat(this.group_id, !this.isPinned, true);
         if (response.status === 200) {
           this.isPinned = !this.isPinned;
           let chatInfo = { ...this.$store.state.currentChat };

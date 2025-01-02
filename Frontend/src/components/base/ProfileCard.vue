@@ -116,7 +116,7 @@ export default {
       }
       else if(item === '置顶'){
         try{
-          const response = await chatListAPI.pinChat(this.profile.account_id, true);
+          const response = await chatListAPI.pinChat(this.profile.account_id, true, false);
           if(response.status !== 200){
             this.$root.notify(response.data.message, 'error');
             return;
@@ -131,7 +131,7 @@ export default {
       }
       else if(item === '取消置顶'){
         try{
-          const response = await chatListAPI.pinChat(this.profile.account_id, false);
+          const response = await chatListAPI.pinChat(this.profile.account_id, false, false);
           if(response.status !== 200){
             this.$root.notify(response.data.message, 'error');
             return;
@@ -146,7 +146,7 @@ export default {
       }
       else if(item === '屏蔽'){
         try{
-          const response = await chatListAPI.blockChat(this.profile.account_id, true);
+          const response = await chatListAPI.blockChat(this.profile.account_id, true, false);
           if(response.status !== 200){
             this.$root.notify(response.data.message, 'error');
             return;
@@ -161,7 +161,7 @@ export default {
       }
       else if(item === '取消屏蔽'){
         try{
-          const response = await chatListAPI.blockChat(this.profile.account_id, false);
+          const response = await chatListAPI.blockChat(this.profile.account_id, false, false);
           if(response.status !== 200){
             this.$root.notify(response.data.message, 'error');
             return;
@@ -176,7 +176,7 @@ export default {
       }
       else if(item === '消息免打扰'){
         try{
-          const response = await chatListAPI.setMute(this.profile.account_id, true);
+          const response = await chatListAPI.setMute(this.profile.account_id, true, false);
           if(response.status !== 200){
             this.$root.notify(response.data.message, 'error');
             return;
@@ -191,7 +191,7 @@ export default {
       }
       else if(item === '取消消息免打扰'){
         try{
-          const response = await chatListAPI.setMute(this.profile.account_id, false);
+          const response = await chatListAPI.setMute(this.profile.account_id, false, false);
           if(response.status !== 200){
             this.$root.notify(response.data.message, 'error');
             return;

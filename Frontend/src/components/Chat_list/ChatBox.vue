@@ -79,7 +79,7 @@ export default {
   methods: {
     async selectNewChat(account_id) {
       try{
-        const response = await chatListAPI.getMessages(account_id);
+        const response = await chatListAPI.getMessages(account_id, this.selectedChat.tags.includes('group') ? true : false);
         // 若被禁言  
         //todo
         if(response.status !== 200){
@@ -98,7 +98,7 @@ export default {
     async sendMessage(content) {
       // todo api
       try{
-        const response = await chatListAPI.sendMessage(this.selectedChat.id, content, 'text');
+        const response = await chatListAPI.sendMessage(this.selectedChat.id, content, 'text', this.selectedChat.tags.includes('group') ? true : false);
         if(response.status !== 200){
           this.$root.notify(response.data.message, 'error');
           return;
