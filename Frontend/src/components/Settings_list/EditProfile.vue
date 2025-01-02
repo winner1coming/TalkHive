@@ -29,14 +29,14 @@
 
     <div class="input_text">
       <label>性别:</label>
-      <span v-if="!isEditing">{{ gender == 'male' ?'男':'女' }}</span>
+      <span v-if="!isEditing">{{ gender == '男' ?'男':'女' }}</span>
       <div class="gender-options" v-if="isEditing">
         <label>
-          <input type="radio" v-model="gender" value="male" />
+          <input type="radio" v-model="gender" value="男" />
           男
         </label>
         <label>
-          <input type="radio" v-model="gender" value="female" />
+          <input type="radio" v-model="gender" value="女" />
           女
         </label>
       </div>
@@ -96,7 +96,6 @@
 
 <script>
 import { showProfile, saveEdit } from '@/services/settingView.js';
-import avatar from '@/assets/images/avatar.jpg';
 import { mapGetters } from 'vuex';
 
 export default {
@@ -107,7 +106,7 @@ export default {
   // 组件的 data 函数，返回一个对象，包含组件的响应式数据
   data() {
     return {
-      avatar,
+      avatar:'',
       username: '',
       id: '',
       gender: '',
@@ -144,7 +143,7 @@ export default {
       try {
         const profile = await showProfile();
         if(profile.success){
-          this.id = this.user.id;
+          this.id = profile.data.id;
           this.avatar = this.user.avatar;
           this.username = profile.data.nickname;
           this.gender = profile.data.gender;
@@ -196,7 +195,7 @@ export default {
         }
 
         await saveEdit({
-          username: this.username,
+          nickname: this.username,
           id: this.id,
           avatar:this.avatar,
           gender: this.gender,
@@ -220,6 +219,23 @@ export default {
             id : this.id,
             avatar : this.avatar,
         });
+
+        //更新缓存的内容
+        let users = JSON.parse(localStorage.getItem('users')) || [];
+        const userInfo = {
+          account: this.id,
+          avatar : this.avatar,
+        }
+
+        const index = users.findIndex(user => user.account === this.id);
+        if(index !== -1){
+          users[index].account = userInfo.account;
+          users[index].avatar = userInfo.avatar;
+        }else{
+          users.push(userInfo);
+        }
+
+        localStorage.setItem('users',JSON.stringify(users));
 
         this.isEditing =false;
       } catch (error) {

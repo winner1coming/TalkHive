@@ -113,7 +113,6 @@ export default {
       password: '',
       confirmPassword: '',
       verificationCode: '',
-      file:null,
       errors: {
         avatar:'',
         gender:'',
@@ -147,8 +146,6 @@ export default {
           this.avatar = e.target.result;
         };
         reader.readAsDataURL(file);
-        
-        this.file = file;
       }
     },
 
@@ -319,24 +316,18 @@ export default {
       if(!this.validateCode()){
         return;
       }
-      
-      if(!this.file){
-        const response = await fetch(img);
-        const blob = await response.blob();
-        this.file = new File([blob], 'default_avatar.jpg', { type: blob.type });
-      }
 
       try {
-        const formData = new FormData();
-        formData.append('avatar', this.file);
-        formData.append('gender', this.gender);
-        formData.append('id', this.id);
-        formData.append('nickname', this.nickname);
-        formData.append('birthday', this.birthday);
-        formData.append('phone',this.phoneNumber);
-        formData.append("email", this.email);
-        formData.append('password',this.password);
-        const response = await Register(formData);
+        const response = await Register({
+          avatar: this.avatar,
+          gender: this.gender,
+          id: this.id,
+          nickname: this.nickname,
+          birthday: this.birthday,
+          phone: this.phoneNumber,
+          email: this.email,
+          password: this.password,
+        });
         
         if (response.success) {
           alert(response.message);

@@ -35,9 +35,15 @@ export default {
   data() {
     return {
       showDropdown: false,
-      avatar: this.$store.state.user.avatar,
-      nickname:this.$store.state.user.username,
     };
+  },
+  computed: {
+  avatar() {
+    return this.$store.state.user.avatar;
+  },
+  nickname() {
+    return this.$store.state.user.username;
+  },
   },
   components:{
     Link,

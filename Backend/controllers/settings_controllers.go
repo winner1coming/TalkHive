@@ -6,11 +6,12 @@ import (
 	"TalkHive/utils"
 	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 //--------------------------------------------------------------------------
@@ -90,7 +91,15 @@ func SaveEdit(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "请求数据格式错误"})
 		return
 	}
-	user.Avatar = input.Avatar
+	if input.Avatar != "" {
+		avatarPath, err := global.GetAvatarPath(input.Avatar, userID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": err.Error()})
+			return
+		}
+		user.Avatar = avatarPath
+	}
+
 	user.Nickname = input.Nickname
 	user.Gender = input.Gender
 	user.Birthday = input.Birthday
