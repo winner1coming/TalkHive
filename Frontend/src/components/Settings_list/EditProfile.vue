@@ -215,8 +215,7 @@ export default {
 
         //更新全局变量
         this.$store.commit('SET_USER', {
-            username:this.nickname,
-            id : this.id,
+            username:this.username,
             avatar : this.avatar,
         });
 

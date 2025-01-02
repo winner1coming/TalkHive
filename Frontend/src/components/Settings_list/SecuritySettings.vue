@@ -77,10 +77,10 @@ export default {
         const response = await getUserInfo();
         if(response.success){
           this.users.ID = this.user.id;
-          this.users.email = response.email;
-          this.users.password =  response.password;
-          this.users.friend_permissionID = response.friend_permissionID ? 'on':'off';
-          this.users.friend_permissionNickname = response.friend_permissionNickname?'on':'off';
+          this.users.email = response.data.email;
+          this.users.password =  response.data.password;
+          this.users.friend_permissionID = response.data.friend_permissionID ? 'on':'off';
+          this.users.friend_permissionNickname = response.data.friend_permissionNickname?'on':'off';
         }
         else{
           alert(response.message || '获取用户邮箱失败');
