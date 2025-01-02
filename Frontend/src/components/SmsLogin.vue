@@ -107,13 +107,12 @@ export default {
               users.push(userInfo);
             }
             localStorage.setItem('users', JSON.stringify(users));
-
             alert(response.message);
             this.$router.push('/home');
-          }
-          else {
-            alert(response.message);
-          }
+        }
+        else {
+          alert(response.message);
+        }
       } catch (error) {
         alert(error || '登录失败');
       }
