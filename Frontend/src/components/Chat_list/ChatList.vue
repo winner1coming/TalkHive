@@ -72,6 +72,7 @@
 <script>
 import SearchBar from '@/components/base/SearchBar.vue';
 import ContextMenu from '@/components/base/ContextMenu.vue';
+import { EventBus } from '@/components/base/EventBus';  
 import * as chatListAPI from '@/services/chatList';
 import AddFriendGroup from '@/components/Chat_list/AddFriendGroup.vue';
 import BuildGroup from '@/components/Chat_list/BuildGroup.vue';
@@ -88,24 +89,7 @@ export default {
     return {
       // 消息列表（从后端获取）
       chats: [],
-      // chats: [{
-      //     id: '0',   // 好友的tid
-      //     avatar: new URL('@/assets/images/avatar.jpg', import.meta.url).href,
-      //     name: 'Alice',  // 好友的备注 remark
-      //     lastMessage: 'hi',
-      //     lastMessageTime: '10:00',
-      //     unreadCount: 1,
-      //     tags: ['unread','pinned'],   // friend, group, unread, pinned, blocked
-      //   },
-      //   {
-      //     id: '1',
-      //     avatar: new URL('@/assets/images/avatar.jpg', import.meta.url).href,
-      //     name: 'Bob',
-      //     lastMessage: 'hello',
-      //     lastMessageTime: '11:00',
-      //     unreadCount: 0,
-      //     tags: ['unread', 'group'],
-      //   }], 
+      
       // 选中的聊天
       selectedChat: null,
       // 消息标签
@@ -201,7 +185,12 @@ export default {
         chat.tags = chat.tags.filter(tag => tag !== 'unread');
         chat.unreadCount = 0;
         try{
-          const response = await chatListAPI.readMessages(chat.id, true);
+          let response;
+          if(chat.tags.includes('friend')) {
+            response = await chatListAPI.readMessages(chat.id, true, false);
+          }else{
+            response = await chatListAPI.readMessages(chat.id, true, true);
+          }
           if(response.status !== 200){
             this.$root.notify(response.data.message, 'error');
           }
@@ -289,7 +278,12 @@ export default {
       if(option === '置顶') {
         // 告知服务器修改消息的置顶状态（并且本地更新）
         try{
-          const response = await chatListAPI.pinChat(chat.id, true);
+          let response;
+          if(chat.tags.includes('friend')){
+            response = await chatListAPI.pinChat(chat.id, true, false);
+          }else{
+            response = await chatListAPI.pinChat(chat.id, true, true);
+          }
           if(response.status === 200) {
             chat.tags.push('pinned');
           }else{
@@ -300,7 +294,12 @@ export default {
         }
       }else if(option === '取消置顶') {
         try{
-          const response = await chatListAPI.pinChat(chat.id, false);
+          let response;
+          if(chat.tags.includes('friend')){
+            response = await chatListAPI.pinChat(chat.id, false, false);
+          }else{
+            response = await chatListAPI.pinChat(chat.id, false, true);
+          }
           if(response.status === 200) {
             chat.tags = chat.tags.filter(tag => tag !== 'pinned');
           }else{
@@ -312,7 +311,12 @@ export default {
       }else if(option === '删除') {
         // 删除聊天
         try{
-          const response = await chatListAPI.deleteChat(chat.id);
+          let response;
+          if(chat.tags.includes('friend')){
+            response = await chatListAPI.deleteChat(chat.id, false);
+          }else{
+            response = await chatListAPI.deleteChat(chat.id, true);
+          }
           if(response.status === 200) {
             this.chats = this.chats.filter(onechat => onechat.id !== chat.id);
           }else{
@@ -324,7 +328,12 @@ export default {
       }else if(option === '标记为已读') {
         // 标记为已读
         try{
-          const response = await chatListAPI.readMessages(chat.id, true);
+          let response;
+          if(chat.tags.includes('friend')) {
+            response = await chatListAPI.readMessages(chat.id, true, false);
+          }else{
+            response = await chatListAPI.readMessages(chat.id, true, true);
+          }
           if(response.status !== 200) {
             this.$root.notify(response.data.message, 'error');
           }else{
@@ -337,7 +346,12 @@ export default {
       }else if(option === '标记为未读') {
         // 标记为未读
         try{
-          const response = await chatListAPI.readMessages(chat.id, false);
+          let response;
+          if(chat.tags.includes('friend')) {
+            response = await chatListAPI.readMessages(chat.id, false, false);
+          }else{
+            response = await chatListAPI.readMessages(chat.id, false, true);
+          }
           if(response.status !== 200) {
             this.$root.notify(response.data.message, 'error');
           }else{
@@ -349,7 +363,12 @@ export default {
         }
       }else if(option === '消息免打扰') {
         try{
-          const response = await chatListAPI.setMute(chat.id, true);
+          let response;
+          if(chat.tags.includes('friend')) {
+            response = await chatListAPI.setMute(chat.id, true, false);
+          }else{
+            response = await chatListAPI.setMute(chat.id, true, true);
+          }
           if(response.status === 200) {
             chat.tags.push('mute');
           }else{
@@ -360,7 +379,12 @@ export default {
         }
       }else if(option === '取消消息免打扰') {
         try{
-          const response = await chatListAPI.setMute(chat.id, false);
+          let response;
+          if(chat.tags.includes('friend')) {
+            response = await chatListAPI.setMute(chat.id, false, false);
+          }else{
+            response = await chatListAPI.setMute(chat.id, false, true);
+          }
           if(response.status === 200) {
             chat.tags = chat.tags.filter(tag => tag !== 'mute');
           }else{
@@ -371,7 +395,12 @@ export default {
         }
       }else if(option === '屏蔽') {
         try{
-          const response = await chatListAPI.blockChat(chat.id, true);
+          let response;
+          if(chat.tags.includes('friend')) {
+            response = await chatListAPI.blockChat(chat.id, true, false);
+          }else{
+            response = await chatListAPI.blockChat(chat.id, true, true);
+          }
           if(response.status === 200) {
             chat.tags.push('blocked');
           }else{
@@ -382,7 +411,12 @@ export default {
         }
       }else if(option === '取消屏蔽') {
         try{
-          const response = await chatListAPI.blockChat(chat.id, false);
+          let response;
+          if(chat.tags.includes('friend')) {
+            response = await chatListAPI.blockChat(chat.id, false, false);
+          }else{
+            response = await chatListAPI.blockChat(chat.id, false, true);
+          }
           if(response.status === 200) {
             chat.tags = chat.tags.filter(tag => tag !== 'blocked');
           }else{
@@ -401,6 +435,54 @@ export default {
   },
   created () {
     this.fetchChatList();
+    EventBus.on('set-mute', (tid, is_mute) => {
+      for (let i = 0; i < this.chats.length; i++) {
+        if (this.chats[i].id === tid) {
+          if (is_mute) {
+            this.chats[i].tags.push('mute');
+          } else {
+            this.chats[i].tags = this.chats[i].tags.filter(tag => tag !== 'mute');
+          }
+          break; 
+        }
+      } 
+    });
+    EventBus.on('set-pinned', (tid, is_pinned) => {
+      for (let i = 0; i < this.chats.length; i++) {
+        if (this.chats[i].id === tid) {
+          if (is_pinned) {
+            this.chats[i].tags.push('pinned');
+          } else {
+            this.chats[i].tags = this.chats[i].tags.filter(tag => tag !== 'pinned');
+          }
+          break; 
+        }
+      } 
+    });
+    EventBus.on('set-blocked', (tid, is_blocked) => {
+      for (let i = 0; i < this.chats.length; i++) {
+        if (this.chats[i].id === tid) {
+          if (is_blocked) {
+            this.chats[i].tags.push('blocked');
+          } else {
+            this.chats[i].tags = this.chats[i].tags.filter(tag => tag !== 'blocked');
+          }
+          break; 
+        }
+      } 
+    });
+    EventBus.on('set-blacklist', (tid, is_blacklist) => {
+      for (let i = 0; i < this.chats.length; i++) {
+        if (this.chats[i].id === tid) {
+          if (is_blacklist) {
+            this.chats = this.chats.filter(chat => chat.id !== tid);
+          } else {
+            
+          }
+          break; 
+        }
+      } 
+    });
   },
 };
 </script>

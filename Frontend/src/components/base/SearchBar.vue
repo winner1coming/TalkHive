@@ -50,6 +50,9 @@
       },
       buttonClick(event){
         this.$emit("button-click", event);
+      },
+      clear(){
+        this.query = "";
       }
     },
   };

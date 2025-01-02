@@ -13,36 +13,36 @@
       :tags="tags" 
       @show-profile-card="showProfileCard"
       @show-person-context-menu="showPersonContextMenu"
-      @show-divide-context-menu="showDevideContextMenu"
+      @show-divide-context-menu="showDivideContextMenu"
     />
     <ProfileCard ref="profileCard" />
-    <DevideDelete
-      :divides="tags"
-      v-show="isDevideDeleteVisible"
-      @close="isDevideDeleteVisible = false"
-      @delete-divides="deleteDevides"
+    <DivideDelete
+      :divides="tags.filter(tag => tag !== '全部')"
+      v-show="isDivideDeleteVisible"
+      @close="isDivideDeleteVisible = false"
+      @delete-divides="deleteDivides"
     />
-    <DevideAdd
+    <DivideAdd
       ref="divideAdd"
-      v-show="isDevideAddVisible"
-      @add-divide="addDevide"
-      @rename-divide="renameDevide"
-      @close="isDevideAddVisible = false"
+      v-show="isDivideAddVisible"
+      @add-divide="addDivide"
+      @rename-divide="renameDivide"
+      @close="isDivideAddVisible = false"
     />
-    <DevideManagement
+    <DivideManagement
       :type="managementType"
       :persons="persons"
-      v-show="isDevideManagementVisible"
+      v-show="isDivideManagementVisible"
       @divide-in="divideIn"
       @divide-out="divideOut"
-      @close="isDevideManagementVisible = false"
+      @close="isDivideManagementVisible = false"
     />
-    <DevideMove
-      :divides="tags"
-      v-show="isDevideMoveVisible"
+    <DivideMove
+      :divides="tags.filter(tag => tag !== '全部')"
+      v-show="isDivideMoveVisible"
       @divide-move="divideMove"
       @divides-move="dividesMove"
-      @close="isDevideMoveVisible = false"
+      @close="isDivideMoveVisible = false"
       ref="divideMove"
     />
     <ContextMenu ref="contextMenu"  @select-item="handleMenuSelect" />
@@ -51,13 +51,13 @@
 
 <script>
 import * as contactListAPI from '@/services/contactList';
-import { getProfileCard } from '@/services/api';
+import { getPersonProfileCard } from '@/services/api';
 
 import itemList from './itemList.vue';
-import DevideDelete from './DevideDelete.vue';
-import DevideAdd from './DevideAdd.vue';
-import DevideManagement from './DevideManagement.vue';
-import DevideMove from './DevideMove.vue';
+import DivideDelete from './DivideDelete.vue';
+import DivideAdd from './DivideAdd.vue';
+import DivideManagement from './DivideManagement.vue';
+import DivideMove from './DivideMove.vue';
 import ContextMenu from '@/components/base/ContextMenu.vue';
 import ProfileCard from '@/components/base/ProfileCard.vue';
 
@@ -66,10 +66,19 @@ export default {
   components: {
     itemList,
     ProfileCard,
-    DevideDelete,
-    DevideAdd,
-    DevideManagement,
-    DevideMove,
+    DivideDelete,
+    DivideAdd,
+    DivideManagement,
+    DivideMove,
+    ContextMenu,
+  },
+  components: {
+    itemList,
+    ProfileCard,
+    DivideDelete,
+    DivideAdd,
+    DivideManagement,
+    DivideMove,
     ContextMenu,
   },
   data() {
@@ -89,11 +98,37 @@ export default {
       items: [],   // 好友列表
       boundD: 0,
       boundR: 0,
-      isDevideManagementVisible: false,
-      isDevideDeleteVisible: false,
-      isDevideManagementVisible: false,
-      isDevideAddVisible:false,
-      isDevideMoveVisible: false,
+      isDivideManagementVisible: false,
+      isDivideDeleteVisible: false,
+      isDivideManagementVisible: false,
+      isDivideAddVisible:false,
+      isDivideMoveVisible: false,
+      // persons:[
+			// ],//  （type为in时是除该分组外的所有好友，out时为当前分组内的好友）
+      persons: [],  // 用于移入移出分组
+      managementType: '',
+      obj: null,
+      selectedPersons: [],
+      type: 'friendList',  // friendList, groupList
+      tags: [],  // 从后端获取
+      // items: [
+      //   {
+      //     avatar: '',
+      //     account_id: '1',
+      //     remark: 'John',   // 好友备注
+      //     status: 'online',   // online, offline
+      //     signature: '爱拼才会赢',    // 签名
+      //     tag: '家人',   
+      //   },
+      // ],
+      items: [],   // 好友列表
+      boundD: 0,
+      boundR: 0,
+      isDivideManagementVisible: false,
+      isDivideDeleteVisible: false,
+      isDivideManagementVisible: false,
+      isDivideAddVisible:false,
+      isDivideMoveVisible: false,
       // persons:[
 			// ],//  （type为in时是除该分组外的所有好友，out时为当前分组内的好友）
       persons: [],  // 用于移入移出分组
@@ -118,7 +153,7 @@ export default {
     },
     async fetchTags() {
       try{
-        const response = await contactListAPI.getDevides('friends');
+        const response = await contactListAPI.getDivides('friends');
         if(response.status !== 200){
           this.$root.notify(response.data.message, 'error');
           return;
@@ -132,7 +167,7 @@ export default {
     },
     async showProfileCard(event, send_account_id){
       try{
-        const response = await getProfileCard(send_account_id); 
+        const response = await getPersonProfileCard(send_account_id); 
         if(response.status !== 200){
           this.$root.notify(response.data.message, 'error');
           return;
@@ -150,7 +185,7 @@ export default {
       ];
       this.$refs.contextMenu.show(event, items, null, this.boundD, this.boundR);
     },
-    showDevideContextMenu(event, tag){
+    showDivideContextMenu(event, tag){
       const items = [
         '移入',
         '移出',
@@ -163,30 +198,31 @@ export default {
       const items = [
         '移动',
         '拉黑',
+        '删除好友',
       ];
       this.$refs.contextMenu.show(event, items, person, this.boundD, this.boundR, 60, 76);
     },
     async handleMenuSelect(item, obj=null){
       if(item === '新建分组') {
         this.$refs.divideAdd.type = 'add';
-        this.isDevideAddVisible = true;
+        this.isDivideAddVisible = true;
       }
-      else if(item === '删除分组') this.isDevideDeleteVisible = true;
+      else if(item === '删除分组') this.isDivideDeleteVisible = true;
       else if(item === '移入'){
-        this.isDevideManagementVisible = true;
+        this.isDivideManagementVisible = true;
         this.managementType = 'in';
         this.obj = obj;   // tag
         this.persons = this.items.filter(person => person.tag !== obj);
       }
       else if(item === '移出'){
-        this.isDevideManagementVisible = true;
+        this.isDivideManagementVisible = true;
         this.managementType = 'out';
         this.obj = obj;   // tag
         this.persons = this.items.filter(person => person.tag === obj);
       }
       else if(item === '删除'){
         try {
-          const response = await contactListAPI.deleteDevide('friends', obj);   // obj为分组名
+          const response = await contactListAPI.deleteDivide('friends', obj);   // obj为分组名
           if(response.status !== 200){
             this.$root.notify(response.data.message, 'error');
             return;
@@ -199,12 +235,12 @@ export default {
       }
       else if(item === '更名'){
         this.$refs.divideAdd.type = 'rename';
-        this.isDevideAddVisible = true;
+        this.isDivideAddVisible = true;
         this.obj = obj;   // tag
       }
       else if(item === '移动'){
-        this.isDevideMoveVisible = true;
-        this.$refs.divideMove.selectedDevide = obj.tag;
+        this.isDivideMoveVisible = true;
+        this.$refs.divideMove.selectedDivide = obj.tag;
         this.$refs.divideMove.multiple = false;
         this.obj = obj;
       }
@@ -219,41 +255,52 @@ export default {
         }catch(err){
           console.log(err);
         }
+      }else if(item === '删除好友'){
+        try{
+          const response = await contactListAPI.deleteFriend(obj.account_id);  
+          if(response.status !== 200){
+            this.$root.notify(response.data.message, 'error');
+            return;
+          }
+          this.items = this.items.filter(person => person !== obj);
+        }catch(err){
+          console.log(err);
+        }
       }
     },
-    async addDevide(newDevide){
-      if(this.tags.includes(newDevide)){
+    async addDivide(newDivide){
+      if(this.tags.includes(newDivide)){
         alert('分组名已存在');
         return;
       }
       try{
-        const response = await contactListAPI.createDevide('friends', newDevide); 
+        const response = await contactListAPI.createDivide('friends', newDivide); 
         if(response.status !== 200){
           this.$root.notify(response.data.message, 'error');
           return;
         }
-        this.tags.push(newDevide);
+        this.tags.push(newDivide);
       }catch(err){
         console.log(err);
       }
     },
-    async renameDevide(newDevide){
-      if(this.obj===newDevide){
+    async renameDivide(newDivide){
+      if(this.obj===newDivide){
         //alert('分组名已存在');
         return;
       }
-      const response = await contactListAPI.renameDevide('friends', this.obj, newDevide); 
+      const response = await contactListAPI.renameDivide('friends', this.obj, newDivide); 
       if(response.status !== 200){
         this.$root.notify(response.data.message, 'error');
         return;
       }
-      this.tags = this.tags.map(tag => tag === this.obj ? newDevide : tag);
+      this.tags = this.tags.map(tag => tag === this.obj ? newDivide : tag);
       await this.fetchFriends();
     },
-    async deleteDevides(divides){
+    async deleteDivides(divides){
       divides.forEach(async (divide) => {
         try {
-          const response = await contactListAPI.deleteDevide('friends', divide);   
+          const response = await contactListAPI.deleteDivide('friends', divide);   
           if(response.status !== 200){
             this.$root.notify(response.data.message, 'error');
             return;
@@ -267,7 +314,7 @@ export default {
     },
     async divideMove(divide){
       try{
-        const response = await contactListAPI.moveInDevide('friends', this.obj.account_id,divide);   // obj为好友对象
+        const response = await contactListAPI.moveInDivide('friends', this.obj.account_id,divide);   // obj为好友对象
         if(response.status !== 200){
           this.$root.notify(response.data.message, 'error');
           return;
@@ -281,7 +328,7 @@ export default {
     divideIn(selectedPersons){
       selectedPersons.forEach(async (person) => {
         try {
-          const response = await contactListAPI.moveInDevide('friends', person.account_id,this.obj);   
+          const response = await contactListAPI.moveInDivide('friends', person.account_id,this.obj);   
           if(response.status !== 200){
             this.$root.notify(response.data.message, 'error');
             return;
@@ -293,15 +340,15 @@ export default {
       });
     },
     divideOut(selectedPersons){
-      this.isDevideMoveVisible = true;
+      this.isDivideMoveVisible = true;
       this.selectedPersons = selectedPersons;
-      this.$refs.divideMove.selectedDevide = this.obj;
+      this.$refs.divideMove.selectedDivide = this.obj;
       this.$refs.divideMove.multiple = true;
     },
     dividesMove(divide){
       this.selectedPersons.forEach(async (person) => {
         try {
-          const response = await contactListAPI.moveInDevide('friends', person.account_id,divide);  
+          const response = await contactListAPI.moveInDivide('friends', person.account_id,divide);  
           if(response.status !== 200){
             this.$root.notify(response.data.message, 'error');
             return;

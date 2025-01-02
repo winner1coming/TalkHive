@@ -12,7 +12,7 @@
     <div v-if="this.$store.state.currentChat" class="chat-details">
       <!-- 消息历史 -->
       <ChatBox 
-        @clickGroupManagement="clickGroupManagement"
+        @click-management="clickManagement"
       />
     </div>
 
@@ -26,6 +26,12 @@
       @update-group="updateGroupDetails"
       @group-exited="exitGroup"
     />
+    <FriendManagement 
+      ref="friendManagement"
+      @close="closeFriendManagement"
+      @update-friend="updateFriendDetails"
+      @delete-friend="deleteFriend"
+    />
   </div>
 </template>
   
@@ -33,10 +39,12 @@
 import ChatList from '@/components/Chat_list/ChatList.vue';
 import ChatBox from '@/components/Chat_list/ChatBox.vue';
 import GroupManagement from '@/components/Chat_list/GroupManagement.vue';
+import FriendManagement from '@/components/Chat_list/FriendManagement.vue';
 import { EventBus } from '@/components/base/EventBus';
 
+
 export default {
-  components: { ChatList, ChatBox, GroupManagement },
+  components: { ChatList, ChatBox, GroupManagement, FriendManagement },
   data() {
     return {
       
@@ -72,9 +80,11 @@ export default {
     //   const chat = this.$ref.chatList.chats.find(chat => chat.id === tid);
     //   this.selectChat(chat);
     // },
-    clickGroupManagement() {
+    clickManagement() {
       if (this.$store.state.currentChat.tags.includes('group')) {
         this.$refs.groupManagement.show();
+      }else{
+        this.$refs.friendManagement.show();
       }
     },
     closeGroupManagement() {
@@ -92,6 +102,24 @@ export default {
       // }
     },
     exitGroup() {
+      this.$store.dispatch('setChat', null);
+      this.$refs.chatList.fetchChatList();
+    },
+    closeFriendManagement() {
+      if(this.$store.state.currentChat.tags.includes('friend')){
+        this.$refs.friendManagement.hide();
+      }
+    },
+    updateFriendDetails(updatedFriend) {
+      // 更新好友信息
+      this.chatList = this.chatList.map(chat =>
+        chat.id === updatedFriend.id ? updatedFriend : chat
+      );
+      // if (this.selectedChat.id === updatedFriend.id) {
+      //   this.selectedChat = updatedFriend;
+      // }
+    },
+    deleteFriend() {
       this.$store.dispatch('setChat', null);
       this.$refs.chatList.fetchChatList();
     },

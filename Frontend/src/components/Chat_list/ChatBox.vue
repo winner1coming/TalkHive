@@ -7,8 +7,8 @@
         <img :src="selectedChat.avatar" alt="avatar" />
       </div>
       <div class="chat-name">{{ selectedChat.name }}</div>
-      <div style="margin-left: auto;" v-if="selectedChat.tags.includes('group')">
-        <div class="detail-button" @click="clickGroupManagement">···</div>
+      <div style="margin-left: auto;">
+        <div class="detail-button" @click="clickManagement">···</div>
       </div>
     </div>
     <!-- 上方的消息历史 -->
@@ -40,7 +40,7 @@ import MessageInput from './MessageInput.vue';
 import ContextMenu from '@/components/base/ContextMenu.vue';
 import ProfileCard from '@/components/base/ProfileCard.vue';
 import * as chatListAPI from '@/services/chatList';
-import { getProfileCard } from '@/services/api';
+import { getPersonProfileCard } from '@/services/api';
 
 export default {
   components: {MessageItem, MessageInput, ContextMenu, ProfileCard},
@@ -79,7 +79,7 @@ export default {
   methods: {
     async selectNewChat(account_id) {
       try{
-        const response = await chatListAPI.getMessages(account_id);
+        const response = await chatListAPI.getMessages(account_id, this.selectedChat.tags.includes('group') ? true : false);
         // 若被禁言  
         //todo
         if(response.status !== 200){
@@ -95,21 +95,32 @@ export default {
       }
       
     },
-    sendMessage(content) {
+    async sendMessage(content) {
       // todo api
-      this.messages.push({
-        message_id: '0',  // 消息编号
-        send_account_id: this.$store.state.user.id,  // 发送者的id
-        content: content,
-        sender: this.$store.state.user.username,   // 发送者的备注
-        create_time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),  // 发送时间
-        type: 'text',   // 消息类型
-      });
-      this.scrollToBottom();
+      try{
+        const response = await chatListAPI.sendMessage(this.selectedChat.id, content, 'text', this.selectedChat.tags.includes('group') ? true : false);
+        if(response.status !== 200){
+          this.$root.notify(response.data.message, 'error');
+          return;
+        }else{
+          this.messages.push({
+            message_id: '0',  // 消息编号
+            send_account_id: this.$store.state.user.id,  // 发送者的id
+            content: content,
+            sender: this.$store.state.user.username,   // 发送者的备注
+            create_time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),  // 发送时间
+            type: 'text',   // 消息类型
+          });
+          this.scrollToBottom();
+        }
+      }catch(e){
+        console.log(e);
+      }
+      
     },
-    clickGroupManagement() {
+    clickManagement() {
       // 打开群聊管理弹窗
-      this.$emit('clickGroupManagement');
+      this.$emit('click-management');
     },
     showContextMenu(event, message) {
       const items = ['引用', '转发', '删除', '撤回', '复制', '多选', '收藏', '置顶'];
@@ -151,7 +162,7 @@ export default {
         group_id = this.selectedChat.id;
       }
       try{
-        const response = await getProfileCard(send_account_id, group_id); 
+        const response = await getPersonProfileCard(send_account_id, group_id); 
         if(response.status !== 200){
           this.$root.notify(response.data.message, 'error');
           return;
