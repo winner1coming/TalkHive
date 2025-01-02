@@ -4,7 +4,7 @@ import "github.com/gin-gonic/gin"
 
 func SetupRoutes(r *gin.Engine) {
 	AuthRoutes(r)
-	//ChatListRoutes(r)
+	ChatListRoutes(r)
 	ContactListRoutes(r)
 	SettingsRoutes(r)
 }
