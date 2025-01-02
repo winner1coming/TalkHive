@@ -1076,7 +1076,6 @@ func GetFriends(c *gin.Context) {
 		return
 	}
 
-	// 定义好友返回结构体
 	type FriendResponse struct {
 		Avatar    string `json:"avatar"`
 		AccountID uint   `json:"account_id"`
@@ -1088,8 +1087,7 @@ func GetFriends(c *gin.Context) {
 
 	// 查询联系人
 	var contacts []models.Contacts
-	err = global.Db.Where("owner_id = ?", accountID).Find(&contacts).Error
-	if err != nil {
+	if err = global.Db.Where("owner_id = ? AND is_group_chat = ?", accountID, false).Find(&contacts).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "获取当前ID的好友列表失败"})
 		return
 	}
@@ -1100,9 +1098,11 @@ func GetFriends(c *gin.Context) {
 			continue
 		}
 		var accountInfo models.AccountInfo
-		err := global.Db.First(&accountInfo, contact.ContactID).Error
-		if err != nil { // 如果某个联系人信息获取失败，继续下一个联系人
-			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "获取当前好友信息失败"})
+		if err := global.Db.Where("account_id = ?", contact.ContactID).First(&accountInfo).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "获取好友信息失败"})
+			return
+		}
+		if accountInfo.Deactivate {
 			continue
 		}
 
