@@ -39,6 +39,7 @@ import { smsLogin, sendSmsCode } from '@/services/loginth.js'; // 导入登录�
 import { mapActions, mapGetters} from 'vuex';
 import img from '@/assets/images/avatar.jpg';
 
+
 export default {
   computed: {
     ...mapGetters(['user']), // 从 Vuex 获取用户信息
@@ -63,7 +64,6 @@ export default {
   methods: {
     ...mapActions(['login']), // 映射 Vuex 的 login 方法
 
-
     // 登录方法
     async smsLogin() {
       if(!this.email){
@@ -73,7 +73,9 @@ export default {
         alert("验证码不能为空！");
       }
 
-      this.validateCode();
+      if(!this.validateCode()){
+          return; 
+      }
 
       try {
         const response = await smsLogin({
@@ -86,28 +88,27 @@ export default {
             username: response.nickname,
             id: response.account_id,
             avatar: this.avatar,
-          });
-          this.$store.commit('SET_LINKS',response.links);
+            });
+            this.$store.commit('SET_LINKS',response.links);
 
-          let users = JSON.parse(localStorage.getItem('users')) || [];
-          //本地缓存的处理
-          const userInfo = {
-            account : '',
-            avatar: this.avatar,
-            email: this.email || '',
-            password:'',
-          };
-          //是否已经存在账号
-          const index = users.findIndex(user => user.email === this.email);
-          if(index !== -1){
-            users[index] = userInfo;
-          }else{
-            users.push(userInfo);
-          }
-          localStorage.setItem('users', JSON.stringify(users));
-
-          alert(response.message);
-          this.$router.push('/home');
+            let users = JSON.parse(localStorage.getItem('users')) || [];
+            //本地缓存的处理
+            const userInfo = {
+              account : '',
+              avatar: this.avatar,
+              email: this.email,
+              password:'',
+            };
+            //是否已经存在账号
+            const index = users.findIndex(user => user.email === this.email);
+            if(index !== -1){
+              users[index] = userInfo;
+            }else{
+              users.push(userInfo);
+            }
+            localStorage.setItem('users', JSON.stringify(users));
+            alert(response.message);
+            this.$router.push('/home');
         }
         else {
           alert(response.message);
@@ -121,12 +122,13 @@ export default {
       if(this.Code){
         if(this.Code !== this.smsCode){
           alert('验证码错误');
-          return;
+          return false;
         }
+        return true;
       }
       else{
         alert('请先获取验证码！');
-        return;
+        return false;
       }
     },
     // 发送验证码方法
@@ -216,7 +218,8 @@ export default {
   margin-bottom: 20px;
   margin-left:35px;
   border-radius: 100%;
-}
+  }
+
 
 .input-group {
   position: relative;
@@ -352,4 +355,4 @@ export default {
 .dropdown::-webkit-scrollbar-track {
   background-color: #f0f0f0; /* 滚动条轨道颜色 */
 }
-</style>
+  </style>

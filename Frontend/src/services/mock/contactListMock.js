@@ -49,7 +49,40 @@ Mock.mock(`${baseURL}/stranger/search`, 'post', (options) => {
     data: results,
   };
 });
+// 搜索通讯录
+Mock.mock(`${baseURL}/contactList/search`, 'post', (options) => {
+  const { keyword } = JSON.parse(options.body);
+  let results = [];
+  friends.friends.forEach(friend => {
+    if (friend.account_id.includes(keyword) || friend.remark.includes(keyword)) {
+      results.push({
+        type: 'friends',
+        account_id: friend.account_id,
+        avatar: friend.avatar,
+        remark: friend.remark,
+        status: friend.status,
+        signature: friend.signature,
+      });
+    }
+  });
+  groups.groups.forEach(group => {
+    if (group.account_id.includes(keyword) || group.remark.includes(keyword)) {
+      results.push({
+        type: 'groups',
+        account_id: group.account_id,
+        avatar: group.avatar,
+        remark: group.remark,
+        status: null,
+        signature: group.signature,
+      });
+    }
+  });
+  return {
+    status: 200,
+    data: results,
+  };
 
+});
 let friendRequests = Mock.mock({
   'requests|5-10': [{
     'apply_id|+1': 1,

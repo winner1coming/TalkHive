@@ -13,36 +13,36 @@
       :tags="tags" 
       @show-profile-card="showProfileCard"
       @show-person-context-menu="showPersonContextMenu"
-      @show-divide-context-menu="showDevideContextMenu"
+      @show-divide-context-menu="showDivideContextMenu"
     />
     <ProfileCard ref="profileCard" />
-    <DevideDelete
-      :divides="tags"
-      v-show="isDevideDeleteVisible"
-      @close="isDevideDeleteVisible = false"
-      @delete-divides="deleteDevides"
+    <DivideDelete
+      :divides="tags.filter(tag => tag !== '全部')"
+      v-show="isDivideDeleteVisible"
+      @close="isDivideDeleteVisible = false"
+      @delete-divides="deleteDivides"
     />
-    <DevideAdd
+    <DivideAdd
       ref="divideAdd"
-      v-show="isDevideAddVisible"
-      @add-divide="addDevide"
-      @rename-divide="renameDevide"
-      @close="isDevideAddVisible = false"
+      v-show="isDivideAddVisible"
+      @add-divide="addDivide"
+      @rename-divide="renameDivide"
+      @close="isDivideAddVisible = false"
     />
-    <DevideManagement
+    <DivideManagement
       :type="managementType"
       :persons="groups"
-      v-show="isDevideManagementVisible"
+      v-show="isDivideManagementVisible"
       @divide-in="divideIn"
       @divide-out="divideOut"
-      @close="isDevideManagementVisible = false"
+      @close="isDivideManagementVisible = false"
     />
-    <DevideMove
-      :divides="tags"
-      v-show="isDevideMoveVisible"
+    <DivideMove
+      :divides="tags.filter(tag => tag !== '全部')"
+      v-show="isDivideMoveVisible"
       @divide-move="divideMove"
       @divides-move="dividesMove"
-      @close="isDevideMoveVisible = false"
+      @close="isDivideMoveVisible = false"
       ref="divideMove"
     />
     <ContextMenu ref="contextMenu"  @select-item="handleMenuSelect" />
@@ -51,13 +51,13 @@
 
 <script>
 import * as contactListAPI from '@/services/contactList';
-import { getProfileCard } from '@/services/api';
+import { getGroupProfileCard } from '@/services/api';
 
 import itemList from './itemList.vue';
-import DevideDelete from './DevideDelete.vue';
-import DevideAdd from './DevideAdd.vue';
-import DevideManagement from './DevideManagement.vue';
-import DevideMove from './DevideMove.vue';
+import DivideDelete from './DivideDelete.vue';
+import DivideAdd from './DivideAdd.vue';
+import DivideManagement from './DivideManagement.vue';
+import DivideMove from './DivideMove.vue';
 import ContextMenu from '@/components/base/ContextMenu.vue';
 import ProfileCard from '@/components/base/ProfileCard.vue';
 
@@ -65,53 +65,33 @@ export default {
   components: {
     itemList,
     ProfileCard,
-    DevideDelete,
-    DevideAdd,
-    DevideManagement,
-    DevideMove,
+    DivideDelete,
+    DivideAdd,
+    DivideManagement,
+    DivideMove,
+    ContextMenu,
+  },
+  components: {
+    itemList,
+    ProfileCard,
+    DivideDelete,
+    DivideAdd,
+    DivideManagement,
+    DivideMove,
     ContextMenu,
   },
   data() {
     return {
       type: 'groupList',  // friendList, groupList
       tags: [],  // 从后端获取
-      // items: [   // 从后端获取
-      //   {
-      //     avatar: '',
-      //     account_id: '1',   // 群id
-      //     signature: '这是一个群聊',  // 群介绍
-      //     remark: 'John',   // 群聊备注或群名称
-      //     tag: '家人',
-      //   },
-      // ],
       items: [],   // 群组列表
       boundD: 0,
       boundR: 0,
-      isDevideManagementVisible: false,
-      isDevideDeleteVisible: false,
-      isDevideManagementVisible: false,
-      isDevideAddVisible:false,
-      isDevideMoveVisible: false,
-      // groups:[
-			// 	{
-			// 		acount_id: '13872131',   
-			// 		name: 'test',   // 备注或名称
-			// 		avatar: '',
-			// 		signature: '爱拼才会赢',    // 签名
-			// 	},
-			// 	{
-			// 		acount_id: '13872132',  
-			// 		name: 'test',
-			// 		avatar: '',
-			// 		signature: '爱拼才会赢',    // 签名
-			// 	},
-			// 	{
-			// 		acount_id: '13872133',   
-			// 		name: 'test',
-			// 		avatar: '',
-			// 		signature: '爱拼才会赢',    // 签名
-			// 	},
-			// ],// （type为in时是除该分组外的所有好友，out时为当前分组内的好友）
+      isDivideDeleteVisible: false,
+      isDivideManagementVisible: false,
+      isDivideAddVisible:false,
+      isDivideMoveVisible: false,
+     
       groups: [],    // 用于移入移出分组
       managementType: '',
       obj: null,
@@ -133,12 +113,13 @@ export default {
     },
     async fetchTags() {
       try {
-        const response = await contactListAPI.getDevides('friends');
+        const response = await contactListAPI.getDivides('groups');
         if(response.status !== 200){
           this.$root.notify(response.data.message, 'error');
           return;
         }
         this.tags = response.data.divides;
+        this.tags.unshift('我创建的');
         this.tags.unshift('全部');
       } catch (error) {
         console.log(error);
@@ -146,7 +127,7 @@ export default {
     },
     async showProfileCard(event, send_account_id){
       try{
-        const response = await getProfileCard(send_account_id); 
+        const response = await getGroupProfileCard(send_account_id); 
         if(response.status !== 200){
           this.$root.notify(response.data.message, 'error');
           return;
@@ -165,7 +146,7 @@ export default {
       ];
       this.$refs.contextMenu.show(event, items, null, this.boundD, this.boundR);
     },
-    showDevideContextMenu(event, tag){
+    showDivideContextMenu(event, tag){
       const items = [
         '移入',
         '移出',
@@ -175,32 +156,37 @@ export default {
       this.$refs.contextMenu.show(event, items, tag, this.boundD, this.boundR, 60, 76);
     },
     showPersonContextMenu(event, person){
-      const items = [
+      let items = [
         '移动',
       ];
+      if(person.group_owner === this.$store.state.account_id){
+        items.push('解散群聊');
+      }else{
+        items.push('退出群聊');
+      }
       this.$refs.contextMenu.show(event, items, person, this.boundD, this.boundR, 60, 76);
     },
     async handleMenuSelect(item, obj=null){
       if(item === '新建分组') {
         this.$refs.divideAdd.type = 'add';
-        this.isDevideAddVisible = true;
+        this.isDivideAddVisible = true;
       }
-      else if(item === '删除分组') this.isDevideDeleteVisible = true;
+      else if(item === '删除分组') this.isDivideDeleteVisible = true;
       else if(item === '移入'){
-        this.isDevideManagementVisible = true;
+        this.isDivideManagementVisible = true;
         this.managementType = 'in';
         this.obj = obj;   // tag
         this.groups = this.items.filter(person => person.tag !== obj);
       }
       else if(item === '移出'){
-        this.isDevideManagementVisible = true;
+        this.isDivideManagementVisible = true;
         this.managementType = 'out';
         this.obj = obj;   // tag
         this.groups = this.items.filter(person => person.tag === obj);
       }
       else if(item === '删除'){
         try{
-          const response = await contactListAPI.deleteDevide('groups', obj);   // obj为分组名
+          const response = await contactListAPI.deleteDivide('groups', obj);   // obj为分组名
           if(response.status !== 200){
             this.$root.notify(response.data.message, 'error');
             return;
@@ -213,53 +199,75 @@ export default {
       }
       else if(item === '更名'){
         this.$refs.divideAdd.type = 'rename';
-        this.isDevideAddVisible = true;
+        this.isDivideAddVisible = true;
         this.obj = obj;
       }
       else if(item === '移动'){
-        this.isDevideMoveVisible = true;
-        this.$refs.divideMove.selectedDevide = obj.tag;
+        this.isDivideMoveVisible = true;
+        this.$refs.divideMove.selectedDivide = obj.tag;
         this.$refs.divideMove.multiple = false;
         this.obj = obj;
+      }else if(item === '解散群聊'){
+        try{
+          const response = await contactListAPI.dismissGroup(obj.account_id);   // obj为好友对象
+          if(response.status !== 200){
+            this.$root.notify(response.data.message, 'error');
+            return;
+          }
+          this.items = this.items.filter(person => person.account_id !== obj.account_id);
+        }catch(err){
+          console.error(err);
+        }
+      }else if(item === '退出群聊'){
+        try{
+          const response = await contactListAPI.exitGroup(obj.account_id);   // obj为好友对象
+          if(response.status !== 200){
+            this.$root.notify(response.data.message, 'error');
+            return;
+          }
+          this.items = this.items.filter(person => person.account_id !== obj.account_id);
+        }catch(err){
+          console.error(err);
+        }
       }
     },
-    async addDevide(newDevide){
-      if(this.tags.includes(newDevide)){
+    async addDivide(newDivide){
+      if(this.tags.includes(newDivide)){
         alert('分组名已存在');
         return;
       }
       try {
-        const response = await contactListAPI.createDevide('groups', newDevide); 
+        const response = await contactListAPI.createDivide('groups', newDivide); 
         if(response.status !== 200){
           this.$root.notify(response.data.message, 'error');
           return;
         } 
-        this.tags.push(newDevide);
+        this.tags.push(newDivide);
       } catch (error) {
         console.log(error);
       }
     },
-    async renameDevide(newDevide){
-      if(this.obj===newDevide){
+    async renameDivide(newDivide){
+      if(this.obj===newDivide){
         //alert('分组名已存在');
         return;
       }
       try {
-        const response = await contactListAPI.renameDevide('groups', this.obj, newDevide);
+        const response = await contactListAPI.renameDivide('groups', this.obj, newDivide);
         if(response.status !== 200){
           this.$root.notify(response.data.message, 'error');
           return;
         } 
-        this.tags = this.tags.map(tag => tag === this.obj ? newDevide : tag); 
+        this.tags = this.tags.map(tag => tag === this.obj ? newDivide : tag); 
       } catch (error) {
         console.log(error);
       }
       await this.fetchGroups();
     },
-    async deleteDevides(divides){
+    async deleteDivides(divides){
       divides.forEach(async (divide) => {
         try {
-          const response = await contactListAPI.deleteDevide('groups', divide);   
+          const response = await contactListAPI.deleteDivide('groups', divide);   
           if(response.status !== 200){
             this.$root.notify(response.data.message, 'error');
             return;
@@ -273,7 +281,7 @@ export default {
     },
     async divideMove(divide){
       try {
-        const response = await contactListAPI.moveInDevide('groups', this.obj.account_id,divide);   // obj为好友对象
+        const response = await contactListAPI.moveInDivide('groups', this.obj.account_id,divide);   // obj为好友对象
         if(response.status !== 200){
           this.$root.notify(response.data.message, 'error');
           return;
@@ -286,7 +294,7 @@ export default {
     divideIn(selectedPersons){
       selectedPersons.forEach(async (person) => {
         try {
-          const response = await contactListAPI.moveInDevide('groups', person.account_id,this.obj);   
+          const response = await contactListAPI.moveInDivide('groups', person.account_id,this.obj);   
           if(response.status !== 200){
             this.$root.notify(response.data.message, 'error');
             return;
@@ -298,15 +306,15 @@ export default {
       });
     },
     divideOut(selectedPersons){
-      this.isDevideMoveVisible = true;
+      this.isDivideMoveVisible = true;
       this.selectedPersons = selectedPersons;
-      this.$refs.divideMove.selectedDevide = this.obj;
+      this.$refs.divideMove.selectedDivide = this.obj;
       this.$refs.divideMove.multiple = true;
     },
     dividesMove(divide){
       this.selectedPersons.forEach(async (person) => {
         try {
-          const response = await contactListAPI.moveInDevide('groups', person.account_id, divide);  
+          const response = await contactListAPI.moveInDivide('groups', person.account_id, divide);  
           if(response.status !== 200){
             this.$root.notify(response.data.message, 'error');
             return;
@@ -323,11 +331,16 @@ export default {
     this.fetchTags();
     this.boundD = document.documentElement.clientHeight;
     this.boundR = document.documentElement.clientWidth;
+    this.fetchTags();
+    this.boundD = document.documentElement.clientHeight;
+    this.boundR = document.documentElement.clientWidth;
   },
 };
 </script>
 
 <style scoped src="@/assets/css/contactList.css"></style>
+<style scoped src="@/assets/css/contactList.css"></style>
 <style scoped>
+
 
 </style>

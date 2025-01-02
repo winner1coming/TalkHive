@@ -40,9 +40,12 @@ export default apiClient;
 
   // chat和contact
   // 资料卡片
-  export const getProfileCard = (tid, group_id=null) => {
-    return apiClient.get(`/profileCard/${tid}`, {group_id});
+  export const getPersonProfileCard = (account_id, group_id=null) => {
+    return apiClient.get(`/profileCard/person`, {account_id, group_id});
   };
+  export const getGroupProfileCard = (group_id) => {
+    return apiClient.get(`/profileCard/group`,{group_id});
+  }
 
   // 添加好友/群聊（id为tid，若为群聊，则为群号）
   export const addStranger = (tid) => {

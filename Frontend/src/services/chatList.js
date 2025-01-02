@@ -14,34 +14,34 @@ export const searchChats = (keyword) => {
 };
 
 // 置顶或取消置顶聊天
-export const pinChat = (tid, is_pinned) => {
-  return apiClient.post(`/chatlist/pin`,{tid, is_pinned});
+export const pinChat = (tid, is_pinned, is_group) => {
+  return apiClient.post(`/chatlist/pin`,{tid, is_pinned, is_group});
 };
 
 // 标记为已读或未读消息
-export const readMessages = (tid, is_read) => {
-  return apiClient.post(`/messages/read`,{tid, is_read});
+export const readMessages = (tid, is_read, is_group) => {
+  return apiClient.post(`/messages/read`,{tid, is_read, is_group});
 }
 // 删除聊天
-export const deleteChat = (tid) => {
-  return apiClient.delete(`/chatlist/${tid}`);
+export const deleteChat = (tid, is_group) => {
+  return apiClient.post(`/chatlist/delete`,{tid, is_group});
 };
 // 设置免打扰或取消
-export const setMute = (tid, is_muted) => {
-  return apiClient.post(`/chatlist/mute`,{tid, is_muted});
+export const setMute = (tid, is_muted, is_group) => {
+  return apiClient.post(`/chatlist/mute`,{tid, is_muted, is_group});
 };
 // 屏蔽聊天或取消
-export const blockChat = (tid, is_blocked) => {
-  return apiClient.post(`/chatlist/block`,{tid, is_blocked});
+export const blockChat = (tid, is_blocked, is_group) => {
+  return apiClient.post(`/chatlist/block`,{tid, is_blocked, is_group});
 };
 
 // 获取聊天消息
-export const getMessages = (tid) => {
-  return apiClient.get(`/messages/${tid}`);
+export const getMessages = (tid, is_group) => {
+  return apiClient.post(`/messages`, {tid, is_group});
 }
 // 发送消息接口
-export const sendMessage = (tid, content) => {
-  return apiClient.post(`/messages/${tid}/send`, { content });
+export const sendMessage = (tid, content, type, is_group) => {
+  return apiClient.post(`/messages/send`, { tid, content, type, is_group });
 };
 
 // 获取历史记录

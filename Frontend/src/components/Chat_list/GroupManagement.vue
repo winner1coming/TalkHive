@@ -55,6 +55,11 @@
         <EditableText class="detail" :text="group_remark" @update-text="changeGroupRemark" />
         <p class="title">我的群昵称: </p>
         <EditableText class="detail" :text="groupInfo.my_group_nickname" @update-text="changeGroupNickname" />
+        <p class="title">分组: </p>
+        <p class="detail">
+          {{ groupInfo.divide }} 
+          <button @click="showDivideMove">更改</button>
+        </p>
         <hr class="divider" />
         <!-- <p>是否显示群成员昵称: <SwitchButton v-model="groupInfo.showNicknames" /></p> -->
         <p class="title">是否消息免打扰: <SwitchButton v-model="isMute" @change-value="setMute"/></p>
@@ -110,27 +115,29 @@
       </div>
     </div>  
     <!--聊天记录-->
-    <div v-show="componentStatus === 'history'" style="width: 100%;">
+    <div v-show="componentStatus === 'history'" class="view-history">
       <p>聊天记录</p>
       <div class="search-bar" >
         <input
           type="text"
           v-model="searchHistoryKeyword"
           placeholder="搜索..."
+          
         />
       </div>
       <!--搜索类型-->
       <div class="search-type">
-        <span @click="searchHistoryType='all'">全部</span>
-        <span @click="searchHistoryType='image'">图片</span>
-        <span @click="searchHistoryType='file'">文件</span>
-        <span @click="searchHistoryType='date'">日期</span>
-        <span @click="searchHistoryType='member'">成员</span>
+        <button :class="{ 'type-button': true, 'active': searchHistoryType === 'all' }" @click="searchHistoryType='all'">全部</button>
+        <button :class="{'type-button': true, active:searchHistoryType==='image'}" @click="searchHistoryType='image'">图片</button>
+        <button :class="{'type-button': true, active:searchHistoryType==='file'}" @click="searchHistoryType='file'">文件</button>
+        <button :class="{'type-button': true, active:searchHistoryType==='date'}" @click="searchHistoryType='date'">日期</button>
+        <button :class="{'type-button': true, active:searchHistoryType==='member'}" @click="searchHistoryType='member'">成员</button>
       </div>
       <input
         type="date"
         v-show="searchHistoryType==='date'"
         v-model="searchHistoryDate"
+        class="date-picker"
       />
       <!--筛选好的历史记录--> 
       <div v-if="filteredHistory" class="history-list">
@@ -156,6 +163,9 @@
       <div v-else-if="searchHistoryKeyword" class="no-result">
         <p>无搜索结果</p>
       </div>
+      <!-- <div v-else-if="searchHistoryType==='Date'" class="no-result">
+        <p>加载中...</p>
+      </div> -->
       <div v-else class="no-result">
         <p>输入关键词或按类型查找</p>
       </div>
@@ -163,7 +173,7 @@
     <!--管理员设置-->
     <div v-show="componentStatus === 'manage'" style="width: 100%;">
       <p>管理员设置</p>
-      <p class="title">全体禁言: <SwitchButton v-model="groupInfo.muteAll" @change-value=""/></p>
+      <p class="title">全体禁言: <SwitchButton v-model="groupInfo.muteAll" @change-value="setAllBanned"/></p>
       <p class="detail"> 已禁言的成员：</p>
       <div class="muted-members-list">
         <div 
@@ -182,7 +192,10 @@
       <p class="detail" style="margin-left: 15px;">群号搜索: <SwitchButton v-model="groupInfo.allow_id_search" @change-value="changeIdPermission"/></p>
       <p class="detail" style="margin-left: 15px;">群名称搜索: <SwitchButton v-model="groupInfo.allow_name_search" @change-value="changeNamePermission"/></p>
       <hr class="divider" />
-      <p class="title">更改群头像<button>上传</button></p>
+      <p class="title">更改群头像
+        <button @click="this.$refs.fileInput.click();">上传</button>
+        <input type="file" ref="fileInput" style="display: none;" @change="handleFileChange" accept="image/*" />
+      </p>
     </div>
     <ProfileCard ref="profileCard" />
     <ContextMenu ref="contextMenu" @select-item="handleMenuSelect"/>
@@ -194,7 +207,7 @@
 <script>
 import * as contactListAPI from '@/services/contactList';
 import * as chatListAPI from '@/services/chatList';
-import {getProfileCard} from '@/services/api';
+import {getPersonProfileCard} from '@/services/api';
 import { EventBus } from '@/components/base/EventBus';
 import EditableText from '@/components/base/EditableText.vue';
 import SwitchButton from '@/components/base/SwitchButton.vue';
@@ -211,9 +224,21 @@ export default {
     ContextMenu,
     InviteMember,
   },
+  components: {
+    EditableText,
+    SwitchButton,
+    SearchBar,
+    ProfileCard,
+    ContextMenu,
+    InviteMember,
+  },
   data() {
     return {
       visible: false,
+
+      isDivideMoveVisible: false,
+      divides:[],
+
       query: "", // 搜索关键词
       isComposing: false, // 是否正在使用输入法输入，防止频繁触发搜索
       group_id:'',
@@ -266,6 +291,7 @@ export default {
         allow_name_search: true,
         my_group_nickname: '',   // 我在本群的群昵称
         my_group_role:'',
+        group_avatar: '',
         members: [],
       },
       history:[
@@ -319,6 +345,12 @@ export default {
         }else{
           this.$root.notify(response.data.message, 'error');
         }
+        const response2 = await contactListAPI.getDivides('groups');
+        if(response2.status === 200){
+          this.divides = response2.data.divides;
+        }else{
+          this.$root.notify(response2.data.message, 'error');
+        }
       }
       catch(error){
         console.log('fetch group error:', error);
@@ -360,7 +392,7 @@ export default {
     // },
     async showProfileCard(event, account_id){
       try{
-        const response = await getProfileCard(account_id);
+        const response = await getPersonProfileCard(account_id, this.group_id);
         if(response.status === 200){
           const profile = response.data.data;
           this.$refs.profileCard.show(event, profile, this.boundD, this.boundR);
@@ -377,9 +409,23 @@ export default {
       this.inviteMemberVisible = true;
 
     },
+    
+    async changeGroupNickname(newNickname){
+      try {
+        const response = await contactListAPI.changeGroupNickname(this.group_id, newNickname);
+        if (response.status === 200) {
+          this.groupInfo.my_group_nickname = newNickname;
+        } else {
+          this.$root.notify(response.data.message, 'error');
+        }
+      } catch (error) {
+        console.log('change group nickname error:', error);
+      }
+    },
+    // 对群的个人设置
     async changeGroupRemark(newRemark){
       try{
-        const response = await contactListAPI.changeRemark(this.group_id, newRemark);
+        const response = await contactListAPI.changeRemark(this.group_id, true,newRemark);
         if (response.status === 200) {
           this.group_remark = newRemark;
           let chatInfo = { ...this.$store.state.currentChat };
@@ -393,21 +439,29 @@ export default {
         console.log('change group remark error:', error)
       }
     },
-    async changeGroupNickname(newNickname){
-      try {
-        const response = await contactListAPI.changeGroupNickname(this.group_id, newNickname);
-        if (response.status === 200) {
-          this.groupInfo.my_group_nickname = newNickname;
-        } else {
+    // 更改分组
+    showDivideMove(){
+      this.isDivideMoveVisible = true;
+      this.$refs.divideMove.selectedDivide = this.groupInfo.divide;
+      this.$refs.divideMove.multiple = false;
+    },
+    async divideMove(divide){
+      try{
+        const response = await contactListAPI.moveInDivide('groups',this.account_id, divide);
+        if(response.status !== 200){
           this.$root.notify(response.data.message, 'error');
+          return;
         }
-      } catch (error) {
-        console.log('change group nickname error:', error);
+        else{
+          this.groupInfo.divide = divide;
+        }
+      }catch(e){
+        console.log(e);
       }
     },
     async setMute(){
       try{
-        const response = await chatListAPI.setMute(this.group_id, !this.isMute);
+        const response = await chatListAPI.setMute(this.group_id, !this.isMute, true);
         if(response.status === 200){
           this.isMute = !this.isMute;
           let chatInfo = { ...this.$store.state.currentChat };
@@ -424,7 +478,7 @@ export default {
     },
     async setBlock(){
       try{
-        const response = await chatListAPI.blockChat(this.group_id, !this.isBlocked);
+        const response = await chatListAPI.blockChat(this.group_id, !this.isBlocked, true);
         if (response.status === 200) {
           this.isBlocked = !this.isBlocked;
           let chatInfo = { ...this.$store.state.currentChat };
@@ -441,7 +495,7 @@ export default {
     },
     async setPin() {
       try {
-        const response = await chatListAPI.pinChat(this.group_id, !this.isPinned);
+        const response = await chatListAPI.pinChat(this.group_id, !this.isPinned, true);
         if (response.status === 200) {
           this.isPinned = !this.isPinned;
           let chatInfo = { ...this.$store.state.currentChat };
@@ -487,32 +541,32 @@ export default {
         console.log('exit group error:', error);
       }
     },
-    async addMember() {
-      try {
-        await addMemberToGroup(this.groupInfo.id, this.newMemberId);
-        this.groupInfo.members.push({ id: this.newMemberId, name: '新成员' }); // 假设新成员的名字为 '新成员'
-        this.newMemberId = '';
-      } catch (error) {
-        console.error('Failed to add member:', error);
-      }
-    },
-    async removeMember(memberId) {
-      try {
-        await removeMemberFromGroup(this.groupInfo.id, memberId);
-        this.groupInfo.members = this.groupInfo.members.filter(member => member.id !== memberId);
-      } catch (error) {
-        console.error('Failed to remove member:', error);
-      }
-    },
-    async deleteGroup() {
-      try {
-        await deleteGroup(this.groupInfo.id);
-        this.$emit('group-deleted', this.groupInfo.id);
-        this.hide();
-      } catch (error) {
-        console.error('Failed to delete group:', error);
-      }
-    },
+    // // async addMember() {
+    // //   try {
+    // //     await addMemberToGroup(this.groupInfo.id, this.newMemberId);
+    // //     this.groupInfo.members.push({ id: this.newMemberId, name: '新成员' }); // 假设新成员的名字为 '新成员'
+    // //     this.newMemberId = '';
+    // //   } catch (error) {
+    // //     console.error('Failed to add member:', error);
+    // //   }
+    // // },
+    // // async removeMember(memberId) {
+    // //   try {
+    // //     await removeMemberFromGroup(this.groupInfo.id, memberId);
+    // //     this.groupInfo.members = this.groupInfo.members.filter(member => member.id !== memberId);
+    // //   } catch (error) {
+    // //     console.error('Failed to remove member:', error);
+    // //   }
+    // // },
+    // async deleteGroup() {
+    //   try {
+    //     await deleteGroup(this.groupInfo.id);
+    //     this.$emit('group-deleted', this.groupInfo.id);
+    //     this.hide();
+    //   } catch (error) {
+    //     console.error('Failed to delete group:', error);
+    //   }
+    // },
 
     // 聊天记录
     async viewChatHistory() {
@@ -544,9 +598,47 @@ export default {
       // 管理员设置
       this.componentStatus = 'manage';
     },
+    // 处理文件选择
+    handleFileChange(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          this.group_avatar = e.target.result;
+        };
+        reader.readAsDataURL(file);
+        this.changeGroupAvatar(this.group_avatar);
+      }
+    },
+    async changeGroupAvatar(avatar){
+      // 更改群头像
+      try{
+        const response = await contactListAPI.changeGroupAvatar(this.group_id, avatar);
+        if(response.status !== 200){
+          this.$root.notify(response.data.message, 'error');
+        }
+      }
+      catch(error){
+        console.log('change group avatar error:', error);
+      }
+    },
+    async setAllBanned(){
+      try{
+        const response = await contactListAPI.setAllBanned(this.group_id, this.groupInfo.muteAll);
+        if(response.status === 200){
+          this.groupInfo.muteAll = !this.groupInfo.muteAll;
+        }
+        else{
+          this.$root.notify(response.data.message, 'error');
+        }
+      }
+      catch(error){
+        console.log('set all banned error:', error);
+      }
+    },
     async changeInvitePermission(){
       try{
-        const response = await contactListAPI.changeInvitePermission(this.group_id, this.groupInfo.allow_invite);
+        const response = await contactListAPI.setAllowInvite(this.group_id, this.groupInfo.allow_invite);
         if(response.status !== 200){
           this.$root.notify(response.data.message, 'error');
         }
@@ -557,7 +649,7 @@ export default {
     },
     async changeIdPermission(){
       try{
-        const response = await contactListAPI.changeIdPermission(this.group_id, this.groupInfo.allow_id_search);
+        const response = await contactListAPI.setAllowIdSearch(this.group_id, this.groupInfo.allow_id_search);
         if(response.status !== 200){
           this.$root.notify(response.data.message, 'error');
         }
@@ -568,7 +660,7 @@ export default {
     },
     async changeNamePermission(){
       try{
-        const response = await contactListAPI.changeNamePermission(this.group_id, this.groupInfo.allow_name_search);
+        const response = await contactListAPI.setAllowNameSearch(this.group_id, this.groupInfo.allow_name_search);
         if(response.status !== 200){
           this.$root.notify(response.data.message, 'error');
         }
@@ -648,7 +740,7 @@ export default {
       }
       else if(option==='移除'){
         try{
-          const response = await chatListAPI.removeMember(this.group_id, account_id);
+          const response = await contactListAPI.removeMember(this.group_id, account_id);
           if(response.status === 200){
             this.groupInfo.members = this.groupInfo.members.filter(member => member.account_id !== account_id);
           }
@@ -806,6 +898,7 @@ export default {
   flex-direction: column;
   align-items: flex-start;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .arrow-button {
@@ -832,9 +925,16 @@ export default {
   z-index: 10;
 }
 
+.view-history {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
 .search-bar {
   display: flex;
   padding: 10px;
+  width: 90%;
 }
 .search-bar input {
   flex: 1;
@@ -936,6 +1036,32 @@ export default {
   display: flex;
   justify-content: space-around;
   padding: 5px;
+}
+.type-button{
+  padding: 5px;
+  border: none;
+  cursor: pointer;
+  background-color: transparent;
+}
+.type-button:hover{
+  background-color: transparent;
+}
+.type-button.active{
+  color: #7184da;
+  background-color: transparent;
+}
+.date-picker {
+  display: block;
+  padding: 5px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.date-picker:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
 }
 .history-list {
   max-height: 500px; 
