@@ -1679,6 +1679,10 @@ func GetGroups(c *gin.Context) {
 	var groupList []map[string]interface{}
 
 	for _, contact := range contacts {
+		if contact.IsBlocked {
+			continue
+		}
+
 		var group models.GroupChatInfo
 		err := global.Db.Where("group_id = ?", contact.ContactID).First(&group).Error
 		if err != nil {
@@ -2852,12 +2856,11 @@ func GetGroupProfileCard(c *gin.Context) {
 
 	// 查询Contacts表
 	var contact models.Contacts
-	if err := global.Db.Where("owner_id = ? AND contact_id = ? AND is_group_chat", accountID, groupChat.GroupID, true).First(&contact).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "不是群聊成员"})
+	if err := global.Db.Where("owner_id = ? AND contact_id = ? AND is_group_chat = ?", accountID, input.GroupID, true).First(&contact).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "查询Contacts表失败"})
 		return
 	}
 
-	// 返回值
 	groupProfileCard := gin.H{
 		"group_id":     groupChat.GroupID,
 		"group_avatar": groupChat.GroupAvatar,
@@ -2865,6 +2868,9 @@ func GetGroupProfileCard(c *gin.Context) {
 		"remark":       contact.Remark,
 		"tag":          contact.Divide,
 		"introduction": groupChat.GroupIntroduction,
+		"is_pinned":    contact.IsPinned,
+		"is_mute":      contact.IsMute,
+		"is_blocked":   contact.IsBlocked,
 	}
 	c.JSON(http.StatusOK, gin.H{"success": true, "data": groupProfileCard})
 }
