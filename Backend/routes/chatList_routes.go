@@ -7,7 +7,7 @@ import (
 
 func ChatListRoutes(r *gin.Engine) {
 	// 聊天列表
-	r.GET("/chatList", controllers.GetChatList)
+	r.GET("/chatlist", controllers.GetChatList)
 	r.POST("/chatlist/createChat", controllers.GetChat)
 	r.GET("/chatlist/search/:keyword", controllers.SearchChats)
 	r.POST("/chatlist/pin", controllers.PinChat)
