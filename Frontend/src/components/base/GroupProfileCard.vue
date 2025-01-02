@@ -6,14 +6,13 @@
     </div>
     <div class="info">
       <div class="name">{{ profile.remark }}</div>    <!--我的备注-->
-      <div class="remark">昵称: {{ profile.nickname }}</div>   
-      <div class="remark" v-show="profile.groupNickname">群昵称: {{ profile.groupNickname }}</div>
+      <div class="remark">群名称: {{ profile.group_name }}</div>  
       <div class="remark">
         分组:{{ profile.tag }}
       </div>
-      <div class="remark">个性签名: {{ profile.signature }}</div>
+      <div class="remark">群介绍: {{ profile.introduction }}</div>
     </div>
-    <button v-show="profile.is_friend" @click="sendMessage">发信息</button>
+    <button @click="sendMessage">发信息</button>
     <!--菜单-->
     <ContextMenu ref="contextMenu"  @select-item="handleMenuSelect" />
     <!--添加好友-->
@@ -66,11 +65,6 @@ export default {
   methods: {
     handleOptionsClick(event){
       let items = [];
-      if(!this.profile.is_friend){
-        items.push('添加好友');
-        this.$refs.contextMenu.show(event, items , null, this.boundD, this.boundR);
-        return;
-      }
       items.push('更改分组');
       if(this.profile.is_pinned){
         items.push('取消置顶');
@@ -82,24 +76,15 @@ export default {
       }else{
         items.push('屏蔽');
       }
-      if(this.profile.is_blacklist){
-        items.push('取消拉黑');
-      }else{
-        items.push('拉黑');
-      }
       if(this.profile.is_mute){
         items.push('取消消息免打扰');
       }else{
         items.push('消息免打扰');
       }
-      items.push('删除好友');
       this.$refs.contextMenu.show(event, items , null, this.boundD, this.boundR);
     },
     async handleMenuSelect(item){
-      if(item === '添加好友'){
-        this.isAddVisible = true;
-      }
-      else if(item === '更改分组'){
+      if(item === '更改分组'){
         try{
           const response = await contactListAPI.getDivides('friends');
           if(response.status !== 200){
@@ -116,13 +101,13 @@ export default {
       }
       else if(item === '置顶'){
         try{
-          const response = await chatListAPI.pinChat(this.profile.account_id, true, false);
+          const response = await chatListAPI.pinChat(this.profile.group_id, true, true);
           if(response.status !== 200){
             this.$root.notify(response.data.message, 'error');
             return;
           }
           else{
-            EventBus.emit('set-pin', this.profile.account_id, true);
+            EventBus.emit('set-pin', this.profile.group_id, true);
             this.profile.is_pinned = true;
           }
         }catch(e){  
@@ -131,13 +116,13 @@ export default {
       }
       else if(item === '取消置顶'){
         try{
-          const response = await chatListAPI.pinChat(this.profile.account_id, false, false);
+          const response = await chatListAPI.pinChat(this.profile.group_id, false, true);
           if(response.status !== 200){
             this.$root.notify(response.data.message, 'error');
             return;
           }
           else{
-            EventBus.emit('set-pin', this.profile.account_id, false);
+            EventBus.emit('set-pin', this.profile.group_id, false);
             this.profile.is_pinned = false;
           }
         }catch(e){
@@ -146,13 +131,13 @@ export default {
       }
       else if(item === '屏蔽'){
         try{
-          const response = await chatListAPI.blockChat(this.profile.account_id, true, false);
+          const response = await chatListAPI.blockChat(this.profile.group_id, true, true);
           if(response.status !== 200){
             this.$root.notify(response.data.message, 'error');
             return;
           }
           else{
-            EventBus.emit('set-blocked', this.profile.account_id, true);
+            EventBus.emit('set-blocked', this.profile.group_id, true);
             this.profile.is_blocked = true;
           }
         }catch(e){
@@ -161,13 +146,13 @@ export default {
       }
       else if(item === '取消屏蔽'){
         try{
-          const response = await chatListAPI.blockChat(this.profile.account_id, false, false);
+          const response = await chatListAPI.blockChat(this.profile.group_id, false, true);
           if(response.status !== 200){
             this.$root.notify(response.data.message, 'error');
             return;
           }
           else{
-            EventBus.emit('set-blocked', this.profile.account_id, false);
+            EventBus.emit('set-blocked', this.profile.group_id, false);
             this.profile.is_blocked = false;
           }
         }catch(e){
@@ -176,13 +161,13 @@ export default {
       }
       else if(item === '消息免打扰'){
         try{
-          const response = await chatListAPI.setMute(this.profile.account_id, true, false);
+          const response = await chatListAPI.setMute(this.profile.group_id, true, true);
           if(response.status !== 200){
             this.$root.notify(response.data.message, 'error');
             return;
           }
           else{
-            EventBus.emit('set-mute', this.profile.account_id, true);
+            EventBus.emit('set-mute', this.profile.group_id, true);
             this.profile.is_mute = true;
           }
         }catch(e){
@@ -191,81 +176,23 @@ export default {
       }
       else if(item === '取消消息免打扰'){
         try{
-          const response = await chatListAPI.setMute(this.profile.account_id, false, false);
+          const response = await chatListAPI.setMute(this.profile.group_id, false, true);
           if(response.status !== 200){
             this.$root.notify(response.data.message, 'error');
             return;
           }
           else{
-            EventBus.emit('set-mute', this.profile.account_id, false);
+            EventBus.emit('set-mute', this.profile.group_id, false);
             this.profile.is_mute = false;
           }
         }catch(e){
           console.log(e);
         }
       }
-      else if(item === '拉黑'){
-        try{
-          const response = await contactListAPI.addToBlackList(this.profile.account_id);
-          if(response.status !== 200){
-            this.$root.notify(response.data.message, 'error');
-            return;
-          }
-          else{
-            EventBus.emit('set-blacklist', this.profile.account_id, true);
-            this.profile.is_blacklist = true;
-          }
-        }catch(e){
-          console.log(e);
-        }
-      }
-      else if(item === '取消拉黑'){
-        try{
-          const response = await contactListAPI.removeFromBlackList(this.profile.account_id);
-          if(response.status !== 200){
-            this.$root.notify(response.data.message, 'error');
-            return;
-          }
-          else{
-            EventBus.emit('set-blacklist', this.profile.account_id, false);
-            this.profile.is_blacklist = false;
-          }
-        }catch(e){
-          console.log(e);
-        }
-      }
-      else if(item === '删除好友'){
-        try{
-          const response = await contactListAPI.deleteFriend(this.profile.account_id);
-          if(response.status !== 200){
-            this.$root.notify(response.data.message, 'error');
-            return;
-          }
-          else{
-            // todo
-            this.profile
-          }
-        }catch(e){
-          console.log(e);
-        }
-      }
-    },
-    async add(reason) {
-      try{
-        let response;
-        response = await contactListAPI.addFriend(this.profile.account_id, reason);
-        if (response.status!==200) {
-          this.$root.notify(response.data.message, 'error');
-        }
-      }
-      catch (error){
-        console.error('Failed to add friend',error)
-      }
-      this.hide();
     },
     async divideMove(divide){
       try{
-        const response = await contactListAPI.moveInDivide(this.type,this.profile.account_id, divide);
+        const response = await contactListAPI.moveInDivide(this.type,this.profile.group_id, divide);
         if(response.status !== 200){
           this.$root.notify(response.data.message, 'error');
           return;
@@ -280,7 +207,7 @@ export default {
     async sendMessage() {
       this.hide();
       try{
-        const response = await chatListAPI.getChat(this.profile.account_id, false);
+        const response = await chatListAPI.getChat(this.profile.group_id, false);
         if(response.status !== 200){
           this.$root.notify(response.data.message, 'error');
           return;
