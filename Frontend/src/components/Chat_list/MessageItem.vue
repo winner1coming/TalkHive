@@ -15,8 +15,9 @@
              v-html="message.content" 
              @contextmenu.prevent="showContextMenu($event, message)">
         </div>
+        <!--图片消息-->
         <!--文件消息-->
-        <div class="message-file" v-else>
+        <div class="message-file" v-else-if="message.type==='file'">
           <div class="file-item">
             <img src="@/assets/images/default-file.png" alt="file"/>
             <div class="file-header">
@@ -29,6 +30,10 @@
             <button>预览</button>
             <!-- <a ref="link" style="visibility: hidden" :href="message.content" download>下载</a> -->
           </span>
+        </div>
+        <!--代码消息-->
+        <div v-else class="editor-container">
+          <div ref="editor" class="editor"></div>
         </div>
       </div>
     </div>
@@ -67,7 +72,7 @@
 </template>
 
 <script>
-
+import * as monaco from 'monaco-editor';
 export default {
   props: ['message'],
   data() {
@@ -98,6 +103,36 @@ export default {
       this.$emit('show-profile-card', event, this.message.send_account_id);
     }
     
+  },
+
+  mounted() {
+    if(this.message.type=== 'text'||this.message.type=== 'file'||this.message.type==='image'){
+      return;
+    }
+    this.editor = monaco.editor.create(this.$refs.editor, {
+      value: this.message.content,
+      language: this.message.type,
+      automaticLayout: true,
+    });
+
+    this.editor.onDidChangeModelContent(() => {
+      this.$emit('input', this.editor.getValue());
+    });
+  },
+  // watch: {
+  //   language(newLang) {
+  //     monaco.editor.setModelLanguage(this.editor.getModel(), newLang);
+  //   },
+  //   value(newValue) {
+  //     if (newValue !== this.editor.getValue()) {
+  //       this.editor.setValue(newValue);
+  //     }
+  //   },
+  // },
+  beforeDestroy() {
+    if (this.editor) {
+      this.editor.dispose();
+    }
   },
 };
 </script>
@@ -203,6 +238,16 @@ export default {
   justify-content: space-between;
   width: 100%;
   padding: 5px;
+}
+
+.editor-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+.editor {
+  width: 100%;
+  height: 100%;
 }
 
 .context-menu {

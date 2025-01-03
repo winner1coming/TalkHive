@@ -17,14 +17,18 @@
       ref="emojiPicker"
       @emoji-click="addEmoji"
     />
+    <CodeEdit 
+      ref="codeEditor"
+    />
   </div>
 </template>
 
 <script>
 import 'emoji-picker-element';
 import Emoji from './Emoji.vue';
+import CodeEdit from './CodeEdit.vue';
 export default {
-  components: { Emoji },
+  components: { Emoji, CodeEdit },
   data() {
     return {
       content: '',
@@ -58,8 +62,9 @@ export default {
     sendScreenshot() {
       // 发送截图逻辑
     },
-    sendCodeBlock() {
+    sendCodeBlock(event) {
       // 发送代码块逻辑
+      this.$refs.codeEditor.show(event, window.innerHeight, window.innerWidth);
     },
   }
 };

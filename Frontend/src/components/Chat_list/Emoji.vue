@@ -49,6 +49,10 @@ export default {
       }
     });
   },
+  beforeDestroy() {
+    EventBus.off('other-float-component');
+    EventBus.off('close-float-component');
+  }
 };
 </script>
 
