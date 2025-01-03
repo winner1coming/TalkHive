@@ -71,7 +71,7 @@
         try{
           const response = await getSystemSetting();
           if(response.success){
-            const BackGround ='';
+            let BackGround ='';
             if(response.data.background !== ""){
               BackGround = `data:${response.data.mimeType};base64,${response.data.background}`;
             }

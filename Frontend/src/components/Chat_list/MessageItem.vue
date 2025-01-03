@@ -216,6 +216,7 @@ export default {
   text-align: right;
 }
 
+
 .message-content {
   flex:5;
   background-color: #75baeb;
@@ -293,5 +294,13 @@ export default {
 }
 .context-menu button:hover {
   background: #f0f0f0;
+}
+.message-image {
+  max-width: 70%;
+}
+
+.img {
+  max-width: 100%;
+  border-radius: 5px;
 }
 </style>
