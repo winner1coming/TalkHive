@@ -52,6 +52,9 @@ func SearchStrangers(c *gin.Context) {
 	err = global.Db.Where("id LIKE ? OR phone LIKE ? OR email LIKE ? OR account_id LIKE ?", "%"+input.Key+"%", "%"+input.Key+"%", "%"+input.Key+"%", "%"+input.Key+"%").Find(&accounts).Error
 	if err == nil {
 		for _, account := range accounts {
+			if account.AccountID == uint(accountID) { //跳过本身
+				continue
+			}
 			strangers = append(strangers, gin.H{
 				"tid":      account.AccountID,
 				"id":       account.ID,
