@@ -90,7 +90,7 @@
       async saveFontSize() {
         try{
           //向后端发送更改请求
-          const response = await changeFontsize({FontSize:this.fontSize});
+          const response = await changeFontsize({fontSize:this.fontSize});
           if(response.success){
             // 保存字体大小逻辑
             console.log('Font size saved:', this.fontSize);
@@ -113,7 +113,7 @@
       async saveFontStyle(){
         try{
           //向后端发送更改请求
-          const response = await changeFontstyle({FontStyle:this.fontStyle});
+          const response = await changeFontstyle({fontStyle:this.fontStyle});
           if(response.success){
             // 保存字体大小逻辑
             console.log('Font style saved:', this.fontStyle);

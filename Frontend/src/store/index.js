@@ -80,7 +80,7 @@ export default createStore({
     },
 
     SET_GROUPNOTICE(state,isNoticeGroup){
-      state.setting.isNoticeGroup = isNoticeGroup;
+      state.settings.isNoticeGroup = isNoticeGroup;
     },
 
     SET_BACKGROUND(state,background){
@@ -163,7 +163,7 @@ export default createStore({
       commit('SET_FONTSTYLE',settings.fontStyle);
       commit('SET_SOUND',settings.sound);
       commit('SET_NOTICE',settings.isNotice);
-      commit('SET_GROUPNOTICE',setting.isNoticeGroup);
+      commit('SET_GROUPNOTICE',settings.isNoticeGroup);
       commit('SET_BACKGROUND',settings.background);
     },
 

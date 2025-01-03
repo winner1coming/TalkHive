@@ -316,6 +316,10 @@ export default {
       if(!this.validateCode()){
         return;
       }
+      if (this.avatar === img) {
+        const base64Avatar = await this.convertImageToBase64(img);
+        this.avatar = base64Avatar;
+      }
 
       try {
         const response = await Register({
@@ -339,6 +343,25 @@ export default {
         alert(error || '注册失败');
       }
     },
+
+      // 将图片路径转换为 Base64
+  convertImageToBase64(imagePath) {
+    return new Promise((resolve, reject) => {
+      // 使用 fetch 获取图片文件
+      fetch(imagePath)
+        .then((response) => response.blob()) // 将响应转换为 Blob
+        .then((blob) => {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            resolve(reader.result); // 返回 Base64 编码
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(blob); // 将 Blob 转换为 Base64
+        })
+        .catch(reject);
+    });
+  },
+  
   },
 };
 </script>

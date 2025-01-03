@@ -60,8 +60,6 @@ export default {
       if (updateUser.theme) {
         this.theme = this.getThemeLabel(updateUser.theme);
       }
-      // 关闭当前组件
-      this.setActiveComponent('');
     },
 
     getThemeLabel(themeValue) {
