@@ -71,14 +71,18 @@
         try{
           const response = await getSystemSetting();
           if(response.success){
-            this.store.commit('SET_SETTINGS',{
+            const BackGround ='';
+            if(response.data.background !== ""){
+              BackGround = `data:${response.data.mimeType};base64,${response.data.background}`;
+            }
+            this.$store.commit('SET_SETTINGS',{
               theme:response.data.theme,
               fontSize:response.data.fontSize,
-              fontStyle:fontStyle,
+              fontStyle:response.data.fontStyle,
               sound:response.data.sound,
               isNotice: response.data.notice,
               isNoticeGroup: response.data.noticeGroup,
-              background:response.data.background,
+              background:BackGround,
             });
           }else{
             alert(response.message);

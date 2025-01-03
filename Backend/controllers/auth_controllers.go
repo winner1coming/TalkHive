@@ -140,7 +140,7 @@ func Register(c *gin.Context) {
 
 	if input.Avatar != "" {
 		// 调用 GetAvatarPath 方法生成文件路径并保存图片
-		avatarPath, err := global.GetAvatarPath(input.Avatar, strconv.Itoa(int(newUser.AccountID)))
+		avatarPath, err := global.GetAvatarPath(input.Avatar, strconv.Itoa(int(newUser.AccountID)), "User_Avatar")
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": err.Error()})
 			return

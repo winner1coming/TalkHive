@@ -20,7 +20,7 @@ var (
 	SmsCodeKey = "sms_code:" // 短信验证码的 Redis 键前缀
 )
 
-func GetAvatarPath(base64Str string, userID string) (string, error) {
+func GetAvatarPath(base64Str string, userID string, Path string) (string, error) {
 	// 提取 Base64 数据和文件类型
 	base64Data, fileType, err := ExtractBase64Data(base64Str)
 	if err != nil {
@@ -34,7 +34,7 @@ func GetAvatarPath(base64Str string, userID string) (string, error) {
 	}
 
 	// 定义保存路径
-	avatarDir := "D:/TalkHive/User_Avatar"
+	avatarDir := "D:/TalkHive/" + Path
 	avatarPath := filepath.Join(avatarDir, fmt.Sprintf("%s.%s", userID, fileType)) // 文件名为 userID.<fileType>
 
 	// 检查目录是否存在，如果不存在则创建

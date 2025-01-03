@@ -84,7 +84,7 @@ import apiClient from '@/services/api';
   //更改字体大小
   export const changeFontsize = async(data)=>{
     try{
-      const response = await apiClient.post('/Settings/fontsize',data);
+      const response = await apiClient.post('/Settings/fontSize',data);
       return response.data;
     }catch(error){
       throw error.response?.data.message || error.message;
@@ -134,7 +134,7 @@ import apiClient from '@/services/api';
   //设置群聊通知
   export const isNoticeGroup = async(data)=>{
     try{
-      const response = await apiClient.post('/Settings/noticeGroup',data);
+      const response = await apiClient.post('/Settings/isNoticeGroup',data);
       return response.data;
     }catch(error){
       throw error.response?.data.message || error.message;

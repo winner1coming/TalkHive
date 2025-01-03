@@ -70,7 +70,6 @@
 
     methods: {
       async savepassword() {
-
         if(!this.validate_comfirmPassword()){
           return;
         }
@@ -81,7 +80,7 @@
           });
           if(response.success){
             alert('密码已更新，请重新登录')
-            this.$router.push('/login');
+            this.$router.push('/loginth');
           }else{
             alert(response.message || '密码更改失败');
           }
@@ -108,10 +107,11 @@
         if (this.oldPassword !== password) {
           alert("原密码输入错误");
           return false;
-        } else if(this.oldPassword == password){
+        } else if(this.oldPassword === this.newPassword){
           alert("新密码与原密码相同！");
           return false;
         }
+        return true;
       },
 
       validatePassword(password , key){
