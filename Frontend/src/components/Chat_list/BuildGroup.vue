@@ -64,12 +64,14 @@ export default {
     // 处理文件选择
     handleFileChange(event) {
       const file = event.target.files[0];
+      console.log(file);
       if (file) {
         const reader = new FileReader();
         reader.onload = (e) => {
           this.group_avatar = e.target.result;
         };
         reader.readAsDataURL(file);
+        console.log(this.group_avatar);
       }
     },
     async createNewGroup(){

@@ -9,9 +9,24 @@
           <span class="message-sender">{{ message.sender }}</span>
           <span class="message-time">{{ message.create_time }}</span>
         </div>
+        <!--文本消息-->
         <div class="message-content" 
+            v-if="message.type==='text'"
              v-html="message.content" 
              @contextmenu.prevent="showContextMenu($event, message)">
+        </div>
+        <!--文件消息-->
+        <div class="message-file" v-else>
+          <div class="file-item">
+            <img src="@/assets/images/default-file.png" alt="file"/>
+            <div class="file-name">{{ message.content.name }}</div>
+          </div>
+          <span class="file-size">{{ message.content.size }}</span>
+          <span>
+            <a :href="message.content" download>下载</a>
+            <button>预览</button>
+          </span>
+          <!-- <a :href="message.content" download></a> -->
         </div>
       </div>
     </div>
@@ -22,9 +37,24 @@
           <span class="message-sender">{{ message.sender }}</span>
           <span class="message-time">{{ message.create_time }}</span>
         </div>
+        <!--文本消息-->
         <div class="message-content" 
+             v-if="message.type==='text'"
              v-html="message.content" 
              @contextmenu.prevent="showContextMenu($event, message)">
+        </div>
+        <!--文件消息-->
+        <div class="message-file" v-else>
+          <div class="file-item">
+            <img src="@/assets/images/default-file.png" alt="file"/>
+            <div class="file-name">{{ message.content.name }}</div>
+          </div>
+          <span class="file-size">{{ message.content.size }}</span>
+          <span>
+            <a :href="message.content" download>下载</a>
+            <button>预览</button>
+          </span>
+          <!-- <a :href="message.content" download></a> -->
         </div>
       </div>
       <div class="avatar">
@@ -112,6 +142,7 @@ export default {
   font-size: 0.8rem;
   text-align: right;
 }
+
 .message-content {
   flex:5;
   background-color: #75baeb;
@@ -119,6 +150,31 @@ export default {
   border-radius: 5px;
   text-align: left;
 }
+.message-file{
+  flex:5;
+  background-color: #75baeb;
+  padding: 10px;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+.file-item{
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+.message-file img{
+  width: 50px;
+  height: 50px;
+}
+.file-name{
+  margin-top: 5px;
+  font-size: 0.8rem;
+  color: #888;
+}
+
 .context-menu {
   position: absolute;
   background: white;
