@@ -597,6 +597,9 @@ export default {
       this.$refs.memberSelect.show(event, this.boundD, this.boundR);
     },
 
+
+    // 管理员设置
+
     manageGroups() {
       // 管理员设置
       this.componentStatus = 'manage';
