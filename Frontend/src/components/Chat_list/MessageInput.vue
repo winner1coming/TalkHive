@@ -13,9 +13,6 @@
       @keydown.enter.prevent="sendMessage"
     ></textarea>
     <button class="send-button" @click="sendMessage">发送</button>
-        <!-- 截图区域选择工具 -->
-    <div v-if="isSelecting" class="screenshot-overlay" @mousedown="startSelection" @mousemove="resizeSelection" @mouseup="endSelection">
-    <div class="selection-box" :style="selectionBoxStyle"></div>
     <Emoji 
       ref="emojiPicker"
       @emoji-click="addEmoji"
@@ -24,7 +21,10 @@
       ref="codeEditor"
       @send-code="sendCode"
     />
-  </div>
+        <!-- 截图区域选择工具 -->
+    <div v-if="isSelecting" class="screenshot-overlay" @mousedown="startSelection" @mousemove="resizeSelection" @mouseup="endSelection">
+      <div class="selection-box" :style="selectionBoxStyle"></div>
+    </div>
       <!-- 确认和取消按钮 -->
     <div v-if="showConfirmButtons" class="confirm-buttons" :style="confirmButtonsStyle">
       <button @click.stop="confirmScreenshot">确认</button>
