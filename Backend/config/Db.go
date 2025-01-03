@@ -3,9 +3,10 @@ package config
 import (
 	"TalkHive/global"
 	"TalkHive/models"
+	"log"
+
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"log"
 )
 
 // InitDB 初始化数据库连接
@@ -63,6 +64,7 @@ func autoMigrateTables() error {
 		&models.Links{},
 		&models.MessageInfo{},
 		&models.DeleteInfo{},
+		&models.ChatInfo{},
 	}
 
 	// 执行自动迁移

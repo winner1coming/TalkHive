@@ -1,24 +1,24 @@
 <template>
-  <div v-if="visible" class="profile-card" :style="{ top: `${y}px`, left: `${x}px` }">
-    <div class="avatar">
-      <img :src="profile.avatar" alt="avatar" />
-    </div>
-    <div class="info">
-      <div class="name">{{ profile.remark }}</div>    <!--我的备注-->
-      <div class="remark">昵称: {{ profile.nickname }}</div>   
-      <div class="remark" v-show="profile.groupNickname">群昵称: {{ profile.groupNickname }}</div>
-      <div class="remark">
-        分组:{{ profile.tag }}
-      </div>
-      <div class="remark">个性签名: {{ profile.signature }}</div>
-    </div>
-    <button @click="sendMessage">发信息</button>
+  <div v-if="visible" class="member-select" :style="{ top: `${y}px`, left: `${x}px` }">
+    <SearchBar :isImmidiate="false" @search="search" @button-click="search"/>
+      <ul class="items" v-show="members.length">
+        <li 
+          v-for="member in members" 
+          :key="member.account_id"
+          @click="selectMember(member)"
+        >
+          <input type="radio" v-model="selectedMember" :value="member">
+          <div class="avatar">   <!-- 头像-->
+            <img :src="member.avatar" alt="avatar" />
+          </div>
+          <div class="name">{{ member.remark?member.remark:(member.group_nickname?member.group_nickname:member.nickname) }}</div>
+        </li>
+      </ul>
   </div>
 </template>
 
 <script>
 import { EventBus } from '@/components/base/EventBus';
-import { getChat } from '@/services/chatList';
 export default {
   props:['members'],
   data() {
@@ -26,12 +26,16 @@ export default {
       visible: false,
       x: 0,
       y: 0,
-      profile: null,
-      type: 'friend',  // 'friend' or 'group'
+      selectedMember: null,
     };
   },
   methods: {
-    show(event, profile, boundD, boundR) {  // boundD, boundR 为边界的坐标
+    selectMember(member) {
+      this.selectedMember = member;
+      this.$emit('select-member', this.selectedMember);
+      this.hide();
+    },
+    show(event, boundD, boundR) {  // boundD, boundR 为边界的坐标
       EventBus.emit('float-component-opened', this); // 通知其他组件
       const cardWidth = 200;
       const cardHeight = 400;
@@ -39,29 +43,12 @@ export default {
       const y = event.clientY + cardHeight > boundD ? boundD - cardHeight : event.clientY;
       this.x = x;
       this.y = y;
-      this.profile = profile;
       this.visible = true;
       EventBus.emit('float-component-open', this); // 通知其他组件
     },
     hide() {
       this.visible = false;
       EventBus.emit('hide-float-component'); // 通知其他组件
-    },
-    async sendMessage() {
-      this.hide();
-      try{
-        const response = await getChat(this.profile.tid, false);
-        if(response.status !== 200){
-          this.$root.notify(response.data.message, 'error');
-          return;
-        }
-        this.$store.dispatch('setChat', response.data.data);
-        this.$router.push({name: 'chat'});
-      }catch(e){
-        console.log(e);
-      }
-      
-      
     },
   },
   mounted() {
@@ -80,35 +67,47 @@ export default {
 </script>
 
 <style scoped>
-.profile-card {
+.member-select {
   position: absolute;
   z-index: 1000;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-top: 10px;
-  padding-left: 10px;
   border: 1px solid #ddd;
   border-radius: 8px;
   width: 200px;
+  height: 300px;
   background-color: #fff;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
+.items {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	flex: 9;
+	overflow-y: auto;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+}
+.items li {
+	display: flex;
+	align-items: center;
+	padding: 10px;
+	border-bottom: 1px solid #ddd;
+	cursor: pointer;
+}
+
 .avatar img {
-  width: 80px;
-  height: 80px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
 }
 
-.info {
-  margin-top: 10px;
-  text-align: center;
-}
 
 .name {
   font-weight: bold;
-  font-size: 1.2rem;
+  font-size: 0.8rem;
 }
 
 .remark {

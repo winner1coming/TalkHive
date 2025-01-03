@@ -120,6 +120,18 @@ export default {
       value: this.message.content,
       language: this.message.type,
       automaticLayout: true,
+      readOnly: true,
+      lineNumbersMinChars: 2, // 设置行号的最小字符数
+      tabSize: 2, // 设置制表符宽度
+      minimap: {
+        enabled: false, // 禁用右侧的迷你地图
+      },
+      fontSize: 14, // 设置字体大小
+      lineHeight: 20, // 设置行高
+      padding: {
+        top: 10,
+        bottom: 10,
+      },
     });
 
     this.editor.onDidChangeModelContent(() => {
@@ -169,7 +181,7 @@ export default {
   align-self: flex-start;
 }
 .my-message .avatar {
-  align-self: flex-end;
+  align-self: flex-start;
 }
 .avatar img {
   width: 40px;
@@ -177,7 +189,7 @@ export default {
   border-radius: 50%;
 }
 .message-content-wrapper {
-  max-width: 250px;
+  max-width: 450px;
   display: inline-flex;
   flex-direction: column;
 }
@@ -248,13 +260,13 @@ export default {
 }
 
 .editor-container {
-  width: 400px;
-  height: 100%;
-  position: relative;
+  width: 300px;
+  max-height: 400px;
 }
 .editor {
   width: 100%;
-  height: 100%;
+  height: 400px;
+  text-align: left;
 }
 
 .context-menu {
