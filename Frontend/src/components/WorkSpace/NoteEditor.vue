@@ -242,6 +242,8 @@ button {
   padding: 10px 20px;
   font-size: 16px;
   cursor: pointer;
+  color: #000;
+  background-color: #ffffff;
 }
 
 button:hover {

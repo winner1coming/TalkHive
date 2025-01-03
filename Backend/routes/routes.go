@@ -7,4 +7,5 @@ func SetupRoutes(r *gin.Engine) {
 	//ChatListRoutes(r)
 	ContactListRoutes(r)
 	SettingsRoutes(r)
+	SetupWorkspaceRoutes(r)
 }

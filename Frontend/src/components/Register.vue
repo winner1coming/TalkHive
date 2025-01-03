@@ -250,13 +250,15 @@ export default {
         if(this.Code){
           if(this.Code !== this.verificationCode){
               alert('验证码错误');
-              return;
+              return false;
           }
+          return true;
         }
         else{
           alert('请先获取验证码！');
-          return;
+          return false;
         }
+        
       },
     
     // 发送验证码
@@ -314,7 +316,10 @@ export default {
         return;
       }
 
-      this.validateCode();
+      if(!this.validateCode())
+      {
+        return;
+      }
       if(!this.file){
         const response = await fetch(img);
         const blob = await response.blob();
@@ -328,7 +333,8 @@ export default {
         formData.append('id', this.id);
         formData.append('nickname', this.nickname);
         formData.append('birthday', this.birthday);
-        formData.append('phone',this.phone);
+        formData.append('phone',this.phoneNumber);
+        formData.append('email',this.email);
         formData.append('password',this.password);
         const response = await Register(formData);
         

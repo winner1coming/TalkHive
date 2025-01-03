@@ -20,7 +20,7 @@
       <li v-for="item in favorites" :key="item.message_id" class="favorite-item">
         <!-- 复选框 -->
         <input v-if="deleteMode" type="checkbox" class="favorite-checkbox" v-model="selectedItems" :value="{ message_id: item.message_id, message_table_name: item.message_table_name }" />
-        <span class="type">{{ getTypeLabel(item.type) }}</span>
+        <span class="type" style="color:darkgrey">{{ getTypeLabel(item.type) }}</span>
         <span class="object-name">{{ item.object_name }}</span>
         <span class="sender"> - {{ item.sender_name }}</span>
         <span class="time"> - {{ item.time }}</span>
@@ -61,7 +61,11 @@ export default {
       try {
         const response = await WorkSpaceAPI.getFavorites();
         if (response.status === 200) {
-          this.favorites = response.data.data;
+          if(!response.data)
+          {
+            return;
+          }
+          this.favorites = response.data;
         } else {
           alert(response.data.message);
         }
@@ -152,7 +156,7 @@ export default {
 
 .dropdown {
   position: absolute;
-  top: 105px;
+  top: 85px;
   right: 50px;
   border: 1px solid #ddd;
   background-color: white;

@@ -220,6 +220,7 @@ export default {
         important: false,
       },
       userId: 'your-user-id', // 用户ID
+      importantInt:0,
     };
   },
   created() {
@@ -231,8 +232,12 @@ export default {
     async fetchDdlList() {
       try {
         const response = await WorkSpaceAPI.getDdlList();
-        if (response.data.status === 200) {
-          this.ddlList = response.data.data.map(item => {
+        if (response.status === 200) {
+          if(!response.data)
+          {
+            return;
+          }
+          this.ddlList = response.data.map(item => {
             item.deadline = new Date(item.deadline); // 转换为时间类型
             return item;
           });
@@ -250,9 +255,12 @@ export default {
     async fetchCompletedDdl() {
       try {
         const response = await WorkSpaceAPI.getCompletedDdlList();
-        console.log(response.data);
-        if (response.data.status === 200) {
-          this.completedDdl = response.data.data.map(item => {
+        if (response.status === 200) {
+          if(!response.data)
+          {
+            return;
+          }
+          this.completedDdl = response.data.map(item => {
             item.deadline = new Date(item.deadline); // 转换为时间类型
             return item;
           });
@@ -292,6 +300,15 @@ export default {
       }
     },
 
+    isImportantTrue(important){
+      if(important){
+        console.log("important:",1);
+        return 1;
+      }
+      console.log("important:",0);
+      return 0;
+    },
+
     // 编辑 DDL
     editDdl(item) {
       this.editingDdl = { ...item }; // 复制当前 DDL 数据到 editingDdl
@@ -314,12 +331,13 @@ export default {
         //   task_content: this.editingDdl.task_content,
         //   important: this.editingDdl.important,
         // });
+        this.importantInt = this.isImportantTrue(this.editingDdl.important);
         const response = await WorkSpaceAPI.saveEditDdl(this.editingDdl.task_id,
          `${this.editingDdl.deadline.year}-${this.editingDdl.deadline.month}-${this.editingDdl.deadline.day}`,
           this.editingDdl.task_content,
-          this.editingDdl.important);
+          this.importantInt,);
         console.log(response.data);
-        if (response.data.status === 200) {
+        if (response.status === 200) {
           alert('DDL 修改成功');
           this.showEditDdl = false; // 关闭编辑框
           this.fetchDdlList(); // 刷新待完成 DDL 列表
@@ -351,12 +369,13 @@ export default {
         //   task_content: this.newDdl.task_content,
         //   important: this.newDdl.important,
         // });
+        this.importantInt = this.isImportantTrue(this.newDdl.important);
         const response = await WorkSpaceAPI.saveDdl(
           deadline,
           this.newDdl.task_content,
-          this.newDdl.important,);
+          this.importantInt,);
         console.log(response.data);
-        if (response.data.status === 200) {
+        if (response.status === 200) {
           this.showCreateDdl = false; // 关闭编辑框
           this.fetchDdlList(); // 刷新待完成 DDL 列表
         } else {
@@ -376,11 +395,11 @@ export default {
     async updateDdlStatus(item) {
       try {
         const response = await WorkSpaceAPI.updateDdl(item.task_id);
-        if (response.data.status === 200) {
+        if (response.status === 200) {
           this.fetchDdlList();
           this.fetchCompletedDdl();
         } else {
-          alert(response.data.message);
+          alert(response.message);
         }
       } catch (error) {
         console.error('无法更新 DDL 状态:', error);
@@ -392,7 +411,7 @@ export default {
     async deleteDdl(item) {
       try {
         const response = await WorkSpaceAPI.updateDdl(item.task_id);
-        if (response.data.status === 200) {
+        if (response.status === 200) {
           // 刷新待完成和已完成的
           // 刷新待完成和已完成的 DDL 列表
           this.fetchDdlList();

@@ -182,7 +182,7 @@ export default createStore({
 
     updateLinks({commit}, links){
       commit('SET_LINKS',links);
-    }
+    },
 
     // 笔记
     updateCurrentNote({ commit }, note) {

@@ -119,7 +119,7 @@
         <span class="modified"> - 上次修改时间: {{ note.lastModified }}</span>
         <button class="more-btn" @click="toggleDropdown(note.id)">...</button>
         <div v-if="note.showDropdown" class="dropdown">
-          <button  style="margin: 5px; border: none;" @click="confirmDelete(note.id)">删除</button>
+          <button class="dropdown_delete_btn" @click="confirmDelete(note.id)">删除</button>
         </div>
       </li>
     </ul>
@@ -172,7 +172,11 @@ export default {
       // 从后端获取分类列表
       try {
         const response = await WorkSpaceAPI.getCategories();
-        if (response.data && response.data.status === 200) {
+        if (response.status === 200) {
+          if(!response.data)
+          {
+            return;
+          }
           this.categories = response.data.categories;
         } else {
           alert('获取分类列表失败');
@@ -186,7 +190,11 @@ export default {
       // 从后端获取笔记列表
       try {
         const response = await WorkSpaceAPI.getNotes();
-        if (response.data && response.data.status === 200) {
+        if (response.status === 200) {
+          if(!response.data)
+          {
+            return;
+          }
           // 为每个 note 增加 showDropdown: false
           this.notes = response.data.notes.map(note => ({
             ...note,       // 保留原来的属性
@@ -224,11 +232,11 @@ export default {
     async saveFile() {
       try {
         const response = await axios.post('/workspace/create-file', {
-          filename: this.newFile.filename + this.newFile.filetype,
-          category: this.newFile.category,  // 发送文件所属分类
+          note_name: this.newFile.filename + this.newFile.filetype,
+          type: this.newFile.category,  // 发送文件所属分类
         });
 
-        if (response.data.status === 200) {
+        if (response.status === 200) {
           this.showCreateFile = false;
           this.fetchNotes();
         } else {
@@ -270,7 +278,7 @@ export default {
       try {
         // 发送删除请求到后端
         const response = await WorkSpaceAPI.deleteNote(this.fileToDelete);
-        if (response.data.status === 200) {
+        if (response.status === 200) {
           console.log(response.data.message);
         } else {
           alert('删除失败');
@@ -304,19 +312,19 @@ export default {
         alert('分类名称不能为空');
         return;
       }
-      else if (this.categories.indexOf(this.newCategory)!=-1)
+      else if (this.categories!= null && this.categories.indexOf(this.newCategory)!=-1)
       {
         alert('已存在该分类');
         return;
       }
       try {
         const response = await WorkSpaceAPI.saveCategory(this.newCategory);
-        if (response.data.status === 200) {
+        if (response.status === 200) {
           //this.categories.push(this.newCategory);  // 添加新分类
           this.fetchCategories();
           this.newCategory = '';  // 清空输入框
         } else {
-          alert(response.data.message);
+          alert(response.message);
         }
       } catch (error) {
         console.error('无法创建分类:', error);
@@ -522,6 +530,7 @@ select {
   padding: 10px 0;
   border-bottom: 1px solid #ddd;
   justify-content: space-between;
+  position: relative; /* 给父元素设置相对定位 */
 }
 
 .note-item .filename {
@@ -546,11 +555,25 @@ select {
 
 .dropdown {
   position: absolute;
-  right: 15px;
+  right: -25px;
+  bottom: 23px;
   background-color: white;
   border: 1px solid #ddd;
   border-radius: 5px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 10;  /* 确保 dropdown 在按钮上方显示 */
+}
+
+.dropdown_delete_btn{
+  margin: 5px; 
+  padding:5px;
+  border: none; 
+  color:#333; 
+  background-color: white;
+}
+
+.dropdown_delete_btn:hover{
+  background-color: rgb(208, 208, 208);
 }
 
 .confirm-modal {

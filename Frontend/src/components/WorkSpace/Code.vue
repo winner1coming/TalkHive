@@ -41,7 +41,7 @@
         <span class="modified"> - 上次修改时间: {{ code.last_modified_time }}</span>
         <button class="more-btn" @click="toggleDropdown(code.code_id)">...</button>
         <div v-if="code.showDropdown" class="dropdown">
-          <button  style="margin: 5px; border: none;" @click="confirmDelete(code.code_id)">删除</button>
+          <button class="dropdown_delete_btn" @click="confirmDelete(code.code_id)">删除</button>
         </div>
       </li>
     </ul>
@@ -89,8 +89,11 @@ export default {
       // 从后端获取代码列表
       try {
         const response = await WorkSpaceAPI.getCodes();
-        console.log(response.data);
-        if (response.data && response.data.status === 200) {
+        if (response.status === 200) {
+          if(!response.data)
+          {
+            return;
+          }
           this.codes = response.data.codes.map(code => ({
             ...code,       // 保留原来的属性
             showDropdown: false // 添加新的属性
@@ -122,7 +125,7 @@ export default {
           filename: this.newFile.filename + this.newFile.filetype,  // 文件名和文件格式拼接
         });
 
-        if (response.data.status === 200) {
+        if (response.status === 200) {
           alert('文件创建成功');
           this.showCreateFile = false; // 关闭编辑框
         } else {
@@ -132,11 +135,11 @@ export default {
         console.error('无法创建文件:', error);
         alert('创建文件失败！');
       }
-      this.editNote(1);
+      this.editCode(1);
     },
 
     // 跳转到文件编辑页
-    editNote(id) {
+    editCode(id) {
       this.$router.push(`/workspace/code/${id}`);
     },
 
@@ -157,7 +160,7 @@ export default {
       try {
         // 发送删除请求到后端
         const response = await WorkSpaceAPI.deleteCode(this.fileToDelete);
-        if (response.data.status === 200) {
+        if (response.status === 200) {
           console.log(response.data.message);
         } else {
           alert('删除失败');
@@ -270,6 +273,7 @@ input[type="text"], select {
   padding: 10px 0;
   border-bottom: 1px solid #ddd;
   justify-content: space-between;
+  position: relative; /* 给父元素设置相对定位 */
 }
 
 .code-item .filename {
@@ -296,11 +300,29 @@ input[type="text"], select {
 
 .dropdown {
   position: absolute;
-  right: 15px;
+  right: -25px;
+  bottom: 23px;
   background-color: white;
   border: 1px solid #ddd;
   border-radius: 5px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 10;  /* 确保 dropdown 在按钮上方显示 */
+}
+
+/* .dropdown:hover {
+  background-color: rgb(208, 208, 208);
+} */
+
+.dropdown_delete_btn{
+  margin: 5px; 
+  padding:5px;
+  border: none; 
+  color:#333; 
+  background-color: white;
+}
+
+.dropdown_delete_btn:hover{
+  background-color: rgb(208, 208, 208);
 }
 
 .confirm-modal {
