@@ -144,13 +144,38 @@ export default {
           console.log(e);
         }
       }else if(option === '撤回'){
-        chatListAPI.recallMessage(message.message_id);
+        try{
+          const response = await chatListAPI.recallMessage(message.message_id);
+          if(response.status !== 200){
+            this.$root.notify(response.data.message, 'error');
+          }else{
+            this.messages = this.messages.filter(item => item.message_id !== message.message_id);
+            //逻辑有待完善
+          }
+        }catch(e){
+          console.log(e);
+        }  
       }else if(option === '复制'){
-        // todo
+        try{
+          await navigator.clipboard.writeText(message.content);
+          this.$root.notify('复制成功','success');
+        }catch (err){
+          console.error('复制失败:',err);
+          this.$root.notify('复制失败','error');
+        }
       }else if(option === '多选'){
         // todo
       }else if(option === '收藏'){
-        chatListAPI.collectMessage(message.message_id);
+        try{
+          const response = await chatListAPI.collectMessage({table_name:"message",message_id: message.message_id});
+          if(response.status != 200){
+            this.$root.notify(response.data.message, 'error');
+          }else{
+            this.$root.notify("收藏成功", 'success');
+          }
+        }catch(e){
+          console.log(e);
+        }
       }else if(option === '置顶'){
         chatListAPI.topMessage(message.message_id);  // todo
       }
