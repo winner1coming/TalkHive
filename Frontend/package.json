@@ -16,6 +16,7 @@
     "cropperjs": "^1.6.2",
     "crypto-js": "^4.2.0",
     "html2canvas": "^1.4.1",
+    "emoji-picker-element": "^1.26.0",
     "mitt": "^3.0.1",
     "mockjs": "^1.1.0",
     "monaco-editor": "^0.52.2",

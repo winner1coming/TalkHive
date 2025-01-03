@@ -131,13 +131,18 @@
         <button :class="{'type-button': true, active:searchHistoryType==='image'}" @click="searchHistoryType='image'">图片</button>
         <button :class="{'type-button': true, active:searchHistoryType==='file'}" @click="searchHistoryType='file'">文件</button>
         <button :class="{'type-button': true, active:searchHistoryType==='date'}" @click="searchHistoryType='date'">日期</button>
-        <button :class="{'type-button': true, active:searchHistoryType==='member'}" @click="searchHistoryType='member'">成员</button>
+        <button :class="{'type-button': true, active:searchHistoryType==='member'}" @click="searchMemberHistory">成员</button>
       </div>
       <input
         type="date"
         v-show="searchHistoryType==='date'"
         v-model="searchHistoryDate"
         class="date-picker"
+      />
+      <MemberSelect
+        ref="memberSelect"
+        :members="groupInfo.members"
+        @select-member="searchHistoryMember=$event"
       />
       <!--筛选好的历史记录--> 
       <div v-if="filteredHistory" class="history-list">
@@ -215,6 +220,7 @@ import SearchBar from '@/components/base/SearchBar.vue';
 import PersonProfileCard from '@/components/base/PersonProfileCard.vue';
 import ContextMenu from '@/components/base/ContextMenu.vue';
 import InviteMember from '@/components/Chat_list/InviteMember.vue';
+import MemberSelect from './MemberSelect.vue';
 export default {
   components: {
     EditableText,
@@ -223,14 +229,7 @@ export default {
     PersonProfileCard,
     ContextMenu,
     InviteMember,
-  },
-  components: {
-    EditableText,
-    SwitchButton,
-    SearchBar,
-    PersonProfileCard,
-    ContextMenu,
-    InviteMember,
+    MemberSelect,
   },
   data() {
     return {
@@ -593,6 +592,13 @@ export default {
         }
       });
     },
+    searchMemberHistory(event){
+      this.searchHistoryType = 'member';
+      this.$refs.memberSelect.show(event, this.boundD, this.boundR);
+    },
+
+
+    // 管理员设置
 
     manageGroups() {
       // 管理员设置
@@ -849,8 +855,9 @@ export default {
         });
       }
       else if(this.searchHistoryType === 'member'){
+        console.log(this.searchHistoryMember);
         return this.history.filter(message => {
-          return message.send_account_id===this.searchHistoryMember 
+          return message.send_account_id===this.searchHistoryMember.account_id 
             && message.content.includes(keyword);
         });
       }

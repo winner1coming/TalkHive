@@ -1,12 +1,11 @@
 <template>
   <div class="message-input">
     <div class="input-toolbar">
-      <button @click="sendEmoji">表情</button>
+      <button @click="toggleEmojiPicker">表情</button>
       <button @click="sendFile">文件</button>
       <input type="file" ref="fileInput" style="display: none;" @change="handleFile" />
       <button @click="sendScreenshot">截图</button>
       <button @click="sendCodeBlock">代码块</button>
-      <button @click="sendPoll">群投票</button>
     </div>
     <textarea 
       v-model="content" 
@@ -17,6 +16,14 @@
         <!-- 截图区域选择工具 -->
     <div v-if="isSelecting" class="screenshot-overlay" @mousedown="startSelection" @mousemove="resizeSelection" @mouseup="endSelection">
     <div class="selection-box" :style="selectionBoxStyle"></div>
+    <Emoji 
+      ref="emojiPicker"
+      @emoji-click="addEmoji"
+    />
+    <CodeEdit 
+      ref="codeEditor"
+      @send-code="sendCode"
+    />
   </div>
       <!-- 确认和取消按钮 -->
     <div v-if="showConfirmButtons" class="confirm-buttons" :style="confirmButtonsStyle">
@@ -29,7 +36,11 @@
 
 <script>
 import html2canvas from 'html2canvas';
+import 'emoji-picker-element';
+import Emoji from './Emoji.vue';
+import CodeEdit from './CodeEdit.vue';
 export default {
+  components: { Emoji, CodeEdit },
   data() {
     return {
       content: '',
@@ -69,12 +80,18 @@ export default {
   methods: {
     sendMessage() {
       if (this.content.trim()) {
-        this.$emit('send-message', this.content);
+        this.$emit('send-message', this.content, 'text');
         this.content = '';
       }
     },
-    sendEmoji() {
-      // 发送表情逻辑
+    sendCode(code, language) {
+      this.$emit('send-message', code, language);
+    },
+    toggleEmojiPicker(event) {
+      this.$refs.emojiPicker.show(event, window.innerHeight, window.innerWidth);
+    },
+    addEmoji(event) {
+      this.content += event.detail.unicode;
     },
     sendFile() {
       // 发送文件逻辑
@@ -133,12 +150,10 @@ export default {
       console.log("在截图，勿扰");
       this.startScreenshot();
     },
-    sendCodeBlock() {
+    sendCodeBlock(event) {
       // 发送代码块逻辑
+      this.$refs.codeEditor.show(event, window.innerHeight, window.innerWidth);
     },
-    sendPoll() {
-      // 发送群投票逻辑
-    }
   }
 };
 </script>

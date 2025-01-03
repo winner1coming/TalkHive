@@ -95,10 +95,9 @@ export default {
       }
       
     },
-    async sendMessage(content) {
-      // todo api
+    async sendMessage(content, type) {
       try{
-        const response = await chatListAPI.sendMessage(this.selectedChat.id, content, 'text', this.selectedChat.tags.includes('group') ? true : false);
+        const response = await chatListAPI.sendMessage(this.selectedChat.id, content, type, this.selectedChat.tags.includes('group') ? true : false);
         if(response.status !== 200){
           this.$root.notify(response.data.message, 'error');
           return;
@@ -109,7 +108,7 @@ export default {
             content: content,
             sender: this.$store.state.user.username,   // 发送者的备注
             create_time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),  // 发送时间
-            type: 'text',   // 消息类型
+            type: type,   // 消息类型
           });
           this.scrollToBottom();
         }
