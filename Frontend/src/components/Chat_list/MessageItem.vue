@@ -15,8 +15,9 @@
              v-html="message.content" 
              @contextmenu.prevent="showContextMenu($event, message)">
         </div>
+        <!--图片消息-->
         <!--文件消息-->
-        <div class="message-file" v-else>
+        <div class="message-file" v-else-if="message.type==='file'">
           <div class="file-item">
             <img src="@/assets/images/default-file.png" alt="file"/>
             <div class="file-header">
@@ -29,6 +30,10 @@
             <button>预览</button>
             <!-- <a ref="link" style="visibility: hidden" :href="message.content" download>下载</a> -->
           </span>
+        </div>
+        <!--代码消息-->
+        <div v-else class="editor-container">
+          <div ref="editor" class="editor"></div>
         </div>
       </div>
     </div>
@@ -45,18 +50,25 @@
              v-html="message.content" 
              @contextmenu.prevent="showContextMenu($event, message)">
         </div>
+        <!--图片消息-->
         <!--文件消息-->
-        <div class="message-file" v-else>
+        <div class="message-file" v-else-if="message.type==='file'">
           <div class="file-item">
             <img src="@/assets/images/default-file.png" alt="file"/>
-            <div class="file-name">{{ message.content.name }}</div>
+            <div class="file-header">
+              <div class="file-name">{{ message.content.name }}</div>
+              <span class="file-size">{{ message.content.size }}</span>
+            </div>
           </div>
-          <span class="file-size">{{ message.content.size }}</span>
-          <span>
-            <a :href="message.content" download>下载</a>
+          <span class="file-buttons">
+            <button @click="downloadFile">下载</button>
             <button>预览</button>
+            <!-- <a ref="link" style="visibility: hidden" :href="message.content" download>下载</a> -->
           </span>
-          <!-- <a :href="message.content" download></a> -->
+        </div>
+        <!--代码消息-->
+        <div v-else class="editor-container">
+          <div ref="editor" class="editor"></div>
         </div>
       </div>
       <div class="avatar">
@@ -67,7 +79,7 @@
 </template>
 
 <script>
-
+import * as monaco from 'monaco-editor';
 export default {
   props: ['message'],
   data() {
@@ -99,6 +111,48 @@ export default {
     }
     
   },
+
+  mounted() {
+    if(this.message.type=== 'text'||this.message.type=== 'file'||this.message.type==='image'){
+      return;
+    }
+    this.editor = monaco.editor.create(this.$refs.editor, {
+      value: this.message.content,
+      language: this.message.type,
+      automaticLayout: true,
+      readOnly: true,
+      lineNumbersMinChars: 2, // 设置行号的最小字符数
+      tabSize: 2, // 设置制表符宽度
+      minimap: {
+        enabled: false, // 禁用右侧的迷你地图
+      },
+      fontSize: 14, // 设置字体大小
+      lineHeight: 20, // 设置行高
+      padding: {
+        top: 10,
+        bottom: 10,
+      },
+    });
+
+    this.editor.onDidChangeModelContent(() => {
+      this.$emit('input', this.editor.getValue());
+    });
+  },
+  // watch: {
+  //   language(newLang) {
+  //     monaco.editor.setModelLanguage(this.editor.getModel(), newLang);
+  //   },
+  //   value(newValue) {
+  //     if (newValue !== this.editor.getValue()) {
+  //       this.editor.setValue(newValue);
+  //     }
+  //   },
+  // },
+  beforeDestroy() {
+    if (this.editor) {
+      this.editor.dispose();
+    }
+  },
 };
 </script>
 
@@ -127,7 +181,7 @@ export default {
   align-self: flex-start;
 }
 .my-message .avatar {
-  align-self: flex-end;
+  align-self: flex-start;
 }
 .avatar img {
   width: 40px;
@@ -135,7 +189,7 @@ export default {
   border-radius: 50%;
 }
 .message-content-wrapper {
-  max-width: 250px;
+  max-width: 450px;
   display: inline-flex;
   flex-direction: column;
 }
@@ -203,6 +257,16 @@ export default {
   justify-content: space-between;
   width: 100%;
   padding: 5px;
+}
+
+.editor-container {
+  width: 300px;
+  max-height: 400px;
+}
+.editor {
+  width: 100%;
+  height: 400px;
+  text-align: left;
 }
 
 .context-menu {

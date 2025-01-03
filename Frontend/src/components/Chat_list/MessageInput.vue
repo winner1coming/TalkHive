@@ -17,14 +17,19 @@
       ref="emojiPicker"
       @emoji-click="addEmoji"
     />
+    <CodeEdit 
+      ref="codeEditor"
+      @send-code="sendCode"
+    />
   </div>
 </template>
 
 <script>
 import 'emoji-picker-element';
 import Emoji from './Emoji.vue';
+import CodeEdit from './CodeEdit.vue';
 export default {
-  components: { Emoji },
+  components: { Emoji, CodeEdit },
   data() {
     return {
       content: '',
@@ -36,6 +41,9 @@ export default {
         this.$emit('send-message', this.content, 'text');
         this.content = '';
       }
+    },
+    sendCode(code, language) {
+      this.$emit('send-message', code, language);
     },
     toggleEmojiPicker(event) {
       this.$refs.emojiPicker.show(event, window.innerHeight, window.innerWidth);
@@ -58,8 +66,9 @@ export default {
     sendScreenshot() {
       // 发送截图逻辑
     },
-    sendCodeBlock() {
+    sendCodeBlock(event) {
       // 发送代码块逻辑
+      this.$refs.codeEditor.show(event, window.innerHeight, window.innerWidth);
     },
   }
 };
