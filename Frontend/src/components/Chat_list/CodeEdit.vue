@@ -21,22 +21,13 @@ import * as monaco from 'monaco-editor';
 import { EventBus } from '@/components/base/EventBus';
 import { toRaw } from 'vue';
 export default {
-  props: {
-    language: {
-      type: String,
-      default: 'javascript',
-    },
-    value: {
-      type: String,
-      default: '',
-    },
-  },
   data() {
     return {
       visible: false,
       x: 0,
       y: 0,
       selectedLanguage: 'javascript',
+      value:'',
     };
   },
   methods:{
@@ -46,9 +37,12 @@ export default {
         if (model) {
           // 使用 monaco.editor.setModelLanguage 来更改模型的语言
           monaco.editor.setModelLanguage(model, this.selectedLanguage);
-          console.log(this.selectedLanguage);
         }
       }
+    },
+    sendCode(){
+      this.$emit('send-code', this.editor.getValue(), this.selectedLanguage);
+      this.hide();
     },
     show(event, boundR) {  // boundD, boundR 为边界的坐标
       EventBus.emit('float-component-opened', this); // 通知其他组件
@@ -70,7 +64,7 @@ export default {
   mounted() {
     this.editor = monaco.editor.create(this.$refs.editor, {
       value: this.value,
-      language: this.language,
+      language: this.selectedLanguage,
       automaticLayout: true,
       lineNumbersMinChars: 2, // 设置行号的最小字符数
       tabSize: 2, // 设置制表符宽度
@@ -101,9 +95,6 @@ export default {
     });
   },
   watch: {
-    language(newLang) {
-      monaco.editor.setModelLanguage(this.editor.getModel(), newLang);
-    },
     value(newValue) {
       if (newValue !== this.editor.getValue()) {
         this.editor.setValue(newValue);
@@ -131,7 +122,7 @@ export default {
 
 .editor {
   width: 100%;
-  height: 90%;
+  height: 85%;
   font-family: 'Fira Code', monospace;
   box-sizing: border-box;
   text-align: left;

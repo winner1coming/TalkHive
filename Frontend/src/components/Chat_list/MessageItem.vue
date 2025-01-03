@@ -50,18 +50,25 @@
              v-html="message.content" 
              @contextmenu.prevent="showContextMenu($event, message)">
         </div>
+        <!--图片消息-->
         <!--文件消息-->
-        <div class="message-file" v-else>
+        <div class="message-file" v-else-if="message.type==='file'">
           <div class="file-item">
             <img src="@/assets/images/default-file.png" alt="file"/>
-            <div class="file-name">{{ message.content.name }}</div>
+            <div class="file-header">
+              <div class="file-name">{{ message.content.name }}</div>
+              <span class="file-size">{{ message.content.size }}</span>
+            </div>
           </div>
-          <span class="file-size">{{ message.content.size }}</span>
-          <span>
-            <a :href="message.content" download>下载</a>
+          <span class="file-buttons">
+            <button @click="downloadFile">下载</button>
             <button>预览</button>
+            <!-- <a ref="link" style="visibility: hidden" :href="message.content" download>下载</a> -->
           </span>
-          <!-- <a :href="message.content" download></a> -->
+        </div>
+        <!--代码消息-->
+        <div v-else class="editor-container">
+          <div ref="editor" class="editor"></div>
         </div>
       </div>
       <div class="avatar">
@@ -241,7 +248,7 @@ export default {
 }
 
 .editor-container {
-  width: 100%;
+  width: 400px;
   height: 100%;
   position: relative;
 }

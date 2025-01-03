@@ -96,7 +96,6 @@ export default {
       
     },
     async sendMessage(content, type) {
-      // todo api
       try{
         const response = await chatListAPI.sendMessage(this.selectedChat.id, content, type, this.selectedChat.tags.includes('group') ? true : false);
         if(response.status !== 200){
@@ -109,7 +108,7 @@ export default {
             content: content,
             sender: this.$store.state.user.username,   // 发送者的备注
             create_time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),  // 发送时间
-            type: 'text',   // 消息类型
+            type: type,   // 消息类型
           });
           this.scrollToBottom();
         }

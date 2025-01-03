@@ -19,6 +19,7 @@
     />
     <CodeEdit 
       ref="codeEditor"
+      @send-code="sendCode"
     />
   </div>
 </template>
@@ -40,6 +41,9 @@ export default {
         this.$emit('send-message', this.content, 'text');
         this.content = '';
       }
+    },
+    sendCode(code, language) {
+      this.$emit('send-message', code, language);
     },
     toggleEmojiPicker(event) {
       this.$refs.emojiPicker.show(event, window.innerHeight, window.innerWidth);
