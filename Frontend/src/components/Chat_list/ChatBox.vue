@@ -95,10 +95,10 @@ export default {
       }
       
     },
-    async sendMessage(content) {
+    async sendMessage(content, type) {
       // todo api
       try{
-        const response = await chatListAPI.sendMessage(this.selectedChat.id, content, 'text', this.selectedChat.tags.includes('group') ? true : false);
+        const response = await chatListAPI.sendMessage(this.selectedChat.id, content, type, this.selectedChat.tags.includes('group') ? true : false);
         if(response.status !== 200){
           this.$root.notify(response.data.message, 'error');
           return;
