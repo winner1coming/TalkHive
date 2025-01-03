@@ -57,13 +57,18 @@
         <button :class="{'type-button': true, active:searchHistoryType==='image'}" @click="searchHistoryType='image'">图片</button>
         <button :class="{'type-button': true, active:searchHistoryType==='file'}" @click="searchHistoryType='file'">文件</button>
         <button :class="{'type-button': true, active:searchHistoryType==='date'}" @click="searchHistoryType='date'">日期</button>
-        <button :class="{'type-button': true, active:searchHistoryType==='member'}" @click="searchHistoryType='member'">成员</button>
+        <button :class="{'type-button': true, active:searchHistoryType==='member'}" @click="searchMemberHistory">成员</button>
       </div>
       <input
         type="date"
         v-show="searchHistoryType==='date'"
         v-model="searchHistoryDate"
         class="date-picker"
+      />
+      <MemberSelect
+        ref="memberSelect"
+        :members="groupInfo.members"
+        @select-member="searchHistoryMember=$event"
       />
       <!--筛选好的历史记录--> 
       <div v-if="filteredHistory" class="history-list">
@@ -118,6 +123,7 @@ import SwitchButton from '@/components/base/SwitchButton.vue';
 import SearchBar from '@/components/base/SearchBar.vue';
 import PersonProfileCard from '@/components/base/PersonProfileCard.vue';
 import DivideMove from '@/components/Contact_list/DivideMove.vue';
+import MemberSelect from './MemberSelect.vue';
 export default {
   components: {
     EditableText,
@@ -125,6 +131,7 @@ export default {
     SearchBar,
     PersonProfileCard,
     DivideMove,
+    MemberSelect,
   },
   data() {
     return {
@@ -355,6 +362,10 @@ export default {
           messageElement[0].scrollIntoView({ behavior: 'smooth' });
         }
       });
+    },
+    searchMemberHistory(event){
+      this.searchHistoryType = 'member';
+      this.$refs.memberSelect.show(event, this.boundD, this.boundR);
     },
 
     // 显示与隐藏
