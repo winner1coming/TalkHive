@@ -37,17 +37,7 @@ chats.chats.sort((a, b) => {
   const timeB = new Date(b.lastMessageTime);
   return timeB - timeA;
 });
-let messages = Mock.mock({
-  'messages|20-30': [{
-  'message_id|+1': /[0-9]{10}/,
-  'send_account_id|1': ['1','2'],
-  'content': ()=>Mock.Random.csentence(3, 30),
-  'sender': '@name',
-  'create_time': '@time("HH:mm")',
-  'type': 'text',
-  'avatar':'@image("200x200", "#50B347", "#FFF", "Mock.js")',
-  }]
-});
+
 
 Mock.mock(`${baseURL}/chatlist`, 'get', () => {
   return {
@@ -98,6 +88,7 @@ Mock.mock(`${baseURL}/chatlist/pin`, 'post', (options) => {
     data: chat,
   };
 });
+
 Mock.mock(`${baseURL}/messages/read`, 'post', (options) => {
   const { tid, is_read } = JSON.parse(options.body);
   const chat = chats.chats.find(chat => chat.id === tid);
@@ -155,7 +146,31 @@ Mock.mock(`${baseURL}/chatlist/block`, 'post', (options) => {
   };
 });
 
-Mock.mock(new RegExp(`${baseURL}/messages/\\d+`), 'get', (options) => {
+let messages = Mock.mock({
+  'messages|20-30': [{
+  'message_id|+1': /[0-9]{10}/,
+  'send_account_id|1': ['1','2'],
+  'content': function() {
+    const types = ['text', 'image', 'file'];
+    const type = this.type = Mock.Random.pick(types);
+    if (type === 'text') {
+      return Mock.Random.csentence(3, 30);
+    } else if (type === 'image') {
+      return Mock.Random.image('200x200', '#50B347', '#FFF', 'Mock.js');
+    } else if (type === 'file') {
+      return {
+        name: Mock.Random.word() + '.txt',
+        url: Mock.Random.url('http')
+      };
+    }
+  },
+  'sender': '@name',
+  'create_time': '@time("HH:mm")',
+  'type': '',
+  'avatar':'@image("200x200", "#50B347", "#FFF", "Mock.js")',
+  }]
+});
+Mock.mock(new RegExp(`${baseURL}/messages`), 'post', (options) => {
   const tid = parseInt(options.url.split('/').pop());
   return {
     status: 200,
