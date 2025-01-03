@@ -35,7 +35,7 @@
       return {
         currentBackground:this.$store.state.settings.background, // 默认背景图片
         newBackground: null, // 新上传的背景图片
-        file: null, // 文件对象
+        background:null,
         showModal:false,
         modalMessage:'',
       };
@@ -46,11 +46,11 @@
         if (file) {
           const reader = new FileReader();
           reader.onload = (e) => {
-            this.currentBackground = `data:${file.type};base64,${e.target.result.split(',')[1]}`;
+            this.background = `data:${file.type};base64,${e.target.result.split(',')[1]}`;
+            this.currentBackground = e.target.result;
             this.newBackground = this.currentBackground;
           };
           reader.readAsDataURL(file);
-          this.file = file;
         }
       },
       async saveBackground() {
@@ -61,12 +61,9 @@
         }
         // 保存背景图片逻辑
         try{
-          const formData = new FormData();
-          formData.append('background', this.file);
-          const response = await changeBackground({formData});
-          this.formData = null;
+          const response = await changeBackground({background:this.newBackground});
           if(response.success){
-            this.$store.commit('SET_BACKGROUND',this.newBackground);
+            this.$store.commit('SET_BACKGROUND',this.background);
             this.modalMessage = response.message;
             this.showModal = true;
           }else{

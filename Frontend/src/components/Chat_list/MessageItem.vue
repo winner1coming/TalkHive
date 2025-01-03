@@ -9,9 +9,26 @@
           <span class="message-sender">{{ message.sender }}</span>
           <span class="message-time">{{ message.create_time }}</span>
         </div>
+        <!--文本消息-->
         <div class="message-content" 
+            v-if="message.type==='text'"
              v-html="message.content" 
              @contextmenu.prevent="showContextMenu($event, message)">
+        </div>
+        <!--文件消息-->
+        <div class="message-file" v-else>
+          <div class="file-item">
+            <img src="@/assets/images/default-file.png" alt="file"/>
+            <div class="file-header">
+              <div class="file-name">{{ message.content.name }}</div>
+              <span class="file-size">{{ message.content.size }}</span>
+            </div>
+          </div>
+          <span class="file-buttons">
+            <button @click="downloadFile">下载</button>
+            <button>预览</button>
+            <!-- <a ref="link" style="visibility: hidden" :href="message.content" download>下载</a> -->
+          </span>
         </div>
       </div>
     </div>
@@ -22,9 +39,24 @@
           <span class="message-sender">{{ message.sender }}</span>
           <span class="message-time">{{ message.create_time }}</span>
         </div>
+        <!--文本消息-->
         <div class="message-content" 
+             v-if="message.type==='text'"
              v-html="message.content" 
              @contextmenu.prevent="showContextMenu($event, message)">
+        </div>
+        <!--文件消息-->
+        <div class="message-file" v-else>
+          <div class="file-item">
+            <img src="@/assets/images/default-file.png" alt="file"/>
+            <div class="file-name">{{ message.content.name }}</div>
+          </div>
+          <span class="file-size">{{ message.content.size }}</span>
+          <span>
+            <a :href="message.content" download>下载</a>
+            <button>预览</button>
+          </span>
+          <!-- <a :href="message.content" download></a> -->
         </div>
       </div>
       <div class="avatar">
@@ -48,6 +80,17 @@ export default {
     };
   },
   methods: {
+    downloadFile(){
+      const blob = new Blob([this.message.content], { type: 'application/octet-stream' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', this.message.content.name);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url); // 释放 URL 对象
+    },
     showContextMenu(event, message) {
       this.$emit('show-context-menu',event, message);
     },
@@ -112,6 +155,7 @@ export default {
   font-size: 0.8rem;
   text-align: right;
 }
+
 .message-content {
   flex:5;
   background-color: #75baeb;
@@ -119,6 +163,48 @@ export default {
   border-radius: 5px;
   text-align: left;
 }
+.message-file{
+  flex:5;
+  background-color: #75baeb;
+  padding: 10px;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+.file-item{
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  flex-direction: row;
+}
+.message-file img{
+  width: 50px;
+  height: 50px;
+}
+.file-header{
+  display: flex;
+  flex-direction: column;
+}
+.file-name{
+  margin-top: 5px;
+  font-size: 0.8rem;
+  color: #888;
+}
+.file-size{
+  margin-top: 5px;
+  font-size: 0.8rem;
+  color: #888;
+}
+.file-buttons{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+  padding: 5px;
+}
+
 .context-menu {
   position: absolute;
   background: white;

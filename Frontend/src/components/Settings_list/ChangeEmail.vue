@@ -120,6 +120,18 @@
           if(response.success){
             alert('邮箱更改成功');
             this.$emit('updateUser', { email: this.newEmail}); //修改父组件的email
+            //更新缓存的内容
+            let users = JSON.parse(localStorage.getItem('users')) || [];
+            const userInfo = {
+              email: this.newEmail,
+            }
+
+            const index = users.findIndex(user => user.email === this.oldEmail);
+            if(index !== -1){
+              users[index].email = userInfo.email;
+            }
+            
+            localStorage.setItem('users',JSON.stringify(users));
           }else{
             alert(response.message || '邮箱更改失败');
           }

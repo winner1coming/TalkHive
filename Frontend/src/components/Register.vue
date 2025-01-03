@@ -113,7 +113,6 @@ export default {
       password: '',
       confirmPassword: '',
       verificationCode: '',
-      file:null,
       errors: {
         avatar:'',
         gender:'',
@@ -317,24 +316,22 @@ export default {
       if(!this.validateCode()){
         return;
       }
-      
-      if(!this.file){
-        const response = await fetch(img);
-        const blob = await response.blob();
-        this.file = new File([blob], 'default_avatar.jpg', { type: blob.type });
+      if (this.avatar === img) {
+        const base64Avatar = await this.convertImageToBase64(img);
+        this.avatar = base64Avatar;
       }
 
       try {
-        const formData = new FormData();
-        formData.append('avatar', this.file);
-        formData.append('gender', this.gender);
-        formData.append('id', this.id);
-        formData.append('nickname', this.nickname);
-        formData.append('birthday', this.birthday);
-        formData.append('phone',this.phoneNumber);
-        formData.append("email", this.email);
-        formData.append('password',this.password);
-        const response = await Register(formData);
+        const response = await Register({
+          avatar: this.avatar,
+          gender: this.gender,
+          id: this.id,
+          nickname: this.nickname,
+          birthday: this.birthday,
+          phone: this.phoneNumber,
+          email: this.email,
+          password: this.password,
+        });
         
         if (response.success) {
           alert(response.message);
@@ -346,6 +343,25 @@ export default {
         alert(error || '注册失败');
       }
     },
+
+      // 将图片路径转换为 Base64
+  convertImageToBase64(imagePath) {
+    return new Promise((resolve, reject) => {
+      // 使用 fetch 获取图片文件
+      fetch(imagePath)
+        .then((response) => response.blob()) // 将响应转换为 Blob
+        .then((blob) => {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            resolve(reader.result); // 返回 Base64 编码
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(blob); // 将 Blob 转换为 Base64
+        })
+        .catch(reject);
+    });
+  },
+  
   },
 };
 </script>

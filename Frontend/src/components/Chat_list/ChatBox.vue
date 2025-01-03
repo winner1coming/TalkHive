@@ -30,7 +30,7 @@
     <!-- 右键菜单 -->
     <ContextMenu ref="contextMenu"  @select-item="handleMenuSelect" />
     <!-- 个人名片 -->
-    <ProfileCard ref="profileCard"/>
+    <PersonProfileCard ref="profileCard"/>
   </div>
 </template>
   
@@ -38,12 +38,12 @@
 import MessageItem from './MessageItem.vue';
 import MessageInput from './MessageInput.vue';
 import ContextMenu from '@/components/base/ContextMenu.vue';
-import ProfileCard from '@/components/base/ProfileCard.vue';
+import PersonProfileCard from '@/components/base/PersonProfileCard.vue';
 import * as chatListAPI from '@/services/chatList';
 import { getPersonProfileCard } from '@/services/api';
 
 export default {
-  components: {MessageItem, MessageInput, ContextMenu, ProfileCard},
+  components: {MessageItem, MessageInput, ContextMenu, PersonProfileCard},
   data() {
     return {
       messages: [],  // 当前聊天的消息历史
@@ -95,10 +95,10 @@ export default {
       }
       
     },
-    async sendMessage(content) {
+    async sendMessage(content, type) {
       // todo api
       try{
-        const response = await chatListAPI.sendMessage(this.selectedChat.id, content, 'text', this.selectedChat.tags.includes('group') ? true : false);
+        const response = await chatListAPI.sendMessage(this.selectedChat.id, content, type, this.selectedChat.tags.includes('group') ? true : false);
         if(response.status !== 200){
           this.$root.notify(response.data.message, 'error');
           return;

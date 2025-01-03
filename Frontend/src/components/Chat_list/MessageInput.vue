@@ -1,12 +1,11 @@
 <template>
   <div class="message-input">
     <div class="input-toolbar">
-      <button @click="sendEmoji">表情</button>
+      <button @click="toggleEmojiPicker">表情</button>
       <button @click="sendFile">文件</button>
       <input type="file" ref="fileInput" style="display: none;" @change="handleFile" />
       <button @click="sendScreenshot">截图</button>
       <button @click="sendCodeBlock">代码块</button>
-      <button @click="sendPoll">群投票</button>
     </div>
     <textarea 
       v-model="content" 
@@ -14,25 +13,35 @@
       @keydown.enter.prevent="sendMessage"
     ></textarea>
     <button class="send-button" @click="sendMessage">发送</button>
+    <Emoji 
+      ref="emojiPicker"
+      @emoji-click="addEmoji"
+    />
   </div>
 </template>
 
 <script>
+import 'emoji-picker-element';
+import Emoji from './Emoji.vue';
 export default {
+  components: { Emoji },
   data() {
     return {
-      content: ''
+      content: '',
     };
   },
   methods: {
     sendMessage() {
       if (this.content.trim()) {
-        this.$emit('send-message', this.content);
+        this.$emit('send-message', this.content, 'text');
         this.content = '';
       }
     },
-    sendEmoji() {
-      // 发送表情逻辑
+    toggleEmojiPicker(event) {
+      this.$refs.emojiPicker.show(event, window.innerHeight, window.innerWidth);
+    },
+    addEmoji(event) {
+      this.content += event.detail.unicode;
     },
     sendFile() {
       // 发送文件逻辑
@@ -52,9 +61,6 @@ export default {
     sendCodeBlock() {
       // 发送代码块逻辑
     },
-    sendPoll() {
-      // 发送群投票逻辑
-    }
   }
 };
 </script>
@@ -84,5 +90,7 @@ textarea {
   margin-left: auto;
   width: auto;
 }
+
+
 
 </style>

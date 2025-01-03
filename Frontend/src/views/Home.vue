@@ -35,9 +35,15 @@ export default {
   data() {
     return {
       showDropdown: false,
-      avatar: this.$store.state.user.avatar,
-      nickname:this.$store.state.user.username,
     };
+  },
+  computed: {
+  avatar() {
+    return this.$store.state.user.avatar;
+  },
+  nickname() {
+    return this.$store.state.user.username;
+  },
   },
   components:{
     Link,
@@ -88,7 +94,9 @@ export default {
 .user-info {
   display: flex;
   align-items: center;
+  flex-direction: column;
   margin-bottom: 20px;
+  color: #000;
 }
 
 .avatar {
@@ -100,6 +108,7 @@ export default {
 
 .nickname {
   font-weight: bold;
+  color: #000;
 }
 
 .nav-links {

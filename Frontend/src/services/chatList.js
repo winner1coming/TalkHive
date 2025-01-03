@@ -4,9 +4,9 @@ export const getChatList = () => {
   return apiClient.get('/chatlist');
 };
 // 获取单个新聊天
-export const getChat = (tid) => {  
+export const getChat = (tid, is_group) => {  
   // 创建一个新的聊天，后端需要返回新的chat，chat的格式同getChatList中的元素
-  return apiClient.post(`/chatlist/createChat`,{tid});
+  return apiClient.post(`/chatlist/createChat`,{tid, is_group});
 };
 // 搜索聊天
 export const searchChats = (keyword) => {

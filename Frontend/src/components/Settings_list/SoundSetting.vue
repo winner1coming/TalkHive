@@ -56,23 +56,18 @@
         audio: null, // 新上传的音频文件
         showModal:false,
         modalMessage:'',
+        notificationStatus:this.$store.state.settings.isNotice,
+        groupSoundStatus:this.$store.state.settings.isNoticeGroup,
       };
-    },
-    computed: {
-      notificationStatus() {
-        return this.$store.state.settings.isNotice;
-      },
-      groupSoundStatus() {
-        return this.$store.state.settings.isNoticeGroup;
-      },
     },
     methods: {
       async toggleNotificationStatus() {
         //开启消息通知
         try{
-          const response = await isNotice({notice:this.notificationStatus});
+          const temp = !this.notificationStatus;
+          const response = await isNotice({notice:temp});
           if(response.success){
-            this.notificationStatus = this.notificationStatus === true ? false : true;
+            this.notificationStatus = temp;
             this.$store.commit('SET_NOTICE',this.notificationStatus);
           }else{
             this.showModal = true;
@@ -86,9 +81,10 @@
       },
       async toggleGroupSoundStatus() {
         try{
-          const response = await isNoticeGroup({noticeGroup:this.groupSoundStatus});
+          const temp = !this.groupSoundStatus;
+          const response = await isNoticeGroup({noticeGroup:temp});
           if(response.success){
-            this.groupSoundStatus = this.groupSoundStatus === true ? false : true;
+            this.groupSoundStatus = temp;
             this.$store.commit('SET_GROUPNOTICE',this.groupSoundStatus);
           }else{
             this.showModal = true;

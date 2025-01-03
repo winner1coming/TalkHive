@@ -15,7 +15,7 @@
       @show-person-context-menu="showPersonContextMenu"
       @show-divide-context-menu="showDivideContextMenu"
     />
-    <ProfileCard ref="profileCard" />
+    <GroupProfileCard ref="profileCard" />
     <DivideDelete
       :divides="tags.filter(tag => tag !== '全部')"
       v-show="isDivideDeleteVisible"
@@ -59,12 +59,12 @@ import DivideAdd from './DivideAdd.vue';
 import DivideManagement from './DivideManagement.vue';
 import DivideMove from './DivideMove.vue';
 import ContextMenu from '@/components/base/ContextMenu.vue';
-import ProfileCard from '@/components/base/ProfileCard.vue';
+import GroupProfileCard from '@/components/base/GroupProfileCard.vue';
 
 export default {
   components: {
     itemList,
-    ProfileCard,
+    GroupProfileCard,
     DivideDelete,
     DivideAdd,
     DivideManagement,
@@ -73,7 +73,7 @@ export default {
   },
   components: {
     itemList,
-    ProfileCard,
+    GroupProfileCard,
     DivideDelete,
     DivideAdd,
     DivideManagement,

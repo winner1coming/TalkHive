@@ -63,6 +63,7 @@ func autoMigrateTables() error {
 		&models.Links{},
 		&models.MessageInfo{},
 		&models.DeleteInfo{},
+		&models.ChatInfo{},
 	}
 
 	// 执行自动迁移
