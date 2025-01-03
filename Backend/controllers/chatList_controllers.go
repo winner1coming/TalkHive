@@ -61,14 +61,14 @@ func GetChatList(c *gin.Context) {
 
 		// 获取最后一条消息
 		var lastMessage models.MessageInfo
-		if err := global.Db.Where("chat_id = ?", chat.ChatID).Order("timestamp desc").First(&lastMessage).Error; err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询最后一条消息失败"})
+		if err := global.Db.Where("chat_id = ?", chat.ChatID).Order("create_time desc").First(&lastMessage).Error; err != nil {
+			c.JSON(http.StatusOK, gin.H{"success": true, "message": "当前聊天记录还没有消息"})
 			return
 		}
 
-		// 获取未读消息数
+		// 获取未读消息数/或者查询Contacts表中unread_message_num
 		var unreadCount int64
-		if err := global.Db.Model(&models.MessageInfo{}).Where("chat_id = ? AND receive_account_id = ? AND is_read = ?", chat.ChatID, accountID, false).Count(&unreadCount).Error; err != nil {
+		if err := global.Db.Model(&models.MessageInfo{}).Where("chat_id = ? AND target_id = ? AND is_read = ?", chat.ChatID, accountID, false).Count(&unreadCount).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询未读消息失败"})
 			return
 		}
@@ -79,7 +79,16 @@ func GetChatList(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询contacts表失败"})
 			return
 		}
+		var tags []string
 		if chat.IsGroup != true {
+			tags := append(tags, "friend")
+			if contact.IsPinned {
+				tags = append(tags, "Pinned")
+			}
+			if contact.IsBlocked {
+				tags = append(tags, "blocked")
+			}
+
 			chatResponse := gin.H{
 				"id":              chat.TargetID,
 				"avatar":          friend.Avatar,
@@ -88,9 +97,17 @@ func GetChatList(c *gin.Context) {
 				"lastMessage":     lastMessage.Content,
 				"lastMessageTime": lastMessage.CreateTime,
 				"unreadCount":     unreadCount,
+				"tags":            tags,
 			}
 			response = append(response, chatResponse)
 		} else {
+			tags := append(tags, "group")
+			if contact.IsPinned {
+				tags = append(tags, "Pinned")
+			}
+			if contact.IsBlocked {
+				tags = append(tags, "blocked")
+			}
 			chatResponse := gin.H{
 				"id":              chat.TargetID,
 				"avatar":          groupChat.GroupAvatar,
@@ -136,8 +153,9 @@ func GetChat(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Json绑定失败"})
 		return
 	}
-	var response []gin.H
 
+	var response []gin.H
+	var tags []string
 	if input.IsGroup {
 		var group models.GroupChatInfo
 		if err := global.Db.Where("group_id = ?", input.Tid).First(&group).Error; err != nil {
@@ -165,12 +183,25 @@ func GetChat(c *gin.Context) {
 			return
 		}
 
-		response = append(response, gin.H{
-			"id":     input.Tid,
-			"avatar": group.GroupAvatar,
-			"name":   group.GroupName,
-			"remark": contact.Remark,
-		})
+		tags := append(tags, "friend")
+		if contact.IsPinned {
+			tags = append(tags, "Pinned")
+		}
+		if contact.IsBlocked {
+			tags = append(tags, "blocked")
+		}
+
+		chatResponse := gin.H{
+			"id":              chat.TargetID,
+			"avatar":          group.GroupAvatar,
+			"name":            group.GroupName,
+			"remark":          contact.Remark,
+			"lastMessage":     nil,
+			"lastMessageTime": nil,
+			"unreadCount":     nil,
+			"tags":            tags,
+		}
+		response = append(response, chatResponse)
 
 	} else {
 		var friend models.AccountInfo
@@ -201,14 +232,27 @@ func GetChat(c *gin.Context) {
 			return
 		}
 
-		response = append(response, gin.H{
-			"id":     input.Tid,
-			"avatar": friend.Avatar,
-			"name":   friend.Nickname,
-			"remark": contact.Remark,
-		})
+		tags := append(tags, "friend")
+		if contact.IsPinned {
+			tags = append(tags, "Pinned")
+		}
+		if contact.IsBlocked {
+			tags = append(tags, "blocked")
+		}
+
+		chatResponse := gin.H{
+			"id":              chat.TargetID,
+			"avatar":          friend.Avatar,
+			"name":            friend.Nickname,
+			"remark":          contact.Remark,
+			"lastMessage":     nil,
+			"lastMessageTime": nil,
+			"unreadCount":     nil,
+			"tags":            tags,
+		}
+		response = append(response, chatResponse)
 	}
-	c.JSON(http.StatusOK, gin.H{"success": true, "message": "获取聊天列表成功", "data": response})
+	c.JSON(http.StatusOK, gin.H{"success": true, "message": "创建聊天记录成功", "data": response})
 }
 
 // SearchChats 搜索聊天
@@ -996,7 +1040,32 @@ func SendMessage(c *gin.Context) {
 
 // CollectMessage 收藏消息
 func CollectMessage(c *gin.Context) {
-
+	userID := c.GetHeader("User-ID")
+	if userID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "HTTP header中用户ID为空"})
+		return
+	}
+	accountID, err := strconv.Atoi(userID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "ID解析失败"})
+		return
+	}
+	var me models.AccountInfo
+	if err := global.Db.Where("account_id = ?", accountID).First(&me).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询用户失败"})
+		return
+	}
+	if me.Deactivate {
+		c.JSON(http.StatusUnauthorized, gin.H{"success": false, "message": "用户已注销"})
+		return
+	}
+	var input struct {
+		MessageID int `json:"message_id" binding:"required"`
+	}
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "参数错误"})
+		return
+	}
 }
 
 // ReplyMessage 回复消息
