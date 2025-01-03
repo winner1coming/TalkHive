@@ -3,9 +3,10 @@ package config
 import (
 	"TalkHive/global"
 	"TalkHive/models"
+	"log"
+
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"log"
 )
 
 // InitDB 初始化数据库连接

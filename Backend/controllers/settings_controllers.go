@@ -6,11 +6,12 @@ import (
 	"TalkHive/utils"
 	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 //--------------------------------------------------------------------------
@@ -90,7 +91,16 @@ func SaveEdit(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "请求数据格式错误"})
 		return
 	}
-	user.Avatar = input.Avatar
+
+	if input.Avatar != "" {
+		avatarPath, err := global.GetAvatarPath(input.Avatar, userID, "User_Avtar")
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": err.Error()})
+			return
+		}
+		user.Avatar = avatarPath
+	}
+
 	user.Nickname = input.Nickname
 	user.Gender = input.Gender
 	user.Birthday = input.Birthday
@@ -766,6 +776,16 @@ func ChangeBackground(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "参数解析失败"})
 		return
 	}
+
+	if input.Background != "" {
+		backgroundPath, err := global.GetAvatarPath(input.Background, strconv.Itoa(int(accountID)), "User_Background")
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": err.Error()})
+			return
+		}
+		input.Background = backgroundPath
+	}
+
 	var systemSetting models.SystemSetting
 	if err = global.Db.Where("account_id = ?", accountID).First(&systemSetting).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) { // 如果记录不存在则创建新的新的系统设置，并且绑定id
@@ -784,7 +804,7 @@ func ChangeBackground(c *gin.Context) {
 	}
 	systemSetting.Background = input.Background
 	if err := global.Db.Save(&systemSetting).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "更改背景成功"})
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "更改背景失败"})
 	} else {
 		c.JSON(http.StatusOK, gin.H{"success": true, "message": "更改背景成功"})
 	}
@@ -817,6 +837,21 @@ func GetSystemSetting(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "系统设置未找到"})
 		return
 	}
+
+	var backGroundBase64 string
+	var mimeType string
+	if systemSetting.Background != "" {
+		// 调用 GetFileContentAndType 方法获取文件内容和类型
+		backGroundBase64, mimeType, err = global.GetFileContentAndType(systemSetting.Background)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"success": false,
+				"message": err.Error(),
+			})
+			return
+		}
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
 		"message": "系统设置获取成功",
@@ -825,7 +860,8 @@ func GetSystemSetting(c *gin.Context) {
 			"fontSize":    systemSetting.FontSize,
 			"fontStyle":   systemSetting.FontStyle,
 			"sound":       systemSetting.Sound,
-			"background":  systemSetting.Background,
+			"background":  backGroundBase64,
+			"mimeType":    mimeType,
 			"notice":      systemSetting.Notice,
 			"noticeGroup": systemSetting.NoticeGroup,
 		},
