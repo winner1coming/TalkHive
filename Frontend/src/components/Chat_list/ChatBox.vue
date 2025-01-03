@@ -103,11 +103,11 @@ export default {
           return;
         }else{
           this.messages.push({
-            message_id: '0',  // 消息编号
+            message_id: response.data.data.message_id,  // 消息编号
             send_account_id: this.$store.state.user.id,  // 发送者的id
             content: content,
             sender: this.$store.state.user.username,   // 发送者的备注
-            create_time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),  // 发送时间
+            create_time: response.data.data.create_time,  // 发送时间  todo 改为前端创建
             type: type,   // 消息类型
           });
           this.scrollToBottom();
