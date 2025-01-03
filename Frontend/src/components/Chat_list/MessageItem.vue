@@ -16,6 +16,9 @@
              @contextmenu.prevent="showContextMenu($event, message)">
         </div>
         <!--图片消息-->
+        <div v-else-if="message.type==='image'">
+          <img :src="message.content" alt="image" style="max-width: 100%; max-height: 200px;"/>
+        </div>
         <!--文件消息-->
         <div class="message-file" v-else-if="message.type==='file'">
           <div class="file-item">
@@ -51,6 +54,9 @@
              @contextmenu.prevent="showContextMenu($event, message)">
         </div>
         <!--图片消息-->
+        <div v-else-if="message.type==='image'">
+          <img :src="message.content" alt="image" style="max-width: 100%; max-height: 200px;"/>
+        </div>
         <!--文件消息-->
         <div class="message-file" v-else-if="message.type==='file'">
           <div class="file-item">
