@@ -59,11 +59,42 @@ func GetChatList(c *gin.Context) {
 			}
 		}
 
-		// 获取最后一条消息
+		// 查询contacts表
+		var contact models.Contacts
+		if err := global.Db.Where("owner_id = ? AND contact_id = ?", accountID, chat.TargetID).First(&contact).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询contacts表失败"})
+			return
+		}
+
+		// 获取最后一条消息/如果当前聊天记录没有消息
 		var lastMessage models.MessageInfo
 		if err := global.Db.Where("chat_id = ?", chat.ChatID).Order("create_time desc").First(&lastMessage).Error; err != nil {
-			c.JSON(http.StatusOK, gin.H{"success": true, "message": "当前聊天记录还没有消息"})
-			return
+
+			var tags []string
+			if contact.IsGroupChat {
+				tags = append(tags, "friend")
+			} else {
+				tags = append(tags, "group")
+			}
+			if contact.IsPinned {
+				tags = append(tags, "Pinned")
+			}
+			if contact.IsBlocked {
+				tags = append(tags, "blocked")
+			}
+
+			chatResponse := gin.H{
+				"id":              chat.TargetID,
+				"avatar":          friend.Avatar,
+				"name":            friend.Nickname,
+				"remark":          contact.Remark,
+				"lastMessage":     nil,
+				"lastMessageTime": nil,
+				"unreadCount":     nil,
+				"tags":            tags,
+			}
+			response = append(response, chatResponse)
+			continue
 		}
 
 		// 获取未读消息数/或者查询Contacts表中unread_message_num
@@ -73,12 +104,6 @@ func GetChatList(c *gin.Context) {
 			return
 		}
 
-		// 查询contacts表
-		var contact models.Contacts
-		if err := global.Db.Where("owner_id = ? AND contact_id = ?", accountID, chat.TargetID).First(&contact).Error; err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询contacts表失败"})
-			return
-		}
 		var tags []string
 		if chat.IsGroup != true {
 			tags := append(tags, "friend")

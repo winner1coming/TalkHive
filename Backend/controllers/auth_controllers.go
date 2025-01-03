@@ -52,7 +52,7 @@ func Login(c *gin.Context) {
 	var mimeType string
 	if account.Avatar != "" {
 		// 调用 GetFileContentAndType 方法获取文件内容和类型
-		avatarBase64, mimeType, err = global.GetFileContentAndType(account.Avatar)
+		avatarBase64, mimeType, err = utils.GetFileContentAndType(account.Avatar)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"success": false,
@@ -140,7 +140,7 @@ func Register(c *gin.Context) {
 
 	if input.Avatar != "" {
 		// 调用 GetAvatarPath 方法生成文件路径并保存图片
-		avatarPath, err := global.GetAvatarPath(input.Avatar, strconv.Itoa(int(newUser.AccountID)), "User_Avatar")
+		avatarPath, err := utils.GetAvatarPath(input.Avatar, strconv.Itoa(int(newUser.AccountID)), "User_Avatar")
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": err.Error()})
 			return
@@ -267,7 +267,7 @@ func SmsLogin(c *gin.Context) {
 	var err error
 	if account.Avatar != "" {
 		// 调用 GetFileContentAndType 方法获取文件内容和类型
-		avatarBase64, mimeType, err = global.GetFileContentAndType(account.Avatar)
+		avatarBase64, mimeType, err = utils.GetFileContentAndType(account.Avatar)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"success": false,
