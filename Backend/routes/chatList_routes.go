@@ -20,7 +20,5 @@ func ChatListRoutes(r *gin.Engine) {
 	r.POST("/messages", controllers.GetMessages)
 	r.POST("/messages/send", controllers.SendMessage)
 	r.POST("/messages/collect", controllers.CollectMessage)
-	r.POST("/messages/reply", controllers.ReplyMessage)
-	r.POST("/messages/forward", controllers.ForwardMessage)
 	r.POST("/messages/delete", controllers.DeleteMessage)
 }

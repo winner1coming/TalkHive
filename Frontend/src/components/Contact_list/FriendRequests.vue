@@ -26,6 +26,7 @@
 
 <script>
 import { getFriendRequests, friendRequestPend } from '@/services/contactList';
+import { EventBus } from '@/components/base/EventBus';
 const contactListAPI = {getFriendRequests, friendRequestPend};
 
 export default {
@@ -97,6 +98,15 @@ export default {
   },
   created() {
     this.fetchRequests();
+    EventBus.on('updateFriendRequest', newRequest => {
+      if(!this.requests){
+        this.requests = this.requests.filter(request => request.apply_id !== newRequest.apply_id);
+      }
+      this.requests.unshift(newRequest);
+    });
+  },
+  beforeDestroy() {
+    EventBus.off('updateFriendRequest');
   },
 };
 </script>
@@ -109,13 +119,5 @@ button {
   border: none;
   border-radius: 4px;
   cursor: pointer;
-}
-button:first-of-type {
-  background-color: #28a745;
-  color: white;
-}
-button:last-of-type {
-  background-color: #dc3545;
-  color: white;
 }
 </style>

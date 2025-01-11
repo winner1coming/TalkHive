@@ -20,13 +20,13 @@
     <div v-else class="welcome-message">请选择一个聊天开始！</div>
 
     <!-- 群聊管理弹窗 -->
-    <GroupManagement
+    <GroupManagement 
       ref="groupManagement"
       @close="closeGroupManagement"
       @update-group="updateGroupDetails"
       @group-exited="exitGroup"
     />
-    <FriendManagement
+    <FriendManagement 
       ref="friendManagement"
       @close="closeFriendManagement"
       @update-friend="updateFriendDetails"

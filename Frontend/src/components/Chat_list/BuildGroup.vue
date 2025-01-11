@@ -109,7 +109,8 @@ export default {
 }
 
 .modal-content {
-  background-color: #fff;
+  background-color: var(--background-color);
+  color: var(--text-color);
   padding: 20px;
   border-radius: 8px;
   width: 300px;
@@ -157,7 +158,6 @@ export default {
   margin: 10px 0;
 }
 .title {
-  color: black;
   text-align: left;
   font-weight: 500;
 }
@@ -169,8 +169,8 @@ export default {
 .submit-button{
   width: 100%;
   padding: 10px;
-  background-color: #007bff;
-  color: white;
+  background-color: var(--button-background-color);
+  color: var(--button-text-color);
   border: none;
   border-radius: 5px;
   cursor: pointer;
@@ -178,7 +178,7 @@ export default {
   margin-top: 20px;
 }
 .submit-button:hover {
-  background-color: #0056b3;
+  background-color: var(--button-background-color1);
 }
 
 </style>

@@ -164,14 +164,15 @@ export default {
   display: flex;
   flex-direction: column;
   padding: 10px;
-  background-color: #f5f5f5;
+  background-color: var(--background-color1);
 }
 textarea {
   flex: 1;
   resize: none;
   padding-right: 50px;
   border:none;
-  background-color: #f5f5f5;
+  background-color: var(--background-color1);
+  color: var(--text-color);
   outline: none;
 }
 .input-toolbar {
@@ -213,15 +214,11 @@ textarea {
 
 .confirm-buttons button {
   padding: 5px 10px;
-  background-color: #4CAF50;
-  color: white;
+  background-color: var(--button-background-color);
+  color: var(--button-text-color);
   border: none;
   cursor: pointer;
   pointer-events: auto;
-}
-
-.confirm-buttons button:last-child {
-  background-color: #f44336;
 }
 
 </style>

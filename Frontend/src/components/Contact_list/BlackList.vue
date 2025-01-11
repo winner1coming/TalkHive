@@ -64,18 +64,18 @@ export default {
       isBlackListManagementVisible: false,
       managementType:'',
       managePesons: [
-        {
-          avatar: '',
-          name: 'John Doe',
-          account_id: '1',   // id
-          signature:"爱拼才会赢",
-        },
-        {
-          avatar: '',
-          name: 'Jane Doe',
-          account_id: '2',
-          signature:"hi",
-        },
+        // {
+        //   avatar: '',
+        //   name: 'John Doe',
+        //   account_id: '1',   // id
+        //   signature:"爱拼才会赢",
+        // },
+        // {
+        //   avatar: '',
+        //   name: 'Jane Doe',
+        //   account_id: '2',
+        //   signature:"hi",
+        // },
       ],
       boundD: null, // 边界的坐标
 			boundR: null, // 边界的坐标
@@ -194,12 +194,8 @@ button {
   border-radius: 4px;
   cursor: pointer;
 }
-button:first-of-type {
-  background-color: #28a745;
-  color: white;
-}
-button:last-of-type {
-  background-color: #dc3545;
-  color: white;
+button {
+  background-color: var(--button-background-color);
+  color: var(--button-text-color);
 }
 </style>

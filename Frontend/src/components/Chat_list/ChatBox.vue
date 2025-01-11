@@ -1,5 +1,5 @@
 <!-- 聊天框,上半部分为历史记录，下半部分为输入区-->
-<template><!-- todo List:新消息的处理逻辑 -->
+<template>
   <div class="chat-box" ref="chatBox">
     <!-- 最上方的聊天头部 -->
     <div class="chat-header">
@@ -41,6 +41,7 @@ import ContextMenu from '@/components/base/ContextMenu.vue';
 import PersonProfileCard from '@/components/base/PersonProfileCard.vue';
 import * as chatListAPI from '@/services/chatList';
 import { getPersonProfileCard } from '@/services/api';
+import { EventBus } from '@/components/base/EventBus';
 
 export default {
   components: {MessageItem, MessageInput, ContextMenu, PersonProfileCard},
@@ -86,7 +87,12 @@ export default {
           this.$root.notify(response.data.message, 'error');
           return;
         }
-        this.messages = response.data.data;
+        if(!response.data.data){
+          this.messages = [];
+        }
+        else{
+          this.messages = response.data.data.messages;
+        }
         this.$nextTick(() => {
           this.scrollToBottom();
         });
@@ -122,16 +128,17 @@ export default {
       this.$emit('click-management');
     },
     showContextMenu(event, message) {
-      const items = ['引用', '转发', '删除', '撤回', '复制', '多选', '收藏', '置顶'];
+      const items = ['删除', '撤回', '复制','收藏'];
       this.$refs.contextMenu.show(event, items, message, this.boundD, this.boundR);
     },
     async handleMenuSelect(option, message){   // todo api没搞完
-      if(option === '引用'){
-        // todo
-        this.$emit('reply', message);
-      }else if(option === '转发'){
-        this.$emit('forward', message);
-      }else if(option === '删除'){
+      // if(option === '引用'){
+      //   // todo
+      //   this.$emit('reply', message);
+      // }else if(option === '转发'){
+      //   this.$emit('forward', message);
+      // }else 
+      if(option === '删除'){
         try{
           const response = await chatListAPI.deleteMessage(message.message_id);
           if(response.status !== 200){
@@ -142,7 +149,8 @@ export default {
         }catch(e){
           console.log(e);
         }
-      }else if(option === '撤回'){
+      }
+      else if(option === '撤回'){
         try{
           const response = await chatListAPI.recallMessage(message.message_id);
           if(response.status !== 200){
@@ -154,7 +162,8 @@ export default {
         }catch(e){
           console.log(e);
         }  
-      }else if(option === '复制'){
+      }
+      else if(option === '复制'){
         try{
           await navigator.clipboard.writeText(message.content);
           this.$root.notify('复制成功','success');
@@ -162,9 +171,11 @@ export default {
           console.error('复制失败:',err);
           this.$root.notify('复制失败','error');
         }
-      }else if(option === '多选'){
-        // todo
-      }else if(option === '收藏'){
+      }
+      // else if(option === '多选'){
+      //   // todo
+      // }
+      else if(option === '收藏'){
         try{
           const response = await chatListAPI.collectMessage({table_name:"message",message_id: message.message_id});
           if(response.status != 200){
@@ -175,9 +186,10 @@ export default {
         }catch(e){
           console.log(e);
         }
-      }else if(option === '置顶'){
-        chatListAPI.topMessage(message.message_id);  // todo
       }
+      // else if(option === '置顶'){
+      //   chatListAPI.topMessage(message.message_id);  // todo
+      // }
     
     },
     async showProfileCard(event, send_account_id){
@@ -212,6 +224,14 @@ export default {
   mounted() {
     this.boundD = this.$refs.chatBox.getBoundingClientRect().bottom;
     this.boundR = this.$refs.chatBox.getBoundingClientRect().right;
+    EventBus.on('new-message', (newMessage) => {
+      if(newMessage.chat_id === this.selectedChat.id){
+        this.messages.push(newMessage);
+      }
+    });
+  },
+  beforeDestroy() {
+    EventBus.off('new-message');
   },
 };
 </script>
@@ -227,7 +247,8 @@ export default {
   display: flex;
   align-items: center;
   padding: 10px;
-  background-color: #687aec91;
+  background-color: var(--sidebar-background-color);
+  color: var(--sidebar-text-color);
 }
 .chat-name {
   margin-left: 10px;
@@ -243,7 +264,8 @@ export default {
   position: relative;
   flex: 1;
   padding: 10px;
-  background-color: #f0f0f0;
+  background-color: var(--background-color);
+  color: var(--text-color);
   display: block;
   overflow-y: auto; /* 允许垂直滚动 */
   overflow-x: hidden; /* 隐藏水平滚动条 */

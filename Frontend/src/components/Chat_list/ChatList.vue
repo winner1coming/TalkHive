@@ -37,7 +37,7 @@
       >
         <div class="left-part">
           <!-- 头像-->
-          <div class="chat-avatar">
+          <div class="chat-avatar">  
             <img :src="chat.avatar" alt="avatar" />
           </div>
           <!-- 信息-->
@@ -483,6 +483,17 @@ export default {
         }
       } 
     });
+    EventBus.on('update-chat', (newChat) => {
+      this.chats = this.chats.filter(chat => chat.id !== newChat.id);
+      this.chats.unshift(newChat); 
+    });
+  },
+  beforeDestroy() {
+    EventBus.off('set-mute');
+    EventBus.off('set-pinned');
+    EventBus.off('set-blocked');
+    EventBus.off('set-blacklist');
+    EventBus.off('update-chat');
   },
 };
 </script>
@@ -492,7 +503,8 @@ export default {
 .chat-list {
   width: 30%;
   height: 100%;
-  background-color: #f5f5f5;
+  background-color: var(--background-color);
+  color: var(--text-color);
   display: flex;
   flex-direction: column;
 }
@@ -517,10 +529,12 @@ export default {
   justify-content: space-between;
 }
 .chat-items li.pinned {
-  background-color: #e3e0e0
+  background-color: var(--background-color1);
+  color: var(--text-color);
 }
 .chat-items li.selected {
-  background-color: #d5d2d2
+  background-color: var(--background-color2);
+  color: var(--text-color);
 }
 .left-part {
   display: flex;
@@ -558,7 +572,7 @@ export default {
   font-size: 0.8rem;
 }
 .unread-count {
-  background-color: #ff0000;
+  background-color: #d63131df;
   color: white;
   width: 15px;
   height: 20px;

@@ -3,7 +3,9 @@
     @mouseover="handleMouseOver" 
     @mouseleave="handleMouseLeave"
   >
-    <a href="#" @mouseover="showWebLinksDropdown = true">网页链接器</a>
+    <a href="#" @mouseover="showWebLinksDropdown = true">
+      <img src="@/assets/icon/Link.png" alt="Link" class="icon"/>
+    </a>
     <div v-if="showWebLinksDropdown || isDropdownPinned" class="web-links-dropdown" @mouseleave="handleDropdownMouseLeave">
       <div class="pin-icon" @click="togglePinDropdown" :style="{ backgroundColor: isDropdownPinned ? 'red' : '#706a6a' }">
         <i class="fas fa-thumbtack">📍</i>
@@ -45,7 +47,8 @@
           </div>
           <div class="form-actions">
             <button type="submit" class="add-button">添加</button>
-            <button @click="showAddLinkModal = false,isAddingLink= false" class="cancel-button">取消</button>
+            <button @click="showAddLinkModal = false,isAddingLink= false,this.newlink = { name: '', url: '', icon: '' };" 
+                    class="cancel-button">取消</button>
           </div>
         </form>
       </div>
@@ -130,7 +133,7 @@ export default {
       try {
         this.newlink.icon = `${this.newlink.url}/favicon.ico`;
         const response = await AddLinks({
-          name: this.newlink.name,
+          url_name: this.newlink.name,
           url: this.newlink.url,
           icon: this.newlink.icon,
         });
@@ -234,9 +237,9 @@ export default {
   width: 250px;
   position: absolute;
   top: 0%; /* 下拉列表紧贴按钮 */
-  left: 120px;
+  left: 60px;
   z-index: 10; /* 确保下拉列表在其他内容之上 */
-  height: 350px;
+  height: 300px;
   overflow: hidden;
 }
 
@@ -403,4 +406,10 @@ export default {
   .put{
     display: flex;
   }
+
+  a .icon {
+  width: 25px; /* 图标大小 */
+  height: 25px; /* 图标大小 */
+  margin-right: 5px; /* 图标和文字之间的间距 */
+}
 </style>

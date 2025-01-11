@@ -130,7 +130,7 @@ func GetChatList(c *gin.Context) {
 
 		// 获取未读消息数/或者查询Contacts表中unread_message_num
 		var unreadCount int64
-		if err := global.Db.Model(&models.MessageInfo{}).Where("chat_id = ? AND target_id = ? AND is_read = ?", chat.ChatID, accountID, false).Count(&unreadCount).Error; err != nil {
+		if err := global.Db.Model(&models.MessageInfo{}).Where("(sender_chat_id = ? OR receiver_chat_id = ?) AND is_read = ?", chat.ChatID, chat.ChatID, false).Count(&unreadCount).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询未读消息失败"})
 			return
 		}
@@ -874,7 +874,7 @@ func GetMessages(c *gin.Context) {
 
 		// 查询当前聊天记录下的message
 		var messages []models.MessageInfo
-		if err := global.Db.Where("chat_id = ?", chat.ChatID).Order("create_time DESC").Find(&messages).Error; err != nil {
+		if err := global.Db.Where("sender_chat_id = ? OR receiver_chat_id = ?", chat.ChatID, chat.ChatID).Order("create_time DESC").Find(&messages).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询messageInfo表失败"})
 			return
 		}
@@ -948,7 +948,7 @@ func GetMessages(c *gin.Context) {
 
 		// 查询当前聊天记录下的message
 		var messages []models.MessageInfo
-		if err := global.Db.Where("chat_id = ?", chat.ChatID).Order("create_time DESC").Find(&messages).Error; err != nil {
+		if err := global.Db.Where("sender_chat_id = ? OR receiver_chat_id = ?", chat.ChatID, chat.ChatID).Order("create_time ASC").Find(&messages).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询messageInfo表失败"})
 			return
 		}
@@ -1215,16 +1215,6 @@ func CollectMessage(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "参数错误"})
 		return
 	}
-}
-
-// ReplyMessage 回复消息
-func ReplyMessage(c *gin.Context) {
-
-}
-
-// ForwardMessage 转发聊天记录
-func ForwardMessage(c *gin.Context) {
-
 }
 
 // DeleteMessage 删除消息

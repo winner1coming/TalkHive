@@ -42,6 +42,7 @@
 
 <script>
 import ToggleContent from '@/components/base/ToggleContent.vue';
+import { EventBus } from '@/components/base/EventBus';
 import { getGroupRequests, groupInvitationRequestPend, groupApplyRequestPend} from '@/services/contactList';
 const ContactListAPI = {
   getGroupRequests,
@@ -163,6 +164,15 @@ export default {
   },
   created() {
     this.fetchRequests();
+    EventBus.on('updateGroupRequest', newRequest => {
+      if(!this.requests){
+        this.requests = this.requests.filter(request => request.apply_id !== newRequest.apply_id);  
+      }
+      this.requests.unshift(newRequest);
+    });
+  },
+  beforeDestroy() {
+    EventBus.off('updateGroupRequest');
   },
 };
 </script>
@@ -175,13 +185,5 @@ button {
   border: none;
   border-radius: 4px;
   cursor: pointer;
-}
-button:first-of-type {
-  background-color: #28a745;
-  color: white;
-}
-button:last-of-type {
-  background-color: #dc3545;
-  color: white;
 }
 </style>
