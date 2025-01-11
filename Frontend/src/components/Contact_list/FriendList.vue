@@ -51,6 +51,7 @@
 
 <script>
 import * as contactListAPI from '@/services/contactList';
+import { EventBus } from '@/components/base/EventBus';
 import { getPersonProfileCard } from '@/services/api';
 
 import itemList from './itemList.vue';
@@ -63,15 +64,6 @@ import PersonProfileCard from '@/components/base/PersonProfileCard.vue';
 
 
 export default {
-  components: {
-    itemList,
-    PersonProfileCard,
-    DivideDelete,
-    DivideAdd,
-    DivideManagement,
-    DivideMove,
-    ContextMenu,
-  },
   components: {
     itemList,
     PersonProfileCard,
@@ -98,33 +90,6 @@ export default {
       items: [],   // 好友列表
       boundD: 0,
       boundR: 0,
-      isDivideManagementVisible: false,
-      isDivideDeleteVisible: false,
-      isDivideManagementVisible: false,
-      isDivideAddVisible:false,
-      isDivideMoveVisible: false,
-      // persons:[
-			// ],//  （type为in时是除该分组外的所有好友，out时为当前分组内的好友）
-      persons: [],  // 用于移入移出分组
-      managementType: '',
-      obj: null,
-      selectedPersons: [],
-      type: 'friendList',  // friendList, groupList
-      tags: [],  // 从后端获取
-      // items: [
-      //   {
-      //     avatar: '',
-      //     account_id: '1',
-      //     remark: 'John',   // 好友备注
-      //     status: 'online',   // online, offline
-      //     signature: '爱拼才会赢',    // 签名
-      //     tag: '家人',   
-      //   },
-      // ],
-      items: [],   // 好友列表
-      boundD: 0,
-      boundR: 0,
-      isDivideManagementVisible: false,
       isDivideDeleteVisible: false,
       isDivideManagementVisible: false,
       isDivideAddVisible:false,
@@ -365,6 +330,12 @@ export default {
     this.fetchTags();
     this.boundD = document.documentElement.clientHeight;
     this.boundR = document.documentElement.clientWidth;
+    EventBus.on('updateFriendList', (newFriend) => {
+      this.items.unshift(newFriend);
+    });
+  },
+  beforeUnmount() {
+    EventBus.off('updateFriendList');
   },
 };
 </script>
