@@ -51,6 +51,7 @@
 
 <script>
 import * as contactListAPI from '@/services/contactList';
+import { EventBus } from '@/components/base/EventBus';
 import { getGroupProfileCard } from '@/services/api';
 
 import itemList from './itemList.vue';
@@ -62,15 +63,6 @@ import ContextMenu from '@/components/base/ContextMenu.vue';
 import GroupProfileCard from '@/components/base/GroupProfileCard.vue';
 
 export default {
-  components: {
-    itemList,
-    GroupProfileCard,
-    DivideDelete,
-    DivideAdd,
-    DivideManagement,
-    DivideMove,
-    ContextMenu,
-  },
   components: {
     itemList,
     GroupProfileCard,
@@ -331,14 +323,16 @@ export default {
     this.fetchTags();
     this.boundD = document.documentElement.clientHeight;
     this.boundR = document.documentElement.clientWidth;
-    this.fetchTags();
-    this.boundD = document.documentElement.clientHeight;
-    this.boundR = document.documentElement.clientWidth;
+    EventBus.on('updateGroupList', (newGroup) => {
+      this.items.unshift(newGroup);
+    });
+  },
+  beforeDestroy() {
+    EventBus.off('updateGroupList');
   },
 };
 </script>
 
-<style scoped src="@/assets/css/contactList.css"></style>
 <style scoped src="@/assets/css/contactList.css"></style>
 <style scoped>
 
