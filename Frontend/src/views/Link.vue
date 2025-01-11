@@ -237,9 +237,9 @@ export default {
   width: 250px;
   position: absolute;
   top: 0%; /* 下拉列表紧贴按钮 */
-  left: 120px;
+  left: 60px;
   z-index: 10; /* 确保下拉列表在其他内容之上 */
-  height: 350px;
+  height: 300px;
   overflow: hidden;
 }
 

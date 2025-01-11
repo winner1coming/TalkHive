@@ -6,16 +6,16 @@
         <img :src="avatar" alt="Avatar" class="avatar" />
       </div>
       <ul class="nav-links">
-        <li><router-link to="/chat">
+        <li><router-link to="/chat" title="聊天">
           <img src="@/assets/icon/chat-icon.png" alt="Chat" class="icon"/>
         </router-link></li>
-        <li><router-link to="/contact">
+        <li><router-link to="/contact" title="通讯录">
           <img src="@/assets/icon/contact.png" alt="Contact" class="icon"/>
         </router-link></li>
-        <li><router-link to="/setlist">
+        <li><router-link to="/setlist" title="设置">
           <img src="@/assets/icon/setting-icon.png" alt="Settings" class="icon"/>
         </router-link></li>
-        <li><router-link to="/workspace">
+        <li><router-link to="/workspace" title="工作空间">
           <img src="@/assets/icon/workspace-icon.png" alt="Workspace" class="icon"/>
         </router-link></li>
         <li><Link/></li>
@@ -23,7 +23,7 @@
       <ul class="logout">
         <li>
           <li><a href="#" @click="showLogoutConfirmation">
-            <img src="@/assets/icon/logout.png" alt="Logout" class="icon"/>
+            <img src="@/assets/icon/logout.png" alt="Logout" class="icon" title="退出登录"/>
           </a></li>
         </li>
       </ul>
@@ -127,8 +127,8 @@ export default {
 }
 
 .avatar {
-  width: 50px;
-  height: 50px;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
 }
 
