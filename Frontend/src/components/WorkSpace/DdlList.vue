@@ -258,7 +258,7 @@ export default {
   margin-bottom: 15px;
   border-radius: 50%;
   width: 45px; /* 宽度 */
-  font-size: 36px;
+  font-size: var(--font-size-large);
 }
 
 .new-btn:hover {

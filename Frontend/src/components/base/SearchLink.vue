@@ -62,7 +62,7 @@
   .search-icon {
   position: absolute;
   left: 20px;
-  font-size: 16px;
+  font-size: var(--font-size);
   color: #666;
   cursor: pointer;
 }

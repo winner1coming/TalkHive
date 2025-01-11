@@ -3,7 +3,7 @@
     <!-- 左侧导航栏 -->
     <aside class="sidebar">
       <div class="user-info">
-        <img :src="avatar" alt="Avatar" class="avatar" />
+        <img :src="avatar" alt="Avatar" class="avatar" @click="toggleProfile"/>
       </div>
       <ul class="nav-links">
         <li><router-link to="/chat" title="聊天">
@@ -43,18 +43,25 @@
     <main class="content">
       <router-view></router-view>
     </main>
+
+    <PersonProfileCard ref="profileCard" />
   </div>
 </template>
 
 <script>
+import { getPersonProfileCard } from '@/services/api';
 import Link from './Link.vue';
 import { logout } from '@/services/settingView';
+import PersonProfileCard from '@/components/base/PersonProfileCard.vue';
+
+
 export default {
   name: 'Home',
   data() {
     return {
       showDropdown: false,
       showConfirmation:false,
+      showProfile:false,
     };
   },
   computed: {
@@ -67,6 +74,7 @@ export default {
   },
   components:{
     Link,
+    PersonProfileCard,
   },
   methods: {
     toggleDropdown() {
@@ -83,7 +91,6 @@ export default {
           const response = await logout();
           if(response.success){
             alert('已退出登录~');
-            localStorage.removeItem('isLoggedIn');
             this.$router.push('/loginth');
           // 你可以在这里添加退出登录的逻辑
           }else{
@@ -93,6 +100,35 @@ export default {
           console.error("退出登录失败！");
       }
     },
+    async toggleProfile(event) {
+      try{
+        const response = await getPersonProfileCard(this.$store.state.user.id); 
+        if(response.status !== 200){
+          this.$root.notify(response.data.message, 'error');
+          return;
+        }
+        this.showProfile= true;
+        const profile = response.data.data;
+        this.$refs.profileCard.show(event, profile, 0, 0);
+      }catch(err){
+        console.log(err);
+      }
+    },
+    hideProfileCard() {
+      this.showProfile = false;
+      document.removeEventListener('click', this.handleClickOutside);
+    },
+    handleClickOutside(event) {
+      if (this.$refs.profileCard && !this.$refs.profileCard.$el.contains(event.target)) {
+        this.hideProfileCard();
+      }
+    },
+  },
+  mounted() {
+    document.addEventListener('click', this.handleClickOutside);
+  },
+  beforeUnmount() {
+    document.removeEventListener('click', this.handleClickOutside);
   },
 };
 </script>
@@ -115,7 +151,7 @@ export default {
   align-items: center;
   justify-content: space-between;
   position: relative;
-  font-size:var(--font-size-medium);
+  font-size:var(--font-size);
 }
 
 .user-info {
@@ -231,7 +267,7 @@ export default {
     top: 10px;
     right: 10px;
     cursor: pointer;
-    font-size: 20px;
+    font-size: var(--font-size-large);
   }
   
   .modal-buttons {

@@ -189,7 +189,7 @@
     top: 10px;
     right: 10px;
     cursor: pointer;
-    font-size: 20px;
+    font-size: var(--font-size-large);
   }
   
   .modal-buttons {

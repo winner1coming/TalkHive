@@ -281,7 +281,7 @@ export default {
 }
 
 .web-url {
-  font-size: 0.8em;
+  font-size: var(--font-size-small);
   color: #666;
 }
 
@@ -291,7 +291,7 @@ export default {
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 0.8em;
+  font-size: var(--font-size-small);
 }
 
 .add-button {
@@ -354,7 +354,7 @@ export default {
 
   .modal-content h3 {
     margin-top: 0;
-    font-size: 1.2em;
+    font-size: var(--font-size-mlarge);
     text-align: center;
   }
 
@@ -390,7 +390,7 @@ export default {
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 0.9em;
+    font-size: var(--font-size-small);
   }
 
   .add-button {

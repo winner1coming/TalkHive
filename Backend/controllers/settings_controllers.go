@@ -499,7 +499,7 @@ func ChangeFontsize(c *gin.Context) {
 		return
 	}
 	var input struct {
-		FontSize uint `json:"font_size"`
+		FontSize string `json:"fontSize"`
 	}
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "参数解析失败"})
@@ -507,12 +507,19 @@ func ChangeFontsize(c *gin.Context) {
 	}
 
 	var systemSetting models.SystemSetting
+	fontsize, err := strconv.Atoi(input.FontSize)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "字体大小解析失败"})
+		return
+	}
+
 	if err = global.Db.Where("account_id = ?", accountID).First(&systemSetting).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) { // 如果记录不存在则创建新的新的系统设置，并且绑定id
 			systemSetting = models.SystemSetting{
 				AccountID: uint(accountID),
-				FontSize:  input.FontSize,
+				FontSize:  uint(fontsize),
 			}
+
 			if err := global.Db.Create(&systemSetting).Error; err != nil {
 				c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "插入系统设置失败"})
 				return
@@ -522,7 +529,9 @@ func ChangeFontsize(c *gin.Context) {
 			return
 		}
 	}
-	systemSetting.FontSize = input.FontSize
+	systemSetting.FontSize = uint(fontsize)
+	fmt.Println("systemSetting.FontSize" + string(rune(systemSetting.FontSize)))
+
 	fmt.Println("字体大小", input.FontSize)
 	if err := global.Db.Save(&systemSetting).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "更改字体大小失败"})
@@ -553,7 +562,7 @@ func ChangeFontstyle(c *gin.Context) {
 		return
 	}
 	var input struct {
-		FontStyle string `json:"font_style"`
+		FontStyle string `json:"fontStyle"`
 	}
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "参数解析失败"})

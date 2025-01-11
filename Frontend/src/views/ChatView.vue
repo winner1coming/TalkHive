@@ -185,7 +185,7 @@ export default {
   align-items: center;
   justify-content: center;
   color: #888;
-  font-size: 1.5rem;
+  font-size: var(--font-size-large);
 }
 </style>
   

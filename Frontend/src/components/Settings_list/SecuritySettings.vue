@@ -158,12 +158,12 @@ export default {
 }
 
 .menu-item span {
-  font-size: 16px;
+  font-size: var(--font-size);
   margin-left: 40px;
 }
 
 .menu-item .content {
-  font-size: 14px;
+  font-size: var(--font-size-small);
   color: #666;
 }
 
@@ -196,7 +196,7 @@ export default {
   top: 10px;
   right: 10px;
   cursor: pointer;
-  font-size: 20px;
+  font-size: var(--font-size-large);
 }
 
 .modal-buttons {
@@ -228,7 +228,7 @@ export default {
   top: 10px;
   left: 10px;
   cursor: pointer;
-  font-size: 16px;
+  font-size: var(--font-size);
   color: #42b983;
   display: flex;
   align-items: center;
