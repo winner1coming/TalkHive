@@ -87,7 +87,12 @@ export default {
           this.$root.notify(response.data.message, 'error');
           return;
         }
-        this.messages = response.data.data;
+        if(!response.data.data){
+          this.messages = [];
+        }
+        else{
+          this.messages = response.data.data;
+        }
         this.$nextTick(() => {
           this.scrollToBottom();
         });

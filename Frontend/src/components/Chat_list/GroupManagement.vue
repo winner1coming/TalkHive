@@ -927,10 +927,10 @@ export default {
   position: sticky;
   top: 0;
   z-index: 10;
-  background-color: #f6f1f1;
+  background-color: var(--background-color);
 }
 .sticky-bottom {
-  background-color: #f6f1f1;
+  background-color: var(--background-color);
   position: sticky;
   bottom: 0px;
   z-index: 10;
