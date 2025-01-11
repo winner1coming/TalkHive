@@ -9,4 +9,5 @@ func SetupRoutes(r *gin.Engine) {
 	SettingsRoutes(r)
 	workSpaceRoutes(r)
 	SetupWorkspaceRoutes(r)
+	SetupGroupChatRoutes(r)
 }
