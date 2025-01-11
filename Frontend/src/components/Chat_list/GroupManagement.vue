@@ -9,7 +9,7 @@
       </p>
     </div>
     <!--主页面-->
-    <div v-show="componentStatus === 'main'">
+    <div v-show="componentStatus === 'main'" style="width: 100%;">
       <div :class="{'search-bar':true, 'sticky-top':this.showAll}" >
         <input
           type="text"
@@ -611,9 +611,9 @@ export default {
         const reader = new FileReader();
         reader.onload = (e) => {
           this.group_avatar = e.target.result;
+          this.changeGroupAvatar(this.group_avatar);
         };
         reader.readAsDataURL(file);
-        this.changeGroupAvatar(this.group_avatar);
       }
     },
     async changeGroupAvatar(avatar){
@@ -1076,6 +1076,7 @@ export default {
   border: 1px solid #e0e0e0; 
   border-radius: 5px;
   background-color: #f9f9f9; 
+  width: 100%;
 }
 .message-item {
   display: flex;

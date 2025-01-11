@@ -8,12 +8,12 @@
       <div class="name">{{ profile.remark }}</div>    <!--我的备注-->
       <div class="remark">昵称: {{ profile.nickname }}</div>   
       <div class="remark" v-show="profile.groupNickname">群昵称: {{ profile.groupNickname }}</div>
-      <div class="remark">
+      <div class="remark" v-show="profile.tag">
         分组:{{ profile.tag }}
       </div>
       <div class="remark">个性签名: {{ profile.signature }}</div>
     </div>
-    <button v-show="profile.is_friend" @click="sendMessage">发信息</button>
+    <button v-show="profile.is_friend || profile.account_id === this.$store.state.currrentChat.id" @click="sendMessage">发信息</button>
     <!--菜单-->
     <ContextMenu ref="contextMenu"  @select-item="handleMenuSelect" />
     <!--添加好友-->
