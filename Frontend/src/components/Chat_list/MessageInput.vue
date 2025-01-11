@@ -7,7 +7,22 @@
       <button @click="sendScreenshot">截图</button>
       <button @click="sendCodeBlock">代码块</button>
     </div>
+    <textarea
+      v-if="isAllBanned"
+      disabled
+      class="all-banned-textarea"
+      :value="'本群已全体禁言'"
+    >
+    </textarea>
     <textarea 
+      v-else-if="isBanned"
+      class="all-banned-textarea"
+      disabled
+      :value="'您已被禁言'"
+    ></textarea>
+    <textarea 
+      v-else
+      class="normal-textarea"
       v-model="content" 
       placeholder="输入消息..." 
       @keydown.enter.prevent="sendMessage"
@@ -40,6 +55,10 @@ import 'emoji-picker-element';
 import Emoji from './Emoji.vue';
 import CodeEdit from './CodeEdit.vue';
 export default {
+  props: {
+    isBanned: Boolean,
+    isAllBanned: Boolean,
+  },
   components: { Emoji, CodeEdit },
   data() {
     return {
@@ -79,6 +98,9 @@ export default {
   },
   methods: {
     sendMessage() {
+      if (this.isBanned || this.isAllBanned) {
+        return;
+      }
       if (this.content.trim()) {
         this.$emit('send-message', this.content, 'text');
         this.content = '';
@@ -166,7 +188,18 @@ export default {
   padding: 10px;
   background-color: var(--background-color1);
 }
-textarea {
+.all-banned-textarea {
+  flex: 1;
+  resize: none;
+  padding-right: 50px;
+  border:none;
+  background-color: var(--background-color1);
+  color: var(--text-color);
+  outline: none;
+  text-align: center;
+  font-size: var(--font-size-large);
+}
+.normal-textarea {
   flex: 1;
   resize: none;
   padding-right: 50px;
