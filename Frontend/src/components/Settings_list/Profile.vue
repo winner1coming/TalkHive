@@ -66,7 +66,7 @@ h2 {
 }
 
 .nickname {
-  font-size: 24px; /* 昵称字体大小 */
+  font-size: var(--font-size-large); /* 昵称字体大小 */
   margin-bottom: 10px; /* 昵称下边距 */
 }
 

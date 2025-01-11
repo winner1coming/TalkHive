@@ -53,7 +53,7 @@
 
 .login-options button {
   padding: 10px 20px;
-  font-size: 16px;
+  font-size: var(--font-size);
   color: #666;
   background-color: #fff;
   border: 1px solid #ccc;
@@ -83,7 +83,7 @@
 }
 p {
     margin-top: 10px;
-    font-size: 14px;
+    font-size: var(--font-size-small);
     color: #666;
   }
   

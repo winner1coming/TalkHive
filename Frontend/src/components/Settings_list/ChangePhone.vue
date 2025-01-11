@@ -53,7 +53,7 @@
 
 
 p {
-  font-size: 14px;
+  font-size: var(--font-size-small);
   margin: 0;
 }
 

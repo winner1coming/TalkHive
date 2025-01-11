@@ -51,7 +51,7 @@
     border: none;
     border-bottom: 1px solid #ccc;
     padding: 10px 0;
-    font-size: 16px;
+    font-size: var(--font-size);
     outline: none;
     text-align: center;
   }
@@ -67,7 +67,7 @@
 
   p{
     margin-top: 10px;
-    font-size: 14px;
+    font-size: var(--font-size-small);
     color: #ca3b3b;
   }
   </style>

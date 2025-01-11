@@ -121,7 +121,7 @@
   }
   
   .user-id, .user-phone {
-    font-size: 16px;
+    font-size: var(--font-size);
   }
   
   .toggle-button {
