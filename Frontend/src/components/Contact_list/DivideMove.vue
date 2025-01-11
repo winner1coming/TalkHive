@@ -11,7 +11,7 @@
 				>
 					<input type="radio" v-model="selectedDivide" :value="divide">
 					<span class="radiomark"></span>
-					<span>{{ divide }}</span>
+					{{ divide }}
 				</li>
 			</ul>
 			<button class="confirm-button" @click="confirmSelection">确认</button>
