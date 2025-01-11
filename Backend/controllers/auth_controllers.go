@@ -34,10 +34,7 @@ func Login(c *gin.Context) {
 	// 生成 Token
 	token, err := utils.GenerateJWT(account.ID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"success": false,
-			"message": "生成 Token 失败",
-		})
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "生成 Token 失败"})
 		return
 	}
 
@@ -48,18 +45,10 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	var avatarBase64 string
-	var mimeType string
-	if account.Avatar != "" {
-		// 调用 GetFileContentAndType 方法获取文件内容和类型
-		avatarBase64, mimeType, err = utils.GetFileContentAndType(account.Avatar)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"success": false,
-				"message": err.Error(),
-			})
-			return
-		}
+	avatarBase64, mimeType, err := utils.GetFileContentAndType(account.Avatar)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": err.Error()})
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{

@@ -3,6 +3,7 @@ package controllers
 import (
 	"TalkHive/global"
 	"TalkHive/models"
+	"TalkHive/utils"
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -55,11 +56,17 @@ func SearchStrangers(c *gin.Context) {
 			if account.AccountID == uint(accountID) { //跳过本身
 				continue
 			}
+			avatarBase64, _, err := utils.GetFileContentAndType(account.Avatar)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": err.Error()})
+				return
+			}
+
 			strangers = append(strangers, gin.H{
 				"tid":      account.AccountID,
 				"id":       account.ID,
 				"nickname": account.Nickname,
-				"avatar":   account.Avatar,
+				"avatar":   avatarBase64,
 				"type":     "friend",
 			})
 		}
@@ -70,11 +77,17 @@ func SearchStrangers(c *gin.Context) {
 	err = global.Db.Where("group_id LIKE ?", "%"+input.Key+"%").Find(&groupchats).Error
 	if err == nil {
 		for _, groupchat := range groupchats {
+			avatarBase64, _, err := utils.GetFileContentAndType(groupchat.GroupAvatar)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": err.Error()})
+				return
+			}
+
 			strangers = append(strangers, gin.H{
 				"tid":      groupchat.GroupID,
 				"id":       groupchat.GroupID,
 				"nickname": groupchat.GroupName,
-				"avatar":   groupchat.GroupAvatar,
+				"avatar":   avatarBase64,
 				"type":     "group",
 			})
 		}
@@ -204,10 +217,17 @@ func SearchContacts(c *gin.Context) {
 			if err := global.Db.Where("account_id = ?", contact.ContactID).First(&friend).Error; err != nil {
 				continue
 			}
+
+			avatarBase64, _, err := utils.GetFileContentAndType(friend.Avatar)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": err.Error()})
+				return
+			}
+
 			result = append(result, gin.H{
 				"type":       "friends",
 				"account_id": friend.AccountID,
-				"avatar":     friend.Avatar,
+				"avatar":     avatarBase64,
 				"remark":     contact.Remark,
 				"status":     friend.Status,
 				"signature":  friend.Signature,
@@ -217,10 +237,17 @@ func SearchContacts(c *gin.Context) {
 			if err := global.Db.Where("group_id = ?", contact.ContactID).First(&group).Error; err != nil {
 				continue
 			}
+
+			avatarBase64, _, err := utils.GetFileContentAndType(group.GroupAvatar)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": err.Error()})
+				return
+			}
+
 			result = append(result, gin.H{
 				"type":       "groups",
 				"account_id": group.GroupID,
-				"avatar":     group.GroupAvatar,
+				"avatar":     avatarBase64,
 				"remark":     group.GroupName,
 				"signature":  group.GroupIntroduction,
 			})
@@ -286,9 +313,15 @@ func GetFriendRequests(c *gin.Context) {
 			continue // 跳过无法获取发送者信息的请求
 		}
 
+		avatarBase64, _, err := utils.GetFileContentAndType(senderInfo.Avatar)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": err.Error()})
+			return
+		}
+
 		friendRequest := map[string]interface{}{
 			"apply_id":    applyInfo.ApplyID,
-			"avatar":      senderInfo.Avatar,
+			"avatar":      avatarBase64,
 			"name":        senderInfo.Nickname,
 			"sender_id":   applyInfo.SenderID,
 			"receiver_id": applyInfo.ReceiverID,
@@ -307,9 +340,15 @@ func GetFriendRequests(c *gin.Context) {
 			continue // 跳过无法获取接收者信息的请求
 		}
 
+		avatarBase64, _, err := utils.GetFileContentAndType(receiverInfo.Avatar)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": err.Error()})
+			return
+		}
+
 		friendRequest := map[string]interface{}{
 			"apply_id":    applyInfo.ApplyID,
-			"avatar":      receiverInfo.Avatar,
+			"avatar":      avatarBase64,
 			"name":        receiverInfo.Nickname,
 			"sender_id":   applyInfo.SenderID,
 			"receiver_id": applyInfo.ReceiverID,
@@ -831,9 +870,15 @@ func GetGroupRequests(c *gin.Context) {
 			return
 		}
 
+		avatarBase64, _, err := utils.GetFileContentAndType(groupChat.GroupAvatar)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": err.Error()})
+			return
+		}
+
 		groupRequest := map[string]interface{}{
 			"apply_id":     applyInfo.ApplyID,                        // 申请ID
-			"avatar":       groupChat.GroupAvatar,                    // 群聊头像
+			"avatar":       avatarBase64,                             // 群聊头像
 			"group_name":   groupChat.GroupName,                      // 群名称
 			"account_name": accountInfo.Nickname,                     // 申请人或群主的昵称
 			"sender_id":    applyInfo.SenderID,                       // 申请人或群主的ID
@@ -915,7 +960,7 @@ func AddGroup(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "群组申请保存失败"})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"success": true, "message": "加入群组申请已发送", "apply_id": newApply.ApplyID})
+	c.JSON(http.StatusOK, gin.H{"success": true, "message": "加入群组申请已发送"})
 }
 
 // ---------------------------------------------------------------------------
@@ -954,17 +999,21 @@ func GetBlackList(c *gin.Context) {
 			return
 		}
 
+		avatarBase64, _, err := utils.GetFileContentAndType(account.Avatar)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": err.Error()})
+			return
+		}
+
 		blackList = append(blackList, gin.H{
-			"avatar":     account.Avatar,
+			"avatar":     avatarBase64,
 			"name":       account.Nickname,
 			"account_id": account.AccountID,
 			"signature":  account.Signature,
 		})
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"blacklist": blackList,
-	})
+	c.JSON(http.StatusOK, gin.H{"success": true, "message": "成功", "data": blackList})
 }
 
 // RemoveFromBlacklist 从黑名单中移除用户
@@ -1109,8 +1158,14 @@ func GetFriends(c *gin.Context) {
 			continue
 		}
 
+		avatarBase64, _, err := utils.GetFileContentAndType(accountInfo.Avatar)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": err.Error()})
+			return
+		}
+
 		friend := FriendResponse{
-			Avatar:    accountInfo.Avatar,
+			Avatar:    avatarBase64,
 			AccountID: accountInfo.AccountID,
 			Remark:    contact.Remark,
 			Status:    accountInfo.Status,
@@ -1692,8 +1747,15 @@ func GetGroups(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询群聊失败"})
 			continue
 		}
+
+		avatarBase64, _, err := utils.GetFileContentAndType(group.GroupAvatar)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": err.Error()})
+			return
+		}
+
 		groupList = append(groupList, map[string]interface{}{
-			"avatar":      group.GroupAvatar,
+			"avatar":      avatarBase64,
 			"account_id":  group.GroupID,
 			"signature":   group.GroupIntroduction,
 			"remark":      contact.Remark,
@@ -1749,17 +1811,29 @@ func CreateGroup(c *gin.Context) {
 
 	// 写入群聊总表
 	groupchat := models.GroupChatInfo{
-		GroupAvatar:       input.GroupAvatar,
 		GroupName:         input.GroupName,
 		IsAllBanned:       false,
 		GroupOwner:        uint(accountID),
 		GroupIntroduction: input.GroupDescription,
-		ALlowNameSearch:   input.AllowNameSearch,
+		AllowNameSearch:   input.AllowNameSearch,
 		AllowIDSearch:     input.AllowIDSearch,
 		AllowInvite:       input.AllowInvite,
 	}
 	if err := global.Db.Create(&groupchat).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "创建群聊失败"})
+		return
+	}
+
+	// 调用GetAvatarPath方法生成文件路径并保存图片
+	avatarPath, err := utils.GetAvatarPath(input.GroupAvatar, strconv.Itoa(int(groupchat.GroupID)), "Group_Avatar")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": err.Error()})
+		return
+	}
+	// 更新用户的 Avatar 字段
+	groupchat.GroupAvatar = avatarPath
+	if err := global.Db.Save(&groupchat).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "更新用户头像失败"})
 		return
 	}
 
@@ -2031,7 +2105,17 @@ func GetGroupInfo(c *gin.Context) {
 		return
 	}
 
-	// 获取Group_id群成员信息
+	// 获取群聊信息
+	var groupChat models.GroupChatInfo
+	if err := global.Db.Where("group_id = ?", groupID).First(&groupChat).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "获取群聊信息失败"})
+		return
+	}
+
+	// 获取群主信息
+	groupOwnerID := group.GroupOwner
+
+	// 查询GroupMemeberInfo表
 	var members []models.GroupMemberInfo
 	if err := global.Db.Where("group_id = ?", groupID).Find(&members).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "获取群聊成员失败"})
@@ -2040,25 +2124,69 @@ func GetGroupInfo(c *gin.Context) {
 
 	memberList := make([]gin.H, len(members))
 	for i, member := range members {
+		// 查询AccountInfo表
+		var accountMember models.AccountInfo
+		if err := global.Db.Where("account_id = ?", member.AccountID).First(accountMember).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "获取群聊成员失败"})
+			return
+		}
+
+		avatarBase64, _, err := utils.GetFileContentAndType(accountMember.Avatar)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": err.Error()})
+			return
+		}
+
+		// 查询Contacts表来获取Remark
+		var contact models.Contacts
+		if err := global.Db.Where("owner_id = ? AND contact_id = ? AND is_group_chat = ?", member.AccountID, groupID, true).First(contact).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "获取群聊成员失败"})
+			return
+		}
+
 		memberList[i] = gin.H{
-			"user_id":   member.AccountID,
-			"user_name": member.GroupNickname,
+			"account_id":     accountMember.AccountID,
+			"id":             accountMember.ID,
+			"nickname":       accountMember.Nickname,
+			"avatar":         avatarBase64,
+			"group_role":     member.GroupRole,
+			"group_nickname": member.GroupNickname,
+			"remark":         contact.Remark,
+			"is_banned":      member.IsBanned,
 		}
 	}
 
-	var groupChat models.GroupChatInfo
-	if err := global.Db.Where("group_id = ?", groupID).First(&groupChat).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "获取群聊信息失败"})
+	// 获取群组权限配置
+	allowInvite := groupChat.AllowInvite
+	allowIDSearch := groupChat.AllowIDSearch
+	allowNameSearch := groupChat.AllowNameSearch
+
+	// 获取当前用户的群昵称和群角色
+	var myMember models.GroupMemberInfo
+	if err := global.Db.Where("group_id = ? AND account_id = ?", groupID, accountID).First(&myMember).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "获取用户在本群的详细信息失败"})
 		return
 	}
 
-	// 前后端可能返回不一致，需注意
+	// 查询contacts表获取群聊分组
+	var contact models.Contacts
+	if err := global.Db.Where("owner_id = ? AND contact_id = ? AND is_group_chat = ?", accountID, groupID, true).First(contact).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "获取群聊成员失败"})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"success":            true,
 		"message":            "成功",
-		"group_id":           groupID,
 		"group_name":         group.GroupName,
+		"group_owner":        groupOwnerID,
 		"group_introduction": groupChat.GroupIntroduction,
+		"allow_invite":       allowInvite,
+		"allow_id_search":    allowIDSearch,
+		"allow_name_search":  allowNameSearch,
+		"my_group_nickname":  myMember.GroupNickname,
+		"divide":             contact.Divide,
+		"my_group_role":      myMember.GroupRole,
 		"members":            memberList,
 	})
 }
@@ -2285,7 +2413,7 @@ func SetAllowNameSearch(c *gin.Context) {
 	}
 
 	// 修改是否能通过名称进行搜索
-	group.ALlowNameSearch = input.AllowNameSearch
+	group.AllowNameSearch = input.AllowNameSearch
 	if err := global.Db.Save(&group).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "更新失败"})
 		return
@@ -2353,6 +2481,72 @@ func SetAllBanned(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"success": true, "message": "设置成功"})
+}
+
+// SetBanned 设置禁言或取消禁言
+func SetBanned(c *gin.Context) {
+	userID := c.GetHeader("User-ID")
+	if userID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "http的Header中用户ID为空"})
+		return
+	}
+	accountID, err := strconv.Atoi(userID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "ID解析失败"})
+		return
+	}
+	var user models.AccountInfo
+	if err = global.Db.Where("account_id = ?", accountID).First(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询用户失败"})
+		return
+	}
+	if user.Deactivate == true {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户已注销"})
+		return
+	}
+	var input struct {
+		GroupID   uint `json:"group_id"`   // 群组ID
+		AccountID uint `json:"account_id"` // 目标用户ID
+		IsBanned  bool `json:"is_banned"`  // 是否禁言
+	}
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "请求参数格式错误"})
+		return
+	}
+
+	// 查找当前群组信息
+	var group models.GroupChatInfo
+	if err := global.Db.Where("group_id = ?", input.GroupID).First(&group).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "目标群组不存在"})
+		return
+	}
+
+	// 检查当前操作用户是否是群主或管理员
+	var membership models.GroupMemberInfo
+	if err := global.Db.Where("group_id = ? AND account_id = ?", input.GroupID, accountID).First(&membership).Error; err != nil || (membership.GroupRole != "group_ordinary" && group.GroupOwner != uint(accountID)) {
+		c.JSON(http.StatusForbidden, gin.H{"success": false, "message": "只有群主或管理员可以设置禁言"})
+		return
+	}
+
+	// 检查目标用户是否是群成员
+	if err := global.Db.Where("group_id = ? AND account_id = ?", input.GroupID, input.AccountID).First(&membership).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "目标用户不是群成员"})
+		return
+	}
+
+	// 更新禁言状态
+	membership.IsBanned = input.IsBanned
+	if err := global.Db.Save(&membership).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "更新禁言状态失败"})
+		return
+	}
+
+	// 返回成功响应
+	action := "设置禁言"
+	if !input.IsBanned {
+		action = "取消禁言"
+	}
+	c.JSON(http.StatusOK, gin.H{"success": true, "message": fmt.Sprintf("成功%s", action)})
 }
 
 // FetchFriendsNotInGroup 搜索不在群聊内的好友
@@ -2476,72 +2670,6 @@ func RemoveMember(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"success": true, "message": "成功移除群成员"})
-}
-
-// SetBanned 设置禁言或取消禁言
-func SetBanned(c *gin.Context) {
-	userID := c.GetHeader("User-ID")
-	if userID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "http的Header中用户ID为空"})
-		return
-	}
-	accountID, err := strconv.Atoi(userID)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "ID解析失败"})
-		return
-	}
-	var user models.AccountInfo
-	if err = global.Db.Where("account_id = ?", accountID).First(&user).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询用户失败"})
-		return
-	}
-	if user.Deactivate == true {
-		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户已注销"})
-		return
-	}
-	var input struct {
-		GroupID   uint `json:"group_id"`   // 群组ID
-		AccountID uint `json:"account_id"` // 目标用户ID
-		IsBanned  bool `json:"is_banned"`  // 是否禁言
-	}
-	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "请求参数格式错误"})
-		return
-	}
-
-	// 查找当前群组信息
-	var group models.GroupChatInfo
-	if err := global.Db.Where("group_id = ?", input.GroupID).First(&group).Error; err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "目标群组不存在"})
-		return
-	}
-
-	// 检查当前操作用户是否是群主或管理员
-	var membership models.GroupMemberInfo
-	if err := global.Db.Where("group_id = ? AND account_id = ?", input.GroupID, accountID).First(&membership).Error; err != nil || (membership.GroupRole != "group_ordinary" && group.GroupOwner != uint(accountID)) {
-		c.JSON(http.StatusForbidden, gin.H{"success": false, "message": "只有群主或管理员可以设置禁言"})
-		return
-	}
-
-	// 检查目标用户是否是群成员
-	if err := global.Db.Where("group_id = ? AND account_id = ?", input.GroupID, input.AccountID).First(&membership).Error; err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "目标用户不是群成员"})
-		return
-	}
-
-	// 更新禁言状态
-	membership.IsBanned = input.IsBanned
-	if err := global.Db.Save(&membership).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "更新禁言状态失败"})
-		return
-	}
-
-	// 返回成功响应
-	action := "设置禁言"
-	if !input.IsBanned {
-		action = "取消禁言"
-	}
-	c.JSON(http.StatusOK, gin.H{"success": true, "message": fmt.Sprintf("成功%s", action)})
 }
 
 // SetAdmin 设置管理员
@@ -2721,10 +2849,17 @@ func ChangeGroupAvatar(c *gin.Context) {
 		return
 	}
 
-	// 更新群头像
-	group.GroupAvatar = input.GroupAvatar
+	// 调用GetAvatarPath方法生成文件路径并保存图片
+	avatarPath, err := utils.GetAvatarPath(input.GroupAvatar, strconv.Itoa(int(group.GroupID)), "Group_Avatar")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": err.Error()})
+		return
+	}
+
+	// 更新群聊的Avatar字段
+	group.GroupAvatar = avatarPath
 	if err := global.Db.Save(&group).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "更新失败"})
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "更新用户头像失败"})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"success": true, "message": "头像更新成功"})
@@ -2789,11 +2924,17 @@ func GetPersonProfileCard(c *gin.Context) {
 		}
 	}
 
+	avatarBase64, _, err := utils.GetFileContentAndType(other.Avatar)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": err.Error()})
+		return
+	}
+
 	// 构造返回的response数据
 	response := gin.H{
 		"account_id": input.AccountID,
 		"id":         other.ID,
-		"avatar":     other.Avatar,
+		"avatar":     avatarBase64,
 		"nickname":   other.Nickname,
 		"signature":  other.Signature,
 		"status":     other.Status,
@@ -2816,8 +2957,6 @@ func GetPersonProfileCard(c *gin.Context) {
 	if input.GroupID != 0 {
 		response["groupNickname"] = input.GroupID
 	}
-
-	// 返回响应数据
 	c.JSON(http.StatusOK, gin.H{"success": true, "message": "成功", "data": response})
 }
 
@@ -2864,9 +3003,15 @@ func GetGroupProfileCard(c *gin.Context) {
 		return
 	}
 
+	avatarBase64, _, err := utils.GetFileContentAndType(groupChat.GroupAvatar)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": err.Error()})
+		return
+	}
+
 	groupProfileCard := gin.H{
 		"group_id":     groupChat.GroupID,
-		"group_avatar": groupChat.GroupAvatar,
+		"group_avatar": avatarBase64,
 		"group_name":   groupChat.GroupName,
 		"remark":       contact.Remark,
 		"tag":          contact.Divide,
