@@ -954,7 +954,7 @@ func GetMessages(c *gin.Context) {
 		}
 
 		if len(messages) == 0 {
-			c.JSON(http.StatusOK, gin.H{"success": true, "message": "当前聊天记录为空"})
+			c.JSON(http.StatusOK, gin.H{"success": true, "message": "当前聊天记录为空", "data": gin.H{}})
 			return
 		}
 
