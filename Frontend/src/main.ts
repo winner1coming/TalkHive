@@ -4,11 +4,17 @@ import App from './App.vue'
 import router from './router';
 import store from './store';
 //import './services/mock/mock';  // todo debug: 项目完成时删除
+import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome';
+import { library } from '@fortawesome/fontawesome-svg-core';
+import {faComment, faAddressBook, faCog,faBriefcase,faSignOutAlt} from '@fortawesome/free-solid-svg-icons';
+
+library.add(faComment,faAddressBook,faCog,faBriefcase,faSignOutAlt);
 
 
 const app = createApp(App);
 app.use(router);
 app.use(store);
+app.component('font-awesome-icon', FontAwesomeIcon);
 
 app.mount('#app');
 

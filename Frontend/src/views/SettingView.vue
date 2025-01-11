@@ -125,20 +125,27 @@
   
   .top-panel {
     display: flex;
-    justify-content: space-around;
-    align-items: center;
+    justify-content: space-around; /* 均匀分布按钮 */
+    align-items: center; /* 垂直居中 */
     padding: 10px;
-    background-color: #f0f0f0;
+    background-color: var(--background-color); /* 使用 CSS 变量 */
     border-bottom: 1px solid #ccc;
+    width: 100%;
+    height: 60px; /* 固定高度 */
+    flex-wrap: nowrap;
   }
   
   .top-panel button {
-    padding: 10px 20px;
-    background-color: #ccc;
-    color: black;
+    width: 120px; /* 固定按钮宽度 */
+    height: 40px; /* 固定按钮高度 */
+    padding: 10px;
+    background-color: var(--button-background-color); /* 使用 CSS 变量 */
+    color: var(--button-text-color); /* 使用 CSS 变量 */
     border: none;
     border-radius: 4px;
     cursor: pointer;
+    text-align: center; /* 文字居中 */
+    font-size: var(--font-size); /* 使用 CSS 变量设置字体大小 */
   }
   
   .top-panel button.active {
@@ -158,8 +165,9 @@
   
   .confirmation-modal {
     position: fixed;
-    top: 0;
-    left: 0;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* 确保模态框居中 */
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);

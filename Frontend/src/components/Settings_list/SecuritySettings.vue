@@ -132,7 +132,7 @@ export default {
 }
 
 .left-panel {
-  width: 20%;
+  width: 15%;
   background-color: #f0f0f0;
 }
 
@@ -148,7 +148,7 @@ export default {
   align-items: center;
   border-bottom: 1px solid #ccc;
   cursor: pointer;
-  width: 80%;
+  width: 100%;
   height: 10vh;
 }
 

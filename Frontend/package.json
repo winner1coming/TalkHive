@@ -11,12 +11,15 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^6.7.2",
+    "@fortawesome/free-solid-svg-icons": "^6.7.2",
+    "@fortawesome/vue-fontawesome": "^3.0.8",
     "axios": "^0.21.1",
     "core-js": "^3.6.5",
     "cropperjs": "^1.6.2",
     "crypto-js": "^4.2.0",
-    "html2canvas": "^1.4.1",
     "emoji-picker-element": "^1.26.0",
+    "html2canvas": "^1.4.1",
     "mitt": "^3.0.1",
     "mockjs": "^1.1.0",
     "monaco-editor": "^0.52.2",
