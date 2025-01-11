@@ -900,7 +900,8 @@ export default {
 <style scoped>
 .group-management {
   width: 300px;
-  background-color: #f6f1f1;
+  background-color: var(--background-color);
+  color:var(--text-color);
   border: 1px solid #ccc;
   border-radius: 5px;
   height: 100%;
@@ -986,7 +987,6 @@ export default {
   align-self: flex-start;
 }
 .title {
-  color: black;
   text-align: left;
   font-weight: 500;
   padding: 5px;
@@ -1057,7 +1057,7 @@ export default {
   background-color: transparent;
 }
 .type-button.active{
-  color: #7184da;
+  color: var(--button-background-color);
   background-color: transparent;
 }
 .date-picker {
@@ -1070,15 +1070,16 @@ export default {
 }
 
 .date-picker:focus {
-  border-color: #007bff;
-  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+  border-color: var(--button-background-color);
+  box-shadow: 0 0 5px var(--button-background-color1);
 }
 .history-list {
   max-height: 500px; 
   overflow-y: auto;
   border: 1px solid #e0e0e0; 
   border-radius: 5px;
-  background-color: #f9f9f9; 
+  background-color: var(--background-color);
+  color:var(--text-color); 
   width: 100%;
 }
 .message-item {
@@ -1086,7 +1087,8 @@ export default {
   align-items: flex-start;
   border: 1px solid #ccc; 
   border-radius: 5px; 
-  background-color: #fff; 
+  background-color: var(--background-color1);
+  color:var(--text-color); 
   flex-direction: column;
 }
 .message-header {
@@ -1119,7 +1121,8 @@ export default {
   overflow-y: auto; 
   border: 1px solid #e0e0e0;
   border-radius: 5px;
-  background-color: #f9f9f9; 
+  background-color: var(--background-color1);
+  color:var(--text-color); 
 }
 .muted-member {
   display: flex;
@@ -1128,7 +1131,8 @@ export default {
   margin-bottom: 10px;
   border: 1px solid #ccc; 
   border-radius: 5px; 
-  background-color: #fff; 
+  background-color: var(--background-color);
+  color:var(--text-color); 
 }
 .muted-member .avatar {
   width: 30px;

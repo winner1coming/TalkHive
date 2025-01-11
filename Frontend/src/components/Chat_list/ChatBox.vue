@@ -242,7 +242,8 @@ export default {
   display: flex;
   align-items: center;
   padding: 10px;
-  background-color: #687aec91;
+  background-color: var(--sidebar-background-color);
+  color: var(--sidebar-text-color);
 }
 .chat-name {
   margin-left: 10px;
@@ -258,7 +259,8 @@ export default {
   position: relative;
   flex: 1;
   padding: 10px;
-  background-color: #f0f0f0;
+  background-color: var(--background-color);
+  color: var(--text-color);
   display: block;
   overflow-y: auto; /* 允许垂直滚动 */
   overflow-x: hidden; /* 隐藏水平滚动条 */

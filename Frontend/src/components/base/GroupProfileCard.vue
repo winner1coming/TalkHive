@@ -267,7 +267,8 @@ export default {
   border: 1px solid #ddd;
   border-radius: 8px;
   width: 200px;
-  background-color: #fff;
+  background-color: var(--background-color);
+  color: var(--text-color);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 .options-button {
@@ -312,7 +313,8 @@ export default {
   z-index: 2000; /* 确保在最上层 */
 }
 .add-content {
-  background-color: #fff;
+  background-color: var(--background-color);
+  color: var(--text-color);
   padding: 20px;
   border-radius: 8px;
   width: 300px;
@@ -335,13 +337,13 @@ button {
   margin-top: 10px;
   padding: 5px 10px;
   border: none;
-  background-color: #007bff;
-  color: #fff;
+  background-color: var(--button-background-color);
+  color: var(--button-text-color);
   border-radius: 4px;
   cursor: pointer;
 }
 
 button:hover {
-  background-color: #0056b3;
+  background-color: var(--button-background-color1);
 }
 </style>

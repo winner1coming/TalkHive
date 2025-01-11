@@ -1,6 +1,6 @@
 button {
-	background-color: #24d2edb4;
-	color: white;
+	background-color: var(--button-background-color);
+	color: var(--button-text-color);
 	border: none;
 	border-radius: 4px;
 	padding: 6px;
@@ -17,7 +17,8 @@ button {
 	font-weight: bold;
 	margin-bottom: 10px;
 	padding: 10px;
-	background-color: #687aec91;
+	background-color: var(--sidebar-background-color);
+	color:var(--siderbar-text-color);
 	margin: 0;
 	display: block;
 }
@@ -25,7 +26,8 @@ button {
 	padding: 5px;
 	border: 1px solid #ddd;
 	border-radius: 4px;
-	background-color: #f8f9fa;
+	background-color: var(--background-color);
+	color: var(--text-color);
 	display: flex;
   }
 .item img {
@@ -70,17 +72,40 @@ button {
 
 button {
   margin-left: 10px;
-  background-color: rgb(220, 213, 213);
-  color: rgb(48, 47, 47);
+  background-color: var(--button-background-color);
+  color: var(--button-text-color);
   border: none;
   padding: 5px;
   cursor: pointer;
   border-radius: 20%;
 }
 button:hover {
-  background-color: #70a7eb;
+  background-color: var(--button-background-color1);
 }
 button.active {
-  background-color: #007bff;
+  background-color: var(--button-background-color2);
   color: white;
+}
+
+.modal-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.5);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	z-index: 2000; /* 确保在最上层 */
+}
+.modal-content {
+	background-color: var(--background-color);
+	color: var(--text-color);
+	padding: 20px;
+	border-radius: 8px;
+	width: 300px;
+	height: 400px;
+	display: flex;
+	flex-direction: column;
 }

@@ -67,7 +67,8 @@ export default {
 <style scoped>
 .context-menu {
 	position: fixed;
-	background-color: white;
+	background-color: var(--background-color);
+	color: var(--text-color);
 	border: 1px solid #ccc;
 	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 	z-index: 1000;
@@ -82,6 +83,6 @@ export default {
 	cursor: pointer;
 }
 .context-menu li:hover {
-	background-color: #f5f5f5;
+	background-color: var(--background-color1);
 }
 </style>

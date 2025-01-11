@@ -120,12 +120,4 @@ button {
   border-radius: 4px;
   cursor: pointer;
 }
-button:first-of-type {
-  background-color: #28a745;
-  color: white;
-}
-button:last-of-type {
-  background-color: #dc3545;
-  color: white;
-}
 </style>
