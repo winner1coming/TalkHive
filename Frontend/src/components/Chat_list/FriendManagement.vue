@@ -179,9 +179,9 @@ export default {
         }
         this.account_id = newVal.id;
         this.remark = newVal.name;
-        this.isMute = newVal.tags.includes('mute');
-        this.isBlocked = newVal.tags.includes('blocked');
-        this.isPinned = newVal.tags.includes('pinned');
+        // this.isMute = newVal.tags.includes('mute');
+        // this.isBlocked = newVal.tags.includes('blocked');
+        // this.isPinned = newVal.tags.includes('pinned');
       }
     }
   },

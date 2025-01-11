@@ -37,7 +37,7 @@
       >
         <div class="left-part">
           <!-- 头像-->
-          <div class="chat-avatar">  
+          <div class="chat-avatar">
             <img :src="chat.avatar" alt="avatar" />
           </div>
           <!-- 信息-->
