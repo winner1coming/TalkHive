@@ -611,9 +611,9 @@ export default {
         const reader = new FileReader();
         reader.onload = (e) => {
           this.group_avatar = e.target.result;
+          this.changeGroupAvatar(this.group_avatar);
         };
         reader.readAsDataURL(file);
-        this.changeGroupAvatar(this.group_avatar);
       }
     },
     async changeGroupAvatar(avatar){
