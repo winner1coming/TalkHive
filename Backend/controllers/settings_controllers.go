@@ -93,7 +93,7 @@ func SaveEdit(c *gin.Context) {
 	}
 
 	if input.Avatar != "" {
-		avatarPath, err := global.GetAvatarPath(input.Avatar, userID, "User_Avtar")
+		avatarPath, err := utils.GetAvatarPath(input.Avatar, userID, "User_Avtar")
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": err.Error()})
 			return
@@ -523,6 +523,7 @@ func ChangeFontsize(c *gin.Context) {
 		}
 	}
 	systemSetting.FontSize = input.FontSize
+	fmt.Println("字体大小", input.FontSize)
 	if err := global.Db.Save(&systemSetting).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "更改字体大小失败"})
 	} else {
@@ -778,7 +779,7 @@ func ChangeBackground(c *gin.Context) {
 	}
 
 	if input.Background != "" {
-		backgroundPath, err := global.GetAvatarPath(input.Background, strconv.Itoa(int(accountID)), "User_Background")
+		backgroundPath, err := utils.GetAvatarPath(input.Background, strconv.Itoa(int(accountID)), "User_Background")
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": err.Error()})
 			return
@@ -842,7 +843,7 @@ func GetSystemSetting(c *gin.Context) {
 	var mimeType string
 	if systemSetting.Background != "" {
 		// 调用 GetFileContentAndType 方法获取文件内容和类型
-		backGroundBase64, mimeType, err = global.GetFileContentAndType(systemSetting.Background)
+		backGroundBase64, mimeType, err = utils.GetFileContentAndType(systemSetting.Background)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"success": false,
