@@ -152,7 +152,7 @@ func GetAvatarPath(base64Str string, userID string, Path string) (string, error)
 	}
 
 	// 定义保存路径
-	avatarDir := "C:/TalkHive/" + Path
+	avatarDir := "D:/TalkHive/" + Path
 	avatarPath := filepath.Join(avatarDir, fmt.Sprintf("%s.%s", userID, fileType)) // 文件名为 userID.<fileType>
 
 	// 检查目录是否存在，如果不存在则创建
