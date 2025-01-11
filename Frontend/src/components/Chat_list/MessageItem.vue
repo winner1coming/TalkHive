@@ -30,7 +30,7 @@
           </div>
           <span class="file-buttons">
             <button class="file-button" @click="downloadFile">下载</button>
-            <button class="file-button">预览</button>
+            <!-- <button class="file-button" @click="previewFile">预览</button> -->
             <!-- <a ref="link" style="visibility: hidden" :href="message.content" download>下载</a> -->
           </span>
         </div>
@@ -41,6 +41,7 @@
       </div>
     </div>
 
+    <!--我的消息-->
     <div v-else class="my-message">
       <div class="message-content-wrapper">
         <div class="message-header">
@@ -68,7 +69,7 @@
           </div>
           <span class="file-buttons">
             <button class="file-button" @click="downloadFile">下载</button>
-            <button class="file-button">预览</button>
+            <!-- <button class="file-button" @click="previewFile">预览</button> -->
             <!-- <a ref="link" style="visibility: hidden" :href="message.content" download>下载</a> -->
           </span>
         </div>
@@ -81,6 +82,9 @@
         <img :src="message.avatar" alt="avatar" @click="showProfileCard($event)"/>
       </div>
     </div>
+
+    <!--预览文件-->
+
   </div>
 </template>
 
@@ -108,6 +112,9 @@ export default {
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url); // 释放 URL 对象
+    },
+    previewFile(){
+
     },
     showContextMenu(event, message) {
       this.$emit('show-context-menu',event, message);
@@ -262,7 +269,7 @@ export default {
 .file-buttons{
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
+  justify-content: flex-end;
   width: 100%;
   padding: 5px;
 }
