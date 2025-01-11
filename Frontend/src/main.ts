@@ -10,6 +10,7 @@ import {faComment, faAddressBook, faCog,faBriefcase,faSignOutAlt} from '@fortawe
 
 library.add(faComment,faAddressBook,faCog,faBriefcase,faSignOutAlt);
 
+
 const app = createApp(App);
 app.use(router);
 app.use(store);

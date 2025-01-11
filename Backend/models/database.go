@@ -105,11 +105,13 @@ type GroupMemberInfo struct {
 
 // Notes 笔记表
 type Notes struct {
-	NoteID    uint   `gorm:"primaryKey" json:"note_id"`
-	Type      string `json:"type"`
-	CachePath string `json:"cache_path"`
-	AccountID uint   `json:"account_id"`
-	IsShow    bool   `json:"is_show"`
+	NoteID    uint      `gorm:"primaryKey" json:"note_id"`
+	Type      string    `json:"type"`
+	CachePath string    `json:"cache_path"`
+	AccountID uint      `json:"account_id"`
+	IsShow    bool      `json:"is_show"`
+	SaveTime  time.Time `json:"save_time"`
+	Name      string    `json:"name"`
 }
 
 // Favorites 收藏表
@@ -122,6 +124,7 @@ type Favorites struct {
 // Codes 代码表
 type Codes struct {
 	CodeID    uint      `gorm:"primaryKey" json:"code_id"`
+	Name      string    `json:"name"`
 	SaveTime  time.Time `json:"save_time"`
 	CachePath string    `json:"cache_path"`
 	Suffix    string    `json:"suffix"`
@@ -136,13 +139,15 @@ type DDLS struct {
 	DDLDate     time.Time `json:"ddl_date"`
 	Task        string    `json:"task"`
 	IsCompleted bool      `json:"is_completed"`
-	Urgency     string    `json:"urgency"`
+	Urgency     bool      `json:"urgency"`
 }
 
 // Recycle 回收站表
 type Recycle struct {
 	RecycleID   uint      `gorm:"primaryKey" json:"recycle_id"`
 	RecycleTime time.Time `json:"recycle_time"`
+	RecycleType string    `json:"recycle_type"`
+	AccountID   uint      `json:"account_id"`
 }
 
 // GroupDivide 群聊分组表

@@ -59,11 +59,42 @@ func GetChatList(c *gin.Context) {
 			}
 		}
 
-		// 获取最后一条消息
+		// 查询contacts表
+		var contact models.Contacts
+		if err := global.Db.Where("owner_id = ? AND contact_id = ?", accountID, chat.TargetID).First(&contact).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询contacts表失败"})
+			return
+		}
+
+		// 获取最后一条消息/如果当前聊天记录没有消息
 		var lastMessage models.MessageInfo
 		if err := global.Db.Where("chat_id = ?", chat.ChatID).Order("create_time desc").First(&lastMessage).Error; err != nil {
-			c.JSON(http.StatusOK, gin.H{"success": true, "message": "当前聊天记录还没有消息"})
-			return
+
+			var tags []string
+			if contact.IsGroupChat {
+				tags = append(tags, "friend")
+			} else {
+				tags = append(tags, "group")
+			}
+			if contact.IsPinned {
+				tags = append(tags, "Pinned")
+			}
+			if contact.IsBlocked {
+				tags = append(tags, "blocked")
+			}
+
+			chatResponse := gin.H{
+				"id":              chat.TargetID,
+				"avatar":          friend.Avatar,
+				"name":            friend.Nickname,
+				"remark":          contact.Remark,
+				"lastMessage":     nil,
+				"lastMessageTime": nil,
+				"unreadCount":     nil,
+				"tags":            tags,
+			}
+			response = append(response, chatResponse)
+			continue
 		}
 
 		// 获取未读消息数/或者查询Contacts表中unread_message_num
@@ -73,12 +104,6 @@ func GetChatList(c *gin.Context) {
 			return
 		}
 
-		// 查询contacts表
-		var contact models.Contacts
-		if err := global.Db.Where("owner_id = ? AND contact_id = ?", accountID, chat.TargetID).First(&contact).Error; err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询contacts表失败"})
-			return
-		}
 		var tags []string
 		if chat.IsGroup != true {
 			tags := append(tags, "friend")
@@ -729,21 +754,19 @@ func GetMessages(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"success": false, "message": "用户注销"})
 		return
 	}
-	tid := c.Param("tid")
-	if tid == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "聊天ID (tid) 不能为空"})
-		return
+	var input struct {
+		Tid     uint `json:"tid"`
+		IsGroup bool `json:"is_group"`
 	}
-	IsGroup := c.Param("is_group")
-	if IsGroup != "true" && IsGroup != "false" {
-		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "is_group参数错误"})
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Json绑定失败"})
 		return
 	}
 
-	if IsGroup == "true" {
+	if input.IsGroup == true {
 		// 查询GroupChatInfo表
 		var group models.GroupChatInfo
-		if err := global.Db.Where("group_id = ?", tid).First(&group).Error; err == nil {
+		if err := global.Db.Where("group_id = ?", input.Tid).First(&group).Error; err == nil {
 			c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "群聊不存在"})
 			return
 		}
@@ -814,7 +837,7 @@ func GetMessages(c *gin.Context) {
 	} else {
 		// 查询AccountInfo表
 		var friend models.AccountInfo
-		if err := global.Db.Where("account_id = ?", tid).First(&friend).Error; err == nil {
+		if err := global.Db.Where("account_id = ?", input.Tid).First(&friend).Error; err == nil {
 			c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "群聊不存在"})
 			return
 		}
@@ -901,9 +924,9 @@ func SendMessage(c *gin.Context) {
 		return
 	}
 	var input struct {
-		Tid     string `json:"tid" binding:"required"`
+		Tid     uint   `json:"tid" binding:"required"`
 		Content string `json:"content" binding:"required"`
-		Type    string `json:"type" binding:"required,oneof=text"`
+		Type    string `json:"type" binding:"required"`
 		IsGroup bool   `json:"is_group" binding:"required"`
 	}
 	if err := c.ShouldBindJSON(&input); err != nil {

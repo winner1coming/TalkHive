@@ -324,7 +324,7 @@ export default {
       deep: true,
       handler(newVal) {
         if(!newVal) return;
-        if(this.visible && newVal.id !== this.group_id){
+        if(this.visible && !newVal.tags.includes('group') && newVal.id !== this.group_id){
           this.hide();
         }
         this.group_id = newVal.id;

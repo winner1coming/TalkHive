@@ -483,6 +483,17 @@ export default {
         }
       } 
     });
+    EventBus.on('update-chat', (newChat) => {
+      this.chats = this.chats.filter(chat => chat.id !== newChat.id);
+      this.chats.unshift(newChat); 
+    });
+  },
+  beforeDestroy() {
+    EventBus.off('set-mute');
+    EventBus.off('set-pinned');
+    EventBus.off('set-blocked');
+    EventBus.off('set-blacklist');
+    EventBus.off('update-chat');
   },
 };
 </script>
