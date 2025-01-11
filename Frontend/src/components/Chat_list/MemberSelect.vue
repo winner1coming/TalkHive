@@ -77,7 +77,8 @@ export default {
   border-radius: 8px;
   width: 200px;
   height: 300px;
-  background-color: #fff;
+  background-color: var(--background-color);
+  color: var(--text-color);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
@@ -120,13 +121,13 @@ button {
   margin-top: 10px;
   padding: 5px 10px;
   border: none;
-  background-color: #007bff;
-  color: #fff;
+  background-color: var(--button-background-color);
+  color: var(--button-text-color);
   border-radius: 4px;
   cursor: pointer;
 }
 
 button:hover {
-  background-color: #0056b3;
+  background-color: var(--button-background-color1);
 }
 </style>

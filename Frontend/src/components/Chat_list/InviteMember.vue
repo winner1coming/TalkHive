@@ -132,7 +132,8 @@ export default {
 }
 
 .modal-content {
-  background-color: #fff;
+  background-color: var(--background-color);
+  color: var(--text-color);
   padding: 20px;
   border-radius: 8px;
   width: 300px;

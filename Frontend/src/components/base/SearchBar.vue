@@ -73,8 +73,8 @@
     margin-left: 5px;
     padding: 5px 10px;
     border: none;
-    background-color: #007bff;
-    color: #fff;
+    background-color: var(--button-background-color);
+    color: var(--button-text-color);
     border-radius: 4px;
     cursor: pointer;
   }
