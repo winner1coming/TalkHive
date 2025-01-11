@@ -754,21 +754,19 @@ func GetMessages(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"success": false, "message": "用户注销"})
 		return
 	}
-	tid := c.Param("tid")
-	if tid == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "聊天ID (tid) 不能为空"})
-		return
+	var input struct {
+		Tid     uint `json:"tid"`
+		IsGroup bool `json:"is_group"`
 	}
-	IsGroup := c.Param("is_group")
-	if IsGroup != "true" && IsGroup != "false" {
-		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "is_group参数错误"})
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Json绑定失败"})
 		return
 	}
 
-	if IsGroup == "true" {
+	if input.IsGroup == true {
 		// 查询GroupChatInfo表
 		var group models.GroupChatInfo
-		if err := global.Db.Where("group_id = ?", tid).First(&group).Error; err == nil {
+		if err := global.Db.Where("group_id = ?", input.Tid).First(&group).Error; err == nil {
 			c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "群聊不存在"})
 			return
 		}
@@ -839,7 +837,7 @@ func GetMessages(c *gin.Context) {
 	} else {
 		// 查询AccountInfo表
 		var friend models.AccountInfo
-		if err := global.Db.Where("account_id = ?", tid).First(&friend).Error; err == nil {
+		if err := global.Db.Where("account_id = ?", input.Tid).First(&friend).Error; err == nil {
 			c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "群聊不存在"})
 			return
 		}
@@ -926,9 +924,9 @@ func SendMessage(c *gin.Context) {
 		return
 	}
 	var input struct {
-		Tid     string `json:"tid" binding:"required"`
+		Tid     uint   `json:"tid" binding:"required"`
 		Content string `json:"content" binding:"required"`
-		Type    string `json:"type" binding:"required,oneof=text"`
+		Type    string `json:"type" binding:"required"`
 		IsGroup bool   `json:"is_group" binding:"required"`
 	}
 	if err := c.ShouldBindJSON(&input); err != nil {

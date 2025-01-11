@@ -523,6 +523,7 @@ func ChangeFontsize(c *gin.Context) {
 		}
 	}
 	systemSetting.FontSize = input.FontSize
+	fmt.Println("字体大小", input.FontSize)
 	if err := global.Db.Save(&systemSetting).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "更改字体大小失败"})
 	} else {
