@@ -1,95 +1,98 @@
 <template>
   <!-- 编辑资料页面容器 -->
-  <div class="editprofile">
-    <!-- 页面标题 -->
-    <div class="avatar-container">
-      <img :src="avatar" alt="avatar" class="headavatar" @click="showAvatarPreview" />
-      <input type="file" ref="fileInput" style="display: none;" @change="handleFileChange" />
-      <button v-if="isEditing" @click="openFilePicker">上传</button>
-    </div>
-
-    <div class="input_text" v-if="isEditing">
-      <label for="id">账号:</label>
-      <input id="id" type="text" v-model="id" :placeholder="id" :disabled="!isIdEditable"/>
-      <span v-if="!isIdEditable" class="id-warning">一年只能更改一次-可更改时间{{ nextUpdateDate }}</span>
-    </div>
-    <div class="input_text" v-else>
-      <label for="id">账号:</label>
-      <span>{{ id }}</span>
-    </div>
-
-    <div class="input_text" v-if="isEditing">
-      <label for="username">用户名:</label>
-      <input id="username" type="text" v-model="username" :placeholder="username" />
-    </div>
-    <div class="input_text" v-else>
-      <label for="username">用户名:</label>
-      <span>{{ username }}</span>
-    </div>
-
-    <div class="input_text">
-      <label>性别:</label>
-      <span v-if="!isEditing">{{ gender == '男' ?'男':'女' }}</span>
-      <div class="gender-options" v-if="isEditing">
-        <label>
-          <input type="radio" v-model="gender" value="男" />
-          男
-        </label>
-        <label>
-          <input type="radio" v-model="gender" value="女" />
-          女
-        </label>
+  <div class="edit">
+    <div class="editprofile">
+      <!-- 页面标题 -->
+      <div class="avatar-container">
+        <img :src="avatar" alt="avatar" class="headavatar" @click="showAvatarPreview" />
+        <input type="file" ref="fileInput" style="display: none;" @change="handleFileChange" />
+        <button v-if="isEditing" @click="openFilePicker">上传</button>
       </div>
-    </div>
-    <div class="input_text" v-if="isEditing">
-      <label>生日:</label>
-      <input type="text" v-model="birthday" :placeholder="birthday" @click="showDatePicker" readonly />
-      <div v-if="showDatePickerFlag" class="date-picker">
-        <input type="date" v-model="birthday" @change="hideDatePicker" />
+      <div class="input_container">
+        <div class="input_text" v-if="isEditing">
+          <label for="id">账号:</label>
+          <input id="id" type="text" v-model="id" :placeholder="id" :disabled="!isIdEditable"/>
+          <span v-if="!isIdEditable" class="id-warning">一年只能更改一次-可更改时间{{ nextUpdateDate }}</span>
+        </div>
+        <div class="input_text" v-else>
+          <label for="id">账号:</label>
+          <span>{{ id }}</span>
+        </div>
+
+        <div class="input_text" v-if="isEditing">
+          <label for="username">用户名:</label>
+          <input id="username" type="text" v-model="username" :placeholder="username" />
+        </div>
+        <div class="input_text" v-else>
+          <label for="username">用户名:</label>
+          <span>{{ username }}</span>
+        </div>
+
+        <div class="input_text">
+          <label>性别:</label>
+          <span v-if="!isEditing">{{ gender == '男' ?'男':'女' }}</span>
+          <div class="gender-options" v-if="isEditing">
+            <label>
+              <input type="radio" v-model="gender" value="男" />
+              男
+            </label>
+            <label>
+              <input type="radio" v-model="gender" value="女" />
+              女
+            </label>
+          </div>
+        </div>
+        <div class="input_text" v-if="isEditing">
+          <label>生日:</label>
+          <input type="text" v-model="birthday" :placeholder="birthday" @click="showDatePicker" readonly />
+          <div v-if="showDatePickerFlag" class="date-picker">
+            <input type="date" v-model="birthday" @change="hideDatePicker" />
+          </div>
+        </div>
+        <div class="input_text" v-else>
+          <label>生日</label>
+          <span>{{ birthday }}</span>
+        </div>
+
+        <div class="input_text">
+          <label>邮箱:</label>
+          <span>{{ email }}</span>
+        </div>
+
+        <div class="input_text" v-if="isEditing">
+          <label for="phone">手机号:</label>
+          <input id="phone" type="text" v-model="phone" :placeholder="phone" />
+        </div>
+        <div class="input_text" v-else>
+          <label for="phone">手机号:</label>
+          <span>{{ phone }}</span>
+        </div>
+
+        <div class="input_sig" v-if="isEditing">
+          <label>个性签名:</label>
+          <textarea v-model="signature" :placeholder="signature" maxlength="100"></textarea>
+          <span class="signature-count">{{ signature.length }}/100</span>
+        </div>
+        <div class="input_sig" v-else>
+          <label>个性签名</label>
+          <span>{{ signature }}</span>
+        </div>
+        <!-- 保存按钮，点击时触发 saveProfile 方法 -->
+        <div class="button_container" v-if="isEditing">
+        <button class="save_button" @click="saveProfile">保存</button>
+        <!-- 取消按钮，点击时触发 cancelEdit 方法 -->
+        <button class="cancle_button" @click="cancelEdit">取消</button>
+        </div>
+        <div class="botton_container" v-else>
+          <button class="edit_button" @click="toggleEdit">编辑</button>
+        </div>
       </div>
-    </div>
-    <div class="input_text" v-else>
-      <label>生日</label>
-      <span>{{ birthday }}</span>
-    </div>
 
-    <div class="input_text">
-      <label>邮箱:</label>
-      <span>{{ email }}</span>
-    </div>
-
-    <div class="input_text" v-if="isEditing">
-      <label for="phone">手机号:</label>
-      <input id="phone" type="text" v-model="phone" :placeholder="phone" />
-    </div>
-    <div class="input_text" v-else>
-      <label for="phone">手机号:</label>
-      <span>{{ phone }}</span>
-    </div>
-
-    <div class="input_sig" v-if="isEditing">
-      <label>个性签名:</label>
-      <textarea v-model="signature" :placeholder="signature" maxlength="100"></textarea>
-      <span class="signature-count">{{ signature.length }}/100</span>
-    </div>
-    <div class="input_sig" v-else>
-      <label>个性签名</label>
-      <span>{{ signature }}</span>
-    </div>
-    <!-- 保存按钮，点击时触发 saveProfile 方法 -->
-    <div class="button_container" v-if="isEditing">
-    <button class="save_button" @click="saveProfile">保存</button>
-    <!-- 取消按钮，点击时触发 cancelEdit 方法 -->
-    <button class="cancle_button" @click="cancelEdit">取消</button>
-    </div>
-    <div class="botton_container" v-else>
-      <button class="edit_button" @click="toggleEdit">编辑</button>
-    </div>
-
-    <!-- 头像预览弹窗 -->
-    <div v-if="showPreview" class="avatar-preview">
-      <img :src="avatar" alt="avatar" class="avatar-large" />
-      <button @click="hideAvatarPreview">×</button>
+      <!-- 头像预览弹窗 -->
+      <div v-if="showPreview" class="avatar-preview">
+        <img :src="avatar" alt="avatar" class="avatar-large" />
+        <button @click="hideAvatarPreview">×</button>
+      </div>
     </div>
   </div>
 </template>
@@ -295,6 +298,12 @@ export default {
 </script>
 
 <style scoped>
+
+.edit{
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
+}
 /* 编辑资料页面的样式 */
 .editprofile {
   display: grid;
@@ -303,6 +312,11 @@ export default {
   align-items: center;
   justify-items: center;
   margin-top: 20px;
+  width: 100%;
+  max-width: 500px;
+  height: 90%;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 h2{
