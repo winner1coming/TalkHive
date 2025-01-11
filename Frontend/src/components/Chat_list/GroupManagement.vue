@@ -329,7 +329,7 @@ export default {
         }
         this.group_id = newVal.id;
         this.group_remark = newVal.name;
-        if(!newVal.tags){
+        if(newVal.tags){
           this.isMute = newVal.tags.includes('mute');
           this.isBlocked = newVal.tags.includes('blocked');
           this.isPinned = newVal.tags.includes('pinned');
