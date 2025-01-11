@@ -186,7 +186,6 @@
 </template>
 
 <script>
-import axios from 'axios';
 import * as WorkSpaceAPI from '@/services/workspace_api';
 
 export default {
@@ -475,6 +474,7 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 1001;
 }
 
 .modal-content {

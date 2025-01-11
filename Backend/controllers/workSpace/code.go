@@ -11,15 +11,15 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 )
 
 // 我的代码！！！
 
-// SearchCode - 获取用户的代码列表
+// SearchCode - 获取用户的代码列表√
 func SearchCode(c *gin.Context) {
 	// 1. 获取请求参数中的 id
-	//userID := c.Param("id")
 	userID := c.GetHeader("User-Id")
 	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
@@ -29,9 +29,11 @@ func SearchCode(c *gin.Context) {
 	// 2. 定义结果集，用于存储筛选后的代码数据
 	var codes []models.Codes
 
-	// 3. 查询数据库，筛选出符合条件的数据：account_id = id 且 is_show = true
-	if err := global.Db.Model(&models.Codes{}).Where("account_id = ? AND is_show = ?",
-		global.ParseUint(userID), true).Find(&codes).Error; err != nil {
+	// 3. 查询数据库，筛选出符合条件的数据：account_id = id 且 is_show = true，按时间降序排序
+	if err := global.Db.Model(&models.Codes{}).
+		Where("account_id = ? AND is_show = ?", global.ParseUint(userID), true).
+		Order("save_time DESC"). // 按时间降序排序
+		Find(&codes).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch code list"})
 		return
 	}
@@ -41,7 +43,7 @@ func SearchCode(c *gin.Context) {
 	for _, code := range codes {
 		result = append(result, map[string]interface{}{
 			"code_id":            code.CodeID,
-			"note_name":          code.Name,
+			"code_name":          code.Name,
 			"last_modified_time": code.SaveTime.Format("2006-01-02 15:04"), // 使用正确的时间格式
 			"Suffix":             code.Suffix,
 		})
@@ -54,53 +56,55 @@ func SearchCode(c *gin.Context) {
 // CreateCode - 新建并保存代码文件√
 func CreateCode(c *gin.Context) {
 	// 1. 接收上传的文件
-	file, err := c.FormFile("file")
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "No file uploaded", "error": err.Error()})
-		return
-	}
+	//file, err := c.FormFile("file")
+	//if err != nil {
+	//	c.JSON(http.StatusBadRequest, gin.H{"message": "No file uploaded", "error": err.Error()})
+	//	return
+	//}
 
 	// 2. 接收表单其他参数
 	var req struct {
-		Name   string `json:"aNme" binding:"required"`
+		Name   string `json:"Name" binding:"required"`
 		Suffix string `json:"Suffix" bingding:"required"`
 	}
 
-	if err := c.ShouldBind(&req); err != nil {
+	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid form data", "error": err.Error()})
 		return
 	}
 
 	// 获取用户ID
-	//userID := c.Param("id")
 	userID := c.GetHeader("User-Id")
 	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
 		return
 	}
 
-	//// 3. 解析 SaveTime 字符串为 time.Time
-	//saveTime, err := time.Parse("2006-01-02 15:04:05", req.SaveTime)
-	//if err != nil {
-	//	c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid SaveTime format. Use YYYY-MM-DD", "error": err.Error()})
-	//	return
-	//}
+	// 4.确保文件路径安全并添加后缀
+	sanitizedNoteName := strings.ReplaceAll(req.Name, "/", "_")
+	sanitizedNoteName = strings.ReplaceAll(sanitizedNoteName, "\\", "_")
+	rootDir := "D:/TalkHive/Codes/"
+	filePath := filepath.Join(rootDir, sanitizedNoteName+req.Suffix)
 
-	// 4. 定义文件保存路径
-	rootDir := "D:/TalkHive/Codes/" // 文件存储根目录
-	filePath := filepath.Join(rootDir, fmt.Sprintf("%s%s", req.Name, req.Suffix))
-
-	// 5. 保存文件到服务器
-	if err := c.SaveUploadedFile(file, filePath); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to save file", "error": err.Error()})
+	// 确保目录存在
+	if err := os.MkdirAll(rootDir, os.ModePerm); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to create directory", "error": err.Error()})
 		return
 	}
+
+	// 5.创建空白文件
+	file, err := os.Create(filePath)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to create blank note file", "error": err.Error()})
+		return
+	}
+	defer file.Close()
 
 	// 6. 将文件信息存入数据库
 	code := models.Codes{
 		Name:      req.Name,
 		SaveTime:  time.Now(),
-		CachePath: fmt.Sprintf("%s%s", req.Name, req.Suffix), // 保存相对路径
+		CachePath: sanitizedNoteName + req.Suffix, // 保存相对路径
 		Suffix:    req.Suffix,
 		AccountID: global.ParseUint(userID), // 将 user_id 转为 uint,
 		IsShow:    true,
@@ -114,12 +118,9 @@ func CreateCode(c *gin.Context) {
 	// 7. 返回文件元信息
 	c.JSON(http.StatusOK, gin.H{
 		"code_id":    code.CodeID,
-		"name":       code.Name,
-		"save_time":  code.SaveTime.Format("2006-01-02 15:04"),
-		"suffix":     code.Suffix,
-		"cache_path": code.CachePath,
-		"user_id":    code.AccountID,
-		"is_show":    code.IsShow,
+		"code_name":       code.Name,
+		"last_modified_time":  code.SaveTime.Format("2006-01-02 15:04"),
+		"Suffix":     code.Suffix,
 	})
 }
 
@@ -203,23 +204,23 @@ func getContentTypeBySuffix(suffix string) string {
 	}
 }
 
-// EditCode - 编辑代码文件
+// EditCode - 编辑代码文件（包括修改名称）
 func EditCode(c *gin.Context) {
-	// 接收参数
+	// 接收 JSON 数据
 	var requestData struct {
-		CodeID   uint   `form:"code_id" binding:"required"`
-		CodeName string `form:"code_name" binding:"required"`
-		Suffix   string `form:"suffix" binding:"required"`
+		CodeID   uint   `json:"code_id" binding:"required"`   // 代码文件ID
+		CodeName string `json:"code_name" binding:"required"` // 代码文件名称
+		Suffix   string `json:"suffix" binding:"required"`    // 文件后缀
+		Content  string `json:"content" binding:"required"`   // 代码内容
 	}
 
-	// 绑定请求数据
-	if err := c.ShouldBind(&requestData); err != nil {
+	// 绑定 JSON 数据
+	if err := c.ShouldBindJSON(&requestData); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request data"})
 		return
 	}
 
 	// 获取用户ID
-	//userID := c.Param("id")
 	userID := c.GetHeader("User-Id")
 	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
@@ -228,37 +229,44 @@ func EditCode(c *gin.Context) {
 
 	// 1. 检查数据库中是否有匹配的记录
 	var code models.Codes
-	if err := global.Db.Model(&models.Codes{}).Where("code_id = ? AND name = ? AND suffix = ? AND is_show = ?",
-		requestData.CodeID, requestData.CodeName, requestData.Suffix, true).First(&code).Error; err != nil {
+	if err := global.Db.Model(&models.Codes{}).Where("code_id = ? AND account_id = ? AND is_show = ?",
+		requestData.CodeID, global.ParseUint(userID), true).First(&code).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Code file not found"})
 		return
 	}
 
-	// 2. 处理上传文件
-	file, _, err := c.Request.FormFile("file")
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to read file"})
+	// 2. 更新数据库中的名称和后缀
+	//if err := global.Db.Model(&models.Codes{}).Where("code_id = ?", requestData.CodeID).
+	//	Updates(map[string]interface{}{
+	//		"name":   requestData.CodeName,
+	//		"suffix": requestData.Suffix,
+	//	}).Error; err != nil {
+	//	c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update code metadata"})
+	//	return
+	//}
+
+	// 更新笔记名称为 note_name
+	if err := global.Db.Model(&code).Update("name", requestData.CodeName).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update note name"})
 		return
 	}
-	defer file.Close()
+
+	// 2. 更新 Notes 表，将 Type 修改为 Type
+	if err := global.Db.Model(&code).Update("suffix", requestData.Suffix).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update note type"})
+		return
+	}
 
 	// 3. 定义文件存储路径
 	savePath := fmt.Sprintf("D:/TalkHive/Codes/%s", code.CachePath)
 
-	// 4. 将文件保存到指定路径
-	out, err := os.Create(savePath)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save file"})
-		return
-	}
-	defer out.Close()
-
-	if _, err := io.Copy(out, file); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to write file data"})
+	// 4. 将文本内容保存到指定路径
+	if err := os.WriteFile(savePath, []byte(requestData.Content), 0644); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save file content"})
 		return
 	}
 
-	// 5. 更新数据库中的文件信息
+	// 5. 更新数据库中的保存时间
 	code.SaveTime = time.Now()
 	if err := global.Db.Save(&code).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update code metadata"})
@@ -276,7 +284,6 @@ func EditCode(c *gin.Context) {
 		"is_show":    code.IsShow,
 	})
 }
-
 // ShareCode - 分享代码文件√
 func ShareCode(c *gin.Context) {
 	// 获取请求参数

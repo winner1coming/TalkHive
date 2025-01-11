@@ -12,6 +12,7 @@ import WorkSpace from '@/views/WorkSpace.vue';
 import Favorites from '@/components/WorkSpace/Favorites.vue';
 import Notes from "@/components/WorkSpace/Notes.vue";
 import NoteEditor from "@/components/WorkSpace/NoteEditor.vue";
+import CodeEditor from "@/components/WorkSpace/CodeEditor.vue";
 import Code from "@/components/WorkSpace/Code.vue"
 import DdlList from "@/components/WorkSpace/DdlList.vue"
 import Recycle from "@/components/WorkSpace/Recycle.vue"
@@ -68,6 +69,11 @@ const routes = [
           {
             path: "/workspace/notes/editor",
             component: NoteEditor,
+            props: true,
+          },
+          {
+            path: "/workspace/code/editor",
+            component: CodeEditor,
             props: true,
           },          
           {

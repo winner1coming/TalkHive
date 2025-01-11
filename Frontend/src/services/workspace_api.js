@@ -37,7 +37,7 @@ export const getFavorites = () => {
 };
 
 export const deleteFavorites = (msg_ids) => {
-  return apiClient.post('/workspace/favorites/delete',{items: msg_ids});
+  return apiClient.post('/workspace/favorites/delete',msg_ids);
 };
 
 // 笔记—————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
@@ -80,6 +80,13 @@ export const createNote = (note_name, type) => {
 export const getNoteContent = (note_id) => {
   return apiClient.post('/workspace/notes/get', {note_id}, { responseType: 'text',});
 };
+
+//保存笔记修改
+export const saveEditNote = (NoteID, NoteName, Type, Content) => {
+  console.log(NoteID, NoteName, Type, Content);
+  return apiClient.post('/workspace/notes/editnote',{NoteID, NoteName, Type, Content});
+};
+
 // const response = await axios.post('/api/get-code', {
 //   code_id: codeID,
 //   is_preview: isPreview,
@@ -113,28 +120,17 @@ export const getCodes = () => {
 export const deleteCode = (code_id) => {
   return apiClient.post('/workspace/code/delete', {code_id});
 };
+// 新建代码
+export const createCode = (Name, Suffix) => {
+  return apiClient.post('/workspace/code/new',{Name, Suffix});
+};
+// 获取代码内容
+export const getCodeContent = (code_id) => {
+  return apiClient.post('/workspace/code/get', {code_id}, { responseType: 'text',});
+};
+// 保存编辑
+export const saveEditCode = (code_id, code_name, suffix, content) => {
+  console.log(code_id, code_name, suffix, content);
+  return apiClient.post('/workspace/code/edit',{code_id, code_name, suffix, content});
+};
 
-
-// // 获取聊天列表接口
-//   export const getChatList = () => {
-//     return apiClient.get('/chatlist');
-//   };
-//   // 获取单个新聊天
-//   export const getChat = (tid) => {  
-//     // 创建一个新的聊天，后端需要返回新的chat，chat的格式同getChatList中的元素
-//     return apiClient.post(`/chatlist/createChat`,{tid});
-//   };
-//   // 搜索聊天
-//   export const searchChats = (keyword) => {
-//     return apiClient.get(`/chatlist/search/${keyword}`);
-//   };
-  
-//   // 置顶或取消置顶聊天
-//   export const pinChat = (tid, is_pinned) => {
-//     return apiClient.post(`/chatlist/pin`,{tid, is_pinned});
-//   };
-  
-//   // 标记为已读或未读消息
-//   export const readMessages = (tid, is_read) => {
-//     return apiClient.post(`/messages/read`,{tid, is_read});
-//   }

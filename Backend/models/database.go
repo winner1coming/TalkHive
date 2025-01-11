@@ -93,7 +93,7 @@ type GroupMemberInfo struct {
 // Notes 表示笔记表
 type Notes struct {
 	NoteID    uint      `gorm:"primaryKey" json:"note_id"`
-	Name      string    `json:"name"`
+	NoteName      string    `json:"note_name"`
 	SaveTime  time.Time `json:"save_time"`
 	Type      string    `json:"type"`
 	CachePath string    `json:"cache_path"`

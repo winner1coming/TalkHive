@@ -127,7 +127,6 @@
 </template>
 
 <script>
-import axios from 'axios';
 import * as WorkSpaceAPI from '@/services/workspace_api';
 
 export default {
@@ -196,10 +195,11 @@ export default {
             return;
           }
           // 为每个 note 增加 showDropdown: false
-          this.notes = response.data.notes.map(note => ({
+          this.notes = response.data.map(note => ({
             ...note,       // 保留原来的属性
             showDropdown: false // 添加新的属性
           }));
+          console.log(this.notes);
           //this.notes = response.data.notes;
         } else {
           alert('获取笔记列表失败');
@@ -231,10 +231,7 @@ export default {
     //保存新建的文件
     async saveFile() {
       try {
-        const response = await axios.post('/workspace/create-file', {
-          note_name: this.newFile.filename + this.newFile.filetype,
-          type: this.newFile.category,  // 发送文件所属分类
-        });
+        const response = await WorkSpaceAPI.createNote(this.newFile.filename, this.newFile.category);
 
         if (response.status === 200) {
           this.showCreateFile = false;
@@ -248,6 +245,7 @@ export default {
       }
     },
 
+    // 编辑笔记
     editNote(note) {
       // 使用 Vuex 更新 currentNote 对象
       this.$store.dispatch('updateCurrentNote', {
@@ -290,6 +288,7 @@ export default {
       this.showDeleteConfirm = false;
       this.toggleDropdown(this.fileToDelete);
       this.fileToDelete = null;
+      this.fetchNotes();
     },
     // 取消删除操作
     cancelDelete() {
@@ -468,7 +467,8 @@ export default {
 .create-file-modal,
 .edit-category-modal,
 .create-category-modal,
-.delete-category-modal {
+.delete-category-modal,
+.confirm-modal {
   position: fixed;
   top: 0;
   left: 0;
@@ -478,6 +478,7 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 2000; /* 保证弹出框在遮罩层上方 */
 }
 
 .modal-content {
@@ -576,7 +577,7 @@ select {
   background-color: rgb(208, 208, 208);
 }
 
-.confirm-modal {
+/* .confirm-modal {
   position: fixed;
   top: 0;
   left: 0;
@@ -586,7 +587,7 @@ select {
   display: flex;
   justify-content: center;
   align-items: center;
-}
+} */
 
 .confirm-content {
   background-color: white;

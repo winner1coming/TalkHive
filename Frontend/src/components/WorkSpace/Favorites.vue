@@ -19,7 +19,7 @@
     <ul>
       <li v-for="item in favorites" :key="item.message_id" class="favorite-item">
         <!-- 复选框 -->
-        <input v-if="deleteMode" type="checkbox" class="favorite-checkbox" v-model="selectedItems" :value="{ message_id: item.message_id, message_table_name: item.message_table_name }" />
+        <input v-if="deleteMode" type="checkbox" class="favorite-checkbox" v-model="selectedItems" :value="{ message_id: item.message_id, type: item.type }" />
         <span class="type" style="color:darkgrey">{{ getTypeLabel(item.type) }}</span>
         <span class="object-name">{{ item.object_name }}</span>
         <span class="sender"> - {{ item.sender_name }}</span>

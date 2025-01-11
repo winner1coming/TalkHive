@@ -63,7 +63,15 @@
       async fetchDeletedFiles() {
         try {
           const response = await WorkSpaceAPI.getRecycles();
-          this.deletedFiles = response.data.files;
+          if (response.status === 200) {
+            if(!response.data)
+            {
+              return;
+            }
+            this.deletedFiles = response.data;
+          } else {
+            alert('获取回收站失败');
+          }
         } catch (error) {
           console.error('获取已删除文件列表失败:', error);
         }
@@ -93,8 +101,9 @@
         try {
           const response = await WorkSpaceAPI.restoreFile(this.selectedFile.type, this.selectedFile.recycle_id);
   
-          if (response.data.status === 200) {
+          if (response.status == 200) {
             this.fetchDeletedFiles(); // 重新获取已删除文件列表
+            console.log("success");
           } else {
             alert(response.data.message);
           }
@@ -104,13 +113,14 @@
         } finally {
           this.closeModal();
         }
+        this.fetchDeletedFiles(); // 重新获取已删除文件列表
       },
   
       // 删除文件
       async deleteFile() {
         try {
           const response = await WorkSpaceAPI.deleteFile(this.selectedFile.type, this.selectedFile.recycle_id);
-          if (response.data.status === 200) {
+          if (response.status === 200) {
             console.log(response.data.message);
             this.fetchDeletedFiles(); // 重新获取已删除文件列表
           } else {

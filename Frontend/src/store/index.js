@@ -33,6 +33,11 @@ export default createStore({
     },
     // 笔记的标签
     notesCategories: [],
+    // 要编辑的代码
+    currentCode: {
+      code_id: null,
+      filename: '',
+    },
   },
   
   // 同步修改状态的方法
@@ -106,7 +111,10 @@ export default createStore({
     },
     setNotesCategories(state, categories) {
       state.notesCategories = categories;
-    }
+    },
+    setCurrentCode(state, code) {
+      state.currentCode = { ...code };
+    },
   },
   
   // 异步操作和提交 mutations 的方法
@@ -191,6 +199,9 @@ export default createStore({
     updateCategories({ commit }, categories) {
       commit('setNotesCategories', categories);
     },
+    updateCurrentCode({ commit }, code) {
+      commit('setCurrentCode', code);
+    },
   },
 
   //获取用户信息.计算属性
@@ -200,6 +211,7 @@ export default createStore({
     links:(state)=>state.links,
     getCurrentNote: (state) => state.currentNote,
     getCategories: (state) => state.notesCategories,
+    getCurrentCode: (state) => state.currentCode,
   },
 
 });

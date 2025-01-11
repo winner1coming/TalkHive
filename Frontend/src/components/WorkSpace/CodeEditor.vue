@@ -4,14 +4,7 @@
     <div class="editor-toolbar">
       <div class="toolbar-item">
         <label for="noteFilename">文件名：</label>
-        <input type="text" v-model="currentNote.filename" placeholder="输入文件名" />
-      </div>
-
-      <div class="toolbar-item">
-        <label for="noteCategory">分类：</label>
-        <select v-model="currentNote.category">
-          <option v-for="category in categories" :key="category" :value="category">{{ category }}</option>
-        </select>
+        <input type="text" v-model="currentCode.filename" placeholder="输入文件名" />
       </div>
 
       <div class="toolbar-item">
@@ -43,7 +36,7 @@
       </div>
 
       <div class="actions">
-        <button @click="saveNote">保存</button>
+        <button @click="saveCode">保存</button>
         <button @click="cancelEdit">取消</button>
       </div>
     </div>
@@ -61,26 +54,20 @@ import * as WorkSpaceAPI from '@/services/workspace_api';
 export default {
   name: "NoteEditor",
   computed: {
-    currentNote() {
-      return this.$store.getters.getCurrentNote;  // 从 Vuex 获取 currentNote
+    currentCode() {
+      return this.$store.getters.getCurrentCode;  // 从 Vuex 获取 currentCode
     },
-    categories() {
-      this.localCategory = this.$store.getters.getCategories;
-      this.localCategory.push('');
-      return this.localCategory; 
-    }
   },
   data() {
     return {
       noteContent: "",
-      selectedLanguage: 'markdown',
+      selectedLanguage: '',
       fontSize: '14',
       backgroundColor: '#ffffff',
       editor: null,
       // categories: ['工作', '学习', '个人', '项目'],  // 模拟从后端获取分类
       // 用于处理 v-model 的本地数据
       localFilename: this.note_filename,
-      localCategory: this.note_category
     };
   },
   // created() {
@@ -101,28 +88,30 @@ export default {
   //   }
   // },
   mounted() {
-    if (this.currentNote) {
-      console.log("currentNote:", this.currentNote);
+    if (this.currentCode) {
+      console.log("currentCode:", this.currentCode);
     } else {
-      console.log("currentNote is not loaded yet.");
+      console.log("currentCode is not loaded yet.");
     }
+    // 获取文件后缀并计算语言
+    const fileExtension = this.getFileExtension(this.currentCode.filename);
+    const language = this.getLanguageByExtension(fileExtension);
+    console.log(fileExtension,language);
     nextTick(async() => {
       if (this.$refs.monacoEditor) {
-        await this.getNoteContent(this.currentNote.note_id);
+        console.log("currentCode:",this.currentCode.code_id);
+        await this.getCodeContent(this.currentCode.code_id);
         this.editor = monaco.editor.create(this.$refs.monacoEditor, {
           value: this.noteContent,
-          language: this.selectedLanguage,
+          language: language,
           automaticLayout: true,
           fontSize: parseInt(this.fontSize),
           theme: 'vs',
           backgroundColor: this.backgroundColor,
         });
-        // // 在内容变化时更新 noteContent
-        // this.editor.onDidChangeModelContent(() => {
-        //   this.noteContent = this.editor.getValue(); // 获取 Monaco 编辑器的当前值
-        // });
       }
     });
+    this.selectedLanguage=language;
   },
   watch: {
     selectedLanguage(newLang) {
@@ -143,19 +132,40 @@ export default {
     },
   },
   methods: {
-    // // 更新笔记文件名
-    // updateNoteFilename() {
-    //   this.$emit('update:note_filename', this.localFilename); // 通过事件通知父组件更新
-    // },
-
-    // updateNoteCategory() {
-    //   // 更新分类
-    //   this.$store.dispatch('updateCategory', this.currentNote.category);
-    // },
-    async getNoteContent(noteID) {
-      const response = await WorkSpaceAPI.getNoteContent(noteID);
+    // 定义一个函数来映射后缀名到语言标识符
+    getLanguageByExtension(extension) {
+        switch (extension) {
+            case ".js":
+            return "javascript";
+            case ".java":
+            return "java";
+            case ".cpp":
+            return "cpp";
+            case ".java":
+            return "java";
+            case ".py":
+            return "python";
+            case ".html":
+            return "html";
+            case ".css":
+            return "css";
+            case ".md":
+            return "markdown";
+            // 添加更多的语言和后缀名映射
+            default:
+            return "plaintext"; // 默认语言
+        }
+    },
+    getFileExtension(fname) {
+        let dotIndex = fname.lastIndexOf("."); // 找到最后一个点的位置
+        let extension = fname.slice(dotIndex);  // 提取点号后的部分
+        return extension;
+    },
+    async getCodeContent(codeID) {
+      console.log(codeID);
+      const response = await WorkSpaceAPI.getCodeContent(codeID);
       const data = response.data;
-      console.log(noteID);
+      console.log(codeID);
       this.noteContent = data;
     },
 
@@ -185,17 +195,40 @@ export default {
       }
     },
 
-    // 保存笔记
-    async saveNote() {
+    // // 保存笔记
+    // async saveCode() {
+    //   try {
+    //     //const response = await WorkSpaceAPI.EditNote(this.newFile.filename + this.newFile.filetype, this.newFile.category);
+    //     const model = toRaw(this.editor.getModel());
+    //     const content = model.getValue();
+    //     console.log(content);
+    //     let dotIndex = this.currentCode.filename.lastIndexOf("."); // 找到最后一个点的位置
+    //     let name = this.currentCode.filename.slice(0, dotIndex);  // 提取点号前的部分
+    //     let extension = this.currentCode.filename.slice(dotIndex);  // 提取点号后的部分
+    //     //let parts = this.currentCode.filename.split(/(?=\.)/); 
+    //     console.log(name,extension);
+    //     const response = await WorkSpaceAPI.saveEditCode(this.currentCode.code_id, name, extension, content);
+    //     if (response.status != 200) {
+    //       alert(response.data.message);
+    //     }
+    //   } catch (error) {
+    //     console.error('无法保存文件:', error);
+    //     alert('保存文件失败！');
+    //   }
+    //   this.$router.push("/workspace/notes");
+    // },
+    async saveCode() {
       try {
-        //const response = await WorkSpaceAPI.EditNote(this.newFile.filename + this.newFile.filetype, this.newFile.category);
-        // console.log(this.noteContent);
-        // this.noteContent = this.editor.getValue();
-        // console.log(this.noteContent);
+        console.log("进入saveCode");
         const model = toRaw(this.editor.getModel());
         const content = model.getValue();
         console.log(content);
-        const response = await WorkSpaceAPI.saveEditNote(this.currentNote.note_id, this.currentNote.filename, this.currentNote.category,content);
+        let dotIndex = this.currentCode.filename.lastIndexOf("."); // 找到最后一个点的位置
+        let name = this.currentCode.filename.slice(0, dotIndex);  // 提取点号前的部分
+        let extension = this.currentCode.filename.slice(dotIndex);  // 提取点号后的部分
+        //let parts = this.currentCode.filename.split(/(?=\.)/); 
+        console.log(name,extension);
+        const response = await WorkSpaceAPI.saveEditCode(this.currentCode.code_id, name, extension, content);
         if (response.status != 200) {
           alert(response.data.message);
         }
@@ -203,8 +236,9 @@ export default {
         console.error('无法保存文件:', error);
         alert('保存文件失败！');
       }
-      this.$router.push("/workspace/notes");
+      this.$router.push("/workspace/code");
     },
+
 
     // 取消编辑
     cancelEdit() {

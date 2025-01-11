@@ -37,7 +37,7 @@
     <!-- 文件列表 -->
     <ul>
       <li v-for="code in codes" :key="code.code_id" class="code-item">
-        <span class="filename" @click="editCode(code.code_id)">{{ code.code_name }}</span>
+        <span class="filename" @click="editCode(code)">{{ code.code_name + code.Suffix }}</span>
         <span class="modified"> - 上次修改时间: {{ code.last_modified_time }}</span>
         <button class="more-btn" @click="toggleDropdown(code.code_id)">...</button>
         <div v-if="code.showDropdown" class="dropdown">
@@ -94,7 +94,7 @@ export default {
           {
             return;
           }
-          this.codes = response.data.codes.map(code => ({
+          this.codes = response.data.map(code => ({
             ...code,       // 保留原来的属性
             showDropdown: false // 添加新的属性
           }));
@@ -119,15 +119,29 @@ export default {
 
     // 保存新建的文件
     async saveFile() {
+      // try {
+      //   // 发送请求到后端，保存新建的文件
+      //   const response = await axios.post('/workspace/create-file', {
+      //     filename: this.newFile.filename + this.newFile.filetype,  // 文件名和文件格式拼接
+      //   });
+
+      //   if (response.status === 200) {
+      //     alert('文件创建成功');
+      //     this.showCreateFile = false; // 关闭编辑框
+      //   } else {
+      //     alert(response.data.message);
+      //   }
+      // } catch (error) {
+      //   console.error('无法创建文件:', error);
+      //   alert('创建文件失败！');
+      // }
       try {
-        // 发送请求到后端，保存新建的文件
-        const response = await axios.post('/workspace/create-file', {
-          filename: this.newFile.filename + this.newFile.filetype,  // 文件名和文件格式拼接
-        });
+        const response = await WorkSpaceAPI.createCode(this.newFile.filename, this.newFile.filetype);
 
         if (response.status === 200) {
-          alert('文件创建成功');
-          this.showCreateFile = false; // 关闭编辑框
+
+          this.showCreateFile = false;
+          this.fetchCodes();
         } else {
           alert(response.data.message);
         }
@@ -135,12 +149,21 @@ export default {
         console.error('无法创建文件:', error);
         alert('创建文件失败！');
       }
-      this.editCode(1);
+      // this.editCode(1);
     },
 
     // 跳转到文件编辑页
-    editCode(id) {
-      this.$router.push(`/workspace/code/${id}`);
+    editCode(code) {
+      // this.$router.push(`/workspace/code/${id}`);
+      
+      // 使用 Vuex 更新 currentCode 对象
+      this.$store.dispatch('updateCurrentCode', {
+        code_id: code.code_id,
+        filename: code.code_name + code.Suffix,
+      });
+
+      // 跳转到编辑页面
+      this.$router.push(`/workspace/code/editor`);
     },
 
     // 切换下拉框显示/隐藏
@@ -227,6 +250,7 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 1001;
 }
 
 .modal-content {
@@ -335,6 +359,7 @@ input[type="text"], select {
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 1001;
 }
 
 .confirm-content {
