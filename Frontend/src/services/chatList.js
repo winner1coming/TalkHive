@@ -43,7 +43,14 @@ export const getMessages = (tid, is_group) => {
 export const sendMessage = (tid, content, type, is_group) => {
   return apiClient.post(`/messages/send`, { tid, content, type, is_group });
 };
-
+// 收藏消息
+export const collectMessage = (table_name, message_id) => {
+  return apiClient.post(`/messages/collect`, { table_name, message_id });
+};
+// 删除消息
+export const deleteMessage = (message_id) => {
+  return apiClient.post(`/messages/delete`, { message_id });
+};
 // 获取历史记录
 export const getHistory = (tid) => {
   return apiClient.post(`/messages/history`,{tid});
