@@ -45,7 +45,8 @@
           </div>
           <div class="form-actions">
             <button type="submit" class="add-button">添加</button>
-            <button @click="showAddLinkModal = false,isAddingLink= false" class="cancel-button">取消</button>
+            <button @click="showAddLinkModal = false,isAddingLink= false,this.newlink = { name: '', url: '', icon: '' };" 
+                    class="cancel-button">取消</button>
           </div>
         </form>
       </div>

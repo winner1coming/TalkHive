@@ -8,6 +8,7 @@ import (
 	"mime"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"github.com/go-redis/redis"
@@ -99,4 +100,10 @@ func GetFileContentAndType(filePath string) (string, string, error) {
 
 	// 返回文件内容和文件类型
 	return fileBase64, fileType, nil
+}
+
+// ParseUint - 将字符串转换为 uint 类型
+func ParseUint(input string) uint {
+	value, _ := strconv.ParseUint(input, 10, 32) // 忽略错误，出错返回 0
+	return uint(value)
 }
