@@ -5,9 +5,12 @@ import (
 	"TalkHive/models"
 	"errors"
 	"fmt"
+	"log"
+	"net/http"
+	"time"
+
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
-	"net/http"
 )
 
 // 我的收藏！！！
@@ -74,7 +77,7 @@ func GetFavorites(c *gin.Context) {
 				continue // 如果找不到对应的代码，跳过这条记录
 			}
 			item["type"] = "code"
-			item["object_name"] = code.Name + code.Suffix           // 代码名+后缀名
+			item["object_name"] = code.Name + code.Suffix // 代码名+后缀名
 			//item["sender_name"] = fmt.Sprintf("%d", code.AccountID) // 代码的sender_name就是用户ID
 			// 获取 sender_name
 			var sender models.AccountInfo
@@ -100,7 +103,16 @@ func GetFavorites(c *gin.Context) {
 			} else {
 				item["sender_name"] = sender.Nickname
 			}
-			item["time"] = message.CreateTime.Format("2006-01-02 15:04")   // 消息的时间
+
+			layout := "2006-01-02 15:04:05" // 定义时间格式，必须与 message.CreateTime 的格式一致
+			// 将 message.CreateTime 解析为 time.Time 类型
+			parsedTime, err := time.Parse(layout, message.CreateTime)
+			if err != nil {
+				// 如果解析失败，处理错误
+				log.Println("解析时间出错:", err)
+				return
+			}
+			item["time"] = parsedTime.Format("2006-01-02 15:04") // 消息的时间
 
 		default:
 			continue // 如果不是Notes, Codes, MessageInfo表，跳过此条记录
