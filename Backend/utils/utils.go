@@ -6,9 +6,6 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"github.com/golang-jwt/jwt"
-	"golang.org/x/crypto/bcrypt"
-	"gopkg.in/gomail.v2"
 	"io"
 	"io/ioutil"
 	"log"
@@ -19,6 +16,10 @@ import (
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/golang-jwt/jwt"
+	"golang.org/x/crypto/bcrypt"
+	"gopkg.in/gomail.v2"
 )
 
 // HashPassword 哈希化密码
@@ -151,7 +152,7 @@ func GetAvatarPath(base64Str string, userID string, Path string) (string, error)
 	}
 
 	// 定义保存路径
-	avatarDir := "D:/TalkHive/" + Path
+	avatarDir := "C:/TalkHive/" + Path
 	avatarPath := filepath.Join(avatarDir, fmt.Sprintf("%s.%s", userID, fileType)) // 文件名为 userID.<fileType>
 
 	// 检查目录是否存在，如果不存在则创建
