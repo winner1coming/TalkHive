@@ -10,6 +10,7 @@
 					@click="selectedDivide = divide"
 				>
 					<input type="radio" v-model="selectedDivide" :value="divide">
+					<span class="radiomark"></span>
 					<span>{{ divide }}</span>
 				</li>
 			</ul>
@@ -72,19 +73,16 @@ export default {
 .items li input[type="checkbox"] {
 	margin-right: 10px;
 }
+.items li input[type="checkbox"]:checked ~ .radiomark{
+	color: var(--button-background-color);
+}
 
 .confirm-button {
 	flex: 1;
 	margin-top: 10px;
-	background-color: #007bff;
-	color: white;
 	border: none;
 	border-radius: 4px;
 	padding: 10px;
 	cursor: pointer;
-}
-
-.confirm-button:hover {
-	background-color: #0056b3;
 }
 </style>
