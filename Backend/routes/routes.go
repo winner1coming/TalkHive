@@ -8,4 +8,5 @@ func SetupRoutes(r *gin.Engine) {
 	ContactListRoutes(r)
 	SettingsRoutes(r)
 	workSpaceRoutes(r)
+	SetupWorkspaceRoutes(r)
 }

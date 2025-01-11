@@ -106,12 +106,12 @@ type GroupMemberInfo struct {
 // Notes 笔记表
 type Notes struct {
 	NoteID    uint      `gorm:"primaryKey" json:"note_id"`
+	NoteName  string    `json:"note_name"`
 	Type      string    `json:"type"`
 	CachePath string    `json:"cache_path"`
 	AccountID uint      `json:"account_id"`
 	IsShow    bool      `json:"is_show"`
 	SaveTime  time.Time `json:"save_time"`
-	Name      string    `json:"name"`
 }
 
 // Favorites 收藏表

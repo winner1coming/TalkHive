@@ -5,9 +5,12 @@ import (
 	"TalkHive/models"
 	"errors"
 	"fmt"
+	"log"
+	"net/http"
+	"time"
+
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
-	"net/http"
 )
 
 // 我的收藏！！！
@@ -57,9 +60,16 @@ func GetFavorites(c *gin.Context) {
 				continue // 如果找不到对应的笔记，跳过这条记录
 			}
 			item["type"] = "note"
-			item["object_name"] = note.Name
-			item["sender_name"] = fmt.Sprintf("%d", note.AccountID) // 笔记的sender_name就是用户ID
-			item["time"] = note.SaveTime
+			item["object_name"] = note.NoteName
+			//item["sender_name"] = fmt.Sprintf("%d", note.AccountID) // 笔记的sender_name就是用户ID
+			// 获取 sender_name
+			var sender models.AccountInfo
+			if err := global.Db.Where("account_id = ?", note.AccountID).First(&sender).Error; err != nil {
+				item["sender_name"] = fmt.Sprintf("%d", note.AccountID) // 如果获取不到昵称，返回 AccountID
+			} else {
+				item["sender_name"] = sender.Nickname
+			}
+			item["time"] = note.SaveTime.Format("2006-01-02 15:04")
 
 		case "code":
 			var code models.Codes
@@ -67,9 +77,16 @@ func GetFavorites(c *gin.Context) {
 				continue // 如果找不到对应的代码，跳过这条记录
 			}
 			item["type"] = "code"
-			item["object_name"] = code.Name + code.Suffix           // 代码名+后缀名
-			item["sender_name"] = fmt.Sprintf("%d", code.AccountID) // 代码的sender_name就是用户ID
-			item["time"] = code.SaveTime
+			item["object_name"] = code.Name + code.Suffix // 代码名+后缀名
+			//item["sender_name"] = fmt.Sprintf("%d", code.AccountID) // 代码的sender_name就是用户ID
+			// 获取 sender_name
+			var sender models.AccountInfo
+			if err := global.Db.Where("account_id = ?", code.AccountID).First(&sender).Error; err != nil {
+				item["sender_name"] = fmt.Sprintf("%d", code.AccountID) // 如果获取不到昵称，返回 AccountID
+			} else {
+				item["sender_name"] = sender.Nickname
+			}
+			item["time"] = code.SaveTime.Format("2006-01-02 15:04")
 
 		case "message":
 			var message models.MessageInfo
@@ -78,8 +95,24 @@ func GetFavorites(c *gin.Context) {
 			}
 			item["type"] = "message"
 			item["object_name"] = message.Content
-			item["sender_name"] = fmt.Sprintf("%d", message.SendAccountID) // 消息的sender_name是发送者的ID
-			item["time"] = message.CreateTime                              // 消息的时间
+			//item["sender_name"] = fmt.Sprintf("%d", message.SendAccountID) // 消息的sender_name是发送者的ID
+			// 获取 sender_name
+			var sender models.AccountInfo
+			if err := global.Db.Where("account_id = ?", message.SendAccountID).First(&sender).Error; err != nil {
+				item["sender_name"] = fmt.Sprintf("%d", message.SendAccountID) // 如果获取不到昵称，返回 AccountID
+			} else {
+				item["sender_name"] = sender.Nickname
+			}
+
+			layout := "2006-01-02 15:04:05" // 定义时间格式，必须与 message.CreateTime 的格式一致
+			// 将 message.CreateTime 解析为 time.Time 类型
+			parsedTime, err := time.Parse(layout, message.CreateTime)
+			if err != nil {
+				// 如果解析失败，处理错误
+				log.Println("解析时间出错:", err)
+				return
+			}
+			item["time"] = parsedTime.Format("2006-01-02 15:04") // 消息的时间
 
 		default:
 			continue // 如果不是Notes, Codes, MessageInfo表，跳过此条记录
@@ -300,7 +333,7 @@ func DeleteFavorite(c *gin.Context) {
 // DeleteMultipleFavorites - 批量删除收藏
 func DeleteMultipleFavorites(c *gin.Context) {
 	var seq []struct {
-		ID   uint   `json:"id" binding:"required"`
+		ID   uint   `json:"message_id" binding:"required"`
 		Type string `json:"type" binding:"required"`
 	}
 
