@@ -7,68 +7,58 @@ import (
 	"net/http"
 )
 
-// 搜索栏！！！
-
-// SearchByKeyword - 根据关键字匹配内容
-func SearchByKeyword(c *gin.Context) {
-	keyword := c.Query("keyword")
-	var notes []models.Notes
-	var codes []models.Codes
-
-	// 搜索笔记标题和内容
-	noteQuery := global.Db.Where("is_show = ? AND (title LIKE ? OR content LIKE ?)", true, "%"+keyword+"%", "%"+keyword+"%")
-	if err := noteQuery.Find(&notes).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to search notes"})
-		return
-	}
-
-	// 搜索代码文件标题和内容
-	codeQuery := global.Db.Where("is_show = ? AND (title LIKE ? OR content LIKE ?)", true, "%"+keyword+"%", "%"+keyword+"%")
-	if err := codeQuery.Find(&codes).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to search codes"})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"notes": notes,
-		"codes": codes,
-	})
-}
-
 // 回收站！！！
 
-// GetTrashItems - 返回回收站列表
+// GetTrashItems - 返回回收站列表√
 func GetTrashItems(c *gin.Context) {
 	// 获取用户 ID 参数
-	//userID := c.Param("id")
 	userID := c.GetHeader("User-Id")
 	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
 		return
 	}
 
-	// 1.查询回收站中属于该用户的内容
+	// 1. 查询回收站中属于该用户的内容，按时间降序排序
 	var trashItems []models.Recycle
-	if err := global.Db.Where("account_id = ?", global.ParseUint(userID)).Find(&trashItems).Error; err != nil {
+	if err := global.Db.Where("account_id = ?", global.ParseUint(userID)).
+		Order("recycle_time DESC"). // 按时间降序排序
+		Find(&trashItems).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch trash items"})
 		return
 	}
 
-	// 2.格式化返回结果
+	// 2. 获取回收站文件名并格式化返回结果
 	var result []map[string]interface{}
 	for _, item := range trashItems {
+		filename := ""
+
+		// 根据 RecycleType 查询对应的文件名
+		if item.RecycleType == "note" {
+			var note models.Notes
+			if err := global.Db.Where("note_id = ?", item.RecycleID).First(&note).Error; err == nil {
+				filename = note.NoteName
+			}
+		} else if item.RecycleType == "code" {
+			var code models.Codes
+			if err := global.Db.Where("code_id = ?", item.RecycleID).First(&code).Error; err == nil {
+				filename = code.Name
+			}
+		}
+
+		// 构造结果
 		result = append(result, map[string]interface{}{
 			"recycle_id":   item.RecycleID,
 			"type":         item.RecycleType,
 			"recycle_time": item.RecycleTime.Format("2006-01-02 15:04"), // 格式化时间
+			"filename":     filename,                                    // 文件名
 		})
 	}
 
-	// 3.返回 JSON 响应
+	// 3. 返回 JSON 响应
 	c.JSON(http.StatusOK, result)
 }
 
-// RestoreItem - 恢复回收站笔记/代码
+// RestoreItem - 恢复回收站笔记/代码√
 func RestoreItem(c *gin.Context) {
 	// 解析前端传递的参数
 	var request struct {
@@ -83,7 +73,6 @@ func RestoreItem(c *gin.Context) {
 	}
 
 	// 获取用户 ID 参数
-	//userID := c.Param("id")
 	userID := c.GetHeader("User-Id")
 	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
@@ -131,7 +120,7 @@ func RestoreItem(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Item restored successfully"})
 }
 
-// DeletePermanently - 永久删除回收站中的文件
+// DeletePermanently - 永久删除回收站中的文件√
 func DeletePermanently(c *gin.Context) {
 	// 解析前端传递的参数
 	var request struct {
