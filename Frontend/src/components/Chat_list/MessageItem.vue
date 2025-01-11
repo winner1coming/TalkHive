@@ -29,8 +29,8 @@
             </div>
           </div>
           <span class="file-buttons">
-            <button @click="downloadFile">下载</button>
-            <button>预览</button>
+            <button class="file-button" @click="downloadFile">下载</button>
+            <button class="file-button">预览</button>
             <!-- <a ref="link" style="visibility: hidden" :href="message.content" download>下载</a> -->
           </span>
         </div>
@@ -67,8 +67,8 @@
             </div>
           </div>
           <span class="file-buttons">
-            <button @click="downloadFile">下载</button>
-            <button>预览</button>
+            <button class="file-button" @click="downloadFile">下载</button>
+            <button class="file-button">预览</button>
             <!-- <a ref="link" style="visibility: hidden" :href="message.content" download>下载</a> -->
           </span>
         </div>
@@ -227,7 +227,7 @@ export default {
 .message-file{
   flex:5;
   background-color: #75baeb;
-  padding: 10px;
+  padding: 5px 10px 2px 2px;
   border-radius: 5px;
   display: flex;
   flex-direction: column;
@@ -239,6 +239,7 @@ export default {
   align-items: flex-start;
   justify-content: flex-start;
   flex-direction: row;
+  padding: 3px 0 3px 0;
 }
 .message-file img{
   width: 50px;
@@ -264,6 +265,12 @@ export default {
   justify-content: space-between;
   width: 100%;
   padding: 5px;
+}
+.file-button{
+  padding: 2px 5px 2px 5px;
+  border-radius: 10%;
+  border: none;
+  cursor: pointer;
 }
 
 .editor-container {
