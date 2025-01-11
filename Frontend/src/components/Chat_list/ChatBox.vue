@@ -1,5 +1,5 @@
 <!-- 聊天框,上半部分为历史记录，下半部分为输入区-->
-<template><!-- todo List:新消息的处理逻辑 -->
+<template>
   <div class="chat-box" ref="chatBox">
     <!-- 最上方的聊天头部 -->
     <div class="chat-header">
@@ -41,6 +41,7 @@ import ContextMenu from '@/components/base/ContextMenu.vue';
 import PersonProfileCard from '@/components/base/PersonProfileCard.vue';
 import * as chatListAPI from '@/services/chatList';
 import { getPersonProfileCard } from '@/services/api';
+import { EventBus } from '@/components/base/EventBus';
 
 export default {
   components: {MessageItem, MessageInput, ContextMenu, PersonProfileCard},
@@ -212,6 +213,14 @@ export default {
   mounted() {
     this.boundD = this.$refs.chatBox.getBoundingClientRect().bottom;
     this.boundR = this.$refs.chatBox.getBoundingClientRect().right;
+    EventBus.on('new-message', (newMessage) => {
+      if(newMessage.chat_id === this.selectedChat.id){
+        this.messages.push(newMessage);
+      }
+    });
+  },
+  beforeDestroy() {
+    EventBus.off('new-message');
   },
 };
 </script>

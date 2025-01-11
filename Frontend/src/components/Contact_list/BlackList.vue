@@ -64,18 +64,18 @@ export default {
       isBlackListManagementVisible: false,
       managementType:'',
       managePesons: [
-        {
-          avatar: '',
-          name: 'John Doe',
-          account_id: '1',   // id
-          signature:"爱拼才会赢",
-        },
-        {
-          avatar: '',
-          name: 'Jane Doe',
-          account_id: '2',
-          signature:"hi",
-        },
+        // {
+        //   avatar: '',
+        //   name: 'John Doe',
+        //   account_id: '1',   // id
+        //   signature:"爱拼才会赢",
+        // },
+        // {
+        //   avatar: '',
+        //   name: 'Jane Doe',
+        //   account_id: '2',
+        //   signature:"hi",
+        // },
       ],
       boundD: null, // 边界的坐标
 			boundR: null, // 边界的坐标
