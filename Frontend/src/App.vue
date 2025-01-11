@@ -37,13 +37,13 @@ export default {
         '--font-size-small':`${baseFontSize - 2}px`,
         '--font-size-large': `${baseFontSize + 2}px`,
         '--font-family':this.settings.fontStyle,
-        '--background-color': this.getBackgroundColor(),
-        '--background-color1': this.getBackgroundColor1(),
+        '--background-color': this.getBackgroundColor(),   //从浅到深
+        '--background-color1': this.getBackgroundColor1(), 
         '--background-color2': this.getBackgroundColor2(),
         '--text-color': this.getTextColor(),
-        '--button-background-color': this.getButtonBackgroundColor(),
-        '--button-background-color1': this.getButtonBackgroundColor1(),
-        '--button-background-color2': this.getButtonBackgroundColor2(),
+        '--button-background-color': this.getButtonBackgroundColor(),   //普通状态
+        '--button-background-color1': this.getButtonBackgroundColor1(), //悬浮
+        '--button-background-color2': this.getButtonBackgroundColor2(),  //点击
         '--button-text-color': this.getButtonTextColor(),
         '--sidebar-background-color': this.getSidebarBackgroundColor(),
         '--sidebar-text-color': this.getSidebarTextColor(),
@@ -264,6 +264,10 @@ export default {
 * {
   margin: 0;
   padding: 0;
+}
+
+button{
+  font-family: var(--font-family);
 }
 
 </style>
