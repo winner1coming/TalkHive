@@ -17,3 +17,9 @@ func ParseUint(input string) uint {
 	value, _ := strconv.ParseUint(input, 10, 32) // 忽略错误，出错返回 0
 	return uint(value)
 }
+
+// ParseUint - 将字符串转换为 uint 类型
+func ParseUint(input string) uint {
+	value, _ := strconv.ParseUint(input, 10, 32) // 忽略错误，出错返回 0
+	return uint(value)
+}
