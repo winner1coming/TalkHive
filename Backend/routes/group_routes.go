@@ -2,6 +2,7 @@ package routes
 
 import (
 	"TalkHive/controllers"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -16,11 +17,11 @@ func SetupGroupChatRoutes(router *gin.Engine) *gin.RouterGroup {
 	//r.POST("/groups/exit", workSpace.ExitGroup)                           // 退出群聊
 	//r.POST("/groups/groupInfo/:group_id", workSpace.GetGroupInfo)         // 获取群聊信息
 	//r.POST("/groups/changeNickName", workSpace.ChangeNickName)            // 更改我在群内的昵称
-	r.POST("/groups/setAllowInvite", controllers.SetAllowInvite)         // 设置是否允许群成员邀请他
-	r.POST("/groups/setAllowSearch", controllers.SetAllowSearch)         // 设置是否允许群成员邀请他：ID
-	r.POST("/groups/setAllowNameSearch", controllers.SetAllowNameSearch) // 设置是否允许群成员邀请他：名字
-	r.POST("/groups/setAllBanned", controllers.SetAllBanned)             // 全体禁言
-	r.POST("/groups/changeGroupAvatar", controllers.ChangeGroupAvatar)   // 更改群头像
+	// r.POST("/groups/setAllowInvite", controllers.SetAllowInvite)         // 设置是否允许群成员邀请他
+	r.POST("/groups/setAllowSearch", controllers.SetAllowSearch) // 设置是否允许群成员邀请他：ID
+	// r.POST("/groups/setAllowNameSearch", controllers.SetAllowNameSearch) // 设置是否允许群成员邀请他：名字
+	// r.POST("/groups/setAllBanned", controllers.SetAllBanned)             // 全体禁言
+	// r.POST("/groups/changeGroupAvatar", controllers.ChangeGroupAvatar)   // 更改群头像
 
 	return r
 }
