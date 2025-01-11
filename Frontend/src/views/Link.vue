@@ -3,7 +3,9 @@
     @mouseover="handleMouseOver" 
     @mouseleave="handleMouseLeave"
   >
-    <a href="#" @mouseover="showWebLinksDropdown = true">网页链接器</a>
+    <a href="#" @mouseover="showWebLinksDropdown = true">
+      <img src="@/assets/icon/Link.png" alt="Link" class="icon"/>
+    </a>
     <div v-if="showWebLinksDropdown || isDropdownPinned" class="web-links-dropdown" @mouseleave="handleDropdownMouseLeave">
       <div class="pin-icon" @click="togglePinDropdown" :style="{ backgroundColor: isDropdownPinned ? 'red' : '#706a6a' }">
         <i class="fas fa-thumbtack">📍</i>
@@ -404,4 +406,10 @@ export default {
   .put{
     display: flex;
   }
+
+  a .icon {
+  width: 25px; /* 图标大小 */
+  height: 25px; /* 图标大小 */
+  margin-right: 5px; /* 图标和文字之间的间距 */
+}
 </style>

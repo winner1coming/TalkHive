@@ -4,22 +4,27 @@
     <aside class="sidebar">
       <div class="user-info">
         <img :src="avatar" alt="Avatar" class="avatar" />
-        <span class="nickname">{{nickname}}</span>
       </div>
       <ul class="nav-links">
         <li><router-link to="/chat">
           <img src="@/assets/icon/chat-icon.png" alt="Chat" class="icon"/>
         </router-link></li>
         <li><router-link to="/contact">
-          通讯录
+          <img src="@/assets/icon/contact.png" alt="Contact" class="icon"/>
         </router-link></li>
-        <li><router-link to="/setlist">设置</router-link></li>
-        <li><router-link to="/workspace">工作区</router-link></li>
+        <li><router-link to="/setlist">
+          <img src="@/assets/icon/setting-icon.png" alt="Settings" class="icon"/>
+        </router-link></li>
+        <li><router-link to="/workspace">
+          <img src="@/assets/icon/workspace-icon.png" alt="Workspace" class="icon"/>
+        </router-link></li>
         <li><Link/></li>
       </ul>
       <ul class="logout">
         <li>
-          <li><a href="#" @click="showLogoutConfirmation">Logout</a></li>
+          <li><a href="#" @click="showLogoutConfirmation">
+            <img src="@/assets/icon/logout.png" alt="Logout" class="icon"/>
+          </a></li>
         </li>
       </ul>
       <div v-if="showConfirmation" class="confirmation-modal">
@@ -100,7 +105,7 @@ export default {
 
 /* 左侧导航栏样式 */
 .sidebar {
-  width: 120px;
+  width: 60px;
   background-color: var(--sidebar-background-color);
   color: var(--sidebar-text-color);
   padding: 10px;
@@ -117,20 +122,14 @@ export default {
   display: flex;
   align-items: center;
   flex-direction: column;
-  margin-bottom: 20px;
+  gap:10px;
+  margin-bottom: 10px;
 }
 
 .avatar {
-  width: 40px;
-  height: 40px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
-  margin-right: 10px;
-}
-
-.nickname {
-  font-weight: bold;
-  color: var(--sidebar-text-color);
-  font-size: var(--font-size-medium);
 }
 
 .nav-links {
@@ -151,6 +150,12 @@ export default {
   padding: 5px;
   border-radius: 4px;
   transition: background-color 0.3s;
+}
+
+.nav-links a .icon {
+  width: 40px; /* 图标大小 */
+  height: 40px; /* 图标大小 */
+  margin-right: 5px; /* 图标和文字之间的间距 */
 }
 
 .nav-links a:hover {
@@ -186,9 +191,6 @@ export default {
 
 /* 退出登录按钮样式 */
 .logout {
-  list-style: none;
-  padding: 0;
-  width: 100%;
   margin-top: auto; /* 将退出按钮推到最底部 */
 }
 
@@ -196,23 +198,10 @@ export default {
   margin: 10px 0;
 }
 
-.logout a {
-  color: var(--sidebar-text-color);
-  text-decoration: none;
-  display: block;
-  padding: 10px;
-  border-radius: 4px;
-  transition: background-color 0.3s;
-}
-
-.nav-links a .icon {
-  width: 50px; /* 图标大小 */
-  height: 50px; /* 图标大小 */
-  margin-right: 8px; /* 图标和文字之间的间距 */
-}
-
-.logout a:hover {
-  background-color: var(--sidebar-text-color);
+.logout a .icon{
+  width: 25px;
+  height: 25px;
+  margin-right: 5px;
 }
 
 .confirmation-modal {
