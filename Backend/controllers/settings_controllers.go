@@ -499,7 +499,7 @@ func ChangeFontsize(c *gin.Context) {
 		return
 	}
 	var input struct {
-		FontSize uint `json:"font_size"`
+		FontSize uint `json:"fontSize"`
 	}
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "参数解析失败"})
@@ -553,7 +553,7 @@ func ChangeFontstyle(c *gin.Context) {
 		return
 	}
 	var input struct {
-		FontStyle string `json:"font_style"`
+		FontStyle string `json:"fontStyle"`
 	}
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "参数解析失败"})

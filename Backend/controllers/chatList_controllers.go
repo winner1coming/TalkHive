@@ -868,7 +868,7 @@ func GetMessages(c *gin.Context) {
 		// 查询聊天记录
 		var chat models.ChatInfo
 		if err := global.Db.Where("account_id = ? AND target_id = ? AND is_group", me.AccountID, group.GroupID, true).First(&chat).Error; err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "聊天记录不存在"})
+			c.JSON(http.StatusBadRequest, gin.H{"success": true, "message": "聊天记录不存在", "data": gin.H{}})
 			return
 		}
 
@@ -942,7 +942,7 @@ func GetMessages(c *gin.Context) {
 		// 查询聊天记录
 		var chat models.ChatInfo
 		if err := global.Db.Where("account_id = ? AND target_id = ? AND is_group = ?", me.AccountID, friend.AccountID, false).First(&chat).Error; err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "聊天记录不存在"})
+			c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "聊天记录不存在", "data": gin.H{}})
 			return
 		}
 
@@ -1140,6 +1140,7 @@ func SendMessage(c *gin.Context) {
 				return
 			}
 		}
+
 		if err := global.Db.Where("account_id = ? AND target_id = ?", friend.AccountID, me.AccountID).First(&chat_receiver).Error; err != nil {
 			chat_receiver = models.ChatInfo{
 				AccountID:  friend.AccountID,
