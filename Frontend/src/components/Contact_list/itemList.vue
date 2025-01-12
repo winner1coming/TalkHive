@@ -27,7 +27,7 @@ export default {
 	methods: {
 		filteredItemsByTag(tag) {
 			if(tag === '全部') return this.items;
-			if(tag === '我创建的') return this.items.filter(item => item.group_owner === this.$store.state.account_id);
+			if(tag === '我创建的') return this.items.filter(item => item.group_owner === this.$store.state.user.id);
 			return this.items.filter(item => item.tag === tag);
 		},
 		showProfileCard(event, tid){
