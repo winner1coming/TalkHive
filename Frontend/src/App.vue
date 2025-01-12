@@ -65,6 +65,7 @@ export default {
     ...mapActions(['connectWebSocket']),
     
     saveState: function() {
+      this.$store.dispatch('setChat',null);
       sessionStorage.setItem("state", JSON.stringify(this.$store.state));
       this.$store.state.user,id;
     },
