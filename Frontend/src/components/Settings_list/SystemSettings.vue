@@ -40,8 +40,8 @@ export default {
   },
   data() {
     return {
-      theme:'浅色',
-      fontsize:'16px',
+      theme:this.$store.state.settings.theme,
+      fontsize:this.$store.state.settings.fontSize,
       activeComponent: '',
     };
   },
@@ -109,13 +109,13 @@ export default {
 }
 
 .menu-item span {
-  font-size: 16px;
+  font-size: var(--font-size);
   margin-left: 40px;
   flex-wrap: nowrap;
 }
 
 .menu-item .content {
-  font-size: 14px;
+  font-size: var(--font-size-small);
   color: #666;
 }
 

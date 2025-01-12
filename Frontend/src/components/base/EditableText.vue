@@ -71,13 +71,13 @@ export default {
 .edit-icon {
   margin-left: 5px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: var(--font-size-small);
 }
 
 .text-edit input {
   width: 100%;
   padding: 5px;
-  font-size: 14px;
+  font-size: var(--font-size-small);
 }
 
 span {

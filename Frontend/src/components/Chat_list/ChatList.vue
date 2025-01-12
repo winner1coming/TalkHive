@@ -560,7 +560,7 @@ export default {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  font-size: 0.8rem
+  font-size: var(--font-size-small);
 
 }
 .chat-meta {
@@ -569,7 +569,7 @@ export default {
 }
 .chat-time {
   color: #888;
-  font-size: 0.8rem;
+  font-size: var(--font-size-small);
 }
 .unread-count {
   background-color: #d63131df;

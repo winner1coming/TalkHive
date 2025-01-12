@@ -35,7 +35,8 @@ export default {
       return{
         '--font-size':this.settings.fontSize,
         '--font-size-small':`${baseFontSize - 2}px`,
-        '--font-size-large': `${baseFontSize + 2}px`,
+        '--font-size-mlarge':`${baseFontSize + 2}px`,
+        '--font-size-large': `${baseFontSize + 4}px`,
         '--font-family':this.settings.fontStyle,
         '--background-color': this.getBackgroundColor(),   //从浅到深
         '--background-color1': this.getBackgroundColor1(), 
@@ -268,6 +269,7 @@ export default {
 
 button{
   font-family: var(--font-family);
+  font-size:var(--font-size);
 }
 
 </style>

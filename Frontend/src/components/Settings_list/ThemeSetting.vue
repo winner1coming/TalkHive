@@ -106,7 +106,7 @@
     display: flex;
     align-items: center;
     cursor: pointer;
-    font-size: 16px;
+    font-size: var(--font-size);
   }
   
   input[type="radio"] {

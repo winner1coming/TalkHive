@@ -1,9 +1,10 @@
 package global
 
 import (
+	"strconv"
+
 	"github.com/go-redis/redis"
 	"gorm.io/gorm"
-	"strconv"
 )
 
 var (

@@ -212,7 +212,7 @@
 }
 
 .message-box p {
-  font-size: 16px; /* 默认字体大小 */
+  font-size: var(--font-size); /* 默认字体大小 */
   margin: 0;
 }
 
@@ -230,7 +230,7 @@
 }
   
   .preview p {
-    font-size: 16px; /* 默认字体大小 */
+    font-size: var(--font-size); /* 默认字体大小 */
   }
   
   .slider-container {

@@ -141,13 +141,13 @@ export default {
 
 .toolbar-item label {
   margin-right: 10px;
-  font-size: 14px;
+  font-size: var(--font-size-small);
 }
 
 select,
 input[type="color"] {
   padding: 5px 10px;
-  font-size: 14px;
+  font-size: var(--font-size-small);
   border-radius: 5px;
   border: 1px solid #ccc;
 }

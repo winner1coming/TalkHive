@@ -38,7 +38,7 @@ export default {
   border-radius: 5px;
   color: rgb(37, 35, 35);
   z-index: 1000;
-  font-size: 16px;
+  font-size: var(--font-size);
 }
 
 .notification.success {

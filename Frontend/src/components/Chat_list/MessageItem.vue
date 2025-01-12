@@ -214,12 +214,12 @@ export default {
 }
 .message-sender {
   color: #888;
-  font-size: 0.8rem;
+  font-size: var(--font-size-small);
   text-align: left;
 }
 .message-time {
   color: #888;
-  font-size: 0.8rem;
+  font-size: var(--font-size-small);
   text-align: right;
 }
 
@@ -260,12 +260,12 @@ export default {
 }
 .file-name{
   margin-top: 5px;
-  font-size: 0.8rem;
+  font-size: var(--font-size-small);
   color: #888;
 }
 .file-size{
   margin-top: 5px;
-  font-size: 0.8rem;
+  font-size: var(--font-size-small);
   color: #888;
 }
 .file-buttons{

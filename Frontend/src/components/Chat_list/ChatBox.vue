@@ -91,7 +91,7 @@ export default {
           this.messages = [];
         }
         else{
-          this.messages = response.data.data.messages;
+          this.messages = response.data.data;
         }
         this.$nextTick(() => {
           this.scrollToBottom();

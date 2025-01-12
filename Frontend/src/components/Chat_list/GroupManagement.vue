@@ -915,7 +915,7 @@ export default {
 .arrow-button {
   background-color: transparent;
   border: none;
-  font-size: 20px;
+  font-size: var(--font-size-large);
   cursor: pointer;
   margin: 0;
   padding: 0;
@@ -968,7 +968,7 @@ export default {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  font-size: 0.6rem
+  font-size: var(--font-size-small);
 }
 .avatar {
   width: 40px;
@@ -1063,7 +1063,7 @@ export default {
 .date-picker {
   display: block;
   padding: 5px;
-  font-size: 16px;
+  font-size: var(--font-size);
   border: 1px solid #ccc;
   border-radius: 4px;
   transition: border-color 0.3s, box-shadow 0.3s;
@@ -1096,7 +1096,7 @@ export default {
   align-items: center;
   border-bottom: 1px solid #e0e0e0;
   width: 100%;
-  font-size: 0.8em;
+  font-size: var(--font-size-small);
   color: #888;
   justify-content: space-between;
 }

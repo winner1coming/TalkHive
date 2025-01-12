@@ -107,12 +107,12 @@ type GroupMemberInfo struct {
 // Notes 笔记表
 type Notes struct {
 	NoteID    uint      `gorm:"primaryKey" json:"note_id"`
+	NoteName  string    `json:"note_name"`
 	Type      string    `json:"type"`
 	CachePath string    `json:"cache_path"`
 	AccountID uint      `json:"account_id"`
 	IsShow    bool      `json:"is_show"`
 	SaveTime  time.Time `json:"save_time"`
-	Name      string    `json:"name"`
 }
 
 // Favorites 收藏表
@@ -173,9 +173,10 @@ type NoteDivide struct {
 
 // Links 网页链接器表
 type Links struct {
-	URL     string `gorm:"primaryKey" json:"url"`
-	URLName string `json:"url_name"`
-	Icon    string `json:"icon"`
+	AccountID uint   `json:"account_id"`
+	URL       string `gorm:"primaryKey" json:"url"`
+	URLName   string `json:"url_name"`
+	Icon      string `json:"icon"`
 }
 
 // DeleteInfo 删除消息表

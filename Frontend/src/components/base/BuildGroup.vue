@@ -87,10 +87,10 @@ export default {
 }
 .name{
   font-weight: bold;
-  font-size: 1.2rem;
+  font-size: var(--font-size-mlarge);
 }
 .remark {
-  font-size: 0.8rem;
+  font-size: var(--font-size-small);
   color: #888;
   white-space: nowrap;
   overflow: hidden;

@@ -360,7 +360,7 @@ h2{
 .avatar-preview button {
   margin-top: 20px;
   padding: 10px 20px;
-  font-size: 16px;
+  font-size: var(--font-size);
   color: #fff;
   background-color: #42b983;
   border: none;
@@ -388,7 +388,7 @@ h2{
   border: none;
   border-bottom: 1px solid #ccc;
   padding: 10px 0;
-  font-size: 16px;
+  font-size: var(--font-size);
   outline: none;
   text-align: center;
 }
@@ -413,7 +413,7 @@ h2{
   border: none;
   border-bottom: 1px solid #ccc;
   padding: 10px 0;
-  font-size: 16px;
+  font-size: var(--font-size);
   outline: none;
   text-align: left;
   resize: none;
@@ -447,7 +447,7 @@ h2{
 
 .signature-count {
   align-self: flex-end;
-  font-size: 12px;
+  font-size: var(--font-size-small);
   color: #666;
 }
 
@@ -469,7 +469,7 @@ h2{
 
 button {
   padding: 10px 10px;
-  font-size: 16px;
+  font-size: var(--font-size);
   color: #fff;
   background-color: #42b983;
   border: none;
