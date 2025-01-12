@@ -12,8 +12,8 @@
             <img :src="friend.avatar" alt="avatar" />
           </div>
           <div class="info">   <!-- 信息-->
-            <div class="name">{{ friend.remark }}</div>
-            <div class="remark">{{ friend.signature }}</div>
+            <div class="name">{{ friend.name }}</div>
+            <div class="remark">{{ friend.id }}</div>
           </div>
           <div >   
             <button @click="inviteMember(friend.accound_id)">邀请</button>
