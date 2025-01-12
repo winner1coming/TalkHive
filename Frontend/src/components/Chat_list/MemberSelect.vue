@@ -90,6 +90,7 @@ export default {
 	overflow-y: auto;
 	border: 1px solid #ddd;
 	border-radius: 4px;
+  width: 100%;
 }
 .items li {
 	display: flex;

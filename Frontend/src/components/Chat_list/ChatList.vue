@@ -517,9 +517,13 @@ export default {
   color: var(--text-color);
   display: flex;
   flex-direction: column;
+  min-width: 170px;
 }
 .chat-header{
   flex: 1;
+}
+.chat-tag{
+  font-size: var(--font-size-small);
 }
 .chat-items {
   flex: 9;
@@ -570,7 +574,7 @@ export default {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  font-size: var(--font-size-small);
+  font-size: var(--font-size-small-small);
 
 }
 .chat-meta {
