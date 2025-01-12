@@ -752,11 +752,6 @@ func ChangeSound(c *gin.Context) {
 	}
 }
 
-// SubmitSound 上传新的提示音
-func SubmitSound(c *gin.Context) {
-
-}
-
 // ChangeBackground 更换背景
 func ChangeBackground(c *gin.Context) {
 	ID := c.GetHeader("User-ID")

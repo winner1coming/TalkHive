@@ -167,11 +167,11 @@ func GetAvatarPath(base64Str string, userID string, Path string) (string, error)
 		return "", fmt.Errorf("保存图片失败: %v", err)
 	}
 
-	// 返回图片路径
+	// 保存在数据库的路径
 	return avatarPath, nil
 }
 
-// ExtractBase64Data 提取 Base64 数据和文件类型
+// ExtractBase64Data 被调用
 func ExtractBase64Data(base64Str string) (string, string, error) {
 	parts := strings.Split(base64Str, ",")
 	if len(parts) != 2 {
