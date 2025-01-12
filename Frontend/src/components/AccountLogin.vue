@@ -122,6 +122,10 @@ export default {
 
           let users = JSON.parse(localStorage.getItem('users')) || [];
           //本地缓存的处理
+          if (users.length >= 2) {
+            users.shift(); // 删除数组的第一个元素（最早的记录）
+          }
+
           const userInfo = {
             account : this.account,
             avatar: this.avatar,
