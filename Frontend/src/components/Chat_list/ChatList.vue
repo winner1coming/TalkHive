@@ -497,6 +497,14 @@ export default {
       }
       this.chats.unshift(newChat); 
     });
+    EventBus.on('go-to-chat', (tid) => {
+      const chat = this.chats.find(chat => chat.id === tid);
+      if(chat){
+        this.selectChat(chat);
+      }else{
+        this.selectChat(null, tid);
+      }
+    });
   },
   beforeDestroy() {
     EventBus.off('set-mute');
@@ -504,6 +512,7 @@ export default {
     EventBus.off('set-blocked');
     EventBus.off('set-blacklist');
     EventBus.off('update-chat');
+    EventBus.off('go-to-chat');
   },
 };
 </script>
