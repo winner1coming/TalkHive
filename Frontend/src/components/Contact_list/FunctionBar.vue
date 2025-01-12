@@ -92,7 +92,8 @@ export default {
 <style scoped>
 .function-bar {
   width: 250px;
-  background-color: #f8f9fa;
+  background-color: var(--background-color);
+  color: var(--text-color);
   border-right: 1px solid #ddd;
 }
 .menu {
@@ -103,13 +104,13 @@ export default {
   padding: 15px;
   cursor: pointer;
   border-bottom: 1px solid #ddd;
+  color: var(--text-color);
 }
 .menu li:hover {
-  background-color: #e9ecef;
+  background-color: var(--background-color1);
 }
 .menu li.active {
-  background-color: #007bff;
-  color: #fff;
+  background-color: var(--background-color2);
 }
 </style>
   

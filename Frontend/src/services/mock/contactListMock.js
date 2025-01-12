@@ -376,7 +376,7 @@ let groupInfo = Mock.mock({
         'is_banned': true,
       },
     ],
-    'my_group_role': '@pick(["group_owner", "group_manager", "group_ordinary"])',
+    'my_group_role': '@pick(["group_owner", "group_manager"])',
   }
 });
 // 模拟 getGroupInfo 接口

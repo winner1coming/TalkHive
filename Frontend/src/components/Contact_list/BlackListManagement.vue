@@ -95,7 +95,8 @@ export default {
 }
 
 .modal-content {
-	background-color: #fff;
+	background-color: var(--background-color);
+	color: var(--text-color);
 	padding: 20px;
 	border-radius: 8px;
 	width: 300px;
@@ -136,8 +137,8 @@ export default {
 .confirm-button {
 	flex: 1;
 	margin-top: 10px;
-	background-color: #007bff;
-	color: white;
+	background-color: var(--button-background-color);
+	color: var(--button-text-color);
 	border: none;
 	border-radius: 4px;
 	padding: 10px;
@@ -145,6 +146,6 @@ export default {
 }
 
 .confirm-button:hover {
-	background-color: #0056b3;
+	background-color: var(--button-background-color1);
 }
 </style>
