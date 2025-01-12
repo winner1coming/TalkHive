@@ -136,6 +136,10 @@ func GetChatList(c *gin.Context) {
 		}
 
 		var tags []string
+		if unreadCount != 0 {
+			tags = append(tags, "unread")
+		}
+
 		if chat.IsGroup != true {
 			tags := append(tags, "friend")
 			if contact.IsPinned {
