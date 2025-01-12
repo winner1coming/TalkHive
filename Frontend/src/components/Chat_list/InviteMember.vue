@@ -110,7 +110,7 @@ export default {
     },
 
   },
-  create(){
+  created(){
     this.fetchFriendsNotInGroup();
   }
 };
