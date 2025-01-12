@@ -105,9 +105,9 @@ func GetChatList(c *gin.Context) {
 				response = append(response, chatResponse)
 				continue
 			} else {
-				avatarBase64, mimeType, err := utils.GetFileContentAndType(friend.Avatar)
+				avatarBase64, mimeType, err := utils.GetFileContentAndType(groupChat.GroupAvatar)
 				if err != nil {
-					c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": err.Error()})
+					c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "头像查询有问题"})
 					return
 				}
 				avatarBase64 = "data:" + mimeType + ";base64," + avatarBase64
@@ -853,8 +853,8 @@ func GetMessages(c *gin.Context) {
 	if input.IsGroup == true {
 		// 查询GroupChatInfo表
 		var group models.GroupChatInfo
-		if err := global.Db.Where("group_id = ?", input.Tid).First(&group).Error; err == nil {
-			c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "群聊不存在"})
+		if err := global.Db.Where("group_id = ?", input.Tid).First(&group).Error; err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "查询GroupChatInfo表，群聊不存在"})
 			return
 		}
 
@@ -867,7 +867,7 @@ func GetMessages(c *gin.Context) {
 
 		// 查询聊天记录
 		var chat models.ChatInfo
-		if err := global.Db.Where("account_id = ? AND target_id = ? AND is_group", me.AccountID, group.GroupID, true).First(&chat).Error; err != nil {
+		if err := global.Db.Where("account_id = ? AND target_id = ? AND is_group = ?", me.AccountID, group.GroupID, true).First(&chat).Error; err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"success": true, "message": "聊天记录不存在", "data": gin.H{}})
 			return
 		}
@@ -876,6 +876,11 @@ func GetMessages(c *gin.Context) {
 		var messages []models.MessageInfo
 		if err := global.Db.Where("sender_chat_id = ? OR receiver_chat_id = ?", chat.ChatID, chat.ChatID).Order("create_time DESC").Find(&messages).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询messageInfo表失败"})
+			return
+		}
+
+		if len(messages) == 0 {
+			c.JSON(http.StatusOK, gin.H{"success": true, "message": "当前聊天记录为空", "data": gin.H{}})
 			return
 		}
 
@@ -982,7 +987,7 @@ func GetMessages(c *gin.Context) {
 				return
 			}
 
-			avatarBase64, mimeType, err := utils.GetFileContentAndType(friend.Avatar)
+			avatarBase64, mimeType, err := utils.GetFileContentAndType(sender.Avatar)
 			if err != nil {
 				c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": err.Error()})
 				return

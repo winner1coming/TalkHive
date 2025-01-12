@@ -95,7 +95,7 @@ func Register(c *gin.Context) {
 	}
 
 	// 校验字段
-	if input.ID == "" || input.Nickname == "" || input.Email == "" || input.Password == "" || input.Phone == "" {
+	if input.ID == "" || input.Nickname == "" || input.Email == "" || input.Password == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "数据不能为空"})
 		return
 	}
