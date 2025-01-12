@@ -2105,12 +2105,17 @@ func GetGroupInfo(c *gin.Context) {
 		return
 	}
 
-	groupID := c.GetHeader("group_id")
-	if groupID == "" {
+	groupIDStr := c.Param("group_id")
+	if groupIDStr == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "缺少群聊ID参数"})
 		return
 	}
-
+	groupID, err := strconv.Atoi(groupIDStr)
+	if err != nil {
+		// 如果转换失败，返回错误信息
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "无效的群聊ID参数"})
+		return
+	}
 	// 检测群聊是否存在
 	var group models.GroupChatInfo
 	if err := global.Db.Where("group_id = ?", groupID).First(&group).Error; err != nil {
@@ -2139,7 +2144,7 @@ func GetGroupInfo(c *gin.Context) {
 	for i, member := range members {
 		// 查询AccountInfo表
 		var accountMember models.AccountInfo
-		if err := global.Db.Where("account_id = ?", member.AccountID).First(accountMember).Error; err != nil {
+		if err := global.Db.Where("account_id = ?", member.AccountID).First(&accountMember).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "获取群聊成员失败"})
 			return
 		}
