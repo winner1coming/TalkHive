@@ -2195,19 +2195,22 @@ func GetGroupInfo(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"success":            true,
-		"message":            "成功",
-		"group_name":         group.GroupName,
-		"group_owner":        groupOwnerID,
-		"group_introduction": groupChat.GroupIntroduction,
-		"allow_invite":       allowInvite,
-		"allow_id_search":    allowIDSearch,
-		"allow_name_search":  allowNameSearch,
-		"my_group_nickname":  myMember.GroupNickname,
-		"divide":             contact.Divide,
-		"my_group_role":      myMember.GroupRole,
-		"members":            memberList,
+		"success": true,
+		"message": "成功",
+		"data": gin.H{
+			"group_name":         group.GroupName,
+			"group_owner":        groupOwnerID,
+			"group_introduction": groupChat.GroupIntroduction,
+			"allow_invite":       allowInvite,
+			"allow_id_search":    allowIDSearch,
+			"allow_name_search":  allowNameSearch,
+			"my_group_nickname":  myMember.GroupNickname,
+			"divide":             contact.Divide,
+			"my_group_role":      myMember.GroupRole,
+			"members":            memberList,
+		},
 	})
+
 }
 
 // ChangeNickname 更改用户在群聊内的昵称
