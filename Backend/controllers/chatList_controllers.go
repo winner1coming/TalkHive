@@ -500,7 +500,7 @@ func PinChat(c *gin.Context) {
 	}
 	var me models.AccountInfo
 	if err := global.Db.Where("account_id = ?", accountID).First(&me).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询用户失败"})
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "AccountInfo表查询用户失败"})
 		return
 	}
 	if me.Deactivate == true {
@@ -511,32 +511,55 @@ func PinChat(c *gin.Context) {
 	var input struct {
 		Tid      uint `json:"tid"`
 		IsPinned bool `json:"is_pinned"`
+		IsGroup  bool `json:"is_group"`
 	}
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Json绑定失败"})
 		return
 	}
-	var other models.AccountInfo
-	if err := global.Db.Where("account_id = ?", input.Tid).First(&other).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询用户失败"})
-		return
-	}
-	if other.Deactivate == true {
-		c.JSON(http.StatusUnauthorized, gin.H{"success": false, "message": "用户注销"})
-		return
+	if input.IsGroup {
+		var group models.GroupChatInfo
+		if err := global.Db.Where("group_id = ?", input.Tid).First(&group).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询GroupChatInfo失败"})
+			return
+		}
+
+		// 查询Contacts表
+		var contact models.Contacts
+		if err := global.Db.Where("owner_id = ? AND contact_id = ? AND is_group_chat = ?", me.AccountID, group.GroupID, true).First(&contact).Error; err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "Contacts表中无此条记录"})
+			return
+		}
+
+		contact.IsPinned = input.IsPinned
+		if err := global.Db.Updates(&contact).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "更新失败"})
+			return
+		}
+	} else {
+		var other models.AccountInfo
+		if err := global.Db.Where("account_id = ?", input.Tid).First(&other).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询用户失败"})
+			return
+		}
+		if other.Deactivate == true {
+			c.JSON(http.StatusUnauthorized, gin.H{"success": false, "message": "用户注销"})
+			return
+		}
+
+		// 查询Contacts表
+		var contact models.Contacts
+		if err := global.Db.Where("account_id = ? AND contact_id = ? AND is_group_chat = ?", me.AccountID, other.AccountID, false).First(&contact).Error; err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "Contacts表中无此条记录"})
+			return
+		}
+		contact.IsPinned = input.IsPinned
+		if err := global.Db.Updates(&contact).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "更新失败"})
+			return
+		}
 	}
 
-	// 查询Contacts表
-	var contact models.Contacts
-	if err := global.Db.Where("account_id = ? AND contact_id = ? AND is_group_chat = ?", me.AccountID, other.AccountID, true).First(&contact).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "Contacts表中无此条记录"})
-		return
-	}
-	contact.IsPinned = input.IsPinned
-	if err := global.Db.Updates(&contact).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "更新失败"})
-		return
-	}
 	c.JSON(http.StatusOK, gin.H{"success": true, "message": "置顶状态更新成功"})
 }
 
