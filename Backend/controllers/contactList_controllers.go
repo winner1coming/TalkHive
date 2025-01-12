@@ -1302,7 +1302,8 @@ func GetDivides(c *gin.Context) {
 			return
 		}
 	}
-
+	fmt.Println("type:" + groupType)
+	fmt.Println("返回divides", divides)
 	c.JSON(http.StatusOK, gin.H{"success": true, "message": "成功", "divides": divides})
 }
 
@@ -2104,12 +2105,11 @@ func GetGroupInfo(c *gin.Context) {
 		return
 	}
 
-	groupID := c.Param("group_id")
+	groupID := c.GetHeader("group_id")
 	if groupID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "缺少群聊ID参数"})
 		return
 	}
-	fmt.Println("群号为" + groupID)
 
 	// 检测群聊是否存在
 	var group models.GroupChatInfo
