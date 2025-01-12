@@ -128,7 +128,7 @@ export default {
 <style scoped>
 .security-settings {
   display: flex;
-  height: 100vh;
+  height: 100%;
 }
 
 .left-panel {
@@ -138,7 +138,7 @@ export default {
 
 .right-panel {
   width: 80%;
-  padding: 20px;
+  padding:0;
   position: relative;
 }
 
@@ -158,12 +158,12 @@ export default {
 }
 
 .menu-item span {
-  font-size: 16px;
-  margin-left: 40px;
+  font-size: var(--font-size);
+  margin-left: 10px;
 }
 
 .menu-item .content {
-  font-size: 14px;
+  font-size: var(--font-size-small);
   color: #666;
 }
 
@@ -196,7 +196,7 @@ export default {
   top: 10px;
   right: 10px;
   cursor: pointer;
-  font-size: 20px;
+  font-size: var(--font-size-large);
 }
 
 .modal-buttons {
@@ -228,7 +228,7 @@ export default {
   top: 10px;
   left: 10px;
   cursor: pointer;
-  font-size: 16px;
+  font-size: var(--font-size);
   color: #42b983;
   display: flex;
   align-items: center;

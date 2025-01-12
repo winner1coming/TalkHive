@@ -313,7 +313,7 @@ export default {
   justify-items: center;
   margin-top: 20px;
   width: 100%;
-  max-width: 500px;
+  max-width: 700px;
   height: 90%;
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -360,12 +360,16 @@ h2{
 .avatar-preview button {
   margin-top: 20px;
   padding: 10px 20px;
-  font-size: 16px;
+  font-size: var(--font-size);
   color: #fff;
   background-color: #42b983;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+}
+
+.input_container {
+  width: 300px;
 }
 
 .input_text {
@@ -377,7 +381,7 @@ h2{
 }
 
 .input_text label {
-  margin-right: 20px;
+  margin-right: 60px;
   width: 50px;
   white-space: nowrap;
   text-align: left;
@@ -388,7 +392,7 @@ h2{
   border: none;
   border-bottom: 1px solid #ccc;
   padding: 10px 0;
-  font-size: 16px;
+  font-size: var(--font-size);
   outline: none;
   text-align: center;
 }
@@ -413,7 +417,7 @@ h2{
   border: none;
   border-bottom: 1px solid #ccc;
   padding: 10px 0;
-  font-size: 16px;
+  font-size: var(--font-size);
   outline: none;
   text-align: left;
   resize: none;
@@ -447,7 +451,7 @@ h2{
 
 .signature-count {
   align-self: flex-end;
-  font-size: 12px;
+  font-size: var(--font-size-small);
   color: #666;
 }
 
@@ -469,7 +473,7 @@ h2{
 
 button {
   padding: 10px 10px;
-  font-size: 16px;
+  font-size: var(--font-size);
   color: #fff;
   background-color: #42b983;
   border: none;

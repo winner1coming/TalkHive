@@ -1,198 +1,599 @@
 <template>
-    <div class="notes">
-      <div class="header">
-        <h2>我的笔记</h2>
-        <button @click="showCreateFile = true" class="new-btn">+</button>
-      </div>
+  <div class="notes">
+    <div class="header">
+      <h2>我的笔记</h2>
+      <button @click="showCreateFile = true" class="new-btn">+</button>
+    </div>
 
-      <!-- 新建文件编辑框 -->
-      <div v-if="showCreateFile" class="create-file-modal">
-        <div class="modal-content">
-          <h3>新建文件</h3>
-          
-          <label for="filename">文件名：</label>
-          <input
-            type="text"
-            id="filename"
-            v-model="newFile.filename"
-            placeholder="输入文件名"
-          />
-          
-          <label for="filetype">文件格式：</label>
-          <select v-model="newFile.filetype" id="filetype">
-            <option value=".md">.md</option>
-            <option value=".txt">.txt</option>
-            <option value=".docx">.docx</option>
-            <!-- 可以根据需求继续添加文件类型 -->
-          </select>
+    <!-- 分类标签 -->
+    <div class="category-tags">
+      <span
+        v-for="category in categories"
+        :key="category"
+        class="category-tag"
+        :class="{ active: selectedCategory === category }"
+        @click="filterByCategory(category)"
+        @contextmenu="showEditCategoryDialog($event, category)"
+      >
+        {{ category }}
+      </span>
+      <span class="category-tag new-category" @click="showCreateCategory = true">+</span>
+      <span class="category-tag delete-category" @click="showDeleteCategory = true">-</span>
+    </div>
 
-          <div class="modal-actions">
-            <button @click="saveFile" class="save-btn">确定</button>
-            <button @click="cancelCreate" class="cancel-btn">取消</button>
-          </div>
+    <!-- 新建文件编辑框 -->
+    <div v-if="showCreateFile" class="create-file-modal">
+      <div class="modal-content">
+        <h3>新建文件</h3>
+        
+        <label for="filename">文件名：</label>
+        <input
+          type="text"
+          id="filename"
+          v-model="newFile.filename"
+          placeholder="输入文件名"
+        />
+        
+        <label for="filetype">文件格式：</label>
+        <select v-model="newFile.filetype" id="filetype">
+          <option value=".md">.md</option>
+          <option value=".txt">.txt</option>
+          <option value=".docx">.docx</option>
+        </select>
+
+        <label for="category">分类：</label>
+        <select v-model="newFile.category" id="category">
+          <option v-for="category in categories" :key="category" :value="category">{{ category }}</option>
+        </select>
+
+        <div class="modal-actions">
+          <button @click="saveFile" class="save-btn">确定</button>
+          <button @click="cancelCreate" class="cancel-btn">取消</button>
         </div>
       </div>
-
-      <ul>
-        <li v-for="note in notes" :key="note.id" class="note-item" @click="editNote(note.id)">
-            <span class="filename">{{ note.filename }}</span>
-            <span class="modified"> - 上次修改时间: {{ note.lastModified }}</span>
-        </li>
-      </ul>
     </div>
-  </template>
-  
-  <script>
-  export default {
-    name: "Notes",
-    data() {
-      return {
-        showCreateFile: false, // 控制新建文件编辑框的显示
-        newFile: {
-          filename: '',  // 用户输入的文件名
-          filetype: '.md', // 默认文件格式
-        },
-        notes: [
-          { id: 1, filename: "Vue学习笔记.md", lastModified: "2024-12-01 10:30" },
-          { id: 2, filename: "项目需求分析.docx", lastModified: "2024-12-05 14:15" },
-          { id: 3, filename: "代码优化方案.txt", lastModified: "2024-12-10 09:45" }
-        ]
-      };
+
+    <!-- 新建分类编辑框 -->
+    <div v-if="showCreateCategory" class="create-category-modal">
+      <div class="modal-content">
+        <h3>新建分类</h3>
+        <input
+          type="text"
+          v-model="newCategory"
+          placeholder="输入新分类名称"
+        />
+        <div class="modal-actions">
+          <button @click="saveCategory" class="save-btn">保存</button>
+          <button @click="cancelCreateCategory" class="cancel-btn">取消</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 删除分类确认框 -->
+    <div v-if="showDeleteCategory" class="delete-category-modal">
+      <div class="modal-content">
+        <h3>删除分类</h3>
+        <p>请选择要删除的分类：</p>
+        <select v-model="selectedCategoryToDelete">
+          <option v-for="category in categories" :key="category" :value="category">
+            {{ category }}
+          </option>
+        </select>
+        <div class="modal-actions">
+          <button @click="deleteCategory" class="delete-btn">删除</button>
+          <button @click="cancelDeleteCategory" class="cancel-btn">取消</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 修改分类名称编辑框 -->
+    <div v-if="showEditCategory" class="edit-category-modal">
+      <div class="modal-content">
+        <h3>修改分类名称</h3>
+        <input
+          type="text"
+          v-model="editedCategoryName"
+          placeholder="输入新的分类名称"
+        />
+        <div class="modal-actions">
+          <button @click="saveCategoryName" class="save-btn">保存</button>
+          <button @click="cancelEditCategory" class="cancel-btn">取消</button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 删除确认框 -->
+    <div v-if="showDeleteConfirm" class="confirm-modal">
+      <div class="confirm-content">
+        <p>是否确认删除此文件？</p>
+        <div class="modal-actions">
+          <button @click="deleteFile" class="confirm-btn">确认</button>
+          <button @click="cancelDelete" class="cancel-btn">取消</button>
+        </div>
+      </div>
+    </div>
+
+    <ul>
+      <li v-for="note in filteredNotes" :key="note.id" class="note-item">
+        <span class="filename" @click="editNote(note)">{{ note.filename }}</span>
+        <span class="modified"> - 上次修改时间: {{ note.lastModified }}</span>
+        <button class="more-btn" @click="toggleDropdown(note.id)">...</button>
+        <div v-if="note.showDropdown" class="dropdown">
+          <button class="dropdown_delete_btn" @click="confirmDelete(note.id)">删除</button>
+        </div>
+      </li>
+    </ul>
+  </div>
+</template>
+
+<script>
+import * as WorkSpaceAPI from '@/services/workspace_api';
+
+export default {
+  name: "Notes",
+  data() {
+    return {
+      showCreateFile: false,
+      showCreateCategory: false,
+      showDeleteCategory: false,
+      showEditCategory: false,  
+      editedCategoryName: '',  // 用于编辑的分类名称
+      beforeEditedCategoryName:'',
+      newCategory: '',  // 用于新建分类的输入框
+      selectedCategory: '',  // 当前选中的分类
+      selectedCategoryToDelete: '',  // 用户选择删除的分类
+      showDeleteConfirm: false,
+      fileToDelete: null, // 用于存储待删除文件的id
+      newFile: {
+        filename: '',
+        filetype: '.md',
+        category: '',  // 选择的分类
+      },
+      categories: [],  // 模拟的分类列表
+      notes: [],  // 所有笔记数据
+    };
+  },
+  computed: {
+    // 根据选中的分类筛选笔记
+    filteredNotes() {
+      if (this.selectedCategory) {
+        return this.notes.filter(note => note.category === this.selectedCategory);
+      }
+      return this.notes;
     },
-    methods: {
-        // 显示新建文件编辑框
-        showCreateFileModal() {
-          this.showCreateFile = true;
-        },
-
-        // 取消新建文件
-        cancelCreate() {
-          this.showCreateFile = false;
-        },
-
-        // 保存新建的文件
-        async saveFile() {
-          try {
-            // 发送请求到后端，保存新建的文件
-            const response = await axios.post('/workspace/create-file', {
-              filename: this.newFile.filename + this.newFile.filetype,  // 文件名和文件格式拼接
-            });
-
-            if (response.data.status === 200) {
-              alert('文件创建成功');
-              this.showCreateFile = false;  // 关闭编辑框
-            } else {
-              alert(response.data.message);
-            }
-          } catch (error) {
-            console.error('无法创建文件:', error);
-            alert('创建文件失败！');
+  },
+  mounted() {
+    this.fetchCategories();
+    this.fetchNotes();  // 获取笔记数据
+  },
+  methods: {
+    async fetchCategories() {
+      // 从后端获取分类列表
+      try {
+        const response = await WorkSpaceAPI.getCategories();
+        if (response.status === 200) {
+          if(!response.data)
+          {
+            return;
           }
-          this.editNote(1)
-        },
-        editNote(id) {
-            this.$router.push(`/workspace/notes/${id}`);
-        },
+          this.categories = response.data.categories;
+        } else {
+          alert('获取分类列表失败');
+        }
+      } catch (error) {
+        console.error('无法获取分类列表:', error);
+        alert('获取分类列表失败');
+      }
     },
-  };
-  </script>
-  
-  <style scoped>
-  .notes {
-    padding: 20px;
-  }
-  
-  .notes h2 {
-    margin-bottom: 20px;
-  }
-  
-  .header {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
+    async fetchNotes() {
+      // 从后端获取笔记列表
+      try {
+        const response = await WorkSpaceAPI.getNotes();
+        if (response.status === 200) {
+          if(!response.data)
+          {
+            return;
+          }
+          // 为每个 note 增加 showDropdown: false
+          this.notes = response.data.map(note => ({
+            ...note,       // 保留原来的属性
+            showDropdown: false // 添加新的属性
+          }));
+          console.log(this.notes);
+          //this.notes = response.data.notes;
+        } else {
+          alert('获取笔记列表失败');
+        }
+      } catch (error) {
+        console.error('无法获取笔记列表:', error);
+        alert('获取笔记列表失败');
+      }
+    },
 
-  .new-btn {
-    background-color: #c7d7e9;
-    color: rgb(75, 103, 216);
-    border: none;
-    cursor: pointer;
-    margin-left: 20px;
-    margin-bottom: 15px;
-    border-radius: 50%;
-    width: 45px; /* 宽度 */
-    font-size: 36px;
-  }
+    filterByCategory(category) {
+      if(this.selectedCategory == category)
+      {
+        this.selectedCategory = '';
+      }
+      else{
+        this.selectedCategory = category;  // 设置选中的分类
+      }
+    },
 
-  .new-btn:hover {
-    background-color: #0056b3;
-    color: rgb(134, 154, 233);
-  }
+    showCreateFileModal() {
+      this.showCreateFile = true;
+    },
 
-  
-  .create-file-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
+    cancelCreate() {
+      this.showCreateFile = false;
+    },
 
-  .modal-content {
-    background-color: white;
-    padding: 20px;
-    border-radius: 10px;
-    width: 300px;
-  }
+    //保存新建的文件
+    async saveFile() {
+      try {
+        const response = await WorkSpaceAPI.createNote(this.newFile.filename, this.newFile.category);
 
-  input[type="text"], select {
-    width: 100%;
-    padding: 8px;
-    margin: 10px 0;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-  }
+        if (response.status === 200) {
+          this.showCreateFile = false;
+          this.fetchNotes();
+        } else {
+          alert(response.data.message);
+        }
+      } catch (error) {
+        console.error('无法创建文件:', error);
+        alert('创建文件失败！');
+      }
+    },
 
-  .modal-actions {
-    margin-top: 20px;
-    display: flex;
-    justify-content: space-between;
-  }
+    // 编辑笔记
+    editNote(note) {
+      // 使用 Vuex 更新 currentNote 对象
+      this.$store.dispatch('updateCurrentNote', {
+        note_id: note.id,
+        filename: note.filename,
+        category: note.category
+      });
+      this.$store.dispatch('updateCategories', this.categories);
 
-  .save-btn, .cancel-btn {
-    padding: 10px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    cursor: pointer;
-  }
+      // 跳转到编辑页面
+      this.$router.push(`/workspace/notes/editor`);
+    },
+    
+    // 切换下拉框显示/隐藏
+    toggleDropdown(note_id) {
+      const note = this.notes.find(n => n.id === note_id);
+      note.showDropdown = !note.showDropdown;
+    },
+    // 显示删除确认框
+    confirmDelete(id) {
+      this.fileToDelete = id;
+      this.showDeleteConfirm = true;
+      console.log("this.fileToDelete:",this.fileToDelete);
+    },
 
-  .save-btn:hover, .cancel-btn:hover {
-    background-color: #0056b3;
-  }
+    // 删除文件
+    async deleteFile() {
+      try {
+        // 发送删除请求到后端
+        const response = await WorkSpaceAPI.deleteNote(this.fileToDelete);
+        if (response.status === 200) {
+          console.log(response.data.message);
+        } else {
+          alert('删除失败');
+        }
+      } catch (error) {
+        console.error('无法删除文件:', error);
+        alert('删除文件失败');
+      }
+      this.showDeleteConfirm = false;
+      this.toggleDropdown(this.fileToDelete);
+      this.fileToDelete = null;
+      this.fetchNotes();
+    },
+    // 取消删除操作
+    cancelDelete() {
+      this.showDeleteConfirm = false;
+      this.toggleDropdown(this.fileToDelete);
+      this.fileToDelete = null;
+    },
 
-  .notes ul {
-    list-style: none;
-    padding: 0;
-  }
-  
-  .note-item {
-    display: flex;
-    align-items: center;
-    padding: 10px 0;
-    border-bottom: 1px solid #ddd;
-  }
-  
-  .note-item .filename {
-    font-weight: bold;
-    margin-right: 10px;
-  }
-  
-  .note-item .modified {
-    color: #666;
-  }
-  </style>
+    showCreateCategoryModal() {
+      this.showCreateCategory = true;
+    },
+
+    cancelCreateCategory() {
+      this.showCreateCategory = false;
+    },
+
+    //新建分类
+    async saveCategory() {
+      if (this.newCategory.trim() === '') {
+        alert('分类名称不能为空');
+        return;
+      }
+      else if (this.categories!= null && this.categories.indexOf(this.newCategory)!=-1)
+      {
+        alert('已存在该分类');
+        return;
+      }
+      try {
+        const response = await WorkSpaceAPI.saveCategory(this.newCategory);
+        if (response.status === 200) {
+          //this.categories.push(this.newCategory);  // 添加新分类
+          this.fetchCategories();
+          this.newCategory = '';  // 清空输入框
+        } else {
+          alert(response.message);
+        }
+      } catch (error) {
+        console.error('无法创建分类:', error);
+        alert('创建分类失败！');
+      }
+      this.showCreateCategory = false;  // 关闭新建分类窗口
+    },
+    
+    // 显示删除分类的模态框
+    cancelDeleteCategory() {
+      this.showDeleteCategory = false;
+    },
+
+    // 删除选中的分类
+    async deleteCategory() {
+      const index = this.categories.indexOf(this.selectedCategoryToDelete);
+      if (index > -1) {
+        try {
+        const response = await WorkSpaceAPI.deleteCategory(this.selectedCategoryToDelete);
+        if (response.status === 200) 
+        {
+          // this.categories.splice(index, 1);  // 从分类列表中删除
+          this.fetchCategories();
+          this.fetchNotes();
+        } else {
+          alert(response.data.message);
+        }
+      } catch (error) {
+        console.error('删除分类列表失败:', error);
+        alert('删除分类列表失败');
+      }
+      }
+      this.selectedCategoryToDelete = '';  // 清空选择的分类
+      this.showDeleteCategory = false;
+    },
+
+    // 显示编辑分类名称的模态框
+    showEditCategoryDialog(event, category) {
+      event.preventDefault();  // 阻止右键菜单的默认行为
+      this.editedCategoryName = category;  // 设定当前编辑的分类名称
+      this.beforeEditedCategoryName = category;
+      this.showEditCategory = true;
+    },
+
+    // 保存修改的分类名称
+    async saveCategoryName() {
+      const index = this.categories.indexOf(this.beforeEditedCategoryName);
+      if (index > -1) {
+        try {
+          const response = await WorkSpaceAPI.saveEditCategory(this.beforeEditedCategoryName,this.editedCategoryName);
+          if (response.status === 200) {
+            this.categories[index] = this.editedCategoryName;  // 更新分类名称
+            this.beforeEditedCategoryName = '';  // 清空输入框
+            this.editedCategoryName = '';
+          } else {
+            alert(response.data.message);
+          }
+        } catch (error) {
+          console.error('无法修改分类:', error);
+          alert('修改分类失败！');
+        }
+      }
+      this.showEditCategory = false;  // 关闭编辑框
+    },
+
+    // 取消编辑分类名称
+    cancelEditCategory() {
+      this.showEditCategory = false;  // 关闭编辑框
+    },
+  },
+};
+</script>
+
+<style scoped>
+.notes {
+  padding: 20px;
+}
+
+.notes h2 {
+  margin-bottom: 20px;
+}
+
+.header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.new-btn {
+  background-color: #c7d7e9;
+  color: rgb(75, 103, 216);
+  border: none;
+  cursor: pointer;
+  margin-left: 20px;
+  margin-bottom: 15px;
+  border-radius: 50%;
+  width: 45px;
+  font-size: 36px;
+}
+
+.new-btn:hover {
+  background-color: #0056b3;
+  color: rgb(134, 154, 233);
+}
+
+.category-tags {
+  display: flex;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.category-tag {
+  cursor: pointer;
+  padding: 5px 10px;
+  border-radius: 4px;
+  background-color: #f0f0f0;
+}
+
+.category-tag.active {
+  background-color: #007bff;
+  color: white;
+}
+
+.new-category {
+  border-radius: 50%;
+  height: 25px;
+  margin-top: 4px;
+  background-color: #86d799;
+  color: white;
+}
+
+.delete-category {
+  border-radius: 50%;
+  height: 25px;
+  width: 15px;
+  margin-top: 4px;
+  background-color: #f88d93;
+  color: white;
+}
+
+.create-file-modal,
+.edit-category-modal,
+.create-category-modal,
+.delete-category-modal,
+.confirm-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000; /* 保证弹出框在遮罩层上方 */
+}
+
+.modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 300px;
+}
+
+input[type="text"],
+select {
+  width: 100%;
+  padding: 8px;
+  margin: 10px 0;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.modal-actions {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.confirm-btn, 
+.delete-btn,
+.save-btn,
+.cancel-btn {
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.confirm-btn:hover, 
+.save-btn:hover,
+.cancel-btn:hover {
+  background-color: #0056b3;
+}
+
+.notes ul {
+  list-style: none;
+  padding: 0;
+}
+
+.note-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #ddd;
+  justify-content: space-between;
+  position: relative; /* 给父元素设置相对定位 */
+}
+
+.note-item .filename {
+  font-weight: bold;
+  margin-right: 10px;
+}
+
+.note-item .modified {
+  color: #666;
+}
+.more-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 23px;
+  color: #333;
+}
+
+.more-btn:hover {
+  color: #007bff;
+}
+
+.dropdown {
+  position: absolute;
+  right: -25px;
+  bottom: 23px;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 10;  /* 确保 dropdown 在按钮上方显示 */
+}
+
+.dropdown_delete_btn{
+  margin: 5px; 
+  padding:5px;
+  border: none; 
+  color:#333; 
+  background-color: white;
+}
+
+.dropdown_delete_btn:hover{
+  background-color: rgb(208, 208, 208);
+}
+
+/* .confirm-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+} */
+
+.confirm-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 300px;
+}
+
+</style>

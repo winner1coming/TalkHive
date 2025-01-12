@@ -27,6 +27,19 @@ export default createStore({
     links:[],
 
     socket: null,
+    // 要编辑的笔记
+    currentNote: {
+      note_id: null,
+      filename: '',
+      category: ''
+    },
+    // 笔记的标签
+    notesCategories: [],
+    // 要编辑的代码
+    currentCode: {
+      code_id: null,
+      filename: '',
+    },
   },
   
   // 同步修改状态的方法
@@ -93,6 +106,17 @@ export default createStore({
 
     SET_SOCKET(state, socket) {
       state.socket = socket;
+    },
+
+    //设置当前笔记
+    setCurrentNote(state, note) {
+      state.currentNote = { ...note };
+    },
+    setNotesCategories(state, categories) {
+      state.notesCategories = categories;
+    },
+    setCurrentCode(state, code) {
+      state.currentCode = { ...code };
     },
   },
   
@@ -169,7 +193,18 @@ export default createStore({
 
     updateLinks({commit}, links){
       commit('SET_LINKS',links);
-    }
+    },
+
+    // 笔记
+    updateCurrentNote({ commit }, note) {
+      commit('setCurrentNote', note);
+    },
+    updateCategories({ commit }, categories) {
+      commit('setNotesCategories', categories);
+    },
+    updateCurrentCode({ commit }, code) {
+      commit('setCurrentCode', code);
+    },
   },
 
   //获取用户信息.计算属性
@@ -177,6 +212,9 @@ export default createStore({
     user:(state) => state.user,
     settings:(state)=>state.settings,
     links:(state)=>state.links,
+    getCurrentNote: (state) => state.currentNote,
+    getCategories: (state) => state.notesCategories,
+    getCurrentCode: (state) => state.currentCode,
   },
 
 });

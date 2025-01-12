@@ -40,8 +40,8 @@ export default {
   },
   data() {
     return {
-      theme:'浅色',
-      fontsize:'16px',
+      theme:this.$store.state.settings.theme,
+      fontsize:this.$store.state.settings.fontSize,
       activeComponent: '',
     };
   },
@@ -78,7 +78,7 @@ export default {
 <style scoped>
 .system-settings {
   display: flex;
-  height: 100vh;
+  height: 100%;
 }
 
 .left-panel {
@@ -109,18 +109,20 @@ export default {
 }
 
 .menu-item span {
-  font-size: 16px;
-  margin-left: 40px;
+  font-size: var(--font-size);
+  margin-left: 10px;
   flex-wrap: nowrap;
+  width: fit-content;
 }
 
 .menu-item .content {
-  font-size: 14px;
+  font-size: var(--font-size-small);
   color: #666;
 }
 
 .menu-item.active .content {
   color: white;
 }
+
 
 </style>

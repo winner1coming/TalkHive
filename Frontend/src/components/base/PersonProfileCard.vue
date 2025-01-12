@@ -13,7 +13,7 @@
       </div>
       <div class="remark">个性签名: {{ profile.signature }}</div>
     </div>
-    <button v-show="profile.is_friend || profile.account_id === this.$store.state.currrentChat.id" @click="sendMessage">发信息</button>
+    <button v-show="profile.is_friend || profile.account_id === this.$store.state.user.id" @click="sendMessage">发信息</button>
     <!--菜单-->
     <ContextMenu ref="contextMenu"  @select-item="handleMenuSelect" />
     <!--添加好友-->
@@ -363,12 +363,12 @@ export default {
 
 .name {
   font-weight: bold;
-  font-size: 1.2rem;
+  font-size: var(--font-size-mlarge);
 }
 
 .remark {
   margin-top: 5px;
-  font-size: 0.9rem;
+  font-size: var(--font-size-small);
   color: #666;
 }
 

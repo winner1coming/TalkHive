@@ -3,7 +3,8 @@
     <!-- 左侧导航栏 -->
     <aside class="sidebar">
       <div class="user-info">
-        <img :src="avatar" alt="Avatar" class="avatar" />
+        <img :src="avatar" alt="Avatar" class="avatar" @click="toggleProfile"/>
+        <PersonProfileCard ref="profileCard" />
       </div>
       <ul class="nav-links">
         <li><router-link to="/chat" title="聊天">
@@ -47,14 +48,19 @@
 </template>
 
 <script>
+import { getPersonProfileCard } from '@/services/api';
 import Link from './Link.vue';
-import { logout } from '@/services/settingView';
+import PersonProfileCard from '@/components/base/PersonProfileCard.vue';
+import {logout, getSystemSetting} from '@/services/settingView.js';
+
+
 export default {
   name: 'Home',
   data() {
     return {
       showDropdown: false,
       showConfirmation:false,
+      showProfile:false,
     };
   },
   computed: {
@@ -64,9 +70,12 @@ export default {
   nickname() {
     return this.$store.state.user.username;
   },
+
+
   },
   components:{
     Link,
+    PersonProfileCard,
   },
   methods: {
     toggleDropdown() {
@@ -83,7 +92,6 @@ export default {
           const response = await logout();
           if(response.success){
             alert('已退出登录~');
-            localStorage.removeItem('isLoggedIn');
             this.$router.push('/loginth');
           // 你可以在这里添加退出登录的逻辑
           }else{
@@ -93,6 +101,69 @@ export default {
           console.error("退出登录失败！");
       }
     },
+    async toggleProfile(event) {
+      try{
+        const response = await getPersonProfileCard(this.$store.state.user.id); 
+        if(response.status !== 200){
+          this.$root.notify(response.data.message, 'error');
+          return;
+        }
+        this.showProfile= true;
+        const boundD = '50px';
+        const boundR = '50px';
+        const profile = response.data.data;
+        this.$refs.profileCard.show(event, profile, boundD,boundR);
+      }catch(err){
+        console.log(err);
+      }
+    },
+    hideProfileCard() {
+      this.showProfile = false;
+      document.removeEventListener('click', this.handleClickOutside);
+    },
+    handleClickOutside(event) {
+      if (this.$refs.profileCard && !this.$refs.profileCard.$el.contains(event.target)) {
+        this.hideProfileCard();
+      }
+    },
+
+    async fetchSystemSettings() {
+      try {
+        const response = await getSystemSetting();
+        if (response.success) {
+          let BackGround = '';
+          if (response.data.background !== '') {
+            BackGround = `data:${response.data.mimeType};base64,${response.data.background}`;
+          }
+          this.$store.commit('SET_SETTINGS', {
+            theme: response.data.theme,
+            fontSize: response.data.fontSize,
+            fontStyle: response.data.fontStyle,
+            sound: response.data.sound,
+            isNotice: response.data.notice,
+            isNoticeGroup: response.data.noticeGroup,
+            background: BackGround,
+          });
+        } else {
+          alert(response.message);
+        }
+      } catch (error) {
+        alert(error, '获取系统设置失败，请检查网络');
+      }
+    },
+    handleBeforeUnload(event) {
+      // 在页面关闭或刷新时调用 logout 方法
+      this.logout();
+    },
+  },
+  mounted() {
+    this.fetchSystemSettings();
+    document.addEventListener('click', this.handleClickOutside);
+    window.addEventListener('beforeunload', this.handleBeforeUnload);
+  },
+  beforeUnmount() {
+    document.removeEventListener('click', this.handleClickOutside);
+    window.removeEventListener('beforeunload', this.handleBeforeUnload);
   },
 };
 </script>
@@ -100,7 +171,7 @@ export default {
 <style scoped>
 .home {
   display: flex;
-  height: 100vh;
+  height: 100%;
 }
 
 /* 左侧导航栏样式 */
@@ -115,7 +186,7 @@ export default {
   align-items: center;
   justify-content: space-between;
   position: relative;
-  font-size:var(--font-size-medium);
+  font-size:var(--font-size);
 }
 
 .user-info {
@@ -231,7 +302,7 @@ export default {
     top: 10px;
     right: 10px;
     cursor: pointer;
-    font-size: 20px;
+    font-size: var(--font-size-large);
   }
   
   .modal-buttons {

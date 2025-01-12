@@ -136,7 +136,7 @@
   .placeholder {
   text-align: center;
   color: #888; /* 占位文字颜色 */
-  font-size: 14px;
+  font-size: var(--font-size-small);
   }
   
   .upload-container {

@@ -162,7 +162,7 @@
 
 
 p {
-  font-size: 14px;
+  font-size: var(--font-size-small);
   margin: 0;
 }
 
@@ -194,6 +194,7 @@ p {
 }
 
 .verificate button {
+  width: fit-content;
   padding: 10px 10px;
   background-color: #42b983;
   color: #fff;

@@ -16,7 +16,7 @@
             <input
             type="range"
             min="12"
-            max="33"
+            max="28"
             v-model="fontSize"
             @input="onFontSizeChange"
             />
@@ -212,7 +212,7 @@
 }
 
 .message-box p {
-  font-size: 16px; /* 默认字体大小 */
+  font-size: var(--font-size); /* 默认字体大小 */
   margin: 0;
 }
 
@@ -230,7 +230,7 @@
 }
   
   .preview p {
-    font-size: 16px; /* 默认字体大小 */
+    font-size: var(--font-size); /* 默认字体大小 */
   }
   
   .slider-container {
@@ -255,6 +255,7 @@
   }
 
   .font-style-container {
+    width: fit-content;
     display: flex;
     align-items: center;
     margin-bottom: 20px;
@@ -274,6 +275,7 @@
 
   
   button {
+    width: fit-content;
     padding: 8px 8px;
     background-color: #42b983;
     color: white;

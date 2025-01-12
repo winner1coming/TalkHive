@@ -291,12 +291,12 @@ export default {
 
 .name {
   font-weight: bold;
-  font-size: 1.2rem;
+  font-size: var(--font-size-mlarge);
 }
 
 .remark {
   margin-top: 5px;
-  font-size: 0.9rem;
+  font-size: var(--font-size-small);
   color: #666;
 }
 

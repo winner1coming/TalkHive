@@ -6,14 +6,15 @@ import (
 
 // MessageInfo 消息表
 type MessageInfo struct {
-	MessageID     uint   `gorm:"primaryKey" json:"message_id"`
-	CreateTime    string `json:"create_time"`
-	SendAccountID uint   `json:"send_account_id"`
-	TargetID      uint   `json:"receive_account_id"`
-	Content       string `json:"content"`
-	Type          string `json:"type"`
-	ChatID        uint   `json:"chat_id" gorm:"foreignKey:ChatID;references:ChatID"`
-	IsRead        bool   `json:"is_read"`
+	MessageID      uint   `gorm:"primaryKey" json:"message_id"`
+	CreateTime     string `json:"create_time"`
+	SendAccountID  uint   `json:"send_account_id"`
+	TargetID       uint   `json:"receive_account_id"`
+	Content        string `json:"content"`
+	Type           string `json:"type"`
+	SenderChatID   uint   `json:"sender_chat_id" gorm:"foreignKey:ChatID;references:ChatID"`
+	ReceiverChatID uint   `json:"receiver_chat_id" gorm:"foreignKey:ChatID;references:ChatID"`
+	IsRead         bool   `json:"is_read"`
 }
 
 // ChatInfo 聊天记录表
@@ -90,7 +91,7 @@ type GroupChatInfo struct {
 	GroupIntroduction string `json:"group_introduction"`
 	AllowInvite       bool   `json:"allow_invite"`
 	AllowIDSearch     bool   `json:"allow_id_search"`
-	ALlowNameSearch   bool   `json:"allow_name_search"`
+	AllowNameSearch   bool   `json:"allow_name_search"`
 	IsAllBanned       bool   `json:"is_all_banned"`
 }
 
@@ -106,12 +107,12 @@ type GroupMemberInfo struct {
 // Notes 笔记表
 type Notes struct {
 	NoteID    uint      `gorm:"primaryKey" json:"note_id"`
+	NoteName  string    `json:"note_name"`
 	Type      string    `json:"type"`
 	CachePath string    `json:"cache_path"`
 	AccountID uint      `json:"account_id"`
 	IsShow    bool      `json:"is_show"`
 	SaveTime  time.Time `json:"save_time"`
-	Name      string    `json:"name"`
 }
 
 // Favorites 收藏表
@@ -180,6 +181,6 @@ type Links struct {
 
 // DeleteInfo 删除消息表
 type DeleteInfo struct {
-	TargetID uint   `gorm:"primaryKey" json:"target_id"`
-	Range    string `json:"range"`
+	AccountID uint `json:"account_id"`
+	MessageID uint `json:"message_id"`
 }
