@@ -1,7 +1,7 @@
 <template>
   <div class="message-item" >
     <div v-if="this.$store.state.user.id !== message.send_account_id" class="friend-message">
-      <div class="avatar">
+      <div class="avatar" @contextmenu.prevent="showBanned($event)">
         <img :src="message.avatar" alt="avatar" @click="showProfileCard($event)"/>
       </div>
       <div class="message-content-wrapper">
@@ -78,7 +78,7 @@
           <div ref="editor" class="editor"></div>
         </div>
       </div>
-      <div class="avatar">
+      <div class="avatar" @contextmenu.prevent="showBanned($event)">
         <img :src="message.avatar" alt="avatar" @click="showProfileCard($event)"/>
       </div>
     </div>
@@ -113,15 +113,15 @@ export default {
       document.body.removeChild(link);
       URL.revokeObjectURL(url); // 释放 URL 对象
     },
-    previewFile(){
-
-    },
     showContextMenu(event, message) {
       this.$emit('show-context-menu',event, message);
     },
     showProfileCard(event){
       this.$emit('show-profile-card', event, this.message.send_account_id);
-    }
+    },
+    showBanned(event){
+      // this.$emit('show-banned', event, this.message.send_account_id);
+    },
     
   },
 
@@ -226,16 +226,16 @@ export default {
 
 .message-content {
   flex:5;
-  background-color: var(--background-color);
-  color: var(--text-color);
+  background-color: var(--sidebar-background-color);
+  color: var(--sidebar-text-color);
   padding: 10px;
   border-radius: 5px;
   text-align: left;
 }
 .message-file{
   flex:5;
-  background-color: var(--background-color);
-  color:var(--text-color);
+  background-color: var(---sidebar-background-color);
+  color:var(--sidebar-text-color);
   padding: 5px 10px 2px 2px;
   border-radius: 5px;
   display: flex;

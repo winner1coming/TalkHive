@@ -26,7 +26,11 @@
     </div>
     
     <!-- 下方的输入框 -->
-    <MessageInput @send-message="sendMessage" />
+    <MessageInput 
+      @send-message="sendMessage" 
+      :isBanned="isBanned"
+      :isAllBanned="isAllBanned"
+    />
     <!-- 右键菜单 -->
     <ContextMenu ref="contextMenu"  @select-item="handleMenuSelect" />
     <!-- 个人名片 -->
@@ -48,6 +52,9 @@ export default {
   data() {
     return {
       messages: [],  // 当前聊天的消息历史
+      isBanned:false,  // 是否被禁言
+      isAllBanned:false,  // 是否全员禁言
+      group_role: null,  // 群聊角色
       boundD: 0,
       boundR: 0,
       selectedChat: null,  // 当前选中的聊天
@@ -91,7 +98,10 @@ export default {
           this.messages = [];
         }
         else{
-          this.messages = response.data.data;
+          this.messages = response.data.data.messages;
+          this.isBanned = response.data.data.is_banned;
+          this.isAllBanned = response.data.data.is_all_banned;
+          this.group_role = response.data.data.group_role;
         }
         this.$nextTick(() => {
           this.scrollToBottom();
@@ -111,11 +121,18 @@ export default {
           this.messages.push({
             message_id: response.data.data.message_id,  // 消息编号
             send_account_id: this.$store.state.user.id,  // 发送者的id
+            avatar:this.$store.state.user.avatar,
             content: content,
             sender: this.$store.state.user.username,   // 发送者的备注
             create_time: response.data.data.create_time,  // 发送时间  todo 改为前端创建
             type: type,   // 消息类型
           });
+          let newChat = this.$store.state.currentChat;
+          if(type==='text')newChat.last_message = content;
+          else if(type==='image')newChat.last_message = '[图片]';
+          else if(type==='file')newChat.last_message = '[文件]';
+          else newChat.last_message = '[代码块]';
+          this.$store.dispatch('setChat', newChat);
           this.scrollToBottom();
         }
       }catch(e){
