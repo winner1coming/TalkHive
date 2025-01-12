@@ -46,7 +46,7 @@
       <div class="message-content-wrapper">
         <div class="message-header">
           <span class="message-sender">{{ message.sender }}</span>
-          <span class="message-time">{{ message.create_time }}</span>
+          <span class="message-time">{{ formatTime(message.create_time) }}</span>
         </div>
         <!--文本消息-->
         <div class="message-content" 
@@ -118,6 +118,24 @@ export default {
     },
     showProfileCard(event){
       this.$emit('show-profile-card', event, this.message.send_account_id);
+    },
+    // 格式化时间
+    formatTime(time) {
+      const now = new Date();
+      const messageTime = new Date(time);
+      const isToday = now.toDateString() === messageTime.toDateString();
+      const isYesterday = new Date(now.setDate(now.getDate() - 1)).toDateString() === messageTime.toDateString();
+      const isThisYear = now.getFullYear() === messageTime.getFullYear();
+
+      if (isToday) {
+        return messageTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      } else if (isYesterday) {
+        return '昨天' + messageTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      } else if(isThisYear){
+        return messageTime.toLocaleDateString('zh-CN', { month: '2-digit', day: '2-digit' }) + ' ' + messageTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      }else{
+        return messageTime.toLocaleDateString();
+      }
     },
     showBanned(event){
       // this.$emit('show-banned', event, this.message.send_account_id);
@@ -216,11 +234,13 @@ export default {
   color: #888;
   font-size: var(--font-size-small);
   text-align: left;
+  padding: 3px 0 0 0;
 }
 .message-time {
   color: #888;
   font-size: var(--font-size-small);
   text-align: right;
+  padding: 3px 0 0 0;
 }
 
 
