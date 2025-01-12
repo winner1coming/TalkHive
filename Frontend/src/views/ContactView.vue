@@ -46,7 +46,7 @@ export default {
       currentTab: "FriendRequests", // 默认展示“好友申请”
       searchKeyword: "",  // 搜索关键词
       functionBarWidth: 230,  // 功能栏的宽度
-      leftComponentWidth: 130,  // 左侧组件的宽度 todo
+      leftComponentWidth: 80,  // 左侧组件的宽度 todo
     };
   },
   // computed: {

@@ -3,7 +3,7 @@
     <div class="contact-header">
         好友列表
         <button 
-          style="float: right;"
+          class="header-button"
           @click="showContextMenu"
         >分组管理</button>
     </div>
@@ -342,5 +342,11 @@ export default {
 
 <style scoped src="@/assets/css/contactList.css"></style>
 <style scoped>
-
+.header-button{
+  float: right;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: var(--font-size-small);
+}
 </style>
