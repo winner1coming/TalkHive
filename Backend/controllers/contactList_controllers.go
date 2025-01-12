@@ -1290,20 +1290,21 @@ func GetDivides(c *gin.Context) {
 		return
 	}
 
-	var groups []string // 只存储分组名称的数组
+	var divides []string // 只存储分组名称的数组
 	if groupType == "groups" {
-		if err := global.Db.Model(&models.GroupDivide{}).Where("account_id = ?", accountID).Pluck("gd_name", &groups).Error; err != nil {
+		if err := global.Db.Model(&models.GroupDivide{}).Where("account_id = ?", accountID).Pluck("gd_name", &divides).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "获取群聊分组失败"})
 			return
 		}
 	} else {
-		if err := global.Db.Table("friend_divides").Where("account_id = ?", accountID).Pluck("fd_name", &groups).Error; err != nil {
+		if err := global.Db.Model(&models.FriendDivide{}).Where("account_id = ?", accountID).Pluck("fd_name", &divides).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "获取好友分组失败"})
 			return
 		}
 	}
-
-	c.JSON(http.StatusOK, gin.H{"success": true, "message": "成功", "divides": groups})
+	fmt.Println("type:" + groupType)
+	fmt.Println("返回divides", divides)
+	c.JSON(http.StatusOK, gin.H{"success": true, "message": "成功", "divides": divides})
 }
 
 // CreateDivide 创建分组
@@ -2104,7 +2105,7 @@ func GetGroupInfo(c *gin.Context) {
 		return
 	}
 
-	groupID := c.Param("group_id")
+	groupID := c.GetHeader("group_id")
 	if groupID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "缺少群聊ID参数"})
 		return
