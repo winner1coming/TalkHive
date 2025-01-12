@@ -313,7 +313,7 @@ export default {
   justify-items: center;
   margin-top: 20px;
   width: 100%;
-  max-width: 500px;
+  max-width: 700px;
   height: 90%;
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -368,6 +368,10 @@ h2{
   cursor: pointer;
 }
 
+.input_container {
+  width: 300px;
+}
+
 .input_text {
   display: flex;
   align-items: center;
@@ -377,7 +381,7 @@ h2{
 }
 
 .input_text label {
-  margin-right: 20px;
+  margin-right: 60px;
   width: 50px;
   white-space: nowrap;
   text-align: left;

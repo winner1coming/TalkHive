@@ -16,7 +16,7 @@
             <input
             type="range"
             min="12"
-            max="33"
+            max="28"
             v-model="fontSize"
             @input="onFontSizeChange"
             />
@@ -255,6 +255,7 @@
   }
 
   .font-style-container {
+    width: fit-content;
     display: flex;
     align-items: center;
     margin-bottom: 20px;
@@ -274,6 +275,7 @@
 
   
   button {
+    width: fit-content;
     padding: 8px 8px;
     background-color: #42b983;
     color: white;
