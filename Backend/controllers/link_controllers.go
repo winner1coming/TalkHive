@@ -3,8 +3,8 @@ package controllers
 import (
 	"TalkHive/global"
 	"TalkHive/models"
-	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -12,15 +12,26 @@ import (
 
 // AddLinks 控制器函数
 func AddLinks(c *gin.Context) {
-	// 获取请求头中的用户ID
-	fmt.Println("fsdfsdf")
 	userID := c.GetHeader("User-ID")
 	if userID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "http的Header中用户ID为空"})
+		return
+	}
+	accountID, err := strconv.Atoi(userID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "ID解析失败"})
+		return
+	}
+	var user models.AccountInfo
+	if err = global.Db.Where("account_id = ?", accountID).First(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询用户失败"})
+		return
+	}
+	if user.Deactivate == true {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户已注销"})
 		return
 	}
 
-	// 定义请求体结构
 	var request struct {
 		Links struct {
 			URL     string `json:"url" binding:"required"`
@@ -28,8 +39,6 @@ func AddLinks(c *gin.Context) {
 			Icon    string `json:"icon" binding:"required"`
 		} `json:"links"`
 	}
-
-	// 绑定请求体
 	if err := c.ShouldBindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request data"})
 		return
@@ -67,17 +76,27 @@ func AddLinks(c *gin.Context) {
 	}
 
 	// 返回成功响应
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"message": "Link added successfully",
-	})
+	c.JSON(http.StatusOK, gin.H{"success": true, "message": "Link added successfully"})
 }
 
 func DelLinks(c *gin.Context) {
-	// 获取请求头中的用户ID
 	userID := c.GetHeader("User-ID")
 	if userID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "http的Header中用户ID为空"})
+		return
+	}
+	accountID, err := strconv.Atoi(userID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "ID解析失败"})
+		return
+	}
+	var user models.AccountInfo
+	if err = global.Db.Where("account_id = ?", accountID).First(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询用户失败"})
+		return
+	}
+	if user.Deactivate == true {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户已注销"})
 		return
 	}
 
@@ -102,32 +121,18 @@ func DelLinks(c *gin.Context) {
 	if err := global.Db.Where("account_id = ? AND url = ?", userID, link.URL).First(&existingLink).Error; err != nil {
 		// 如果数据库中没有找到该 URL，返回失败信息
 		if err == gorm.ErrRecordNotFound {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"success": false,
-				"message": "Link not found",
-			})
+			c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Link not found"})
 		} else {
 			// 其他错误处理
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"success": false,
-				"message": "Failed to check link existence",
-			})
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "Failed to check link existence"})
 		}
 		return
 	}
 
 	// 删除链接
 	if err := global.Db.Where("account_id = ? AND url = ?", userID, link.URL).Delete(&models.Links{}).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"success": false,
-			"message": "Failed to delete link",
-		})
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "Failed to delete link"})
 		return
 	}
-
-	// 返回成功响应
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"message": "Link deleted successfully",
-	})
+	c.JSON(http.StatusOK, gin.H{"success": true, "message": "Link deleted successfully"})
 }

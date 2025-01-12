@@ -8,11 +8,11 @@ import (
 func ChatListRoutes(r *gin.Engine) {
 	// 聊天列表
 	r.GET("/chatlist", controllers.GetChatList)
-	r.POST("/chatlist/createChat", controllers.GetChat)
+	r.POST("/chatlist/createChat", controllers.CreateChat)
 	r.GET("/chatlist/search/:keyword", controllers.SearchChats)
 	r.POST("/chatlist/pin", controllers.PinChat)
 	r.POST("/messages/read", controllers.ReadMessages)
-	r.DELETE("/chatlist/:tid", controllers.DeleteChat)
+	r.POST("/chatlist/delete", controllers.DeleteChat)
 	r.POST("/chatlist/mute", controllers.SetMute)
 	r.POST("/chatlist/block", controllers.BlockChat)
 
@@ -20,6 +20,5 @@ func ChatListRoutes(r *gin.Engine) {
 	r.POST("/messages", controllers.GetMessages)
 	r.POST("/messages/send", controllers.SendMessage)
 	r.POST("/messages/collect", controllers.CollectMessage)
-	r.POST("/messages/reply", controllers.ReplyMessage)
-	r.POST("/messages/forward", controllers.ForwardMessage)
+	r.POST("/messages/delete", controllers.DeleteMessage)
 }

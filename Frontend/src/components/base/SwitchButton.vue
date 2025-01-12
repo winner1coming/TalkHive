@@ -71,7 +71,7 @@ export default {
 }
 
 input:checked + .slider {
-  background-color: #2196F3;
+  background-color: var(--button-background-color);;
 }
 
 input:checked + .slider:before {

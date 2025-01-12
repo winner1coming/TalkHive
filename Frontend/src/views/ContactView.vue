@@ -104,7 +104,8 @@ export default {
   padding: 0px;
   margin: 0;
   align-self: flex-end;
-  background-color: #f8f9fa;
+  background-color: var(--background-color);
+  color: var(--text-color);
   overflow-y: auto;
   height: 100%;
   width: 100%;

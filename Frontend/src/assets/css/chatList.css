@@ -22,17 +22,17 @@ img{
 
 button {
   margin: 5px;
-  background-color: rgb(220, 213, 213);
-  color: rgb(48, 47, 47);
+  background-color: var(--button-background-color);
+  color: var(--button-text-color);
   border: none;
   padding: 5px;
   cursor: pointer;
   border-radius: 20%;
 }
 button:hover {
-  background-color: #70a7eb;
+  background-color:var(--button-background-color1);
 }
 button.active {
-  background-color: #007bff;
-  color: white;
+  background-color: var(--button-background-color2);
+  color: white;  /* todo */
 }

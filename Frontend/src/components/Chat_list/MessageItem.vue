@@ -29,8 +29,8 @@
             </div>
           </div>
           <span class="file-buttons">
-            <button @click="downloadFile">下载</button>
-            <button>预览</button>
+            <button class="file-button" @click="downloadFile">下载</button>
+            <!-- <button class="file-button" @click="previewFile">预览</button> -->
             <!-- <a ref="link" style="visibility: hidden" :href="message.content" download>下载</a> -->
           </span>
         </div>
@@ -41,6 +41,7 @@
       </div>
     </div>
 
+    <!--我的消息-->
     <div v-else class="my-message">
       <div class="message-content-wrapper">
         <div class="message-header">
@@ -67,8 +68,8 @@
             </div>
           </div>
           <span class="file-buttons">
-            <button @click="downloadFile">下载</button>
-            <button>预览</button>
+            <button class="file-button" @click="downloadFile">下载</button>
+            <!-- <button class="file-button" @click="previewFile">预览</button> -->
             <!-- <a ref="link" style="visibility: hidden" :href="message.content" download>下载</a> -->
           </span>
         </div>
@@ -81,6 +82,9 @@
         <img :src="message.avatar" alt="avatar" @click="showProfileCard($event)"/>
       </div>
     </div>
+
+    <!--预览文件-->
+
   </div>
 </template>
 
@@ -108,6 +112,9 @@ export default {
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url); // 释放 URL 对象
+    },
+    previewFile(){
+
     },
     showContextMenu(event, message) {
       this.$emit('show-context-menu',event, message);
@@ -219,15 +226,17 @@ export default {
 
 .message-content {
   flex:5;
-  background-color: #75baeb;
+  background-color: var(--background-color);
+  color: var(--text-color);
   padding: 10px;
   border-radius: 5px;
   text-align: left;
 }
 .message-file{
   flex:5;
-  background-color: #75baeb;
-  padding: 10px;
+  background-color: var(--background-color);
+  color:var(--text-color);
+  padding: 5px 10px 2px 2px;
   border-radius: 5px;
   display: flex;
   flex-direction: column;
@@ -239,6 +248,7 @@ export default {
   align-items: flex-start;
   justify-content: flex-start;
   flex-direction: row;
+  padding: 3px 0 3px 0;
 }
 .message-file img{
   width: 50px;
@@ -261,9 +271,15 @@ export default {
 .file-buttons{
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
+  justify-content: flex-end;
   width: 100%;
   padding: 5px;
+}
+.file-button{
+  padding: 2px 5px 2px 5px;
+  border-radius: 10%;
+  border: none;
+  cursor: pointer;
 }
 
 .editor-container {
@@ -274,26 +290,6 @@ export default {
   width: 100%;
   height: 400px;
   text-align: left;
-}
-
-.context-menu {
-  position: absolute;
-  background: white;
-  border: 1px solid #ccc;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
-}
-.context-menu button {
-  display: block;
-  width: 100%;
-  padding: 5px 10px;
-  text-align: left;
-  background: none;
-  border: none;
-  cursor: pointer;
-}
-.context-menu button:hover {
-  background: #f0f0f0;
 }
 .message-image {
   max-width: 70%;

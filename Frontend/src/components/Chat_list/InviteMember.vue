@@ -35,33 +35,33 @@ export default {
   data() {
     return {
       friends: [
-        {
-          accound_id: 1,
-          remark: '张三',  // 备注
-          nickname: '张三',  // 昵称
-          id: 'zhangsan',
-          avatar: 'https://cdn.jsdelivr.net/gh/lin09/dist/img/avatar.jpg',
-          signature: '这个人很懒，什么都没留下',
-          divide: '家人',
-        },
-        {
-          accound_id: 2,
-          remark: '李四',
-          nickname: '李四',
-          id: 'lisi',
-          avatar: 'https://cdn.jsdelivr.net/gh/lin09/dist/img/avatar.jpg',
-          signature: '这个人很懒，什么都没留下',
-          divide: '家人',
-        },
-        {
-          accound_id: 3,
-          remark: '王五',
-          nickname: '王五',
-          id: 'wangwu',
-          avatar: 'https://cdn.jsdelivr.net/gh/lin09/dist/img/avatar.jpg',
-          signature: '这个人很懒，什么都没留下',
-          divide: '家人',
-        },
+        // {
+        //   accound_id: 1,
+        //   remark: '张三',  // 备注
+        //   nickname: '张三',  // 昵称
+        //   id: 'zhangsan',
+        //   avatar: 'https://cdn.jsdelivr.net/gh/lin09/dist/img/avatar.jpg',
+        //   signature: '这个人很懒，什么都没留下',
+        //   divide: '家人',
+        // },
+        // {
+        //   accound_id: 2,
+        //   remark: '李四',
+        //   nickname: '李四',
+        //   id: 'lisi',
+        //   avatar: 'https://cdn.jsdelivr.net/gh/lin09/dist/img/avatar.jpg',
+        //   signature: '这个人很懒，什么都没留下',
+        //   divide: '家人',
+        // },
+        // {
+        //   accound_id: 3,
+        //   remark: '王五',
+        //   nickname: '王五',
+        //   id: 'wangwu',
+        //   avatar: 'https://cdn.jsdelivr.net/gh/lin09/dist/img/avatar.jpg',
+        //   signature: '这个人很懒，什么都没留下',
+        //   divide: '家人',
+        // },
       ],
       
     };
@@ -132,7 +132,8 @@ export default {
 }
 
 .modal-content {
-  background-color: #fff;
+  background-color: var(--background-color);
+  color: var(--text-color);
   padding: 20px;
   border-radius: 8px;
   width: 300px;

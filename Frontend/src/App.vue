@@ -79,7 +79,7 @@ export default {
     getBackgroundColor1() {
       switch (this.settings.theme) {
         case 'light':
-          return '#ffffff';
+          return '#e3e0e0';
         case 'dark':
           return '#333333';
         case 'system':
@@ -92,7 +92,7 @@ export default {
     getBackgroundColor2() {
       switch (this.settings.theme) {
         case 'light':
-          return '#ffffff';
+          return '#d5d2d2';
         case 'dark':
           return '#333333';
         case 'system':
@@ -131,7 +131,7 @@ export default {
     getButtonBackgroundColor1() {
       switch (this.settings.theme) {
         case 'light':
-          return '#8ae2ba';
+          return '#e3e0e0';
         case 'dark':
           return '#666666';
         case 'system':
@@ -144,7 +144,7 @@ export default {
     getButtonBackgroundColor2() {
       switch (this.settings.theme) {
         case 'light':
-          return '#8ae2ba';
+          return '#d5d2d2';
         case 'dark':
           return '#666666';
         case 'system':

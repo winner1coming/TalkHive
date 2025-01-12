@@ -8,12 +8,12 @@
       <div class="name">{{ profile.remark }}</div>    <!--我的备注-->
       <div class="remark">昵称: {{ profile.nickname }}</div>   
       <div class="remark" v-show="profile.groupNickname">群昵称: {{ profile.groupNickname }}</div>
-      <div class="remark">
+      <div class="remark" v-show="profile.tag">
         分组:{{ profile.tag }}
       </div>
       <div class="remark">个性签名: {{ profile.signature }}</div>
     </div>
-    <button v-show="profile.is_friend" @click="sendMessage">发信息</button>
+    <button v-show="profile.is_friend || profile.account_id === this.$store.state.currrentChat.id" @click="sendMessage">发信息</button>
     <!--菜单-->
     <ContextMenu ref="contextMenu"  @select-item="handleMenuSelect" />
     <!--添加好友-->
@@ -340,7 +340,7 @@ export default {
   border: 1px solid #ddd;
   border-radius: 8px;
   width: 200px;
-  background-color: #fff;
+  background-color: var(--background-color);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 .options-button {
@@ -385,7 +385,7 @@ export default {
   z-index: 2000; /* 确保在最上层 */
 }
 .add-content {
-  background-color: #fff;
+  background-color: var(--background-color);
   padding: 20px;
   border-radius: 8px;
   width: 300px;
@@ -408,13 +408,13 @@ button {
   margin-top: 10px;
   padding: 5px 10px;
   border: none;
-  background-color: #007bff;
-  color: #fff;
+  background-color: var(--button-background-color);
+  color: var(--button-text-color);
   border-radius: 4px;
   cursor: pointer;
 }
 
 button:hover {
-  background-color: #0056b3;
+  background-color: var(--button-background-color1);
 }
 </style>
