@@ -207,7 +207,7 @@ export default {
     async sendMessage() {
       this.hide();
       try{
-        const response = await chatListAPI.getChat(this.profile.group_id, false);
+        const response = await chatListAPI.getChat(this.profile.group_id, true);
         if(response.status !== 200){
           this.$root.notify(response.data.message, 'error');
           return;
