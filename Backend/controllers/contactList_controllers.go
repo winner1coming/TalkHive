@@ -1860,7 +1860,7 @@ func CreateGroup(c *gin.Context) {
 		Divide:      "未分组",
 		IsMute:      false,
 		IsBlocked:   false,
-		Remark:      "",
+		Remark:      input.GroupName,
 	}
 	if err := global.Db.Create(&contact).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "创建群聊失败"})
