@@ -78,11 +78,7 @@ export default {
       showWebLinksDropdown: false,
       isDropdownPinned: false,
       searchQuery: '',
-      defaultwebLinks: [
-        { name: 'Vue', url: 'https://vuejs.org', icon: 'https://vuejs.org/logo.svg' },
-        { name: 'Github', url: 'https://github.com', icon: 'https://github.githubassets.com/favicon.ico' },
-        { name: 'baidu', url: 'https://baidu.com', icon: 'https://baidu.com/favicon.ico' },
-      ],//从vuex获取 this.$store.state.links;
+      defaultwebLinks: this.$store.state.links,//从vuex获取 this.$store.state.links;
       showAddLinkModal: false,
       newlink: {
         name: '',
@@ -143,8 +139,9 @@ export default {
           this.newlink = { name: '', url: '', icon: '' };
         }
         this.showModal = true;
-        this.modalMessage = `${this.newlink.name}\n${this.newlink.url}\n${response.message}`;
+        this.modalMessage = `${this.newlink.name}\n${this.newlink.url}\n添加网址成功`;
         this.showAddLinkModal = false;
+        this.isAddingLink = false;
       } catch (error) {
         this.showModal = true;
         this.modalMessage = `${this.newlink.name}\n${this.newlink.url}\n添加网址失败`;

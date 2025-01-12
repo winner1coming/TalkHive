@@ -43,7 +43,7 @@ func Login(c *gin.Context) {
 	}
 
 	//修改登录状态
-	//account.Status = "online"
+	account.Status = "online"
 	if err := global.Db.Save(&account).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "更新用户状态失败"})
 		return

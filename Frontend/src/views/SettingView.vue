@@ -41,7 +41,7 @@
   import EditProfile from '@/components/Settings_list/EditProfile.vue';
   import SecuritySettings from '@/components/Settings_list/SecuritySettings.vue';
   import SystemSettings from '@/components/Settings_list/SystemSettings.vue';
-  import {logout, getSystemSetting} from '@/services/settingView.js';
+  import {logout} from '@/services/settingView.js';
   import { mapGetters } from 'vuex';
   
   export default {
@@ -55,6 +55,8 @@
       ...mapGetters(['user']),
     },
 
+
+
     data() {
       return {
         activeComponent: 'EditProfile', // 默认显示个人主页
@@ -66,30 +68,8 @@
       setActiveComponent(component){
         this.activeComponent = component;
       },
-      async setActiveSystemSetting(component) {
+      setActiveSystemSetting(component) {
         this.activeComponent = component;
-        try{
-          const response = await getSystemSetting();
-          if(response.success){
-            let BackGround ='';
-            if(response.data.background !== ""){
-              BackGround = `data:${response.data.mimeType};base64,${response.data.background}`;
-            }
-            this.$store.commit('SET_SETTINGS',{
-              theme:response.data.theme,
-              fontSize:response.data.fontSize,
-              fontStyle:response.data.fontStyle,
-              sound:response.data.sound,
-              isNotice: response.data.notice,
-              isNoticeGroup: response.data.noticeGroup,
-              background:BackGround,
-            });
-          }else{
-            alert(response.message);
-          }
-        }catch(error){
-          alert(error,'获取系统失败，请检查网络')
-        }
       },
       showLogoutConfirmation() {
         this.showConfirmation = true;
@@ -136,7 +116,7 @@
   }
   
   .top-panel button {
-    width: 120px; /* 固定按钮宽度 */
+    width: fit-content; /* 固定按钮宽度 */
     height: 40px; /* 固定按钮高度 */
     padding: 10px;
     background-color: var(--button-background-color); /* 使用 CSS 变量 */

@@ -43,7 +43,7 @@ export default {
 };
 </script>
   
-<style src="@/assets/css/contactList.css"></style>
+<style scoped src="@/assets/css/contactList.css"></style>
 <style scoped>
 .items {
 	list-style: none;

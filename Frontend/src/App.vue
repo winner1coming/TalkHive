@@ -38,16 +38,22 @@ export default {
         '--font-size-mlarge':`${baseFontSize + 2}px`,
         '--font-size-large': `${baseFontSize + 4}px`,
         '--font-family':this.settings.fontStyle,
-        '--background-color': this.getBackgroundColor(),   //从浅到深
+        '--background-color': this.getBackgroundColor(),   //从浅到深 白
         '--background-color1': this.getBackgroundColor1(), 
         '--background-color2': this.getBackgroundColor2(),
         '--text-color': this.getTextColor(),
-        '--button-background-color': this.getButtonBackgroundColor(),   //普通状态
+        '--button-background-color': this.getButtonBackgroundColor(),   //普通状态  light 绿色
         '--button-background-color1': this.getButtonBackgroundColor1(), //悬浮
         '--button-background-color2': this.getButtonBackgroundColor2(),  //点击
         '--button-text-color': this.getButtonTextColor(),
-        '--sidebar-background-color': this.getSidebarBackgroundColor(),
+        '--sidebar-background-color': this.getSidebarBackgroundColor(),   //普通状态栏色调（浅  light紫
+        '--sidebar-background-color1': this.getSidebarBackgroundColor1(), //鼠标悬浮状态栏色调
+        '--sidebar-background-color2': this.getSidebarBackgroundColor2(), //鼠标点击状态栏色调
         '--sidebar-text-color': this.getSidebarTextColor(),
+        '--select-background-color' : this.selectBackgroundColor(),   //新增可选择的颜色色调（light 蓝色——自行搭配一下，用不上也没关系
+        '--select-background-color1' : this.selectBackgroundColor1(),
+        '--select-background-color2' : this.selectBackgroundColor2(),
+        '--select-text-color' : this.selectTextColor(),
       }
     },
     themeClass(){
@@ -66,7 +72,7 @@ export default {
     getBackgroundColor() {
       switch (this.settings.theme) {
         case 'light':
-          return '#ffffff';
+          return '#ffffff';   //纯白色
         case 'dark':
           return '#333333';
         case 'system':
@@ -79,7 +85,7 @@ export default {
     getBackgroundColor1() {
       switch (this.settings.theme) {
         case 'light':
-          return '#e3e0e0';
+          return '#e3e0e0';   //更深一点的灰色
         case 'dark':
           return '#333333';
         case 'system':
@@ -92,7 +98,7 @@ export default {
     getBackgroundColor2() {
       switch (this.settings.theme) {
         case 'light':
-          return '#d5d2d2';
+          return '#d5d2d2';   //最深的灰色
         case 'dark':
           return '#333333';
         case 'system':
@@ -105,7 +111,7 @@ export default {
     getTextColor() {
       switch (this.settings.theme) {
         case 'light':
-          return '#000000';
+          return '#000000';   //黑色字体
         case 'dark':
           return '#ffffff';
         case 'system':
@@ -118,7 +124,7 @@ export default {
     getButtonBackgroundColor() {
       switch (this.settings.theme) {
         case 'light':
-          return '#8ae2ba';
+          return '#8ae2ba';     //浅绿色
         case 'dark':
           return '#666666';
         case 'system':
@@ -131,7 +137,7 @@ export default {
     getButtonBackgroundColor1() {
       switch (this.settings.theme) {
         case 'light':
-          return '#e3e0e0';
+          return '#6bc76e';   //更深的绿色
         case 'dark':
           return '#666666';
         case 'system':
@@ -144,7 +150,7 @@ export default {
     getButtonBackgroundColor2() {
       switch (this.settings.theme) {
         case 'light':
-          return '#d5d2d2';
+          return '#2b9d19';   //最深的绿色
         case 'dark':
           return '#666666';
         case 'system':
@@ -157,7 +163,7 @@ export default {
     getButtonTextColor() {
       switch (this.settings.theme) {
         case 'light':
-          return '#333333';
+          return '#333333';   //黑色字体
         case 'dark':
           return '#ffffff';
         case 'system':
@@ -170,7 +176,33 @@ export default {
     getSidebarBackgroundColor() {
       switch (this.settings.theme) {
         case 'light':
-          return 'rgba(202, 171, 221, 0.752)'; // 浅色主题的侧边栏背景颜色
+          return '#c9b3d9'; // 浅色主题的侧边栏背景颜色  浅紫色
+        case 'dark':
+          return '#2c3e50'; // 深色主题的侧边栏背景颜色
+        case 'system':
+          return '#6dc79fb1'; // 根据系统主题设置
+        default:
+          return '#6dc79fb1';
+      }
+    },
+
+    getSidebarBackgroundColor1() {
+      switch (this.settings.theme) {
+        case 'light':
+          return '#b893d3'; // 更深的紫色
+        case 'dark':
+          return '#2c3e50'; // 深色主题的侧边栏背景颜色
+        case 'system':
+          return '#6dc79fb1'; // 根据系统主题设置
+        default:
+          return '#6dc79fb1';
+      }
+    },
+
+    getSidebarBackgroundColor2() {
+      switch (this.settings.theme) {
+        case 'light':
+          return '#9767b8'; // 更深的紫色
         case 'dark':
           return '#2c3e50'; // 深色主题的侧边栏背景颜色
         case 'system':
@@ -183,7 +215,7 @@ export default {
     getSidebarTextColor() {
       switch (this.settings.theme) {
         case 'light':
-          return '#000000'; // 浅色主题的侧边栏文字颜色
+          return '#9767b8'; // 深色一些的紫色
         case 'dark':
           return '#ffffff'; // 深色主题的侧边栏文字颜色
         case 'system':
@@ -192,6 +224,60 @@ export default {
           return '#000000';
       }
     },
+
+    selectBackgroundColor() {
+      switch (this.settings.theme) {
+        case 'light':
+          return 'rgba(62, 246, 246, 0.496)'; // 蓝色设置
+        case 'dark':
+          return '#2c3e50'; // 深色主题的侧边栏背景颜色
+        case 'system':
+          return '#6dc79fb1'; // 根据系统主题设置
+        default:
+          return '#6dc79fb1';
+      }
+    },
+
+    selectBackgroundColor1() {
+      switch (this.settings.theme) {
+        case 'light':
+          return 'rgba(35, 221, 231, 0.704)'; // 更深一点的蓝色
+        case 'dark':
+          return '#2c3e50'; // 深色主题的侧边栏背景颜色
+        case 'system':
+          return '#6dc79fb1'; // 根据系统主题设置
+        default:
+          return '#6dc79fb1';
+      }
+    },
+
+    selectBackgroundColor2() {
+      switch (this.settings.theme) {
+        case 'light':
+          return 'rgba(26, 216, 226, 0.879)'; // 最深的蓝色
+        case 'dark':
+          return '#2c3e50'; // 深色主题的侧边栏背景颜色
+        case 'system':
+          return '#6dc79fb1'; // 根据系统主题设置
+        default:
+          return '#6dc79fb1';
+      }
+    },
+
+    selectTextColor() {
+      switch (this.settings.theme) {
+        case 'light':
+          return 'rgba(26, 183, 226, 0.879)'; // 蓝色
+        case 'dark':
+          return '#ffffff'; // 深色主题的侧边栏文字颜色
+        case 'system':
+          return '#000000'; // 根据系统主题设置
+        default:
+          return '#000000';
+      }
+    },
+
+
 
     // 通知
     notify(message, type) {
