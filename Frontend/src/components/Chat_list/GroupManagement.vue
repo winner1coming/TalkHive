@@ -204,7 +204,7 @@
     </div>
     <PersonProfileCard ref="profileCard" />
     <ContextMenu ref="contextMenu" @select-item="handleMenuSelect"/>
-    <InviteMember v-show="inviteMemberVisible" @close="inviteMemberVisible=false"/>
+    <InviteMember :group_id="group_id" v-show="inviteMemberVisible" @close="inviteMemberVisible=false"/>
   </div>
  
 </template>
