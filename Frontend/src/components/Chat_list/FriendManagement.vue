@@ -9,7 +9,7 @@
       </p>
     </div>
     <!--主页面-->
-    <div v-show="componentStatus === 'main'">
+    <div v-show="componentStatus === 'main'" style="width: 100%;">
       <!--好友信息-->
       <div class="friend-info">
         <p class="title">好友昵称:</p>
@@ -67,7 +67,7 @@
       />
       <MemberSelect
         ref="memberSelect"
-        :members="groupInfo.members"
+        :members="members"
         @select-member="searchHistoryMember=$event"
       />
       <!--筛选好的历史记录--> 
@@ -147,21 +147,24 @@ export default {
       isPinned: false,
       friendInfo: null,
       history:[
-        {
-          message_id:'1',
-          create_time:'12:20',
-          send_account_id:'1',
-          sender:'Alice',
-          content:'fadaf',
-          type:'text',
-          avatar:'',
-        },
+        // {
+        //   message_id:'1',
+        //   create_time:'12:20',
+        //   send_account_id:'1',
+        //   sender:'Alice',
+        //   content:'fadaf',
+        //   type:'text',
+        //   avatar:'',
+        // },
       ],
       // 搜索历史方面
       searchHistoryKeyword:'',
       searchHistoryType:'all', // 'all', 'image', 'file', 'date','member'
       searchHistoryDate:'',
       searchHistoryMember:'',
+
+      // 用于成员选择
+      members:[],
 
       componentStatus: 'main',  // 'main', 'history', 'manage'
       boundD: null, // 边界的坐标
@@ -201,6 +204,20 @@ export default {
         }else{
           this.$root.notify(response2.data.message, 'error');
         }
+        this.members =[{
+            account_id: this.$store.state.user.id,
+            avatar: this.$store.state.user.avatar,
+            remark:null,
+            group_nickname:null,
+            nickname: this.$store.state.user.username,
+          },
+          {
+            account_id: this.friendInfo.account_id,
+            avatar: this.friendInfo.avatar,
+            remark: this.friendInfo.remark,
+            group_nickname:null,
+            nickname: this.friendInfo.nickname,
+          }];
       }
       catch(error){
         console.log('fetch friend error:', error);
@@ -378,7 +395,7 @@ export default {
     hide(){
       this.visible = false;
       this.componentStatus = 'main';
-      initialize();
+      this.initialize();
       EventBus.emit('hide-float-component'); // 通知其他组件
     },
   },
