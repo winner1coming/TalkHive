@@ -226,16 +226,16 @@ export default {
 
 .message-content {
   flex:5;
-  background-color: var(--background-color);
-  color: var(--text-color);
+  background-color: var(--sidebar-background-color);
+  color: var(--sidebar-text-color);
   padding: 10px;
   border-radius: 5px;
   text-align: left;
 }
 .message-file{
   flex:5;
-  background-color: var(--background-color);
-  color:var(--text-color);
+  background-color: var(---sidebar-background-color);
+  color:var(--sidebar-text-color);
   padding: 5px 10px 2px 2px;
   border-radius: 5px;
   display: flex;
