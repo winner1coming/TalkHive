@@ -121,6 +121,7 @@ export default {
           this.messages.push({
             message_id: response.data.data.message_id,  // 消息编号
             send_account_id: this.$store.state.user.id,  // 发送者的id
+            avatar:this.$store.state.user.avatar,
             content: content,
             sender: this.$store.state.user.username,   // 发送者的备注
             create_time: response.data.data.create_time,  // 发送时间  todo 改为前端创建
