@@ -128,7 +128,7 @@ export default {
 <style scoped>
 .security-settings {
   display: flex;
-  height: 100vh;
+  height: 100%;
 }
 
 .left-panel {
@@ -138,7 +138,7 @@ export default {
 
 .right-panel {
   width: 80%;
-  padding: 20px;
+  padding:0;
   position: relative;
 }
 
@@ -159,7 +159,7 @@ export default {
 
 .menu-item span {
   font-size: var(--font-size);
-  margin-left: 40px;
+  margin-left: 10px;
 }
 
 .menu-item .content {

@@ -4,6 +4,7 @@
     <aside class="sidebar">
       <div class="user-info">
         <img :src="avatar" alt="Avatar" class="avatar" @click="toggleProfile"/>
+        <PersonProfileCard ref="profileCard" />
       </div>
       <ul class="nav-links">
         <li><router-link to="/chat" title="聊天">
@@ -43,8 +44,6 @@
     <main class="content">
       <router-view></router-view>
     </main>
-
-    <PersonProfileCard ref="profileCard" />
   </div>
 </template>
 
@@ -110,8 +109,10 @@ export default {
           return;
         }
         this.showProfile= true;
+        const boundD = '50px';
+        const boundR = '50px';
         const profile = response.data.data;
-        this.$refs.profileCard.show(event, profile, 0, 0);
+        this.$refs.profileCard.show(event, profile, boundD,boundR);
       }catch(err){
         console.log(err);
       }
@@ -170,7 +171,7 @@ export default {
 <style scoped>
 .home {
   display: flex;
-  height: 100vh;
+  height: 100%;
 }
 
 /* 左侧导航栏样式 */
