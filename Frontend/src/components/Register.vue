@@ -261,7 +261,15 @@ export default {
     
     // 发送验证码
     async sendSmsCode() {
+      this.validateId();
+      this.validateGender();
+      this.validateNickname();
+      this.validatePhoneNumber();
       this.validateEmail();
+      this.validatePassword();
+      this.validateConfirmPassword();
+      this.validateBirthday();
+      
       if(this.errors.email){
         return;
       }
