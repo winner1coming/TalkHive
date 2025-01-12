@@ -30,6 +30,10 @@ func Login(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"success": false, "message": "账号名称或密码错误"})
 		return
 	}
+	if account.Status == "online" {
+		c.JSON(http.StatusUnauthorized, gin.H{"success": false, "message": "该账号已登录，请勿重复登录"})
+		return
+	}
 
 	// 生成 Token
 	token, err := utils.GenerateJWT(account.ID)
@@ -51,6 +55,11 @@ func Login(c *gin.Context) {
 		return
 	}
 
+	var links []models.Links
+	if err := global.Db.Where("account_id = ?", account.AccountID).Find(&links).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": err.Error()})
+		return
+	}
 	c.JSON(http.StatusOK, gin.H{
 		"success":    true,
 		"message":    "登录成功",
@@ -63,6 +72,7 @@ func Login(c *gin.Context) {
 		"email":    account.Email,
 		"avatar":   avatarBase64,
 		"mimeType": mimeType,
+		"links":    links,
 	})
 }
 

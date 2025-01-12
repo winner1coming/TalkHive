@@ -192,7 +192,7 @@ func GetChatList(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"success": true, "data": response})
 }
 
-// CreateChat 创建单个群聊
+// CreateChat 创建聊天
 func CreateChat(c *gin.Context) {
 	userID := c.GetHeader("User-ID")
 	if userID == "" {

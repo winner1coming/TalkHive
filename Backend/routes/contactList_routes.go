@@ -46,7 +46,7 @@ func ContactListRoutes(r *gin.Engine) {
 	r.POST("/contactList/groups/friendsNotInGroup", controllers.FetchFriendsNotInGroup)
 	r.POST("/contactList/groups/invite", controllers.Invite)
 	r.POST("/contactList/groups/quit", controllers.Quit)
-	r.GET("/contactList/groups/{group_id}", controllers.GetGroupInfo)
+	r.GET("/contactList/groups/:group_id", controllers.GetGroupInfo)
 	r.POST("/contactList/groups/changeNickname", controllers.ChangeNickname)
 	r.POST("/contactList/groups/setAllowInvite", controllers.SetAllowInvite)
 	r.POST("/contactList/groups/setAllowIdSearch", controllers.SetAllowIdSearch)

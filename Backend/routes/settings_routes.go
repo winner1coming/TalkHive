@@ -25,7 +25,6 @@ func SettingsRoutes(r *gin.Engine) {
 	r.POST("/Settings/isNotice", controllers.IsNotice)
 	r.POST("/Settings/isNoticeGroup", controllers.IsNoticeGroup)
 	r.POST("/Settings/changeSound", controllers.ChangeSound)
-	r.POST("/Settings/submitSound", controllers.SubmitSound) // 需要加入新的表
 	r.POST("/Settings/changeBackground", controllers.ChangeBackground)
 	r.GET("/systemSetting", controllers.GetSystemSetting)
 
