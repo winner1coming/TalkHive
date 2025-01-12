@@ -51,8 +51,8 @@
 <script>
 import { getPersonProfileCard } from '@/services/api';
 import Link from './Link.vue';
-import { logout } from '@/services/settingView';
 import PersonProfileCard from '@/components/base/PersonProfileCard.vue';
+import {logout, getSystemSetting} from '@/services/settingView.js';
 
 
 export default {
@@ -71,6 +71,8 @@ export default {
   nickname() {
     return this.$store.state.user.username;
   },
+
+
   },
   components:{
     Link,
@@ -123,12 +125,44 @@ export default {
         this.hideProfileCard();
       }
     },
+
+    async fetchSystemSettings() {
+      try {
+        const response = await getSystemSetting();
+        if (response.success) {
+          let BackGround = '';
+          if (response.data.background !== '') {
+            BackGround = `data:${response.data.mimeType};base64,${response.data.background}`;
+          }
+          this.$store.commit('SET_SETTINGS', {
+            theme: response.data.theme,
+            fontSize: response.data.fontSize,
+            fontStyle: response.data.fontStyle,
+            sound: response.data.sound,
+            isNotice: response.data.notice,
+            isNoticeGroup: response.data.noticeGroup,
+            background: BackGround,
+          });
+        } else {
+          alert(response.message);
+        }
+      } catch (error) {
+        alert(error, '获取系统设置失败，请检查网络');
+      }
+    },
+    handleBeforeUnload(event) {
+      // 在页面关闭或刷新时调用 logout 方法
+      this.logout();
+    },
   },
   mounted() {
+    this.fetchSystemSettings();
     document.addEventListener('click', this.handleClickOutside);
+    window.addEventListener('beforeunload', this.handleBeforeUnload);
   },
   beforeUnmount() {
     document.removeEventListener('click', this.handleClickOutside);
+    window.removeEventListener('beforeunload', this.handleBeforeUnload);
   },
 };
 </script>
