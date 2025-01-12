@@ -2158,7 +2158,7 @@ func GetGroupInfo(c *gin.Context) {
 
 		// 查询Contacts表来获取Remark
 		var contact models.Contacts
-		if err := global.Db.Where("owner_id = ? AND contact_id = ? AND is_group_chat = ?", member.AccountID, groupID, true).First(contact).Error; err != nil {
+		if err := global.Db.Where("owner_id = ? AND contact_id = ? AND is_group_chat = ?", member.AccountID, groupID, true).First(&contact).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "获取群聊成员失败"})
 			return
 		}
@@ -2189,7 +2189,7 @@ func GetGroupInfo(c *gin.Context) {
 
 	// 查询contacts表获取群聊分组
 	var contact models.Contacts
-	if err := global.Db.Where("owner_id = ? AND contact_id = ? AND is_group_chat = ?", accountID, groupID, true).First(contact).Error; err != nil {
+	if err := global.Db.Where("owner_id = ? AND contact_id = ? AND is_group_chat = ?", accountID, groupID, true).First(&contact).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "获取群聊成员失败"})
 		return
 	}
