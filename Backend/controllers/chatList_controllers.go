@@ -171,7 +171,7 @@ func GetChatList(c *gin.Context) {
 			if contact.IsBlocked {
 				tags = append(tags, "blocked")
 			}
-			avatarBase64, mimeType, err := utils.GetFileContentAndType(friend.Avatar)
+			avatarBase64, mimeType, err := utils.GetFileContentAndType(groupChat.GroupAvatar)
 			if err != nil {
 				c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": err.Error()})
 				return
@@ -185,6 +185,7 @@ func GetChatList(c *gin.Context) {
 				"lastMessage":     lastMessage.Content,
 				"lastMessageTime": lastMessage.CreateTime,
 				"unreadCount":     unreadCount,
+				"tags":            tags,
 			}
 			response = append(response, chatResponse)
 		}
@@ -508,8 +509,8 @@ func PinChat(c *gin.Context) {
 	}
 
 	var input struct {
-		Tid      string `json:"tid"`
-		IsPinned bool   `json:"is_pinned"`
+		Tid      uint `json:"tid"`
+		IsPinned bool `json:"is_pinned"`
 	}
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Json绑定失败"})
@@ -527,12 +528,12 @@ func PinChat(c *gin.Context) {
 
 	// 查询Contacts表
 	var contact models.Contacts
-	if err := global.Db.Where("account_id = ? AND contact_id = ?", me.AccountID, other.AccountID).First(&contact).Error; err != nil {
+	if err := global.Db.Where("account_id = ? AND contact_id = ? AND is_group_chat = ?", me.AccountID, other.AccountID, true).First(&contact).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "Contacts表中无此条记录"})
 		return
 	}
 	contact.IsPinned = input.IsPinned
-	if err := global.Db.Save(&contact).Error; err != nil {
+	if err := global.Db.Updates(&contact).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "更新失败"})
 		return
 	}
@@ -699,9 +700,9 @@ func SetMute(c *gin.Context) {
 		return
 	}
 	var input struct {
-		Tid     string `json:"tid"`
-		IsMute  bool   `json:"is_mute"`
-		IsGroup bool   `json:"is_group"`
+		Tid     uint `json:"tid"`
+		IsMute  bool `json:"is_mute"`
+		IsGroup bool `json:"is_group"`
 	}
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Json绑定失败"})
@@ -716,11 +717,11 @@ func SetMute(c *gin.Context) {
 		}
 
 		var contact models.Contacts
-		if err := global.Db.Where("owner_id = ? AND contact_id = ?", me.AccountID, group.GroupID).First(&contact).Error; err != nil {
+		if err := global.Db.Where("owner_id = ? AND contact_id = ? AND is_group_chat = ?", me.AccountID, group.GroupID, input.IsGroup).First(&contact).Error; err != nil {
 			c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "Contacts表中无此条记录"})
 		}
 		contact.IsMute = input.IsMute
-		if err := global.Db.Save(&contact).Error; err != nil {
+		if err := global.Db.Updates(&contact).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "更新失败"})
 			return
 		}
@@ -735,11 +736,11 @@ func SetMute(c *gin.Context) {
 			return
 		}
 		var contact models.Contacts
-		if err := global.Db.Where("owner_id = ? AND contact_id = ?", me.AccountID, other.AccountID).First(&contact).Error; err != nil {
+		if err := global.Db.Where("owner_id = ? AND contact_id = ? AND is_group_chat = ?", me.AccountID, other.AccountID, input.IsGroup).First(&contact).Error; err != nil {
 			c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "Contacts表中无此条记录"})
 		}
 		contact.IsMute = input.IsMute
-		if err := global.Db.Save(&contact).Error; err != nil {
+		if err := global.Db.Updates(&contact).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "更新失败"})
 			return
 		}
@@ -769,9 +770,9 @@ func BlockChat(c *gin.Context) {
 		return
 	}
 	var input struct {
-		Tid       string `json:"tid"`
-		IsBlocked bool   `json:"is_blocked"`
-		IsGroup   bool   `json:"is_group"`
+		Tid       uint `json:"tid"`
+		IsBlocked bool `json:"is_blocked"`
+		IsGroup   bool `json:"is_group"`
 	}
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Json绑定失败"})
@@ -786,11 +787,11 @@ func BlockChat(c *gin.Context) {
 		}
 
 		var contact models.Contacts
-		if err := global.Db.Where("owner_id = ? AND contact_id = ?", me.AccountID, group.GroupID).First(&contact).Error; err != nil {
+		if err := global.Db.Where("owner_id = ? AND contact_id = ? AND is_group_chat = ?", me.AccountID, group.GroupID, input.IsGroup).First(&contact).Error; err != nil {
 			c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "Contacts表中无此条记录"})
 		}
 		contact.IsBlocked = input.IsBlocked
-		if err := global.Db.Save(&contact).Error; err != nil {
+		if err := global.Db.Updates(&contact).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "更新失败"})
 			return
 		}
@@ -805,11 +806,11 @@ func BlockChat(c *gin.Context) {
 			return
 		}
 		var contact models.Contacts
-		if err := global.Db.Where("owner_id = ? AND contact_id = ?", me.AccountID, other.AccountID).First(&contact).Error; err != nil {
+		if err := global.Db.Where("owner_id = ? AND contact_id = ? is_group_chat = ?", me.AccountID, other.AccountID, input.IsGroup).First(&contact).Error; err != nil {
 			c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "Contacts表中无此条记录"})
 		}
 		contact.IsBlocked = input.IsBlocked
-		if err := global.Db.Save(&contact).Error; err != nil {
+		if err := global.Db.Updates(&contact).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "更新失败"})
 			return
 		}
@@ -874,7 +875,7 @@ func GetMessages(c *gin.Context) {
 
 		// 查询当前聊天记录下的message
 		var messages []models.MessageInfo
-		if err := global.Db.Where("sender_chat_id = ? OR receiver_chat_id = ?", chat.ChatID, chat.ChatID).Order("create_time DESC").Find(&messages).Error; err != nil {
+		if err := global.Db.Where("sender_chat_id = ?", chat.ChatID).Order("create_time DESC").Find(&messages).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询messageInfo表失败"})
 			return
 		}
@@ -906,12 +907,12 @@ func GetMessages(c *gin.Context) {
 				c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询发送者失败"})
 				return
 			}
-
-			avatarBase64, _, err := utils.GetFileContentAndType(sender.Avatar)
+			avatarBase64, mimeType, err := utils.GetFileContentAndType(sender.Avatar)
 			if err != nil {
 				c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": err.Error()})
 				return
 			}
+			avatarBase64 = "data:" + mimeType + ";base64," + avatarBase64
 
 			result = append(result, gin.H{
 				"message_id":      message.MessageID,
@@ -1094,10 +1095,10 @@ func SendMessage(c *gin.Context) {
 		message := models.MessageInfo{
 			SendAccountID: me.AccountID,
 			TargetID:      group.GroupID,
-			//ChatID:        chat.ChatID,
-			Content:    input.Content,
-			Type:       input.Type,
-			CreateTime: time.Now().Format("2006-01-02 15:04:05"),
+			SenderChatID:  chat.ChatID,
+			Content:       input.Content,
+			Type:          input.Type,
+			CreateTime:    time.Now().Format("2006-01-02 15:04:05"),
 		}
 		if err := global.Db.Create(&message).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "保存消息失败"})
