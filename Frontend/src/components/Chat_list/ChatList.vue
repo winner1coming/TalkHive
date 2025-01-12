@@ -517,6 +517,7 @@ export default {
   color: var(--text-color);
   display: flex;
   flex-direction: column;
+  min-width: 170px;
 }
 .chat-header{
   flex: 1;
