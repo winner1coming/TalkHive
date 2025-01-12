@@ -130,6 +130,7 @@ func Register(c *gin.Context) {
 		Password:                 input.Password,
 		FriendPermissionID:       true,
 		FriendPermissionNickName: true,
+		Signature:                "这个人还没有自定义签名",
 	}
 
 	if err := global.Db.Create(&newUser).Error; err != nil {
