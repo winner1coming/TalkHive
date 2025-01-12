@@ -7,7 +7,7 @@
       <div class="message-content-wrapper">
         <div class="message-header">
           <span class="message-sender">{{ message.sender }}</span>
-          <span class="message-time">{{ message.create_time }}</span>
+          <span class="message-time">{{ formatTime(message.create_time) }}</span>
         </div>
         <!--文本消息-->
         <div class="message-content" 
@@ -234,13 +234,13 @@ export default {
   color: #888;
   font-size: var(--font-size-small);
   text-align: left;
-  padding: 3px 0 0 0;
+  padding: 0 0 0 10px;
 }
 .message-time {
   color: #888;
   font-size: var(--font-size-small);
   text-align: right;
-  padding: 3px 0 0 0;
+  padding: 0 0 0 10px;
 }
 
 
