@@ -215,7 +215,6 @@
     gap: 20px;
     align-items: center;
     justify-items: center;
-    height: 80vh;
     padding: 10px;
     box-sizing: border-box;
   }
@@ -231,7 +230,6 @@
     padding: 20px; /* 添加内边距 */
     margin-top: 20px;
     width: 350px;
-    height: 40vh;
   }
 
   .icon{

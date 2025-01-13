@@ -232,8 +232,6 @@ export default {
 .avatar{
   width: 100px;
   height: 100px;
-  margin-top: -30px;
-  margin-bottom: 20px;
   margin-left:35px;
   border-radius: 100%;
   }

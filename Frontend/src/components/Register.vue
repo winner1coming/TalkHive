@@ -401,7 +401,6 @@ export default {
     background-color: #fff; /* 添加背景色 */
     margin-top: -30px;
     width: 450px;
-    height: 75vh;
     flex-wrap: nowrap;
   }
 
