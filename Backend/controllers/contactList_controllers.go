@@ -2644,6 +2644,11 @@ func FetchFriendsNotInGroup(c *gin.Context) {
 				continue
 			}
 
+			// 查询contacts表
+			var contactDetails models.Contacts
+			if err := global.Db.Where("owner_id = ? AND contact_id = ?", accountID, friendDetails.AccountID).First(&contactDetails).Error; err != nil {
+				continue
+			}
 			avatarBase64, mimeType, err := utils.GetFileContentAndType(friendDetails.Avatar)
 			if err != nil {
 				c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": err.Error()})
@@ -2654,6 +2659,7 @@ func FetchFriendsNotInGroup(c *gin.Context) {
 				"account_id": friendDetails.AccountID,
 				"avatar":     avatarBase64,
 				"id":         friendDetails.ID,
+				"remark":     contactDetails.Remark,
 				"nickname":   friendDetails.Nickname,
 			}
 			friendsNotInGroup = append(friendsNotInGroup, friendInfo)
