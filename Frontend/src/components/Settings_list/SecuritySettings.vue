@@ -25,6 +25,8 @@
     <div class="resizer" @mousedown="startResize"></div>
     <div class="right-panel">
       <component :is="activeComponent" :user="users" @updateUser="updateUser"></component>
+      <img v-if="this.$store.state.settings.theme === 'light' && activeComponent === ''" src="@/assets/icon/light_wel.png" alt="Tip" class="icon" />
+      <img v-if="this.$store.state.settings.theme === 'dark' && activeComponent === ''" src="@/assets/icon/dark_wel.png" alt="Tip" class="icon" />
     </div>
     <div v-if="showConfirmation" class="confirmation-modal">
       <div class="modal-content">
@@ -81,7 +83,7 @@ export default {
       try{
         const response = await getUserInfo();
         if(response.success){
-          this.users.ID = this.user.id;
+          this.users.ID = response.data.id;
           this.users.email = response.data.email;
           this.users.password =  response.data.password;
           this.users.friend_permissionID = response.data.friend_permissionID ? 'on':'off';
@@ -152,14 +154,20 @@ export default {
 }
 
 .left-panel {
-  width: 15%;
+  width: 14%;
   background-color: var(--background-color1);
 }
 
 .right-panel {
-  width: 80%;
+  width: 100%;
   padding:0;
   position: relative;
+  background-color: var(--background-color);
+}
+
+.right-panel .icon{
+  height: 100px;
+  margin-top: 300px;
 }
 
 .menu-item {
@@ -226,7 +234,8 @@ export default {
 }
 
 .modal-content {
-  background-color: white;
+  background-color: var(--background-color);
+  font-size: var(--font-size);
   padding: 20px;
   border-radius: 8px;
   position: relative;
@@ -243,26 +252,31 @@ export default {
 
 .modal-buttons {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-evenly;
+  color: var(--button-text-color);
   margin-top: 20px;
 }
 
 .modal-buttons button {
   margin-left: 10px;
-  padding: 8px 16px;
+  padding: 6px 10px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
 }
 
 .modal-buttons button:first-child {
-  background-color: #42b983;
-  color: white;
+  background-color: var(--button-background-color);
+  color: var(--button-text-color);
 }
 
 .modal-buttons button:last-child {
-  background-color: #ccc;
-  color: black;
+  background-color: var(--background-color2);
+  color:var(--button-text-color);
+}
+
+.modal-buttons button:hover{
+  background-color: var(--button-background-color1);
 }
 
 .back-button {
@@ -271,7 +285,7 @@ export default {
   left: 10px;
   cursor: pointer;
   font-size: var(--font-size);
-  color: #42b983;
+  color: var(--button-background-color1);
   display: flex;
   align-items: center;
 }
@@ -284,6 +298,7 @@ export default {
   width: 3px;
   height: 100%;
   cursor: ew-resize;
-  background-color: #ccc;
+  background-color: var(--background-color2);
 }
+
 </style>

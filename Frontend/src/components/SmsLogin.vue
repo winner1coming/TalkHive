@@ -22,7 +22,7 @@
         <label for="smsCode">验证码:</label>
         <input id="smsCode" type="text" v-model="smsCode" placeholder="请输入验证码" />
       </div>
-      <button class="send-sms-button" @click="sendSmsCode" :disable="isCountingDown" :class="{'counting-down':isCountingDown}">
+      <button v-if="isCountingDown === false" class="send-sms-button" @click="sendSmsCode" :disable="isCountingDown" :class="{'counting-down':isCountingDown}">
         {{isCountingDown ? `${countdown}s`:'获取'}}</button>
     </div>
 

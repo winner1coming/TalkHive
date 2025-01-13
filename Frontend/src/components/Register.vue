@@ -85,7 +85,7 @@
     <div class="input-group">
       <label for="verificationCode">验证码*:</label>
       <input id="verificationCode" type="text" v-model="verificationCode" placeholder=""  />
-      <button class="send-verification-code" @click="sendSmsCode" :disabled="isCountingDown" :class="{ 'counting-down': isCountingDown }">
+      <button v-if="isCountingDown === false" class="send-verification-code" @click="sendSmsCode" :disabled="isCountingDown" :class="{ 'counting-down': isCountingDown }">
           {{ isCountingDown ? `${countdown}s` : '获取' }}</button>
     </div>
     <p v-if="errors.verificationCode" class="error">{{ errors.verificationCode }}</p>

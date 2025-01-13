@@ -14,7 +14,8 @@
       <div class="verificate">
         <label for="nowCode">验证码:</label>
         <input type="text" v-model="nowCode" />
-        <button  @click="sendCode">获取</button>
+        <button @click="sendCode" v-if="isCountingDown === false" :disable="isCountingDown" :class="{'counting-down': isCountingDown}">
+          {{isCountingDown ? `${countdown}s`:'获取'}}</button>
       </div>
     <p>注：验证发将发送到新邮箱中，请注意查收</p>
     <div class="button_container">
@@ -45,7 +46,9 @@
           oldEmail: '',
           newEmail: '',
           code:'',
-        }
+        },
+        isCountingDown:false,
+        countdown:60,
       };
     },
 
@@ -102,6 +105,7 @@
           });
           if(response.success){
             alert('验证码已发送');
+            this.startCountdown();
             this.code = response.code;
           }else{
             alert(response.message || '验证码发送失败');
@@ -142,28 +146,45 @@
 
       async cancle(){
         this.$emit('updateUser', { email: this.oldEmail});
-      }
+      },
+
+      startCountdown() {
+      this.isCountingDown = true;
+      this.countdown = 60;
+
+      const timer = setInterval(() => {
+        this.countdown--;
+        if (this.countdown <= 0) {
+          clearInterval(timer);
+          this.isCountingDown = false;
+        }
+      }, 1000);
+    },
     },
   };
   </script>
   
   <style scoped>
   .change-phone {
+    margin-top: 60px;
     padding: 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap:20px;
+    color: var(--text-color);
   }
 
   h3{
-    margin-top: 20px;
+    margin-top: margin;
+    font-size: var(--font-size-large);
   }
 
 
 p {
   font-size: var(--font-size-small);
   margin: 0;
+  color: crimson;
 }
 
 .text_group,
@@ -172,6 +193,7 @@ p {
   grid-template-columns: 80px 1fr auto;
   align-items: center;
   gap: 0px;
+  font-size: var(--font-size);
 }
 
 .text_group label,
@@ -181,13 +203,13 @@ p {
 }
 
 .text_group input{
-  padding: 10px;
+  padding: 6px;
   border: 1px solid #ccc;
   border-radius: 4px;
 }
 
 .verificate input {
-    padding: 10px;
+    padding: 6px;
     border: 1px solid #ccc;
     border-radius: 4px;
     width: 115px;
@@ -195,16 +217,22 @@ p {
 
 .verificate button {
   width: fit-content;
-  padding: 10px 10px;
-  background-color: #42b983;
-  color: #fff;
+  padding: 7px 6px;
+  background-color: var(--button-background-color);
+  color: var(--button-text-color);
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  margin-left: 10px;
+}
+
+.verificate button.counting-down ,.verificate button.counting-down:hover {
+  background-color: #ccc; /* 倒计时时的背景色 */
+  cursor: not-allowed; /* 倒计时时的不可点击状态 */
 }
 
 .verificate button:hover {
-  background-color: #369f6d;
+  background-color: var(--button-background-color1);
 }
 
 .button_container {
@@ -216,15 +244,15 @@ p {
 }
 
 .button_container button {
-  padding: 10px 20px;
-  background-color: #42b983;
-  color: #fff;
+  padding: 8px 10px;
+  background-color: var(--button-background-color);
+  color: var(--button-text-color);
   border: none;
   border-radius: 4px;
   cursor: pointer;
 }
 
-.button_container button:hover {
-  background-color: #369f6d;
+.button_container button:hover,button.active {
+  background-color: var(--button-background-color1);
 }
 </style>
