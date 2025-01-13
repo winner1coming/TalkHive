@@ -483,19 +483,20 @@ export default {
         }
       } 
     });
-    EventBus.on('update-chat', (newChat) => {
-      this.chats = this.chats.filter(chat => chat.id !== newChat.id);
-      if(!this.selectedChat&&newChat.id===this.selectedChat.id){
-        newChat.tags = newChat.tags.filter(tag => tag !== 'unread');
-        newChat.unreadCount = 0;
-        if(newChat.tags.includes('friend')){
-          this.chatListAPI.readMessages(newChat.id, true, false);
-        }
-        else{
-          this.chatListAPI.readMessages(newChat.id, true, true);
-        }
-      }
-      this.chats.unshift(newChat); 
+    EventBus.on('update-chat', () => {
+      // this.chats = this.chats.filter(chat => chat.id !== newChat.id);
+      // if(!this.selectedChat&&newChat.id===this.selectedChat.id){
+      //   newChat.tags = newChat.tags.filter(tag => tag !== 'unread');
+      //   newChat.unreadCount = 0;
+      //   if(newChat.tags.includes('friend')){
+      //     this.chatListAPI.readMessages(newChat.id, true, false);
+      //   }
+      //   else{
+      //     this.chatListAPI.readMessages(newChat.id, true, true);
+      //   }
+      // }
+      // this.chats.unshift(newChat); 
+      this.fetchChatList();
     });
     EventBus.on('go-to-chat', (tid) => {
       const chat = this.chats.find(chat => chat.id === tid);
