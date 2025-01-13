@@ -1,0 +1,109 @@
+/* 全局样式 */
+
+/* 重置浏览器默认样式 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* 设置根元素的字体大小 */
+html {
+  font-size: 16px;
+}
+
+/* 设置 body 的字体和背景颜色 */
+body {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #f5f5f5;
+  color: #2c3e50;
+}
+
+/* 设置链接的样式 */
+a {
+  text-decoration: none;
+  color: #42b983;
+}
+
+/* 设置按钮的样式 */
+button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  background-color: #1e549a;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+/* 设置按钮的悬停效果 */
+button:hover {
+  background-color: #369f6e;
+}
+
+/* 设置输入框的样式 */
+input {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  outline: none;
+}
+
+/* 设置输入框的聚焦效果 */
+input:focus {
+  border-color: #42b983;
+}
+
+/* 设置容器的样式 */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* 设置标题的样式 */
+h1, h2, h3, h4, h5, h6 {
+  margin-bottom: 16px;
+}
+
+/* 设置段落的样式 */
+p {
+  margin-bottom: 16px;
+}
+
+/* 设置列表的样式 */
+ul, ol {
+  list-style: none;
+  margin-bottom: 16px;
+}
+
+/* 设置列表项的样式 */
+li {
+  margin-bottom: 8px;
+}
+
+/* 设置表格的样式 */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 16px;
+}
+
+/* 设置表格单元格的样式 */
+th, td {
+  padding: 8px;
+  border: 1px solid #ccc;
+}
+
+/* 设置表格标题行的样式 */
+th {
+  background-color: #f5f5f5;
+  text-align: left;
+}
+
+/* 设置表格行的悬停效果 */
+tr:hover {
+  background-color: #f5f5f5;
+}
