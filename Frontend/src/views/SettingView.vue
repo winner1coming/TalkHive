@@ -179,7 +179,6 @@
     border-radius: 8px;
     position: relative;
     width: 300px;
-    height: 80px;
   }
   
   .close {
@@ -199,12 +198,13 @@
   
   .modal-buttons button {
     margin-left: 10px;
-    padding: 6px 8px;
+    padding: 8px 16px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
     color: var(--button-text-color);
   }
+  
   
   .modal-buttons button:first-child {
     background-color: var(--button-background-color2);

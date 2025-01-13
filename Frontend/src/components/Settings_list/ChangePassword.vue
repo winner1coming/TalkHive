@@ -156,10 +156,14 @@
     flex-direction: column;
     align-items: center;
     gap: 20px;
+    margin-top: 60px;
+    font-size: var(--font-size);
+    color: var(--text-color);
   }
   
   h3 {
     margin-top: 0;
+    font-size: var(--font-size-large);
   }
   
   
@@ -172,11 +176,10 @@
   
   .text_group label {
     text-align: right;
-    margin-right: 10px;
   }
   
   .text_group input {
-    padding: 10px;
+    padding: 6px;
     border: 1px solid #ccc;
     border-radius: 4px;
   }
@@ -205,19 +208,25 @@
     gap: 20px;
     width: 100%;
     max-width: 200px;
+    font-size: var(--font-size);
+    color: var(--button-text-color);
   }
   
   .button_container button {
-    padding: 10px 20px;
-    background-color: #42b983;
-    color: #fff;
+    padding: 8px 10px;
+    background-color:var(--button-background-color);
+    color: var(--button-text-color);
     border: none;
     border-radius: 4px;
     cursor: pointer;
   }
   
   .button_container button:hover {
-    background-color: #369f6d;
+    background-color: var(--button-background-color1);
+  }
+
+  .button_container button.active, .button_container button.active:hover{
+    background-color: var(--button-background-color2);
   }
   
   .forgot-password {
@@ -228,11 +237,17 @@
   }
   
   .forgot-password a {
-    color: #42b983;
-    text-decoration: none;
+    color:#62ca69;
+    text-decoration: var(--button-background-color2);
   }
   
   .forgot-password a:hover {
     text-decoration: underline;
+  }
+
+  p{
+    color: crimson;
+    width: 200px;
+    font-size: var(--font-size-small);
   }
   </style>

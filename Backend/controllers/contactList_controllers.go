@@ -2312,7 +2312,7 @@ func ChangeNickname(c *gin.Context) {
 
 // SetAllowInvite 设置是否允许群成员邀请他人
 func SetAllowInvite(c *gin.Context) {
-	ID := c.GetHeader("User-ID")
+	ID := c.GetHeader("User-ID") // 这里的ID是邀人者的ID
 	if ID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户ID为空，请检查请求头"})
 		return
@@ -2360,9 +2360,10 @@ func SetAllowInvite(c *gin.Context) {
 	}
 
 	// 更新群聊设置
-	groupchat.AllowInvite = input.AllowInvite
-	if err := global.Db.Save(&groupchat).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "更新失败"})
+	// 打开models.GroupChatInfo群聊信息表，将GroupID为input.GroupID数据项的AllowInvite设置为true
+	// 更新群聊设置
+	if err := global.Db.Model(&groupchat).Where("group_id = ?", input.GroupID).Update("allow_invite", input.AllowInvite).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "更新群聊设置失败"})
 		return
 	}
 
@@ -2951,6 +2952,122 @@ func ChangeGroupAvatar(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"success": true, "message": "头像更新成功"})
+}
+
+func ChangeGroupName(c *gin.Context) {
+	ID := c.GetHeader("User-ID")
+	if ID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户ID为空，请检查请求头"})
+		return
+	}
+	accountID, err := strconv.Atoi(ID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户ID无效"})
+		return
+	}
+	var user models.AccountInfo
+	if err = global.Db.Where("account_id = ?", accountID).First(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询用户失败"})
+		return
+	}
+	if user.Deactivate == true {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户已注销"})
+		return
+	}
+
+	var input struct {
+		GroupID   uint   `json:"group_id"`
+		GroupName string `json:"group_name"`
+	}
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "参数格式不正确"})
+		return
+	}
+
+	// 查询群聊是否存在
+	var group models.GroupChatInfo
+	if err := global.Db.Where("group_id = ?", input.GroupID).First(&group).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "群聊不存在"})
+		return
+	}
+
+	// 查询GroupMember表
+	var groupMember models.GroupMemberInfo
+	if err := global.Db.Where("account_id = ? AND group_id = ?", accountID, input.GroupID).First(&groupMember).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "用户不在群聊中"})
+	}
+
+	//判断是否为管理员或群主
+	if groupMember.GroupRole != "group_owner" && groupMember.GroupRole != "group_admin" {
+		c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "用户不是群主或管理员，无权限修改设置"})
+		return
+	}
+
+	// 更新群聊的GroupName字段
+	group.GroupName = input.GroupName
+	if err := global.Db.Save(&group).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "更新群聊名称失败"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"success": true, "message": "群聊名称更新成功"})
+}
+
+func ChangeGroupIntroduction(c *gin.Context) {
+	ID := c.GetHeader("User-ID")
+	if ID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户ID为空，请检查请求头"})
+		return
+	}
+	accountID, err := strconv.Atoi(ID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户ID无效"})
+		return
+	}
+	var user models.AccountInfo
+	if err = global.Db.Where("account_id = ?", accountID).First(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询用户失败"})
+		return
+	}
+	if user.Deactivate == true {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户已注销"})
+		return
+	}
+
+	var input struct {
+		GroupID          uint   `json:"group_id"`
+		GroupDescription string `json:"group_description"`
+	}
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "参数格式不正确"})
+		return
+	}
+
+	// 查询群聊是否存在
+	var group models.GroupChatInfo
+	if err := global.Db.Where("group_id = ?", input.GroupID).First(&group).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "群聊不存在"})
+		return
+	}
+
+	// 查询GroupMember表
+	var groupMember models.GroupMemberInfo
+	if err := global.Db.Where("account_id = ? AND group_id = ?", accountID, input.GroupID).First(&groupMember).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "用户不在群聊中"})
+	}
+
+	//判断是否为管理员或群主
+	if groupMember.GroupRole != "group_owner" && groupMember.GroupRole != "group_admin" {
+		c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "用户不是群主或管理员，无权限修改设置"})
+		return
+	}
+
+	// 更新群聊的Avatar字段
+	group.GroupIntroduction = input.GroupDescription
+	if err := global.Db.Save(&group).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "更新群聊介绍失败"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"success": true, "message": "群简介更新成功"})
 }
 
 // -------------------------------------------------------------------------

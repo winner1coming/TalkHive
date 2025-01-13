@@ -1,3 +1,4 @@
+
 <template>
   <div class="system-settings">
     <div class="left-panel">
@@ -166,5 +167,4 @@ export default {
   cursor: ew-resize;
   background-color: #ccc;
 }
-
 </style>

@@ -123,8 +123,9 @@ export default {
     handleFile(event) {
       // 处理文件逻辑
       const file = event.target.files[0];
+      console.log(file);
       if (file) {
-        this.$emit('send-message', { type: 'file', content: file });
+        this.$emit('send-message', file,'file' );
       }
     },
     startScreenshot() {

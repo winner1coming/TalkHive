@@ -59,7 +59,8 @@ func ContactListRoutes(r *gin.Engine) {
 	r.POST("/contactList/groups/changeGroupName", controllers.ChangeGroupName)
 	r.POST("/contactList/groups/changeGroupIntroduction", controllers.ChangeGroupIntroduction)
 	r.POST("/contactList/groups/changeAvatar", controllers.ChangeGroupAvatar)
-
+	r.POST("/contactList/groups/changeName", controllers.ChangeGroupName)
+	r.POST("/contactList/groups/changeGroupIntroduction", controllers.ChangeGroupIntroduction)
 	// 资料卡片
 	r.POST("/profileCard/person", controllers.GetPersonProfileCard)
 	r.POST("/profileCard/group", controllers.GetGroupProfileCard)

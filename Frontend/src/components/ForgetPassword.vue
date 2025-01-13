@@ -31,7 +31,7 @@
       <div class="input-group">
         <label for="verificationCode">验证码:</label>
         <input id="verificationCode" type="text" v-model="verificationCode" placeholder="验证码" @blur="validateVerificationCode" />
-        <button class="send-verification-code" @click="sendSmsCode" :disabled="isCountingDown" :class="{ 'counting-down': isCountingDown }">
+        <button v-if="isCountingDown === false" class="send-verification-code" @click="sendSmsCode" :disabled="isCountingDown" :class="{ 'counting-down': isCountingDown }">
           {{ isCountingDown ? `${countdown}s` : '获取' }}</button>
       </div>
       <p v-if="errors.verificationCode" class="error">{{ errors.verificationCode }}</p>
@@ -215,7 +215,6 @@
     gap: 20px;
     align-items: center;
     justify-items: center;
-    height: 80vh;
     padding: 10px;
     box-sizing: border-box;
   }
@@ -231,7 +230,6 @@
     padding: 20px; /* 添加内边距 */
     margin-top: 20px;
     width: 350px;
-    height: 40vh;
   }
 
   .icon{

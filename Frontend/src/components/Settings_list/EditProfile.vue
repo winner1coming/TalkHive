@@ -518,5 +518,4 @@ button:hover ,.edit_button:hover{
   margin-left:-5px;
   margin-top: -10px;
 }
-
 </style>
