@@ -2,7 +2,7 @@
   <div v-if="visible" class="profile-card" :style="{ top: `${y}px`, left: `${x}px` }">
     <div class="options-button" @click="handleOptionsClick($event)">···</div>
     <div class="avatar">
-      <img :src="profile.avatar" alt="avatar" />
+      <img :src="profile.group_avatar" alt="avatar" />
     </div>
     <div class="info">
       <div class="name">{{ profile.remark }}</div>    <!--我的备注-->
