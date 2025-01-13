@@ -1,8 +1,21 @@
 <template>
   <div class="notes">
     <div class="header">
-      <h2>我的笔记</h2>
-      <button @click="showCreateFile = true" class="new-btn">+</button>
+      <h2>
+        <div class="note_header">
+          <img src="@/assets/icon/edit.png" alt="笔记图标" class="icon"/>
+          我的笔记
+          <img
+            src="@/assets/icon/create_note.png"
+            alt="添加笔记"
+            class="create_note_icon"
+            @click="showCreateFile = true"
+          />
+        </div>
+      </h2>
+        <!-- <img src="@/assets/icon/note_icon.png" alt="笔记图标" class="icon"/> -->
+      <!-- <button @click="showCreateFile = true" class="new-btn">+</button> -->
+
     </div>
 
     <!-- 分类标签 -->
@@ -17,8 +30,22 @@
       >
         {{ category }}
       </span>
-      <span class="category-tag new-category" @click="showCreateCategory = true">+</span>
-      <span class="category-tag delete-category" @click="showDeleteCategory = true">-</span>
+
+      <!-- 新建标签图标 -->
+      <img
+        src="@/assets/icon/add_tag.png"
+        alt="新增标签"
+        class="tag_icon"
+        @click="showCreateCategory = true"
+      />
+
+      <!-- 删除标签图标 -->
+      <img
+        src="@/assets/icon/delete_tag.png"
+        alt="删除标签"
+        class="tag_icon"
+        @click="showDeleteCategory = true"
+      />
     </div>
 
     <!-- 新建文件编辑框 -->
@@ -115,7 +142,7 @@
 
     <ul>
       <li v-for="note in filteredNotes" :key="note.id" class="note-item">
-        <span class="filename" @click="editNote(note)">{{ note.filename }}</span>
+        <span class="filename" @click="editNote(note)">{{ note.filename+".md" }}</span>
         <span class="modified"> - 上次修改时间: {{ note.lastModified }}</span>
         <button class="more-btn" @click="toggleDropdown(note.id)">...</button>
         <div v-if="note.showDropdown" class="dropdown">
@@ -537,6 +564,7 @@ select {
 .note-item .filename {
   font-weight: bold;
   margin-right: 10px;
+  cursor: pointer;
 }
 
 .note-item .modified {
@@ -596,4 +624,37 @@ select {
   width: 300px;
 }
 
+.tag_icon {
+  width: 35px;
+  height: 35px;
+  cursor: pointer;
+  margin-left: 10px;
+  object-fit: contain; /* 确保图片按比例缩放 */
+  flex-shrink: 0;
+  align-self: center;
+}
+.create_note_icon:hover, .tag_icon:hover{
+  cursor: pointer;
+  /* background-color: #dacfdb; */
+}
+
+.create_note_icon {
+  width: 35px;
+  height: 35px;
+  cursor: pointer;
+  margin-left: 10px;
+  object-fit: contain; /* 确保图片按比例缩放 */
+  flex-shrink: 0;
+  align-self: center;
+}
+.icon{
+  width: 50px;
+  height: 50px;
+  margin-right: 5px;
+}
+.note_header {
+  display: flex;
+  align-items: center; /* 垂直居中图标和文字 */
+  justify-content: center; /* 水平居中 */
+}
 </style>

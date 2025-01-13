@@ -2,8 +2,19 @@
   <div class="codes">
     <!-- 标题部分 -->
     <div class="header">
-      <h2>我的代码</h2>
-      <button @click="showCreateFile = true" class="new-btn">+</button>
+      <h2>
+        <div class="code_header">
+          <img src="@/assets/icon/code.png" alt="代码图标" class="icon"/>
+          我的代码
+          <img
+            src="@/assets/icon/create_note.png"
+            alt="添加代码"
+            class="create_note_icon"
+            @click="showCreateFile = true"
+          />
+        </div>
+      </h2>
+      <!-- <button @click="showCreateFile = true" class="new-btn">+</button> -->
     </div>
 
     <!-- 新建文件编辑框 -->
@@ -379,5 +390,31 @@ input[type="text"], select {
 
 .confirm-btn:hover, .cancel-btn:hover {
   background-color: #0056b3;
+}
+
+.create_note_icon:hover{
+  cursor: pointer;
+  /* background-color: #dacfdb; */
+}
+
+.create_note_icon {
+  width: 35px;
+  height: 35px;
+  cursor: pointer;
+  margin-left: 10px;
+  object-fit: contain; /* 确保图片按比例缩放 */
+  flex-shrink: 0;
+  align-self: center;
+}
+
+.code_header {
+  display: flex;
+  align-items: center; /* 垂直居中图标和文字 */
+  justify-content: center; /* 水平居中 */
+}
+.icon{
+  width: 50px;
+  height: 50px;
+  margin-right: 5px;
 }
 </style>

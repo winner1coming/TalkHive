@@ -36,12 +36,12 @@ func GetTrashItems(c *gin.Context) {
 		if item.RecycleType == "note" {
 			var note models.Notes
 			if err := global.Db.Where("note_id = ?", item.RecycleID).First(&note).Error; err == nil {
-				filename = note.NoteName
+				filename = note.NoteName + ".md"
 			}
 		} else if item.RecycleType == "code" {
 			var code models.Codes
 			if err := global.Db.Where("code_id = ?", item.RecycleID).First(&code).Error; err == nil {
-				filename = code.Name
+				filename = code.Name + code.Suffix
 			}
 		}
 

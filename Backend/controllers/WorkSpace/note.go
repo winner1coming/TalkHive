@@ -207,7 +207,7 @@ func EditNote(c *gin.Context) {
 	var requestData struct {
 		NoteID   uint   `json:"NoteID" binding:"required"`   // 笔记ID
 		NoteName string `json:"NoteName" binding:"required"` // 笔记名称
-		Type     string `json:"Type" binding:"required"`     // 笔记类型
+		Type     string `json:"Type"`                        // 笔记类型，允许为空
 		Content  string `json:"Content" binding:"required"`  // 笔记内容
 	}
 
@@ -232,13 +232,18 @@ func EditNote(c *gin.Context) {
 		return
 	}
 
-	// 更新笔记名称为 note_name
+	// 更新笔记名称
 	if err := global.Db.Model(&note).Update("note_name", requestData.NoteName).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update note name"})
 		return
 	}
 
-	// 2. 更新 Notes 表，将 Type 修改为 Type
+	// 如果分类为空字符串，将其直接存储为分类字段值
+	if requestData.Type == "" {
+		requestData.Type = "" // 明确赋值空字符串，便于理解逻辑
+	}
+
+	// 更新 Notes 表，将 Type 修改为 Type
 	if err := global.Db.Model(&note).Update("type", requestData.Type).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update note type"})
 		return

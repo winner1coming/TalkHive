@@ -5,8 +5,19 @@
       <div class="ddl-left" :style="leftDdlStyle">
         <!-- 标题部分 -->
         <div class="header">
-          <h2>我的 DDL</h2>
-          <button @click="showCreateDdl = true" class="new-btn">+</button>
+          <h2>
+            <div class="ddl_header">
+              <img src="@/assets/icon/date-icon.png" alt="ddl图标" class="icon"/>
+              我的 DDL
+              <img
+                src="@/assets/icon/create_note.png"
+                alt="添加ddl"
+                class="create_note_icon"
+                @click="showCreateDdl = true"
+              />
+            </div>
+          </h2>
+          <!-- <button @click="showCreateDdl = true" class="new-btn">+</button> -->
         </div>
 
         <!-- 新建 DDL 编辑框 -->
@@ -63,12 +74,14 @@
               style="width: 100%;"
             ></textarea>
 
-            <label for="important">是否设为重要：</label>
-            <input
-              type="checkbox"
-              style="transform: scale(1.6); "
-              v-model="newDdl.important"
-            />
+            <div style="display: flex; align-items: center; justify-content: center;">
+              <label for="important" style="margin-right: 10px;">是否设为重要：</label>
+              <input
+                type="checkbox"
+                style="transform: scale(1.6); padding: 2px 5px;"
+                v-model="newDdl.important"
+              />
+            </div>
 
             <div class="modal-actions">
               <button @click="saveDdl" class="save-btn">保存</button>
@@ -132,12 +145,14 @@
               style="width: 100%;"
             ></textarea>
 
-            <label for="important">是否设为重要：</label>
-            <input
-              type="checkbox"
-              style="transform: scale(1.6); "
-              v-model="editingDdl.important"
-            />
+            <div style="display: flex; align-items: center; justify-content: center;">
+              <label for="important" style="margin-right: 10px;">是否设为重要：</label>
+              <input
+                type="checkbox"
+                style="transform: scale(1.6); padding: 2px 5px;"
+                v-model="editingDdl.important"
+              />
+            </div>
 
             <div class="modal-actions">
               <button @click="saveEditDdl" class="save-btn">保存</button>
@@ -156,10 +171,11 @@
               @change="updateDdlStatus(item)" 
             />
             <span class="deadline" @click="editDdl(item.task_id)">{{ formatDeadline(item.deadline) }}</span>
-            <span class="task-content" @click="editDdl(item)">{{ item.task_content }}</span>
-            <span v-if="item.important" class="important-label">重要</span>
+            <img v-if="item.important" src="@/assets/icon/important.png" title="重要" class="important-icon"/>
+            <!-- <span v-if="item.important" class="important-label">重要</span> -->
             <span v-if="!item.important" class="invisible_important-label">  </span>
-            <button @click="deleteDdl(item)" class="delete-btn">删除</button>
+            <span class="task-content" @click="editDdl(item)">{{ item.task_content }}</span>
+            <img src="@/assets/icon/recycle_delete.png" alt="垃圾图标" class="trash-icon" @click="deleteDdl(item)"/>
           </li>
         </ul>
       </div>
@@ -409,7 +425,7 @@ export default {
     // 删除某条 DDL
     async deleteDdl(item) {
       try {
-        const response = await WorkSpaceAPI.updateDdl(item.task_id);
+        const response = await WorkSpaceAPI.deleteDDL(item.task_id);
         if (response.status === 200) {
           // 刷新待完成和已完成的
           // 刷新待完成和已完成的 DDL 列表
@@ -472,7 +488,8 @@ export default {
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.5);
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  justify-content: space-evenly;
   align-items: center;
   z-index: 1001;
 }
@@ -487,9 +504,7 @@ export default {
 .important-label {
   color: rgb(247, 115, 115);
   font-weight: bold;
-  margin-left: 10px;
   margin-right: 20px;
-  background-color: rgb(255, 255, 173);
   padding: 2px 5px;
   border-radius: 3px;
 }
@@ -601,5 +616,41 @@ export default {
 
 .toggle-btn:hover {
   background-color: #0056b3;
+}
+
+.trash-icon:hover, 
+.create_note_icon:hover:hover{
+  cursor: pointer;
+  /* background-color: #dacfdb; */
+}
+
+.create_note_icon {
+  width: 35px;
+  height: 35px;
+  cursor: pointer;
+  margin-left: 10px;
+  object-fit: contain; /* 确保图片按比例缩放 */
+  flex-shrink: 0;
+  align-self: center;
+}
+
+.important-icon, .trash-icon {
+  width: 18px;
+  height: 18px;
+  background-color: none;
+  color: white;
+  margin-right: 13px;
+}
+
+
+.icon{
+  width: 50px;
+  height: 50px;
+  margin-right: 5px;
+}
+.ddl_header {
+  display: flex;
+  align-items: center; /* 垂直居中图标和文字 */
+  justify-content: center; /* 水平居中 */
 }
 </style>
