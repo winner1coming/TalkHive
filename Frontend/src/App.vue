@@ -93,7 +93,7 @@ export default {
     getBackgroundColor1() {
       switch (this.settings.theme) {
         case 'light':
-          return '#eaeaea';   //更深一点的灰色
+          return '#f5f5f5';   //更深一点的灰色
         case 'dark':
           return '#333333';
         case 'system':

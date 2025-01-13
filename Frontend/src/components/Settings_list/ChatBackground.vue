@@ -4,14 +4,14 @@
       <h3>聊天背景</h3>
       <div class="current-background">
         <div v-if="!currentBackground" class="placeholder">
-          <span>默认纯白背景</span>
+          <span>默认背景</span>
         </div>
         <img v-else :src="currentBackground" alt="Current Background" />
       </div>
       <div class="upload-container">
         <label class="custom-file-upload">
           <input type="file" accept="image/*" @change="onFileChange" />
-          上传
+          <img src="@/assets/icon/submit.png" alt="Submit" class="icon"/>
         </label>
       </div>
       <button @click="saveBackground">保存</button>
@@ -82,9 +82,7 @@
   <style scoped>
   .chat-background-settings {
     padding: 20px;
-    margin-top: 50px;
-    height: 50vh;
-    width: 100%;
+    margin-top: 60px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -95,9 +93,9 @@
     width: 100%;
     max-width: 500px;
     height: 400px;
-    background-color: #f9f9f9;
+    background-color: var(--background-color);
     border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 10px var(--background-color2);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -106,7 +104,9 @@
   h3 {
     margin-bottom: 20px;
     color: #000;
-    background-color: rgb(173, 229, 210);
+    background-color: var(--sidebar-background-color1);
+    color: var(--sidebar-text-color);
+    font-size: var(--font-size-large);
     padding: 10px;
     text-align: center;
     border-radius: 4px;
@@ -114,18 +114,18 @@
   }
   
   .current-background {
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     width: 100%;
     max-width: 400px;
     border-radius: 8px;
     overflow: hidden;
-    border: 2px dashed #ccc; /* 添加虚线边框 */
     display: flex;
     align-items: center;
     justify-content: center;
     min-height: 200px; /* 设置最小高度 */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 添加阴影效果 */
-    background-color: #fff; /* 设置背景颜色 */
+    box-shadow: 0 4px 8px var(--background-color2); /* 添加阴影效果 */
+    background-color: var(--background-color); /* 设置背景颜色 */
+    color: var(--text-color);
   }
   
   .current-background img {
@@ -136,44 +136,49 @@
 
   .placeholder {
   text-align: center;
-  color: #888; /* 占位文字颜色 */
+  color: var(--text-color); /* 占位文字颜色 */
+  opacity: 60%;
   font-size: var(--font-size-small);
   }
   
   .upload-container {
     display: flex;
     align-items: center;
-    margin-bottom: 20px;
   }
   
   .custom-file-upload {
-    padding: 10px 20px;
-    background-color: #42b983;
-    color: white;
+    padding: 4px 6px;
+    color: var(--background-color);
     border: none;
-    border-radius: 4px;
+    border-radius: 0px;
     cursor: pointer;
     display: inline-block;
+    margin-bottom: 10px;
   }
   
   .custom-file-upload:hover {
-    background-color: #369f6e;
+    background-color: var(--button-background-color1);
   }
   
   input[type="file"] {
     display: none; /* 隐藏原生的文件选择按钮 */
   }
+
+  .icon{
+    width: 35px;
+    height: 35px;
+  }
   
   button {
     padding: 10px 20px;
-    background-color: #42b983;
-    color: white;
+    background-color: var(--button-background-color);
+    color:var(--button-text-color);
     border: none;
     border-radius: 4px;
     cursor: pointer;
   }
   
   button:hover {
-    background-color: #369f6e;
+    background-color: var(--button-background-color1);
   }
   </style>

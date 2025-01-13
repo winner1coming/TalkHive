@@ -120,7 +120,7 @@
   .top-panel button {
     width: fit-content; /* 固定按钮宽度 */
     height: 40px; /* 固定按钮高度 */
-    padding: 10px;
+    padding: 8px;
     background-color: var(--button-background-color); /* 使用 CSS 变量 */
     color: var(--button-text-color); /* 使用 CSS 变量 */
     border: none;
