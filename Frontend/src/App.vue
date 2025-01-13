@@ -12,10 +12,17 @@ import { mapActions } from 'vuex';
 import { EventBus } from '@/components/base/EventBus';
 import Notification from '@/components/base/Notification.vue';
 import { mapGetters } from 'vuex/dist/vuex.cjs.js';
+import {pullContent} from '@/services/api';
 
 export default {
   name: 'App',
-
+  data() {
+    return {
+      pollingInterval: null,
+      lastAccessTime: '',
+      isPolling: false,
+    };
+  },
   components: {
     Notification,
   },
@@ -83,7 +90,6 @@ export default {
           return '#ffffff';
       }
     },
-
     getBackgroundColor1() {
       switch (this.settings.theme) {
         case 'light':
@@ -96,7 +102,6 @@ export default {
           return '#ffffff';
       }
     },
-
     getBackgroundColor2() {
       switch (this.settings.theme) {
         case 'light':
@@ -109,7 +114,6 @@ export default {
           return '#ffffff';
       }
     },
-
     getTextColor() {
       switch (this.settings.theme) {
         case 'light':
@@ -122,7 +126,6 @@ export default {
           return '#000000';
       }
     },
-
     getButtonBackgroundColor() {
       switch (this.settings.theme) {
         case 'light':
@@ -135,7 +138,6 @@ export default {
           return '#42b983';
       }
     },
-    
     getButtonBackgroundColor1() {
       switch (this.settings.theme) {
         case 'light':
@@ -148,7 +150,6 @@ export default {
           return '#42b983';
       }
     },
-    
     getButtonBackgroundColor2() {
       switch (this.settings.theme) {
         case 'light':
@@ -161,7 +162,6 @@ export default {
           return '#42b983';
       }
     },
-
     getButtonTextColor() {
       switch (this.settings.theme) {
         case 'light':
@@ -174,7 +174,6 @@ export default {
           return '#ffffff';
       }
     },
-
     getSidebarBackgroundColor() {
       switch (this.settings.theme) {
         case 'light':
@@ -187,7 +186,6 @@ export default {
           return '#6dc79fb1';
       }
     },
-
     getSidebarBackgroundColor1() {
       switch (this.settings.theme) {
         case 'light':
@@ -200,7 +198,6 @@ export default {
           return '#6dc79fb1';
       }
     },
-
     getSidebarBackgroundColor2() {
       switch (this.settings.theme) {
         case 'light':
@@ -213,7 +210,6 @@ export default {
           return '#6dc79fb1';
       }
     },
-
     getSidebarTextColor() {
       switch (this.settings.theme) {
         case 'light':
@@ -226,7 +222,6 @@ export default {
           return '#000000';
       }
     },
-
     selectBackgroundColor() {
       switch (this.settings.theme) {
         case 'light':
@@ -239,7 +234,6 @@ export default {
           return '#6dc79fb1';
       }
     },
-
     selectBackgroundColor1() {
       switch (this.settings.theme) {
         case 'light':
@@ -252,7 +246,6 @@ export default {
           return '#6dc79fb1';
       }
     },
-
     selectBackgroundColor2() {
       switch (this.settings.theme) {
         case 'light':
@@ -265,7 +258,6 @@ export default {
           return '#6dc79fb1';
       }
     },
-
     selectTextColor() {
       switch (this.settings.theme) {
         case 'light':
@@ -279,8 +271,55 @@ export default {
       }
     },
 
-
-
+    // 轮询
+    startPolling() {
+      this.pollingInterval = setInterval(this.fetchPollingData, 1000); 
+    },
+    getCurrentFormattedTime() {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0'); // 月份从0开始，需要加1
+      const day = String(now.getDate()).padStart(2, '0');
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
+      return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    },
+    async fetchPollingData() {
+      if (this.isPolling) {
+        return; // 如果正在轮询，则直接返回，避免竞态条件
+      }
+      this.isPolling = true; // 设置标志位，表示正在进行轮询
+      try {
+        const response = await pullContent(this.lastAccessTime);
+        if (response.status === 200) {
+          const pollingData = response.data.data;
+          this.lastAccessTime = this.getCurrentFormattedTime();
+          this.handlePollingData(pollingData);
+        }else{
+          console.error('轮询请求失败:', response.data.message);
+        }
+      } catch (error) {
+        console.error('轮询请求失败:', error);
+      } finally {
+        this.isPolling = false; // 重置标志位，表示轮询结束
+      }
+    },
+    handlePollingData(pollingData) {
+      if(pollingData.has_new_message || pollingData.has_new_friendrequest || pollingData.has_new_grouprequest){
+        // todo 播放新消息提示音
+      }
+      if(pollingData.has_new_message){
+        EventBus.emit('update-chat');
+        EventBus.emit('new-message');
+      }
+      if(pollingData.has_new_friendrequest){
+        EventBus.emit('updateFriendRequest');
+      }
+      if(pollingData.has_new_grouprequest){
+        EventBus.emit('updateGroupRequest');
+      }
+    },
     // 通知
     notify(message, type) {
       this.$refs.notification.show(message, type);
@@ -323,10 +362,15 @@ export default {
     EventBus.on('hide-float-component', () => {
       this.$store.hasFloatComponent = false;
     });
+
+    this.lastAccessTime = this.getCurrentFormattedTime();
+    // 开始轮询
+    this.startPolling();
   },
   beforeUnmount() {
     window.removeEventListener('click', this.hideClick, true); 
     window.removeEventListener('contextmenu', this.hideContext, true); 
+    clearInterval(this.pollingInterval);
   },
 }
 
