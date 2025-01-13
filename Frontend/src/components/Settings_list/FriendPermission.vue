@@ -6,14 +6,12 @@
         <button class="toggle-button" :class="{ 'status-on': idStatus === 'on' }" @click="toggleIdStatus">
           <span class="toggle-circle"></span>
         </button>
-        <p>{{ msg1 }}</p>
       </div>
       <div class="user-info">
         <span class="user-phone">昵称: {{ nickname }}</span>
         <button class="toggle-button" :class="{ 'status-on': nicknameStatus === 'on' }" @click="toggleNicknameStatus">
           <span class="toggle-circle"></span>
         </button>
-        <p>{{ msg2 }}</p>
       </div>
       <Windows :visible="modalVisible" :message="modalMessage" @close="closeModal" />
     </div>
@@ -45,7 +43,7 @@
 
     data(){
       return {
-        ID:this.$store.state.user.id,
+        ID:this.user.ID,
         nickname:this.$store.state.user.username,
         idStatus: this.user.friend_permissionID, // 'on' or 'off'
         nicknameStatus: this.user.friend_permissionNickname, // 'on' or 'off'
@@ -107,17 +105,30 @@
   </script>
   
   <style scoped>
+
   .permission {
+    padding: 20px;
+    margin-top: 60px;
     display: flex;
     flex-direction: column;
     align-items: center;
+    color: var(--text-color);
   }
   
+  h2{
+    font-size: var(--font-size-large);
+    color: var(--text-color);
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+
   .user-info {
     display: flex;
     align-items: center;
     gap: 10px;
     padding: 20px;
+    font-size: var(--font-size);
+    color: var(--text-color);
   }
   
   .user-id, .user-phone {
@@ -128,15 +139,16 @@
     width: 60px;
     height: 30px;
     border-radius: 15px; /* 调整为圆角矩形 */
-    background-color: gray; /* 默认关闭状态 */
+    background-color: var(--background-color2); /* 默认关闭状态 */
     border: none;
     cursor: pointer;
     position: relative;
     transition: background-color 0.3s;
+    margin-left: 20px;
   }
   
   .toggle-button.status-on {
-    background-color: green; /* 开启状态 */
+    background-color: var(--button-background-color2); /* 开启状态 */
   }
   
   .toggle-circle {
