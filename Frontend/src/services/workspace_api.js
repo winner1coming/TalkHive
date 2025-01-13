@@ -27,7 +27,7 @@ export const updateDdl = (task_id) => {
 };
 
 // 删除ddl
-export const deleteDdl = (task_id) => {
+export const deleteDDL = (task_id) => {
   return apiClient.post('/workspace/ddl/delete',{task_id});
 };
 

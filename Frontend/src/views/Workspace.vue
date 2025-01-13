@@ -3,8 +3,25 @@
     <!-- 左侧工具栏 -->
     <aside class="toolbar">
       <ul>
-        <li v-for="item in tools" :key="item.name" @click="navigateTo(item.route)" :class="{ active: currentRoute === item.route }">
-          {{ item.name }}
+        <li @click="navigateTo('/workspace/favorites')" :class="{ active: currentRoute === '/workspace/favorites' }">
+          <img src="@/assets/icon/favorite.png" alt="收藏" class="toolbar-icon" />
+          收藏
+        </li>
+        <li @click="navigateTo('/workspace/notes')" :class="{ active: currentRoute === '/workspace/notes' }">
+          <img src="@/assets/icon/edit.png" alt="笔记" class="toolbar-icon" />
+          笔记
+        </li>
+        <li @click="navigateTo('/workspace/code')" :class="{ active: currentRoute === '/workspace/code' }">
+          <img src="@/assets/icon/code.png" alt="代码" class="toolbar-icon" />
+          代码
+        </li>
+        <li @click="navigateTo('/workspace/ddl')" :class="{ active: currentRoute === '/workspace/ddl' }">
+          <img src="@/assets/icon/date-icon.png" alt="DDL" class="toolbar-icon" />
+          DDL
+        </li>
+        <li @click="navigateTo('/workspace/recycle')" :class="{ active: currentRoute === '/workspace/recycle' }">
+          <img src="@/assets/icon/trash.png" alt="回收站" class="toolbar-icon" />
+          回收站
         </li>
       </ul>
     </aside>
@@ -21,13 +38,6 @@ export default {
   name: "WorkSpace",
   data() {
     return {
-      tools: [
-        { name: "我的收藏", route: "/workspace/favorites" },
-        { name: "我的笔记", route: "/workspace/notes" },
-        { name: "我的代码", route: "/workspace/code" },
-        { name: "ddl", route: "/workspace/ddl" },
-        { name: "回收站", route: "/workspace/recycle" },
-      ],
       currentRoute: "",
     };
   },
@@ -54,7 +64,7 @@ export default {
 }
 
 .toolbar {
-  width: 200px;
+  width: 150px;
   background-color: #f5f5f5;
   border-right: 1px solid #ddd;
   padding: 10px;
@@ -70,6 +80,9 @@ export default {
 .toolbar li {
   padding: 10px;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   transition: background-color 0.3s;
 }
 
@@ -81,6 +94,11 @@ export default {
   font-weight: bold;
   background-color: #d0e8ff;
   color: #007bff;
+}
+
+.toolbar-icon {
+  width: 30px; /* 设置图标的大小 */
+  height: 30px;
 }
 
 .content {

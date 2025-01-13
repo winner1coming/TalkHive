@@ -18,11 +18,6 @@
         <label for="language">语言：</label>
         <select v-model="selectedLanguage" @change="changeLanguage">
           <option value="markdown">Markdown</option>
-          <option value="javascript">JavaScript</option>
-          <option value="python">Python</option>
-          <option value="cpp">C++</option>
-          <option value="java">Java</option>
-          <option value="html">HTML</option>
         </select>
       </div>
 

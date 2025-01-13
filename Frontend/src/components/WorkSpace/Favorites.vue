@@ -1,8 +1,12 @@
 <template>
   <div class="favorites">
-    <h2>我的收藏
+    <h2 class="header">
+      <div class="left">
+        <img src="@/assets/icon/favorite.png" alt="收藏图标" class="icon"/>
+        我的收藏
+      </div>
       <!-- 更多按钮 -->
-      <button class="more-btn" @click="toggleDropdown">···</button>
+      <img src="@/assets/icon/more.png" alt="更多" class="more-icon" @click="toggleDropdown"/>
       <!-- 下拉框 -->
       <div v-if="showDropdown" class="dropdown">
         <ul>
@@ -10,10 +14,11 @@
         </ul>
       </div>
     </h2>
+
     <!-- 删除模式开启后，显示垃圾桶按钮 -->
     <!-- 垃圾桶图标和取消按钮 -->
     <div v-if="deleteMode" class="trash-actions">
-      <div class="trash-icon" @click="deleteSelected">🗑️</div>
+      <img src="@/assets/icon/delete.png" alt="垃圾图标" class="trash-icon" click="deleteSelected"/>
       <button class="cancel-delete-btn" @click="cancelDelete">取消</button>
     </div>
     <ul>
@@ -21,10 +26,9 @@
         <!-- 复选框 -->
         <input v-if="deleteMode" type="checkbox" class="favorite-checkbox" v-model="selectedItems" :value="{ message_id: item.message_id, type: item.type }" />
         <span class="type" style="color:darkgrey">{{ getTypeLabel(item.type) }}</span>
-        <span class="object-name">{{ item.object_name }}</span>
-        <span class="sender"> - {{ item.sender_name }}</span>
+        <span class="object-name"  @click="viewItem(item)">{{ item.object_name }}</span>
         <span class="time"> - {{ item.time }}</span>
-        <button @click="viewItem(item)">查看</button>
+        <span class="sender"> - {{ item.sender_name }}</span>
       </li>
     </ul>
 
@@ -143,12 +147,12 @@ export default {
   align-items: center;
 }
 
-.more-btn {
+/* .more-btn {
   padding: 5px 10px;
   background-color:none;
   color: rgb(118, 118, 118);
   cursor: pointer;
-}
+} */
 
 .more-btn:hover {
   background-color: #c6c6c6;
@@ -189,24 +193,13 @@ export default {
 .cancel-delete-btn {
   margin-left: 10px;
   padding: 5px 10px;
-  background-color: #d5d8da;
-  color: rgb(147, 147, 147);
+  background-color: #eff0f0;
+  color: rgb(91, 91, 91);
   cursor: pointer;
 }
 
 .cancel-delete-btn:hover {
-  background-color: #5a6268;
-}
-
-.trash-icon {
-  padding: 10px;
-  background-color: none;
-  color: white;
-  cursor: pointer;
-}
-
-.trash-icon:hover {
-  background-color: #dc3545;
+  background-color: #bebfc0;
 }
 
 .favorite-checkbox {
@@ -220,6 +213,7 @@ export default {
   align-items: center;
   padding: 10px 0;
   border-bottom: 1px solid #ddd;
+  justify-content: space-between;
 }
 
 .favorite-item .type,
@@ -232,7 +226,7 @@ export default {
   color: #666;
 }
 
-.favorite-item button {
+/* .favorite-item button {
   margin-left: auto;
   padding: 5px 10px;
   background-color: #007bff;
@@ -242,7 +236,7 @@ export default {
 
 .favorite-item button:hover {
   background-color: #0056b3;
-}
+} */
 
 .confirm-delete {
   position: fixed;
@@ -259,4 +253,43 @@ export default {
 .confirm-delete button {
   margin: 10px;
 }
+.icon{
+  width: 50px;
+  height: 50px;
+  margin-right: 5px;
+}
+.trash-icon {
+  width: 40px;
+  height: 40px;
+  background-color: none;
+  color: white;
+}
+
+.more-icon {
+  width: 30px;
+  height: 30px;
+  margin-right: 5px;
+}
+
+.more-icon:hover {
+  cursor: pointer;
+  /* background-color: #dacfdb; */
+}
+.trash-icon:hover {
+  cursor: pointer;
+  /* background-color: #dacfdb; */
+}
+.header {
+  display: flex;
+  justify-content: space-between; /* 将内容分布到两端 */
+  align-items: center; /* 垂直居中对齐 */
+}
+
+.left {
+  display: flex;
+  align-items: center; /* 垂直居中图标和文字 */
+  justify-content: center; /* 水平居中 */
+  flex: 1; /* 让左侧部分占据剩余空间 */
+}
+
 </style>

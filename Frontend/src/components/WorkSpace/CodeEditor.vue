@@ -70,23 +70,7 @@ export default {
       localFilename: this.note_filename,
     };
   },
-  // created() {
-  //   // 模拟从后端获取笔记数据
-  //   const notes = [
-  //     { id: 1, filename: "Vue学习笔记.md", content: "这是 Vue 学习笔记的内容...", category: '学习' },
-  //     { id: 2, filename: "项目需求分析.docx", content: "这是项目需求分析的内容...", category: '工作' },
-  //     { id: 3, filename: "代码优化方案.txt", content: "这是代码优化方案的内容...", category: '项目' },
-  //   ];
 
-  //   // 查找当前笔记，根据传递的 note_id
-  //   this.note = notes.find(note => note.id === Number(this.note_id));
-  //   if (this.note) {
-  //     this.noteContent = this.note.content;
-  //   } else {
-  //     alert("笔记未找到！");
-  //     this.$router.push("/workspace/notes");
-  //   }
-  // },
   mounted() {
     if (this.currentCode) {
       console.log("currentCode:", this.currentCode);
@@ -195,28 +179,6 @@ export default {
       }
     },
 
-    // // 保存笔记
-    // async saveCode() {
-    //   try {
-    //     //const response = await WorkSpaceAPI.EditNote(this.newFile.filename + this.newFile.filetype, this.newFile.category);
-    //     const model = toRaw(this.editor.getModel());
-    //     const content = model.getValue();
-    //     console.log(content);
-    //     let dotIndex = this.currentCode.filename.lastIndexOf("."); // 找到最后一个点的位置
-    //     let name = this.currentCode.filename.slice(0, dotIndex);  // 提取点号前的部分
-    //     let extension = this.currentCode.filename.slice(dotIndex);  // 提取点号后的部分
-    //     //let parts = this.currentCode.filename.split(/(?=\.)/); 
-    //     console.log(name,extension);
-    //     const response = await WorkSpaceAPI.saveEditCode(this.currentCode.code_id, name, extension, content);
-    //     if (response.status != 200) {
-    //       alert(response.data.message);
-    //     }
-    //   } catch (error) {
-    //     console.error('无法保存文件:', error);
-    //     alert('保存文件失败！');
-    //   }
-    //   this.$router.push("/workspace/notes");
-    // },
     async saveCode() {
       try {
         console.log("进入saveCode");
@@ -242,7 +204,7 @@ export default {
 
     // 取消编辑
     cancelEdit() {
-      this.$router.push("/workspace/notes");
+      this.$router.push("/workspace/code");
     },
   },
 };

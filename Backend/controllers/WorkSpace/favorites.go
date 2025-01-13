@@ -5,28 +5,15 @@ import (
 	"TalkHive/models"
 	"errors"
 	"fmt"
+	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 	"log"
 	"net/http"
 	"time"
-
-	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 // 我的收藏！！！
 
-// GetFavorites - 查看收藏列表
-// ①打开数据库favorites(table_name, id, account_id)，使用select选出属性account_id为用户id的数据，逐条遍历。
-// 其中table_name取值为Notes\Codes\MessageInfo，id即为这条收藏的id值
-// （与Notes中note_id、Codes的code_id、MessageInfo的message_id一致）
-// ②	对筛选后的数据遍历，根据table_name取值，使用对应的表Notes\Codes\MessageInfo，
-// 再根据收藏表该数据的id取值，在对应的索引项note_id\code_id\message_id找到该收藏在Notes\Codes\MessageInfo的具体信息。
-// ③	返回值type根据该条收藏所在表决定。
-// ④	Message_list_name：消息表名Notes\Codes\MessageInfo
-// ⑤	如果该收藏是消息，sender_name为MessageInfo对应数据里的send_account_id；是代码或笔记，则为用户id本身
-// ⑥	返回值Message_id为favorites的id值
-// ⑦	返回值Object_name：如果该收藏是消息，Object_name为MessageInfo对应数据里的Content；是代码或笔记，则Name
-// ⑧	Time都可以从三个表中获取
 func GetFavorites(c *gin.Context) {
 	// 获取用户ID
 	//userID := c.Param("id")
@@ -60,7 +47,7 @@ func GetFavorites(c *gin.Context) {
 				continue // 如果找不到对应的笔记，跳过这条记录
 			}
 			item["type"] = "note"
-			item["object_name"] = note.NoteName
+			item["object_name"] = note.NoteName + ".md"
 			//item["sender_name"] = fmt.Sprintf("%d", note.AccountID) // 笔记的sender_name就是用户ID
 			// 获取 sender_name
 			var sender models.AccountInfo
@@ -103,7 +90,7 @@ func GetFavorites(c *gin.Context) {
 			} else {
 				item["sender_name"] = sender.Nickname
 			}
-
+			//item["time"] = message.CreateTime.Format("2006-01-02 15:04") // 消息的时间
 			layout := "2006-01-02 15:04:05" // 定义时间格式，必须与 message.CreateTime 的格式一致
 			// 将 message.CreateTime 解析为 time.Time 类型
 			parsedTime, err := time.Parse(layout, message.CreateTime)
