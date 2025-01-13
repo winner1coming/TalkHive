@@ -49,7 +49,7 @@ func Poll(c *gin.Context) {
 	}
 	for _, chatInfo := range chatInfos {
 		var messages []models.MessageInfo
-		if err := global.Db.Where("chat_id = ? AND send_time > ?", chatInfo.ChatID, input.LastAccessTime).Find(&messages).Error; err == nil {
+		if err := global.Db.Where("(sender_chat_id = ? OR receiver_chat_id = ?)AND create_time > ?", chatInfo.ChatID, chatInfo.ChatID, input.LastAccessTime).Find(&messages).Error; err == nil {
 			has_new_message = true
 			break
 		}

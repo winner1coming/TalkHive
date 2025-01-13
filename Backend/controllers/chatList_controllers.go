@@ -643,7 +643,7 @@ func ReadMessages(c *gin.Context) {
 		} else {
 			contact.UnreadMessageNum = contact.UnreadMessageNum + 1
 		}
-		if err := global.Db.Save(&contact).Error; err != nil {
+		if err := global.Db.Updates(&contact).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "更新失败"})
 			return
 		}
