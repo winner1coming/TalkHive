@@ -48,15 +48,27 @@
       <!--群聊信息-->
       <div class="group-info">
         <p class="title">群聊名称:</p>
-        <p class="detail">{{ groupInfo.group_name }}</p>
+        <EditableText 
+          v-if="groupInfo.my_group_role==='group_owner'||groupInfo.my_group_role==='group_manager'"
+          class="detail" 
+          :text="groupInfo.group_name" 
+          @update-text="changeGroupName"
+        />
+        <p v-else class="detail">{{ groupInfo.group_name }}</p>
         <p class="title">群介绍:</p>
-        <p class="detail">{{ groupInfo.introduction }}</p>
+        <EditableText 
+          v-if="groupInfo.my_group_role==='group_owner'||groupInfo.my_group_role==='group_manager'"
+          class="detail" 
+          :text="groupInfo.introduction" 
+          @update-text="changeGroupIntroduction"
+        />
+        <p v-else class="detail">{{ groupInfo.introduction }}</p>
         <p class="title">群聊备注: </p>
         <EditableText class="detail" :text="group_remark" @update-text="changeGroupRemark" />
         <p class="title">我的群昵称: </p>
         <EditableText class="detail" :text="groupInfo.my_group_nickname" @update-text="changeGroupNickname" />
         <p class="title">分组: </p>
-        <p class="detail">
+        <p class="divide-detail">
           {{ groupInfo.divide }} 
           <button @click="showDivideMove">更改</button>
         </p>
@@ -197,6 +209,18 @@
       <p class="detail" style="margin-left: 15px;">群号搜索: <SwitchButton v-model="groupInfo.allow_id_search" @change-value="changeIdPermission"/></p>
       <p class="detail" style="margin-left: 15px;">群名称搜索: <SwitchButton v-model="groupInfo.allow_name_search" @change-value="changeNamePermission"/></p>
       <hr class="divider" />
+      <!-- <p class="title">更改群聊名称:</p>
+        <EditableText 
+          class="group-name-detail" 
+          :text="groupInfo.group_name" 
+          @update-text="changeGroupName"
+        />
+        <p class="title">更改群介绍:</p>
+        <EditableText 
+          class="introduction-detail" 
+          :text="groupInfo.introduction" 
+          @update-text="changeGroupIntroduction"
+        /> -->
       <p class="title">更改群头像
         <button @click="this.$refs.fileInput.click();">上传</button>
         <input type="file" ref="fileInput" style="display: none;" @change="handleFileChange" accept="image/*" />
@@ -411,7 +435,8 @@ export default {
       this.inviteMemberVisible = true;
 
     },
-    
+    // 对群的个人设置
+    // 修改我的群聊昵称
     async changeGroupNickname(newNickname){
       try {
         const response = await contactListAPI.changeGroupNickname(this.group_id, newNickname);
@@ -424,7 +449,6 @@ export default {
         console.log('change group nickname error:', error);
       }
     },
-    // 对群的个人设置
     async changeGroupRemark(newRemark){
       try{
         const response = await contactListAPI.changeRemark(this.group_id, true,newRemark);
@@ -602,10 +626,40 @@ export default {
 
 
     // 管理员设置
-
     manageGroups() {
       // 管理员设置
       this.componentStatus = 'manage';
+    },
+    async changeGroupName(newGroupName){
+      try{
+        const response = await contactListAPI.changeGroupName(this.group_id, newGroupName);
+        if(response.status === 200){
+          this.groupInfo.group_name = newGroupName;
+          let chatInfo = { ...this.$store.state.currentChat };
+          chatInfo.name = newGroupName;
+          this.$store.dispatch('setChat', chatInfo); // 更新chatList
+        }
+        else{
+          this.$root.notify(response.data.message, 'error');
+        }
+      }
+      catch(error){
+        console.log('change group name error:', error);
+      }
+    },
+    async changeGroupIntroduction(newIntroduction){
+      try{
+        const response = await contactListAPI.changeGroupIntroduction(this.group_id, newIntroduction);
+        if(response.status === 200){
+          this.groupInfo.introduction = newIntroduction;
+        }
+        else{
+          this.$root.notify(response.data.message, 'error');
+        }
+      }
+      catch(error){
+        console.log('change group introduction error:', error);
+      }
     },
     // 处理文件选择
     handleFileChange(event) {
@@ -992,9 +1046,39 @@ export default {
   padding: 5px;
 }
 .detail {
+  font-size: var(--font-size-small);
   text-align: left;
   color: #888;
   padding: 5px;
+}
+.divide-detail {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  font-size: var(--font-size-small);
+  text-align: left;
+  color: #888;
+  padding: 5px;
+}
+.divide-detail button{
+  padding: 0 5px 0 5px;
+  margin-left: 40px;
+}
+.group-name-detail{
+  text-align: left;
+  color: #888;
+  padding: 5px;
+  height: 20px;
+  border: solid 1px #ccc;
+  border-radius: 5%;
+}
+.introduction-detail{
+  text-align: left;
+  color: #888;
+  padding: 5px;
+  height: 100px;
+  border: solid 1px #ccc;
+  border-radius: 5%;
 }
 
 .flex-container{
