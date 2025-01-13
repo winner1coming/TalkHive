@@ -108,11 +108,12 @@
     justify-content: space-around; /* 均匀分布按钮 */
     align-items: center; /* 垂直居中 */
     padding: 10px;
-    background-color: var(--background-color); /* 使用 CSS 变量 */
+    background-color: var(--sidebar-background-color1); /* 使用 CSS 变量 */
     border-bottom: 1px solid #ccc;
     width: 100%;
-    height: 60px; /* 固定高度 */
+    height: 45px; /* 固定高度 */
     flex-wrap: nowrap;
+    opacity: 100%;
   }
   
   .top-panel button {
@@ -129,12 +130,12 @@
   }
   
   .top-panel button.active {
-    background-color: #42b983;
+    background-color: var(--button-background-color2);
     color: white;
   }
   
   .top-panel button:hover {
-    background-color: #369f6e;
+    background-color:var(--button-background-color1) ;
     color: white;
   }
   

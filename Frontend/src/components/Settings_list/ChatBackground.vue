@@ -82,6 +82,7 @@
   <style scoped>
   .chat-background-settings {
     padding: 20px;
+    margin-top: 50px;
     height: 50vh;
     width: 100%;
     display: flex;
