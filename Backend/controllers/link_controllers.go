@@ -3,11 +3,9 @@ package controllers
 import (
 	"TalkHive/global"
 	"TalkHive/models"
-	"net/http"
-	"strconv"
-
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
+	"net/http"
 )
 
 // AddLinks 控制器函数
@@ -17,16 +15,17 @@ func AddLinks(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "http的Header中用户ID为空"})
 		return
 	}
-	accountID, err := strconv.Atoi(userID)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "ID解析失败"})
-		return
-	}
+	//accountID, err := strconv.Atoi(userID)
+	//if err != nil {
+	//	c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "ID解析失败"})
+	//	return
+	//}
 	var user models.AccountInfo
-	if err = global.Db.Where("account_id = ?", accountID).First(&user).Error; err != nil {
+	if err := global.Db.Where("account_id = ?", global.ParseUint(userID)).First(&user).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询用户失败"})
 		return
 	}
+
 	if user.Deactivate == true {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户已注销"})
 		return
@@ -49,7 +48,8 @@ func AddLinks(c *gin.Context) {
 
 	// 检查数据库中是否已有相同 URL 的数据项
 	var existingLink models.Links
-	if err := global.Db.Where("account_id = ? AND url = ?", userID, link.URL).First(&existingLink).Error; err == nil {
+	if err := global.Db.Where("account_id = ? AND url = ?", global.ParseUint(userID),
+		link.URL).First(&existingLink).Error; err == nil {
 		// 如果数据库中已经存在该 URL，返回失败信息
 		c.JSON(http.StatusBadRequest, gin.H{
 			"success": false,
@@ -85,13 +85,13 @@ func DelLinks(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "http的Header中用户ID为空"})
 		return
 	}
-	accountID, err := strconv.Atoi(userID)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "ID解析失败"})
-		return
-	}
+	//accountID, err := strconv.Atoi(userID)
+	//if err != nil {
+	//	c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "ID解析失败"})
+	//	return
+	//}
 	var user models.AccountInfo
-	if err = global.Db.Where("account_id = ?", accountID).First(&user).Error; err != nil {
+	if err := global.Db.Where("account_id = ?", global.ParseUint(userID)).First(&user).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询用户失败"})
 		return
 	}
