@@ -23,13 +23,13 @@
       <div class="right">
         <p class="remark">{{ request.time }}</p>
         <div v-if="request.status === 'pending' && request.type === 'groupInvitation' && request.receiver_id === this.$store.state.user.id">
-          <button @click="acceptInvitation(request.account_id,request.group_id)">同意</button>
-          <button @click="rejectInvitation(request.account_id,request.group_id)">拒绝</button>
+          <button @click="acceptInvitation(request.sender_id,request.group_id)">同意</button>
+          <button @click="rejectInvitation(request.sender_id,request.group_id)">拒绝</button>
         </div>
         <p v-else-if="request.status === 'pending' && request.type === 'groupInvitation'">等待对方处理</p>
         <div v-else-if="request.status === 'pending' && request.type === 'groupApply' && request.receiver_id === this.$store.state.user.id">
-          <button @click="acceptApply(request.account_id,request.group_id)">同意</button>
-          <button @click="rejectApply(request.account_id,request.group_id)">拒绝</button>
+          <button @click="acceptApply(request.sender_id,request.group_id)">同意</button>
+          <button @click="rejectApply(request.sender_id,request.group_id)">拒绝</button>
         </div>
         <p v-else-if="request.status === 'pending' && request.type === 'groupApply'">等待管理员处理</p>
         <p v-else-if="request.status === 'accepted'">已同意</p>
