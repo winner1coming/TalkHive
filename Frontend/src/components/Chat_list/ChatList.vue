@@ -168,10 +168,11 @@ export default {
       this.activeTag = tagName;
     },
     // 选中消息，切换到对应的聊天
-    async selectChat(chat, tid=null) {
+    async selectChat(chat, tid=null, is_group=false) {
       if (!chat) {
         try{
-          const response = await chatListAPI.getChat(tid, chat.tags.includes('friend')? false : true);
+          const response = await chatListAPI.getChat(tid, is_group);
+          console.log(response);
           if(response.status !== 200){
             this.$root.notify(response.data.message, 'error');
             return;
@@ -520,12 +521,12 @@ export default {
       // this.chats.unshift(newChat); 
       this.fetchChatList();
     });
-    EventBus.on('go-to-chat', (tid) => {
+    EventBus.on('go-to-chat', (tid, is_group) => {
       const chat = this.chats.find(chat => chat.id === tid);
       if(chat){
         this.selectChat(chat);
       }else{
-        this.selectChat(null, tid);
+        this.selectChat(null, tid, is_group);
       }
     });
   },
