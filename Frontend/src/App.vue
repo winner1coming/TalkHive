@@ -126,7 +126,7 @@ export default {
     getButtonBackgroundColor() {
       switch (this.settings.theme) {
         case 'light':
-          return '#8ae2ba';     //浅绿色
+          return '#8ae2ba80';     //浅绿色
         case 'dark':
           return '#666666';
         case 'system':
@@ -139,7 +139,7 @@ export default {
     getButtonBackgroundColor1() {
       switch (this.settings.theme) {
         case 'light':
-          return '#6bc76e';   //更深的绿色
+          return '#8ae2ba';   //更深的绿色
         case 'dark':
           return '#666666';
         case 'system':
@@ -152,7 +152,7 @@ export default {
     getButtonBackgroundColor2() {
       switch (this.settings.theme) {
         case 'light':
-          return '#2b9d19';   //最深的绿色
+          return  '#76cea7d4';  //最深的绿色
         case 'dark':
           return '#666666';
         case 'system':
