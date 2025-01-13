@@ -32,58 +32,6 @@ apiClient.interceptors.response.use(response => {
 export default apiClient;
 
 
-<<<<<<< HEAD
-  // 获取消息列表接口
-  export const getMessages = () => {
-    return apiClient.get('/messages');
-  };
-
-
-  // chat和contact
-  // 资料卡片
-  export const getPersonProfileCard = (account_id, group_id=null) => {
-    return apiClient.post(`/profileCard/person`, {account_id, group_id});
-  };
-  export const getGroupProfileCard = (group_id) => {
-    return apiClient.post(`/profileCard/group`,{group_id});
-  }
-
-  // 添加好友/群聊（id为tid，若为群聊，则为群号）
-  export const addStranger = (tid) => {
-    return apiClient.post('/stranger/add', { tid });
-  };
-
-
-  // 获取笔记列表接口
-  export const getNotes = () => {
-    return apiClient.get('/notes');
-  };
-
-  // 创建笔记接口
-  export const createNote = (title, content) => {
-    return apiClient.post('/notes', { title, content });
-  };
-
-  // 获取收藏列表接口
-  export const getFavorites = () => {
-    return apiClient.get('/favorites');
-  };
-
-  // 添加收藏接口
-  export const addFavorite = (itemId) => {
-    return apiClient.post('/favorites', { itemId });
-  };
-
-  // 获取 DDL 列表接口
-  export const getDDLs = () => {
-    return apiClient.get('/ddls');
-  };
-
-  // 创建 DDL 接口
-  export const createDDL = (title, deadline) => {
-    return apiClient.post('/ddls', { title, deadline });
-  };
-=======
 // 轮询
 export const pullContent = (lastAccessTime) => {
   return apiClient.post(`/pull`, {lastAccessTime});
@@ -135,4 +83,3 @@ export const getDDLs = () => {
 export const createDDL = (title, deadline) => {
   return apiClient.post('/ddls', { title, deadline });
 };
->>>>>>> back
