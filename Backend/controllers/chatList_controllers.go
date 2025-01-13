@@ -241,7 +241,7 @@ func CreateChat(c *gin.Context) {
 			return
 		}
 		contact.UnreadMessageNum = 0
-		if err := global.Db.Save(&contact).Error; err != nil {
+		if err := global.Db.Updates(&contact).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "更新contacts表失败"})
 			return
 		}
@@ -297,7 +297,7 @@ func CreateChat(c *gin.Context) {
 		}
 
 		contact.UnreadMessageNum = 0
-		if err := global.Db.Save(&contact).Error; err != nil {
+		if err := global.Db.Updates(&contact).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "更新contacts表失败"})
 			return
 		}
