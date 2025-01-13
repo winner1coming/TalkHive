@@ -139,11 +139,6 @@ export default {
         if(val){
           if(this.selectedChat && val.id!==this.selectedChat.id) this.selectChat(val);
           this.chats = this.chats.map(chat => chat.id === val.id? val : chat);
-<<<<<<< HEAD
-        }
-      },
-      immediate: true,
-=======
           if(val.unreadCount > 0){
             this.readMessages(val);
           }
@@ -151,7 +146,6 @@ export default {
       },
       immediate: true,
       deep: true,
->>>>>>> back
     }
   },
   methods: {
@@ -238,8 +232,6 @@ export default {
         console.log(e);
       }
     },
-<<<<<<< HEAD
-=======
     // 已读消息
     async readMessages(chat) {
       // 标记为已读
@@ -256,7 +248,6 @@ export default {
         console.log(e);
       }
     },
->>>>>>> back
     // 显示新建消息的菜单
     showNewContextMenu(event) {
       this.menuType = 'new';
@@ -270,19 +261,12 @@ export default {
     showChatMenu(event, obj) {
       this.menuType = 'chat';
       let items = [];
-<<<<<<< HEAD
-      if(obj.tags.includes('unread')) {
-        items.push('标记为已读');
-      } else {
-        items.push('标记为未读');
-=======
       if(obj.id !== this.$store.state.currentChat.id) {
         if(obj.tags.includes('unread')) {
           items.push('标记为已读');
         } else {
           items.push('标记为未读');
         }
->>>>>>> back
       }
       if(obj.tags.includes('pinned')) {
         items.push('取消置顶');
@@ -521,21 +505,6 @@ export default {
         }
       } 
     });
-<<<<<<< HEAD
-    EventBus.on('update-chat', (newChat) => {
-      this.chats = this.chats.filter(chat => chat.id !== newChat.id);
-      if(!this.selectedChat&&newChat.id===this.selectedChat.id){
-        newChat.tags = newChat.tags.filter(tag => tag !== 'unread');
-        newChat.unreadCount = 0;
-        if(newChat.tags.includes('friend')){
-          this.chatListAPI.readMessages(newChat.id, true, false);
-        }
-        else{
-          this.chatListAPI.readMessages(newChat.id, true, true);
-        }
-      }
-      this.chats.unshift(newChat); 
-=======
     EventBus.on('update-chat', () => {
       // this.chats = this.chats.filter(chat => chat.id !== newChat.id);
       // if(!this.selectedChat&&newChat.id===this.selectedChat.id){
@@ -550,7 +519,6 @@ export default {
       // }
       // this.chats.unshift(newChat); 
       this.fetchChatList();
->>>>>>> back
     });
     EventBus.on('go-to-chat', (tid) => {
       const chat = this.chats.find(chat => chat.id === tid);
@@ -647,11 +615,7 @@ export default {
 }
 .chat-time {
   color: #888;
-<<<<<<< HEAD
-  font-size: var(--font-size-small);
-=======
   font-size: var(--font-size-small-small);
->>>>>>> back
 }
 .unread-count {
   background-color: #d63131df;
