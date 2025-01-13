@@ -6,16 +6,18 @@
       <div class="avatar-container">
         <img :src="avatar" alt="avatar" class="headavatar" @click="showAvatarPreview" />
         <input type="file" ref="fileInput" style="display: none;" @change="handleFileChange" />
-        <button v-if="isEditing" @click="openFilePicker">上传</button>
+        <button v-if="isEditing" @click="openFilePicker">
+          <img src="@/assets/icon/submit.png" alt="submit" class="icon"/>
+        </button>
       </div>
       <div class="input_container">
         <div class="input_text" v-if="isEditing">
-          <label for="id">账号:</label>
+          <label for="id">ID:</label>
           <input id="id" type="text" v-model="id" :placeholder="id" :disabled="!isIdEditable"/>
           <span v-if="!isIdEditable" class="id-warning">一年只能更改一次-可更改时间{{ nextUpdateDate }}</span>
         </div>
         <div class="input_text" v-else>
-          <label for="id">账号:</label>
+          <label for="id">ID:</label>
           <span>{{ id }}</span>
         </div>
 
@@ -50,7 +52,7 @@
           </div>
         </div>
         <div class="input_text" v-else>
-          <label>生日</label>
+          <label>生日:</label>
           <span>{{ birthday }}</span>
         </div>
 
@@ -91,7 +93,9 @@
       <!-- 头像预览弹窗 -->
       <div v-if="showPreview" class="avatar-preview">
         <img :src="avatar" alt="avatar" class="avatar-large" />
-        <button @click="hideAvatarPreview">×</button>
+        <button @click="hideAvatarPreview">
+          <img src="@/assets/icon/cancel.png" alt="hide" class="icon"/>
+        </button>
       </div>
     </div>
   </div>
@@ -302,8 +306,9 @@ export default {
 .edit{
   display: flex;
   justify-content: center;
-  margin-top: 30px;
+  margin-top: 60px;
 }
+
 /* 编辑资料页面的样式 */
 .editprofile {
   display: grid;
@@ -313,10 +318,11 @@ export default {
   justify-items: center;
   margin-top: 20px;
   width: 100%;
-  max-width: 700px;
-  height: 90%;
+  max-width: 600px;
+  height: 100%;
   border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 10px var(--background-color1);
+  background-color: var(--background-color);
 }
 
 h2{
@@ -328,6 +334,14 @@ h2{
   display: flex;
   flex-direction: column;
   align-items: center;
+  margin-top: 10px;
+}
+
+.avatar-container button{
+  background-color: var(--button-background-color);
+  width: 40px;
+  height: 30px;
+  margin-top: 0px;
 }
 
 .headavatar{
@@ -358,18 +372,19 @@ h2{
 }
 
 .avatar-preview button {
-  margin-top: 20px;
-  padding: 10px 20px;
+  margin-top: 30px;
+  padding: 6px 10px;
   font-size: var(--font-size);
-  color: #fff;
-  background-color: #42b983;
+  color: var(--button-text-color);
+  background-color: var(--button-background-color);
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
 }
 
 .input_container {
   width: 300px;
+  margin-bottom: 10px;
 }
 
 .input_text {
@@ -378,6 +393,8 @@ h2{
   width: 100%;
   max-width: 300px;
   margin-bottom: 20px;
+  color: var(--text-color);
+  font-size: var(--font-size);
 }
 
 .input_text label {
@@ -393,6 +410,7 @@ h2{
   border-bottom: 1px solid #ccc;
   padding: 10px 0;
   font-size: var(--font-size);
+  color: var(--text-color);
   outline: none;
   text-align: center;
 }
@@ -404,6 +422,8 @@ h2{
   width: 100%;
   max-width: 300px;
   margin-bottom: 20px;
+  color: var(--text-color);
+  font-size:var(--font-size);
 }
 
 .input_sig label {
@@ -414,20 +434,22 @@ h2{
 }
 
 .input_sig textarea {
-  border: none;
   border-bottom: 1px solid #ccc;
-  padding: 10px 0;
+  padding: 8px 8px;
   font-size: var(--font-size);
   outline: none;
   text-align: left;
   resize: none;
   height: 100px;
-  margin-right: 20px;
+  width: 400px;
+  margin-right: -55px;
+  color: var(--text-color);
 }
 
 .input_text textarea {
   resize: none;
   height: 100px;
+  color: var(--text-color);
 }
 
 .gender-options {
@@ -452,13 +474,15 @@ h2{
 .signature-count {
   align-self: flex-end;
   font-size: var(--font-size-small);
-  color: #666;
+  color: var(--text-color);
 }
 
 .button_container{
   display: flex;
   align-items: center;
   justify-content: space-between;
+  color: var(--button-text-color);
+  font-size: var(--font-size);
   width: 100%;
   max-width: 300px;
 }
@@ -472,22 +496,27 @@ h2{
 }
 
 button {
-  padding: 10px 10px;
+  padding: 6px 10px;
   font-size: var(--font-size);
-  color: #fff;
-  background-color: #42b983;
+  color:var(--button-text-color);
+  background-color: var(--button-background-color);
   border: none;
   border-radius: 4px;
   cursor: pointer;
   margin-bottom: 20px;
+  margin-top: 10px;
 }
 
-button:hover {
-  background-color: #369f6d;
+button:hover ,.edit_button:hover{
+  background-color: var(--button-background-color1);
 }
 
-.edit_button:hover{
-  background-color: #369f6d;
+
+.icon{
+  width:30px;
+  height: 30px;
+  margin-left:-5px;
+  margin-top: -10px;
 }
 
 </style>

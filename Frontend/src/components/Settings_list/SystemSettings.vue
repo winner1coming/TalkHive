@@ -21,7 +21,8 @@
         <span>聊天背景</span>
         <span class="content"></span>
       </div>
-      </div>
+    </div>
+    <div class="resizer" @mousedown="startResize"></div>
     <div class="right-panel">
       <component :is="activeComponent" @updateUser="updateUser" @cancel="setActiveComponent('')"></component>
     </div>
@@ -74,6 +75,22 @@ export default {
         system: '系统默认',
       };
       return themeMap[themeValue] || '浅色';
+    },
+
+    startResize(event) {
+      this.isResizing = true;
+      document.addEventListener('mousemove', this.resize);
+      document.addEventListener('mouseup', this.stopResize);
+    },
+    resize(event) {
+      if (this.isResizing) {
+        this.chatListWidth = event.clientX - this.leftComponentWidth;
+      }
+    },
+    stopResize() {
+      this.isResizing = false;
+      document.removeEventListener('mousemove', this.resize);
+      document.removeEventListener('mouseup', this.stopResize);
     },
   },
 };
@@ -141,6 +158,13 @@ export default {
   width: 25px;
   height: 25px;
   margin-left: 30px;
+}
+
+.resizer {
+  width: 3px;
+  height: 100%;
+  cursor: ew-resize;
+  background-color: #ccc;
 }
 
 </style>

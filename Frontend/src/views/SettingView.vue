@@ -110,8 +110,9 @@
     padding: 10px;
     background-color: var(--sidebar-background-color1); /* 使用 CSS 变量 */
     border-bottom: 1px solid #ccc;
+    border-radius: 10px;
     width: 100%;
-    height: 45px; /* 固定高度 */
+    height: 35px; /* 固定高度 */
     flex-wrap: nowrap;
     opacity: 100%;
   }
@@ -155,6 +156,7 @@
   .bottom-panel {
     flex: 1;
     overflow-y: auto;
+    background-color: var(--background-color);
   }
   
   .confirmation-modal {
@@ -171,11 +173,13 @@
   }
   
   .modal-content {
-    background-color: white;
+    background-color: var(--background-color);
+    color: var(--sidebar-text-color);
     padding: 20px;
     border-radius: 8px;
     position: relative;
     width: 300px;
+    height: 80px;
   }
   
   .close {
@@ -188,25 +192,40 @@
   
   .modal-buttons {
     display: flex;
-    justify-content: flex-end;
-    margin-top: 20px;
+    justify-content: space-evenly;
+    margin-top: 30px;
+    font-size: var(--font-size);
   }
   
   .modal-buttons button {
     margin-left: 10px;
-    padding: 8px 16px;
+    padding: 6px 8px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
+    color: var(--button-text-color);
   }
   
   .modal-buttons button:first-child {
-    background-color: #42b983;
-    color: white;
+    background-color: var(--button-background-color2);
+    color: var(--button-text-color);
   }
   
   .modal-buttons button:last-child {
-    background-color: #ccc;
-    color: black;
+    background-color:var(--background-color2);
+    color: var(--button-text-color);
+  }
+
+  .modal-buttons button:hover{
+    background-color: var(--button-background-color);
+  }
+
+  .modal-buttons button:active{
+    background-color: var(--button-background-color2);
+  }
+
+  .modal-content p{
+    color: var(--text-color);
+    font-size: var(--font-size);
   }
   </style>
