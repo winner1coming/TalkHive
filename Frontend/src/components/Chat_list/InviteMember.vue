@@ -12,11 +12,11 @@
             <img :src="friend.avatar" alt="avatar" />
           </div>
           <div class="info">   <!-- 信息-->
-            <div class="name">{{ friend.name }}</div>
+            <div class="name">{{ friend.remark? friend.remark : friend.name }}</div>
             <div class="remark">{{ friend.id }}</div>
           </div>
           <div >   
-            <button @click="inviteMember(friend.accound_id)">邀请</button>
+            <button @click="inviteMember(friend.account_id)">邀请</button>
           </div>
         </li>
     </ul>
@@ -68,19 +68,14 @@ export default {
   },
   methods: {
     search(query) {
-      // todo
-      // if(!query) return;
-      // try{
-      //   const response = await searchStrangers(accound_id);
-      //   if (response.status!==200) {
-      //     console.error('Failed to add friend/group', response.data.message);
-      //   }else{
-      //     this.friends = response.data;
-      //   }
-      // }
-      // catch (error){
-      //   console.error('Failed to search friend/group',error)
-      // }
+      // 根据搜索条件过滤好友列表
+      this.friends = this.friends.filter(friend => {
+        if(!friend.remark){
+          return friend.nickname.includes(query) || friend.id.includes(query) || friend.remark.includes(query);
+        }else{
+          return friend.nickname.includes(query) || friend.id.includes(query);
+        }
+      });
       
     },
     async fetchFriendsNotInGroup() {
@@ -96,6 +91,7 @@ export default {
       }
     },
     async inviteMember(friend_id) {
+      this.close();
       try {
         const response = await contactListAPI.inviteMember(this.group_id, friend_id);
         if (response.status !== 200) {
