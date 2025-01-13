@@ -1,5 +1,9 @@
 database:
+<<<<<<< HEAD
   dsn: "root:deng9q768@tcp(127.0.0.1:3306)/test1?charset=utf8mb4&parseTime=True&loc=Local"
+=======
+  dsn: "root:123456@tcp(127.0.0.1:3306)/talkhive?charset=utf8mb4&parseTime=True&loc=Local"
+>>>>>>> back
   max_idle_conns: 10  # 数据库最大空闲连接数
   max_open_conns: 100 # 数据库最大打开连接数
 

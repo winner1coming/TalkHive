@@ -98,11 +98,20 @@ export default {
   },
   created() {
     this.fetchRequests();
+<<<<<<< HEAD
     EventBus.on('updateFriendRequest', newRequest => {
       if(!this.requests){
         this.requests = this.requests.filter(request => request.apply_id !== newRequest.apply_id);
       }
       this.requests.unshift(newRequest);
+=======
+    EventBus.on('updateFriendRequest', () => {
+      // if(!this.requests){
+      //   this.requests = this.requests.filter(request => request.apply_id !== newRequest.apply_id);
+      // }
+      // this.requests.unshift(newRequest);
+      this.fetchRequests();
+>>>>>>> back
     });
   },
   beforeDestroy() {

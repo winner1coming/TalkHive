@@ -85,7 +85,11 @@ export default {
     },
   },
   methods: {
+<<<<<<< HEAD
     async selectNewChat(account_id) {
+=======
+    async fetchMessages(account_id){
+>>>>>>> back
       try{
         const response = await chatListAPI.getMessages(account_id, this.selectedChat.tags.includes('group') ? true : false);
         // 若被禁言  
@@ -109,6 +113,12 @@ export default {
       }catch(e){
         console.log(e);
       }
+<<<<<<< HEAD
+=======
+    },
+    selectNewChat(account_id) {
+      this.fetchMessages(account_id);
+>>>>>>> back
       
     },
     async sendMessage(content, type) {
@@ -241,10 +251,18 @@ export default {
   mounted() {
     this.boundD = this.$refs.chatBox.getBoundingClientRect().bottom;
     this.boundR = this.$refs.chatBox.getBoundingClientRect().right;
+<<<<<<< HEAD
     EventBus.on('new-message', (newMessage) => {
       if(newMessage.chat_id === this.selectedChat.id){
         this.messages.push(newMessage);
       }
+=======
+    EventBus.on('new-message', () => {
+      // if(newMessage.chat_id === this.selectedChat.id){
+      //   this.messages.push(newMessage);
+      // }
+      this.fetchMessages(this.selectedChat.id);
+>>>>>>> back
     });
   },
   beforeDestroy() {

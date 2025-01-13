@@ -110,8 +110,14 @@
     padding: 10px;
     background-color: var(--sidebar-background-color1); /* 使用 CSS 变量 */
     border-bottom: 1px solid #ccc;
+<<<<<<< HEAD
     width: 100%;
     height: 45px; /* 固定高度 */
+=======
+    border-radius: 10px;
+    width: 100%;
+    height: 35px; /* 固定高度 */
+>>>>>>> back
     flex-wrap: nowrap;
     opacity: 100%;
   }
@@ -155,6 +161,10 @@
   .bottom-panel {
     flex: 1;
     overflow-y: auto;
+<<<<<<< HEAD
+=======
+    background-color: var(--background-color);
+>>>>>>> back
   }
   
   .confirmation-modal {
@@ -171,11 +181,20 @@
   }
   
   .modal-content {
+<<<<<<< HEAD
     background-color: white;
+=======
+    background-color: var(--background-color);
+    color: var(--sidebar-text-color);
+>>>>>>> back
     padding: 20px;
     border-radius: 8px;
     position: relative;
     width: 300px;
+<<<<<<< HEAD
+=======
+    height: 80px;
+>>>>>>> back
   }
   
   .close {
@@ -188,12 +207,19 @@
   
   .modal-buttons {
     display: flex;
+<<<<<<< HEAD
     justify-content: flex-end;
     margin-top: 20px;
+=======
+    justify-content: space-evenly;
+    margin-top: 30px;
+    font-size: var(--font-size);
+>>>>>>> back
   }
   
   .modal-buttons button {
     margin-left: 10px;
+<<<<<<< HEAD
     padding: 8px 16px;
     border: none;
     border-radius: 4px;
@@ -208,5 +234,35 @@
   .modal-buttons button:last-child {
     background-color: #ccc;
     color: black;
+=======
+    padding: 6px 8px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    color: var(--button-text-color);
+  }
+  
+  .modal-buttons button:first-child {
+    background-color: var(--button-background-color2);
+    color: var(--button-text-color);
+  }
+  
+  .modal-buttons button:last-child {
+    background-color:var(--background-color2);
+    color: var(--button-text-color);
+  }
+
+  .modal-buttons button:hover{
+    background-color: var(--button-background-color);
+  }
+
+  .modal-buttons button:active{
+    background-color: var(--button-background-color2);
+  }
+
+  .modal-content p{
+    color: var(--text-color);
+    font-size: var(--font-size);
+>>>>>>> back
   }
   </style>
