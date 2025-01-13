@@ -44,7 +44,6 @@ import ContextMenu from '@/components/base/ContextMenu';
 import DivideMove from '@/components/Contact_list/DivideMove.vue';
 import * as chatListAPI from '@/services/chatList';
 import * as contactListAPI from '@/services/contactList';
-import { nextTick } from 'vue';
 export default {
   components: {
     ContextMenu,
@@ -283,7 +282,6 @@ export default {
       this.$router.push({name: 'chat'});
         
       setTimeout(() => {
-        console.log('go to chat');
         EventBus.emit('go-to-chat', this.profile.account_id, true);
       }, 500);
     },

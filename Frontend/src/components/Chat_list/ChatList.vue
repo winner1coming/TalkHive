@@ -158,6 +158,9 @@ export default {
         const response = await chatListAPI.getChatList();
         if(response.status === 200) {
           this.chats = response.data.data;
+          if(!this.chats){
+            this.chats = [];
+          }
         }
         else{
           this.$root.notify(response.data.message, 'error');
@@ -182,7 +185,7 @@ export default {
             this.$root.notify(response.data.message, 'error');
             return;
           }
-          chat = response.data.data;
+          chat = response.data.data[0];
           this.chats.unshift(chat);
         }catch(e){
           console.log(e);
