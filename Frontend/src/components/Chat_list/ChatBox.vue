@@ -123,7 +123,16 @@ export default {
     },
     async sendMessage(content, type) {
       try{
-        const response = await chatListAPI.sendMessage(this.selectedChat.id, content, type, this.selectedChat.tags.includes('group') ? true : false);
+        let response;
+        if(type === 'file'){
+            const formData = new FormData();
+            formData.append('tid', this.selectedChat.id);
+            formData.append('content', content);
+            formData.append('is_group', this.selectedChat.tags.includes('group') ? true : false);
+            response = await chatListAPI.sendFile(formData);
+        }else{
+          response = await chatListAPI.sendMessage(this.selectedChat.id, content, type, this.selectedChat.tags.includes('group') ? true : false);
+        }
         if(response.status !== 200){
           this.$root.notify(response.data.message, 'error');
           return;
