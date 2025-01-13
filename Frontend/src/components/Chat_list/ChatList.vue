@@ -522,7 +522,8 @@ export default {
       this.fetchChatList();
     });
     EventBus.on('go-to-chat', (tid, is_group) => {
-      const chat = this.chats.find(chat => chat.id === tid);
+      let chat=null;
+      if(this.chats) chat = this.chats.find(chat => chat.id === tid);
       if(chat){
         this.selectChat(chat);
       }else{
