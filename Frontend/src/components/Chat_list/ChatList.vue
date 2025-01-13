@@ -111,6 +111,9 @@ export default {
   computed: {
     // 过滤后的消息列表
     filteredChats() {
+      if(!this.chats) {
+        return [];
+      }
       let chats = this.chats;
       if(this.activeTag === 'blocked') {
         chats = chats.filter(chat => chat.tags.includes(this.activeTag));
