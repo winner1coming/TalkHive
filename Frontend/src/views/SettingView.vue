@@ -131,12 +131,25 @@
   
   .top-panel button.active {
     background-color: var(--button-background-color2);
-    color: white;
+    color: var(--button-text-color);
+    font-weight: bold;
   }
   
   .top-panel button:hover {
     background-color:var(--button-background-color1) ;
-    color: white;
+    color: var(--button-text-color);
+    opacity: 80%;
+  }
+
+  .top-panel button.active:hover {
+    background-color: var(--button-background-color2); /* 保持点击后的背景颜色 */
+    opacity: 100%; /* 如果需要，可以调整透明度 */
+    font-weight: bold;
+  }
+
+  .top-panel button.active ::content{
+    color: var(--button-text-color);
+    color: #76cea7d4;
   }
   
   .bottom-panel {

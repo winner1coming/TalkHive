@@ -2,18 +2,22 @@
   <div class="security-settings">
     <div class="left-panel">
       <div class="menu-item" :class="{ active: activeComponent === 'ChangeEmail' }" @click="setActiveComponent('ChangeEmail')">
+        <img src="@/assets/icon/email.png" alt="ChangeEmail" class="icon"/>
         <span>邮箱</span>
         <span class="content">{{ user.email }}</span>
       </div>
       <div class="menu-item" :class="{ active: activeComponent === 'ChangePassword' }" @click="setActiveComponent('ChangePassword')">
+        <img src="@/assets/icon/change_password.png" alt="ChangePassword" class="icon"/>
         <span>更改密码</span>
         <span class="content"></span>
       </div>
       <div class="menu-item" :class="{ active: activeComponent === 'FriendPermission' }" @click="setActiveComponent('FriendPermission')">
+        <img src="@/assets/icon/permission.png" alt="FriendPermission" class="icon"/>
         <span>好友权限设置</span>
         <span class="content"></span>
       </div>
       <div class="menu-item" :class="{ active: activeComponent === 'DeactivateAccount' }" @click="showDeactivateConfirmation">
+        <img src="@/assets/icon/deativate.png" alt="ChangeEmail" class="icon"/>
         <span>注销账号</span>
         <span class="content"></span>
       </div>
@@ -152,6 +156,12 @@ export default {
   height: 10vh;
 }
 
+.menu-item .icon{
+  width: 25px;
+  height: 25px;
+  margin-left: 30px;
+}
+
 .menu-item.active {
   background-color: var(--select-background-color1);
   color: var(--select-text-color);
@@ -164,7 +174,7 @@ export default {
 
 .menu-item span {
   font-size: var(--font-size);
-  margin-left: 10px;
+  margin-left: 5px;
 }
 
 .menu-item .content {
@@ -180,6 +190,11 @@ export default {
 .menu-item.active,.menu-item:hover .span{
   font-weight: bold;
   color: var(--select-text-color);
+}
+
+.menu-item.active:hover {
+  background-color: var(--select-background-color1); /* 保持点击后的背景颜色 */
+  opacity: 100%; /* 如果需要，可以调整透明度 */
 }
 
 .confirmation-modal {
