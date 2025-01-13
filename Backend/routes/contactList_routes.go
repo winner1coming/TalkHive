@@ -20,7 +20,7 @@ func ContactListRoutes(r *gin.Engine) {
 	//群聊请求部分
 	r.GET("/contactList/groupRequests", controllers.GetGroupRequests)
 	r.POST("/contactList/groupRequests/applyPend", controllers.DealGroupApplyRequest)
-	r.POST("/contactList/groupRequests/invitePend", controllers.DealGroupInviteRequest)
+	r.POST("/contactList/groupRequests/invitationPend", controllers.DealGroupInviteRequest)
 	r.POST("/contactList/groupRequests/addGroup", controllers.AddGroup)
 
 	//黑名单部分
