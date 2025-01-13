@@ -154,7 +154,7 @@ export default {
 }
 
 .left-panel {
-  width: 14%;
+  width: 10%;
   background-color: var(--background-color1);
 }
 
@@ -172,17 +172,15 @@ export default {
 
 .menu-item {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #ccc;
   cursor: pointer;
   width: 100%;
   height: 10vh;
 }
 
 .menu-item .icon{
-  width: 25px;
-  height: 25px;
+  width: 20px;
+  height: 20px;
   margin-left: 30px;
 }
 

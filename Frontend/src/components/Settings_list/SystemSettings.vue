@@ -10,7 +10,7 @@
       <div class="menu-item" :class="{ active: activeComponent === 'FontSize' }" @click="setActiveComponent('FontSize')">
         <img src="@/assets/icon/font.png" alt="FontSize" class="icon"/>
         <span>字体大小</span>
-        <span class="content">{{ fontsize }}</span>
+        <span class="content">{{ fontsize+'px' }}</span>
       </div>
       <div class="menu-item" :class="{ active: activeComponent === 'SoundSetting' }" @click="setActiveComponent('SoundSetting')">
         <img src="@/assets/icon/notice.png" alt="SoundSetting" class="icon"/>
@@ -26,6 +26,8 @@
     <div class="resizer" @mousedown="startResize"></div>
     <div class="right-panel">
       <component :is="activeComponent" @updateUser="updateUser" @cancel="setActiveComponent('')"></component>
+      <img v-if="this.$store.state.settings.theme === 'light' && activeComponent === ''" src="@/assets/icon/light_wel.png" alt="Tip" class="icon" />
+      <img v-if="this.$store.state.settings.theme === 'dark' && activeComponent === ''" src="@/assets/icon/dark_wel.png" alt="Tip" class="icon" />
     </div>
   </div>
 </template>
@@ -104,21 +106,24 @@ export default {
 }
 
 .left-panel {
-  width: 15%;
+  width: 10%;
   background-color: var(--background-color1);
 }
 
 .right-panel {
-  width: 80%;
-  padding: 20px;
+  width: 100%;
   position: relative;
+  background-color: var(--background-color);
+}
+
+.right-panel .icon{
+  height: 100px;
+  margin-top: 300px;
 }
 
 .menu-item {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #ccc;
   cursor: pointer;
   width: 100%;
   height: 10vh;
@@ -156,8 +161,8 @@ export default {
 }
 
 .menu-item .icon{
-  width: 25px;
-  height: 25px;
+  width: 20px;
+  height: 20px;
   margin-left: 30px;
 }
 

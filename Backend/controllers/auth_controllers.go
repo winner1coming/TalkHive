@@ -100,11 +100,11 @@ func Register(c *gin.Context) {
 		return
 	}
 
-	// 校验手机号格式是否正确
-	if !utils.ValidatePhone(input.Phone) {
-		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "电话号码格式不对"})
-		return
-	}
+	// // 校验手机号格式是否正确
+	// if !utils.ValidatePhone(input.Phone) {
+	// 	c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "电话号码格式不对"})
+	// 	return
+	// }
 
 	// 检查账号ID是否已存在
 	var existingUser models.AccountInfo

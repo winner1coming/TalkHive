@@ -89,6 +89,9 @@
   }
   
   h3 {
+    font-size: var(--font-size-large);
+    color: var(--text-color);
+    margin-top: 60px;
     margin-bottom: 20px;
   }
   
@@ -96,6 +99,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    gap:10px;
   }
   
   .theme-option {
@@ -107,6 +111,7 @@
     align-items: center;
     cursor: pointer;
     font-size: var(--font-size);
+    color: var(--text-color);
   }
   
   input[type="radio"] {
@@ -126,7 +131,7 @@
   }
   
   input[type="radio"]:checked ~ .checkmark {
-    border-color: #42b983;
+    border-color: var(--button-background-color2);
   }
   
   input[type="radio"]:checked ~ .checkmark::after {
@@ -136,7 +141,7 @@
     left: 50%;
     width: 10px;
     height: 10px;
-    background-color: #42b983;
+    background-color: var(--button-background-color2);
     border-radius: 50%;
     transform: translate(-50%, -50%);
   }
