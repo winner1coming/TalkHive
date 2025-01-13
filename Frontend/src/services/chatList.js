@@ -43,6 +43,14 @@ export const getMessages = (tid, is_group) => {
 export const sendMessage = (tid, content, type, is_group) => {
   return apiClient.post(`/messages/send`, { tid, content, type, is_group });
 };
+// 发送文件
+export const sendFile = (formData) => {
+  return apiClient.post(`/messages/sendFile`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  });
+};
 // 收藏消息
 export const collectMessage = (table_name, message_id) => {
   return apiClient.post(`/messages/collect`, { table_name, message_id });
