@@ -2,10 +2,7 @@
 <template>
     <div v-if="visible" class="modal-overlay">
       <div class="modal-content">
-<<<<<<< HEAD
-=======
         <img src="@/assets/icon/tips.png" alt="Tips" class="icon"/>
->>>>>>> back
         <p>{{ message }}</p>
         <button @click="closeModal">确定</button>
       </div>
@@ -46,36 +43,13 @@
   }
   
   .modal-content {
-<<<<<<< HEAD
-    background: rgb(252, 251, 251);
-=======
     background:var(--background-color);
->>>>>>> back
     padding: 20px;
     border-radius: 8px;
     text-align: center;
   }
 
   .modal-content p{
-<<<<<<< HEAD
-    color: black;
-    gap:10px;
-  }
-  
-  button {
-    padding: 10px 20px;
-    background-color: #42b983;
-    color: rgb(24, 22, 22);
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  
-  button:hover {
-    background-color: #369f6d;
-  }
-
-=======
     color: var(--text-color);
     font-size: var(--font-size);
     gap:20px;
@@ -102,6 +76,4 @@
     margin-top: -5px;
     margin-bottom: 5px;
   }
->>>>>>> back
-  
   </style>
