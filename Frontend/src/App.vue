@@ -355,7 +355,7 @@ export default {
   padding: 0;
 }
 
-button{
+button,input{
   font-family: var(--font-family);
   font-size:var(--font-size);
 }

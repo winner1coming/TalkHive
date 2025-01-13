@@ -120,6 +120,8 @@ export default {
           });
           this.$store.commit('SET_LINKS',response.links);
 
+          localStorage.removeItem('users');
+
           let users = JSON.parse(localStorage.getItem('users')) || [];
           //本地缓存的处理
           if (users.length >= 2) {
@@ -231,6 +233,9 @@ export default {
   align-items: center;
   width: 350px;
   padding: 20px;
+  gap:10px;
+  height: 100vh;
+  margin-top: 20px;
   box-sizing: border-box;
 }
 
@@ -251,7 +256,7 @@ export default {
   margin-bottom: 20px;
   align-items: center;
   width: 100%;
-  max-width: 300px;
+  max-width: 250px;
   box-sizing: border-box;
 }
 
@@ -277,7 +282,7 @@ export default {
   padding: 10px;
   font-size: 16px;
   color: #fff;
-  background-color: #42b983;
+  background-color: var(--button-background-color2);
   border: none;
   border-radius: 10px;
   cursor: pointer;
@@ -286,7 +291,11 @@ export default {
 }
 
 .login-button:hover {
-  background-color: #369f6e;
+  background-color:rgba(79, 172, 141, 0.842);
+}
+
+.login-button:active {
+  background-color: rgba(79, 172, 141, 0.842);
 }
 
 .link {
@@ -332,13 +341,14 @@ p a:hover {
 
 .dropdown {
   position: absolute;
-  width: 85%;
+  width: 79%;
   border: 1px solid #ccc;
   border-radius: 4px;
   background-color: #fff;
   list-style: none;
   padding: 0;
   margin: 0;
+  margin-left: 6px;
   max-height: 100px;
   overflow-y: auto;
   z-index: 1000;

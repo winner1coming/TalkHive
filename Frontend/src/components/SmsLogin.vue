@@ -3,7 +3,7 @@
     <img  class="avatar" :src ="avatar" />
 
     <div class="input-group">
-      <label for="email">邮箱</label>
+      <label for="email"> 邮 箱:</label>
       <input id="email" type="text" v-model="email" @blur="hideDropdown" @input="handleInput" placeholder="请输入邮箱" />
       <ul v-if="showDropdown" class="dropdown">
         <li
@@ -19,10 +19,11 @@
 
     <div class="verificate">
       <div class="input-group">
-        <label for="smsCode">验证码</label>
+        <label for="smsCode">验证码:</label>
         <input id="smsCode" type="text" v-model="smsCode" placeholder="请输入验证码" />
       </div>
-      <button class="send-sms-button" @click="sendSmsCode">获取</button>
+      <button class="send-sms-button" @click="sendSmsCode" :disable="isCountingDown" :class="{'counting-down':isCountingDown}">
+        {{isCountingDown ? `${countdown}s`:'获取'}}</button>
     </div>
 
     <button class="login-button" @click="smsLogin">登录</button>
@@ -58,6 +59,8 @@ export default {
       users:[],
       matchedAccounts: [],
       showDropdown:false,
+      isCountingDown:false,
+      countdown:60,
     };
   },
 
@@ -142,6 +145,7 @@ export default {
 
         if (response.success) {
           alert('验证码已发送');
+          this.startCountdown();
           this.Code = response.code;
         } else {
           alert(response.message);
@@ -190,6 +194,19 @@ export default {
         this.showDropdown = false;
       }, 200); // 延迟隐藏，避免点击下拉框时立即隐藏
     },
+
+    startCountdown() {
+      this.isCountingDown = true;
+      this.countdown = 60;
+
+      const timer = setInterval(() => {
+        this.countdown--;
+        if (this.countdown <= 0) {
+          clearInterval(timer);
+          this.isCountingDown = false;
+        }
+      }, 1000);
+    },
   },
 
   mounted() {
@@ -208,13 +225,14 @@ export default {
   justify-content: center;
   height: 60vh; /* 设置高度为视口高度 */
   padding: 10px;
+  gap:20px;
   box-sizing: border-box;
 }
 
 .avatar{
   width: 100px;
   height: 100px;
-  margin-top: 10px;
+  margin-top: -30px;
   margin-bottom: 20px;
   margin-left:35px;
   border-radius: 100%;
@@ -259,14 +277,20 @@ export default {
   font-size: 14px;
   width: 100%;
   color: #fff;
-  background-color: #42b983;
+  background-color: var(--button-background-color2);
   border: none;
-  border-radius: 4px;
+  border-radius: 10px;
   cursor: pointer;
-  margin-right: 10px;
+  margin-left: 10px;
   margin-bottom: 20px;
-
 }
+
+.send-sms-button.counting-down,.send-sms-button.counting-down:hover,.send-sms-button.counting-down.active{
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+
 
 .login-button {
   width: 100%;
@@ -274,7 +298,7 @@ export default {
   padding: 10px;
   font-size: 16px;
   color: #fff;
-  background-color: #42b983;
+  background-color: var(--button-background-color2);
   border: none;
   border-radius: 10px;
   cursor: pointer;
@@ -282,8 +306,8 @@ export default {
   margin-left: 20px;
 }
 
-.login-button:hover {
-  background-color: #369f6e;
+.login-button:hover, .login-button.active,.send-sms-button:hover {
+  background-color: rgba(79, 172, 141, 0.842);
 }
 
 .link {
@@ -320,13 +344,14 @@ export default {
 
 .dropdown {
   position: absolute;
-  width: 85%;
+  width: 63%;
   border: 1px solid #ccc;
   border-radius: 4px;
   background-color: #fff;
   list-style: none;
   padding: 0;
   margin: 0;
+  margin-left: 8px;
   max-height: 100px;
   overflow-y: auto;
   z-index: 1000;
