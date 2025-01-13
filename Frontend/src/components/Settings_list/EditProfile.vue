@@ -1,4 +1,3 @@
-
 <template>
   <!-- 编辑资料页面容器 -->
   <div class="edit">
