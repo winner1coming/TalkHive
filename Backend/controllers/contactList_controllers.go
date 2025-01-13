@@ -659,17 +659,17 @@ func GetGroupRequests(c *gin.Context) {
 			avatarBase64 = "data:" + mimeType + ";base64," + avatarBase64
 
 			groupRequest := map[string]interface{}{
-				"apply_id":     applyInfo.ApplyID,                        // 申请ID
-				"avatar":       avatarBase64,                             // 群聊头像
-				"group_name":   groupChat.GroupName,                      // 群名称
-				"account_name": accountInfo.Nickname,                     // 申请人或群主的昵称
-				"sender_id":    applyInfo.SenderID,                       // 申请人或群主的ID
-				"receiver_id":  applyInfo.ReceiverID,                     // 接收者ID
-				"group_id":     applyInfo.GroupID,                        // 群聊ID
-				"reason":       applyInfo.Reason,                         // 申请理由
-				"apply_type":   applyInfo.ApplyType,                      // 申请类型
-				"status":       applyInfo.Status,                         // 状态：pending、accepted、rejected等
-				"time":         time.Now().Format("2006-01-02 15:04:05"), // 申请时间
+				"apply_id":     applyInfo.ApplyID,
+				"avatar":       avatarBase64,
+				"group_name":   groupChat.GroupName,
+				"account_name": accountInfo.Nickname,
+				"sender_id":    applyInfo.SenderID,
+				"receiver_id":  applyInfo.ReceiverID,
+				"group_id":     applyInfo.GroupID,
+				"reason":       applyInfo.Reason,
+				"type":         applyInfo.ApplyType,
+				"status":       applyInfo.Status,
+				"time":         time.Now().Format("2006-01-02 15:04:05"),
 			}
 
 			groupRequests = append(groupRequests, groupRequest)
@@ -698,17 +698,17 @@ func GetGroupRequests(c *gin.Context) {
 			}
 			avatarBase64 = "data:" + mimeType + ";base64," + avatarBase64
 			groupRequest := map[string]interface{}{
-				"apply_id":     applyInfo.ApplyID,                        // 申请ID
-				"avatar":       avatarBase64,                             // 群聊头像
-				"group_name":   groupChat.GroupName,                      // 群名称
-				"account_name": accountInfo.Nickname,                     // 申请人或群主的昵称
-				"sender_id":    applyInfo.SenderID,                       // 申请人或群主的ID
-				"receiver_id":  applyInfo.ReceiverID,                     // 接收者ID
-				"group_id":     applyInfo.GroupID,                        // 群聊ID
-				"reason":       applyInfo.Reason,                         // 申请理由
-				"apply_type":   applyInfo.ApplyType,                      // 申请类型
-				"status":       applyInfo.Status,                         // 状态：pending、accepted、rejected等
-				"time":         time.Now().Format("2006-01-02 15:04:05"), // 申请时间
+				"apply_id":     applyInfo.ApplyID,
+				"avatar":       avatarBase64,
+				"group_name":   groupChat.GroupName,
+				"account_name": accountInfo.Nickname,
+				"sender_id":    applyInfo.SenderID,
+				"receiver_id":  applyInfo.ReceiverID,
+				"group_id":     applyInfo.GroupID,
+				"reason":       applyInfo.Reason,
+				"type":         applyInfo.ApplyType,
+				"status":       applyInfo.Status,
+				"time":         time.Now().Format("2006-01-02 15:04:05"),
 			}
 			groupRequests = append(groupRequests, groupRequest)
 		}
