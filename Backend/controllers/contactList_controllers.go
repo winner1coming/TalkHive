@@ -3228,3 +3228,121 @@ func GetGroupProfileCard(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"success": true, "message": "成功", "data": groupProfileCard})
 }
+
+// ChangeGroupName 更改群名称名字
+func ChangeGroupName(c *gin.Context) {
+	userID := c.GetHeader("User-ID")
+	if userID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "HTTP header中用户ID为空"})
+		return
+	}
+	accountID, err := strconv.Atoi(userID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "ID解析失败"})
+		return
+	}
+	var user models.AccountInfo
+	if err := global.Db.Where("account_id = ?", accountID).First(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询用户失败"})
+		return
+	}
+	if user.Deactivate {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户已注销"})
+		return
+	}
+	var input struct {
+		GroupID   uint   `json:"group_id" binding:"required"`
+		GroupName string `json:"group_name" binding:"required"`
+	}
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Json绑定失败"})
+		return
+	}
+
+	//  查询GroupChatInfo，群聊是否存在
+	var groupChat models.GroupChatInfo
+	if err := global.Db.Where("group_id = ?", input.GroupID).First(&groupChat).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "群聊不存在"})
+		return
+	}
+
+	// 查询GroupMemberInfo
+	var groupMember models.GroupMemberInfo
+	if err := global.Db.Where("group_id = ? AND account_id = ? ", input.GroupID, accountID).First(&groupMember).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "查询GroupMemberInfo表失败"})
+		return
+	}
+
+	//判断是否为群管理和群主
+	if groupMember.GroupRole != "group_owner" && groupMember.GroupRole != "group_manager" {
+		c.JSON(http.StatusForbidden, gin.H{"success": false, "message": "非群主或管理员，无权修改"})
+		return
+	}
+
+	// 更新群名称
+	groupChat.GroupName = input.GroupName
+	if err := global.Db.Updates(&groupChat).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "更新群聊名称失败"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"success": true, "message": "成功"})
+}
+
+// ChangeGroupIntroduction 更改群介绍
+func ChangeGroupIntroduction(c *gin.Context) {
+	userID := c.GetHeader("User-ID")
+	if userID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "HTTP header中用户ID为空"})
+		return
+	}
+	accountID, err := strconv.Atoi(userID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "ID解析失败"})
+		return
+	}
+	var user models.AccountInfo
+	if err := global.Db.Where("account_id = ?", accountID).First(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询用户失败"})
+		return
+	}
+	if user.Deactivate {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户已注销"})
+		return
+	}
+	var input struct {
+		GroupID          uint   `json:"group_id" binding:"required"`
+		GroupDescription string `json:"group_description" binding:"required"`
+	}
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Json绑定失败"})
+		return
+	}
+
+	//  查询GroupChatInfo，群聊是否存在
+	var groupChat models.GroupChatInfo
+	if err := global.Db.Where("group_id = ?", input.GroupID).First(&groupChat).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "群聊不存在"})
+		return
+	}
+
+	// 查询GroupMemberInfo
+	var groupMember models.GroupMemberInfo
+	if err := global.Db.Where("group_id = ? AND account_id = ? ", input.GroupID, accountID).First(&groupMember).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "查询GroupMemberInfo表失败"})
+		return
+	}
+
+	//判断是否为群管理和群主
+	if groupMember.GroupRole != "group_owner" && groupMember.GroupRole != "group_manager" {
+		c.JSON(http.StatusForbidden, gin.H{"success": false, "message": "非群主或管理员，无权修改"})
+		return
+	}
+
+	// 更新群名称
+	groupChat.GroupIntroduction = input.GroupDescription
+	if err := global.Db.Updates(&groupChat).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "更新群聊介绍失败"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"success": true, "message": "成功"})
+}
