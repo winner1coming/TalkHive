@@ -553,7 +553,7 @@ func PinChat(c *gin.Context) {
 
 		// 查询Contacts表
 		var contact models.Contacts
-		if err := global.Db.Where("account_id = ? AND contact_id = ? AND is_group_chat = ?", me.AccountID, other.AccountID, false).First(&contact).Error; err != nil {
+		if err := global.Db.Where("owner_id = ? AND contact_id = ? AND is_group_chat = ?", me.AccountID, other.AccountID, false).First(&contact).Error; err != nil {
 			c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "Contacts表中无此条记录"})
 			return
 		}
@@ -589,9 +589,9 @@ func ReadMessages(c *gin.Context) {
 		return
 	}
 	var input struct {
-		Tid     string `json:"tid"`
-		IsRead  bool   `json:"is_read"`
-		IsGroup bool   `json:"is_group"`
+		Tid     uint `json:"tid"`
+		IsRead  bool `json:"is_read"`
+		IsGroup bool `json:"is_group"`
 	}
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Json绑定失败"})
@@ -626,15 +626,15 @@ func ReadMessages(c *gin.Context) {
 			return
 		}
 	} else {
-		var group models.GroupChatInfo
-		if err := global.Db.Where("group_id = ?", input.Tid).First(&group).Error; err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询群聊失败"})
+		var other models.AccountInfo
+		if err := global.Db.Where("account_id = ?", input.Tid).First(&other).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询AccountInfo失败"})
 			return
 		}
 
 		// 查询Contact表
 		var contact models.Contacts
-		if err := global.Db.Where("owner_id = ? AND contact_id = ?", me.AccountID, group.GroupID).First(&contact).Error; err != nil {
+		if err := global.Db.Where("owner_id = ? AND contact_id = ? AND is_group_chat = ? ", me.AccountID, other.AccountID, input.IsGroup).First(&contact).Error; err != nil {
 			c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "Contacts表中无此条记录"})
 			return
 		}
@@ -1125,7 +1125,7 @@ func SendMessage(c *gin.Context) {
 			SenderChatID:  chat.ChatID,
 			Content:       input.Content,
 			Type:          input.Type,
-			CreateTime:    time.Now().Format("2006-01-02 15:04:05"),
+			CreateTime:    time.Now().Format("2006-01-02 15:04:05:01"),
 		}
 		if err := global.Db.Create(&message).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "保存消息失败"})

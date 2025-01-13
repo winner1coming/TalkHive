@@ -56,6 +56,8 @@ func ContactListRoutes(r *gin.Engine) {
 	r.POST("/contactList/groups/removeMember", controllers.RemoveMember)
 	r.POST("/contactList/groups/setAdmin", controllers.SetAdmin)
 	r.POST("/contactList/groups/transferOwner", controllers.TransferOwner)
+	r.POST("/contactList/groups/changeGroupName", controllers.ChangeGroupName)
+	r.POST("/contactList/groups/changeGroupIntroduction", controllers.ChangeGroupIntroduction)
 	r.POST("/contactList/groups/changeAvatar", controllers.ChangeGroupAvatar)
 
 	// 资料卡片

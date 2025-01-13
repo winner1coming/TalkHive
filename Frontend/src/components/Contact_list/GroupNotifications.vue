@@ -164,11 +164,12 @@ export default {
   },
   created() {
     this.fetchRequests();
-    EventBus.on('updateGroupRequest', newRequest => {
-      if(!this.requests){
-        this.requests = this.requests.filter(request => request.apply_id !== newRequest.apply_id);  
-      }
-      this.requests.unshift(newRequest);
+    EventBus.on('updateGroupRequest', () => {
+      // if(!this.requests){
+      //   this.requests = this.requests.filter(request => request.apply_id !== newRequest.apply_id);  
+      // }
+      // this.requests.unshift(newRequest);
+      this.fetchRequests();
     });
   },
   beforeDestroy() {

@@ -3,8 +3,8 @@
   <div class="register">
     <div class="container">
     <!-- 页面标题 -->
+    <img src="@/assets/icon/return.png" alt="Return" class="icon" @click="return_login"/>
     <h2>注册</h2>
-
     <div class="avatar-container">
       <img class="headavatar" :src="avatar" @click="triggerFileInput" />
       <input type="file" ref="fileInput" style="display: none;" @change="handleFileChange" accept="image/*" />
@@ -86,7 +86,7 @@
       <label for="verificationCode">验证码*:</label>
       <input id="verificationCode" type="text" v-model="verificationCode" placeholder=""  />
       <button class="send-verification-code" @click="sendSmsCode" :disabled="isCountingDown" :class="{ 'counting-down': isCountingDown }">
-          {{ isCountingDown ? `${countdown}秒后重试` : '获取' }}</button>
+          {{ isCountingDown ? `${countdown}s` : '获取' }}</button>
     </div>
     <p v-if="errors.verificationCode" class="error">{{ errors.verificationCode }}</p>
     
@@ -107,7 +107,7 @@ export default {
       gender:'',
       id: '',
       nickname: '',
-      birthday:'',
+      birthday:'1999-9-9',
       phoneNumber: '',
       email:'',
       password: '',
@@ -132,6 +132,9 @@ export default {
   },
   
   methods: {
+    return_login(){
+      this.$router.push('/loginth');
+    },
     // 触发文件输入
     triggerFileInput() {
       this.$refs.fileInput.click();
@@ -396,16 +399,24 @@ export default {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 添加阴影效果 */
     border-radius: 8px; /* 添加圆角效果 */
     background-color: #fff; /* 添加背景色 */
-    margin-top: 15px;
-    width: 400px;
+    margin-top: -30px;
+    width: 450px;
+    height: 75vh;
     flex-wrap: nowrap;
   }
 
 h2 {
-  margin-bottom: 10px;
+  margin-top: -20px;
+  margin-bottom: 30px;
   align-items: center;
   font-size: 24px;
   color: #333;
+}
+
+.icon{
+  width:25px;
+  height: 25px;
+  margin-right: 400px;
 }
 
 .avatar-container {
@@ -470,7 +481,7 @@ h2 {
   align-items:center;
   width: 100%;
   max-width: 300px;
-  margin-bottom: 15px;
+  margin-bottom: 20px;
 }
 
 .input-group label {
@@ -493,15 +504,15 @@ h2 {
   padding: 6px;
   width: 20%;
   font-size: 14px;
-  color: #fff;
-  background-color: #42b983;
+  color: #666;
+  background-color:var(--button-background-color1);
   border: none;
   border-radius: 4px;
   cursor: pointer;
   margin-left: 0px;
 }
 
-.send-verification-code.counting-down {
+.send-verification-code.counting-down ,send-verification-code.counting-down:hover {
   background-color: #ccc; /* 倒计时时的背景色 */
   cursor: not-allowed; /* 倒计时时的不可点击状态 */
 }
@@ -509,10 +520,11 @@ h2 {
 .error {
   color: red;
   font-size: 12px;
-  margin-top: 5px;
+  margin-bottom: 10px;
   text-align: left;
+  align-items: center;
   width: 100%;
-  max-width: 400px;
+  max-width: 150px;
 }
 
 .register-button {
@@ -520,16 +532,16 @@ h2 {
   max-width: 100px;
   padding: 10px;
   font-size: 16px;
-  color: #fff;
-  background-color: #42b983;
+  color: #666;
+  background-color: var(--button-background-color1);
   border: none;
   border-radius: 4px;
   cursor: pointer;
   margin-bottom: 10px;
 }
 
-.register-button:hover {
-  background-color: #369f6e;
+.register-button:hover , .register-button.active ,.send-verification-code:hover{
+  background-color: var(--button-background-color2);
 }
 
 

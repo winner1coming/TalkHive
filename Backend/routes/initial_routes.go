@@ -9,4 +9,5 @@ func SetupRoutes(r *gin.Engine) {
 	SettingsRoutes(r)
 	linksRoutes(r)
 	workspaceRoutes(r)
+	pollRoutes(r)
 }

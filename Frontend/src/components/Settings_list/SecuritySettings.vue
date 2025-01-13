@@ -22,6 +22,7 @@
         <span class="content"></span>
       </div>
     </div>
+    <div class="resizer" @mousedown="startResize"></div>
     <div class="right-panel">
       <component :is="activeComponent" :user="users" @updateUser="updateUser"></component>
     </div>
@@ -124,7 +125,22 @@ export default {
         console.error("账号注销失败:",error)
       }
 
-    }
+    },
+    startResize(event) {
+      this.isResizing = true;
+      document.addEventListener('mousemove', this.resize);
+      document.addEventListener('mouseup', this.stopResize);
+    },
+    resize(event) {
+      if (this.isResizing) {
+        this.chatListWidth = event.clientX - this.leftComponentWidth;
+      }
+    },
+    stopResize() {
+      this.isResizing = false;
+      document.removeEventListener('mousemove', this.resize);
+      document.removeEventListener('mouseup', this.stopResize);
+    },
   },
 };
 </script>
@@ -262,5 +278,12 @@ export default {
 
 .back-button i {
   margin-right: 5px;
+}
+
+.resizer {
+  width: 3px;
+  height: 100%;
+  cursor: ew-resize;
+  background-color: #ccc;
 }
 </style>

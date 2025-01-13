@@ -139,9 +139,13 @@ export default {
         if(val){
           if(this.selectedChat && val.id!==this.selectedChat.id) this.selectChat(val);
           this.chats = this.chats.map(chat => chat.id === val.id? val : chat);
+          if(val.unreadCount > 0){
+            this.readMessages(val);
+          }
         }
       },
       immediate: true,
+      deep: true,
     }
   },
   methods: {
@@ -228,6 +232,22 @@ export default {
         console.log(e);
       }
     },
+    // 已读消息
+    async readMessages(chat) {
+      // 标记为已读
+      try{
+        let response;
+        if(chat.tags.includes('friend')) {
+          response = await chatListAPI.readMessages(chat.id, true, false);
+        }else{
+          response = await chatListAPI.readMessages(chat.id, true, true);
+        }
+        chat.tags = chat.tags.filter(tag => tag !== 'unread');
+        chat.unreadCount = 0;
+      }catch(e){
+        console.log(e);
+      }
+    },
     // 显示新建消息的菜单
     showNewContextMenu(event) {
       this.menuType = 'new';
@@ -241,10 +261,12 @@ export default {
     showChatMenu(event, obj) {
       this.menuType = 'chat';
       let items = [];
-      if(obj.tags.includes('unread')) {
-        items.push('标记为已读');
-      } else {
-        items.push('标记为未读');
+      if(obj.id !== this.$store.state.currentChat.id) {
+        if(obj.tags.includes('unread')) {
+          items.push('标记为已读');
+        } else {
+          items.push('标记为未读');
+        }
       }
       if(obj.tags.includes('pinned')) {
         items.push('取消置顶');
@@ -483,19 +505,20 @@ export default {
         }
       } 
     });
-    EventBus.on('update-chat', (newChat) => {
-      this.chats = this.chats.filter(chat => chat.id !== newChat.id);
-      if(!this.selectedChat&&newChat.id===this.selectedChat.id){
-        newChat.tags = newChat.tags.filter(tag => tag !== 'unread');
-        newChat.unreadCount = 0;
-        if(newChat.tags.includes('friend')){
-          this.chatListAPI.readMessages(newChat.id, true, false);
-        }
-        else{
-          this.chatListAPI.readMessages(newChat.id, true, true);
-        }
-      }
-      this.chats.unshift(newChat); 
+    EventBus.on('update-chat', () => {
+      // this.chats = this.chats.filter(chat => chat.id !== newChat.id);
+      // if(!this.selectedChat&&newChat.id===this.selectedChat.id){
+      //   newChat.tags = newChat.tags.filter(tag => tag !== 'unread');
+      //   newChat.unreadCount = 0;
+      //   if(newChat.tags.includes('friend')){
+      //     this.chatListAPI.readMessages(newChat.id, true, false);
+      //   }
+      //   else{
+      //     this.chatListAPI.readMessages(newChat.id, true, true);
+      //   }
+      // }
+      // this.chats.unshift(newChat); 
+      this.fetchChatList();
     });
     EventBus.on('go-to-chat', (tid) => {
       const chat = this.chats.find(chat => chat.id === tid);
@@ -592,7 +615,7 @@ export default {
 }
 .chat-time {
   color: #888;
-  font-size: var(--font-size-small);
+  font-size: var(--font-size-small-small);
 }
 .unread-count {
   background-color: #d63131df;

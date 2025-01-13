@@ -169,3 +169,11 @@ export const transferOwner=(group_id, account_id)=>{
 export const changeGroupAvatar=(group_id, group_avatar)=>{
   return apiClient.post('/contactList/groups/changeAvatar', {group_id, group_avatar});
 }
+// 更改群名称
+export const changeGroupName=(group_id, group_name)=>{
+  return apiClient.post('/contactList/groups/changeGroupName', {group_id, group_name});
+}
+// 更改群介绍
+export const changeGroupIntroduction=(group_id, group_description)=>{
+  return apiClient.post('/contactList/groups/changeGroupIntroduction', {group_id, group_description});
+} 

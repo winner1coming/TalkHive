@@ -39,7 +39,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 120vh;
+  height: 100vh;
   background-color: #f9f9f9;
   padding: 20px;
   box-sizing: border-box;
@@ -62,9 +62,12 @@
   margin-right: 10px;
 }
 
+.login-options button:hover{
+  background-color: var(--button-background-color);
+}
+
 .login-options button.active {
-  background-color: #42b983;
-  color: #fff;
+  background-color: var(--button-background-color2);
   border-color: #42b983;
 }
 
@@ -81,6 +84,7 @@
   background-color: #fff; /* 添加背景色 */
   padding: 20px; /* 添加内边距 */
 }
+
 p {
     margin-top: 10px;
     font-size: var(--font-size-small);
