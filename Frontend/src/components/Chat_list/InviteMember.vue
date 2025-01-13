@@ -5,7 +5,7 @@
       <SearchBar :isImmidiate="false" @search="search" @button-click="search"/>
       <ul class="items">
         <li 
-          v-for="friend in friends" 
+          v-for="friend in filteredFriends" 
           :key="friend.accound_id"
         >
           <div class="avatar">   <!-- 头像-->
@@ -63,13 +63,17 @@ export default {
         //   divide: '家人',
         // },
       ],
-      
+      filteredFriends: [],
     };
   },
   methods: {
     search(query) {
+      if (!query) {
+        this.filteredFriends = this.friends;
+        return;
+      }
       // 根据搜索条件过滤好友列表
-      this.friends = this.friends.filter(friend => {
+      this.filteredFriends = this.friends.filter(friend => {
         if(!friend.remark){
           return friend.nickname.includes(query) || friend.id.includes(query) || friend.remark.includes(query);
         }else{
@@ -85,6 +89,7 @@ export default {
           this.$root.notify(response.data.message, 'error');
         } else {
           this.friends = response.data.data;
+          this.filteredFriends = this.friends;
         }
       } catch (error) {
         console.error('Failed to fetch friends not in group', error);
