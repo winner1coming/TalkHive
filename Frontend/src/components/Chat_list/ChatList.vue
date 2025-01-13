@@ -111,6 +111,9 @@ export default {
   computed: {
     // 过滤后的消息列表
     filteredChats() {
+      if(!this.chats) {
+        return [];
+      }
       let chats = this.chats;
       if(this.activeTag === 'blocked') {
         chats = chats.filter(chat => chat.tags.includes(this.activeTag));
@@ -170,7 +173,9 @@ export default {
     // 选中消息，切换到对应的聊天
     async selectChat(chat, tid=null, is_group=false) {
       if (!chat) {
+        if(!tid) return;
         try{
+          console.log('CreateChat');
           const response = await chatListAPI.getChat(tid, is_group);
           console.log(response);
           if(response.status !== 200){
@@ -458,6 +463,9 @@ export default {
   },
   created () {
     this.fetchChatList();
+    
+  },
+  mounted() {
     EventBus.on('set-mute', (tid, is_mute) => {
       for (let i = 0; i < this.chats.length; i++) {
         if (this.chats[i].id === tid) {
@@ -531,7 +539,8 @@ export default {
       }
     });
   },
-  beforeDestroy() {
+  beforeUnmount() {
+    console.log('destroy');
     EventBus.off('set-mute');
     EventBus.off('set-pinned');
     EventBus.off('set-blocked');
