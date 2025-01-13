@@ -2,18 +2,22 @@
   <div class="system-settings">
     <div class="left-panel">
       <div class="menu-item" :class="{ active: activeComponent === 'ThemeSetting' }" @click="setActiveComponent('ThemeSetting')">
+        <img src="@/assets/icon/theme.png" alt="ThemeSetting" class="icon"/>
         <span>主题</span>
         <span class="content">{{ theme }}</span>
       </div>
       <div class="menu-item" :class="{ active: activeComponent === 'FontSize' }" @click="setActiveComponent('FontSize')">
+        <img src="@/assets/icon/font.png" alt="FontSize" class="icon"/>
         <span>字体大小</span>
         <span class="content">{{ fontsize }}</span>
       </div>
       <div class="menu-item" :class="{ active: activeComponent === 'SoundSetting' }" @click="setActiveComponent('SoundSetting')">
+        <img src="@/assets/icon/notice.png" alt="SoundSetting" class="icon"/>
         <span>消息通知</span>
         <span class="content"></span>
       </div>
       <div class="menu-item" :class="{ active: activeComponent === 'ChatBackground' }" @click="setActiveComponent('ChatBackground')">
+        <img src="@/assets/icon/background.png" alt="ChatBackground" class="icon"/>
         <span>聊天背景</span>
         <span class="content"></span>
       </div>
@@ -83,7 +87,7 @@ export default {
 
 .left-panel {
   width: 15%;
-  background-color: #f0f0f0;
+  background-color: var(--background-color1);
 }
 
 .right-panel {
@@ -104,8 +108,17 @@ export default {
 }
 
 .menu-item.active {
-  background-color: #42b983;
-  color: white;
+  background-color: var(--select-background-color1);
+  color: var(--select-text-color);
+  font-weight: bold;
+}
+
+.menu-item:hover{
+  background-color: var(--select-background-color);
+}
+
+.menu-item.active:hover{
+  background-color: var(--select-background-color1);
 }
 
 .menu-item span {
@@ -117,12 +130,17 @@ export default {
 
 .menu-item .content {
   font-size: var(--font-size-small);
-  color: #666;
+  color: var(--text-color);
 }
 
 .menu-item.active .content {
-  color: white;
+  color: var(--select-text-color);
 }
 
+.menu-item .icon{
+  width: 25px;
+  height: 25px;
+  margin-left: 30px;
+}
 
 </style>
