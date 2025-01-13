@@ -280,7 +280,7 @@ export default {
     async sendMessage() {
       this.hide();
       this.$router.push({name: 'chat'});
-      EventBus.emit('go-to-chat', this.profile.account_id);
+      EventBus.emit('go-to-chat', this.profile.account_id, true);
     },
 
     show(event, profile, boundD, boundR) {  // boundD, boundR 为边界的坐标
