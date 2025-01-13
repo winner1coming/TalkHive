@@ -234,7 +234,6 @@ export default {
   width: 350px;
   padding: 20px;
   gap:10px;
-  height: 100vh;
   margin-top: 20px;
   box-sizing: border-box;
 }
@@ -243,7 +242,7 @@ export default {
 .avatar{
   width: 100px;
   height: 100px;
-  margin-top: 10px;
+  margin-top: -10px;
   margin-bottom: 20px;
   margin-left: 45px;
   border-radius: 100%;
