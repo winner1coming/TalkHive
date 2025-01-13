@@ -740,9 +740,9 @@ func DealGroupInviteRequest(c *gin.Context) {
 	}
 
 	var input struct {
-		AccountID uint `json:"account_id"` // 邀请人的ID
-		GroupID   uint `json:"group_id"`   // 群聊 ID
-		Accept    bool `json:"accept"`     // 是否接受邀请
+		AccountID uint `json:"account_id"`
+		GroupID   uint `json:"group_id"`
+		Accept    bool `json:"accept"`
 	}
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "json解析失败"})
@@ -3109,5 +3109,5 @@ func GetGroupProfileCard(c *gin.Context) {
 		"is_mute":      contact.IsMute,
 		"is_blocked":   contact.IsBlocked,
 	}
-	c.JSON(http.StatusOK, gin.H{"success": true, "data": groupProfileCard})
+	c.JSON(http.StatusOK, gin.H{"success": true, "message": "成功", "data": groupProfileCard})
 }
