@@ -206,17 +206,8 @@ export default {
     },
     async sendMessage() {
       this.hide();
-      try{
-        const response = await chatListAPI.getChat(this.profile.group_id, true);
-        if(response.status !== 200){
-          this.$root.notify(response.data.message, 'error');
-          return;
-        }
-        this.$store.dispatch('setChat', response.data.data);
-        this.$router.push({name: 'chat'});
-      }catch(e){
-        console.log(e);
-      }
+      this.$router.push({name: 'chat'});
+      EventBus.emit('go-to-chat', this.profile.account_id);
     },
 
     show(event, profile, boundD, boundR) {  // boundD, boundR 为边界的坐标
@@ -341,6 +332,7 @@ button {
   color: var(--button-text-color);
   border-radius: 4px;
   cursor: pointer;
+  margin-bottom: 10px;
 }
 
 button:hover {

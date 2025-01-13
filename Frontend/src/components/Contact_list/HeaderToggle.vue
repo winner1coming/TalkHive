@@ -96,6 +96,7 @@ export default {
 }
 .toggle-button{
 	align-self: flex-end;
+	font-size: var(--font-size-small);
 }
 
 .drop-enter-active, .drop-leave-active {

@@ -42,8 +42,8 @@ export default {
 };
 </script>
 
+<style scoped src="@/assets/css/contactList.css"> </style>
 <style scoped>
-
 .modal-content {
   width: 300px;
   height: 130px;
