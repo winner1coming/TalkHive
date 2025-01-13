@@ -1,4 +1,3 @@
-
 <template>
   <div class="system-settings">
     <div class="left-panel">

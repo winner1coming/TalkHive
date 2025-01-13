@@ -195,11 +195,11 @@ func SendSmsCode(c *gin.Context) {
 			c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "该邮箱未注册"})
 			return
 		}
-	case "register":
-		if utils.CheckEmailRegistered(input.Email) { // 已经注册
-			c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "该邮箱已注册，不可重复注册"})
-			return
-		}
+	//case "register":
+	//	if utils.CheckEmailRegistered(input.Email) { // 已经注册
+	//		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "该邮箱已注册，不可重复注册"})
+	//		return
+	//	}
 	case "resetPassword":
 		if !utils.CheckEmailRegistered(input.Email) { // 没有注册
 			c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "该邮箱未注册"})

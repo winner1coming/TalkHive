@@ -321,7 +321,7 @@ export default {
   max-width: 600px;
   height: 100%;
   border-radius: 8px;
-  box-shadow: 0 2px 10px var(--background-color2);
+  box-shadow: 0 2px 10px var(--background-color1);
   background-color: var(--background-color);
 }
 

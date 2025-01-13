@@ -207,7 +207,10 @@ export default {
     async sendMessage() {
       this.hide();
       this.$router.push({name: 'chat'});
-      EventBus.emit('go-to-chat', this.profile.account_id);
+        
+      setTimeout(() => {
+        EventBus.emit('go-to-chat', this.profile.account_id, true);
+      }, 500);
     },
 
     show(event, profile, boundD, boundR) {  // boundD, boundR 为边界的坐标

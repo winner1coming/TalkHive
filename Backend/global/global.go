@@ -1,6 +1,8 @@
 package global
 
 import (
+	"github.com/gorilla/websocket"
+	"net/http"
 	"strconv"
 
 	"github.com/go-redis/redis"
@@ -17,4 +19,10 @@ var (
 func ParseUint(input string) uint {
 	value, _ := strconv.ParseUint(input, 10, 32) // 忽略错误，出错返回 0
 	return uint(value)
+}
+
+var Upgrader = websocket.Upgrader{
+	CheckOrigin: func(r *http.Request) bool {
+		return true
+	},
 }
