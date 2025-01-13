@@ -12,12 +12,6 @@ import { mapActions } from 'vuex';
 import { EventBus } from '@/components/base/EventBus';
 import Notification from '@/components/base/Notification.vue';
 import { mapGetters } from 'vuex/dist/vuex.cjs.js';
-<<<<<<< HEAD
-
-export default {
-  name: 'App',
-
-=======
 import {pullContent} from '@/services/api';
 
 export default {
@@ -29,7 +23,6 @@ export default {
       isPolling: false,
     };
   },
->>>>>>> back
   components: {
     Notification,
   },
@@ -97,10 +90,6 @@ export default {
           return '#ffffff';
       }
     },
-<<<<<<< HEAD
-
-=======
->>>>>>> back
     getBackgroundColor1() {
       switch (this.settings.theme) {
         case 'light':
@@ -113,10 +102,6 @@ export default {
           return '#ffffff';
       }
     },
-<<<<<<< HEAD
-
-=======
->>>>>>> back
     getBackgroundColor2() {
       switch (this.settings.theme) {
         case 'light':
@@ -129,10 +114,6 @@ export default {
           return '#ffffff';
       }
     },
-<<<<<<< HEAD
-
-=======
->>>>>>> back
     getTextColor() {
       switch (this.settings.theme) {
         case 'light':
@@ -145,10 +126,6 @@ export default {
           return '#000000';
       }
     },
-<<<<<<< HEAD
-
-=======
->>>>>>> back
     getButtonBackgroundColor() {
       switch (this.settings.theme) {
         case 'light':
@@ -161,10 +138,6 @@ export default {
           return '#42b983';
       }
     },
-<<<<<<< HEAD
-    
-=======
->>>>>>> back
     getButtonBackgroundColor1() {
       switch (this.settings.theme) {
         case 'light':
@@ -177,10 +150,6 @@ export default {
           return '#42b983';
       }
     },
-<<<<<<< HEAD
-    
-=======
->>>>>>> back
     getButtonBackgroundColor2() {
       switch (this.settings.theme) {
         case 'light':
@@ -193,10 +162,6 @@ export default {
           return '#42b983';
       }
     },
-<<<<<<< HEAD
-
-=======
->>>>>>> back
     getButtonTextColor() {
       switch (this.settings.theme) {
         case 'light':
@@ -209,10 +174,6 @@ export default {
           return '#ffffff';
       }
     },
-<<<<<<< HEAD
-
-=======
->>>>>>> back
     getSidebarBackgroundColor() {
       switch (this.settings.theme) {
         case 'light':
@@ -225,10 +186,6 @@ export default {
           return '#6dc79fb1';
       }
     },
-<<<<<<< HEAD
-
-=======
->>>>>>> back
     getSidebarBackgroundColor1() {
       switch (this.settings.theme) {
         case 'light':
@@ -241,10 +198,6 @@ export default {
           return '#6dc79fb1';
       }
     },
-<<<<<<< HEAD
-
-=======
->>>>>>> back
     getSidebarBackgroundColor2() {
       switch (this.settings.theme) {
         case 'light':
@@ -257,10 +210,6 @@ export default {
           return '#6dc79fb1';
       }
     },
-<<<<<<< HEAD
-
-=======
->>>>>>> back
     getSidebarTextColor() {
       switch (this.settings.theme) {
         case 'light':
@@ -273,10 +222,6 @@ export default {
           return '#000000';
       }
     },
-<<<<<<< HEAD
-
-=======
->>>>>>> back
     selectBackgroundColor() {
       switch (this.settings.theme) {
         case 'light':
@@ -289,10 +234,6 @@ export default {
           return '#6dc79fb1';
       }
     },
-<<<<<<< HEAD
-
-=======
->>>>>>> back
     selectBackgroundColor1() {
       switch (this.settings.theme) {
         case 'light':
@@ -305,10 +246,6 @@ export default {
           return '#6dc79fb1';
       }
     },
-<<<<<<< HEAD
-
-=======
->>>>>>> back
     selectBackgroundColor2() {
       switch (this.settings.theme) {
         case 'light':
@@ -321,10 +258,6 @@ export default {
           return '#6dc79fb1';
       }
     },
-<<<<<<< HEAD
-
-=======
->>>>>>> back
     selectTextColor() {
       switch (this.settings.theme) {
         case 'light':
@@ -338,10 +271,6 @@ export default {
       }
     },
 
-<<<<<<< HEAD
-
-
-=======
     // 轮询
     startPolling() {
       this.pollingInterval = setInterval(this.fetchPollingData, 1000); 
@@ -391,7 +320,6 @@ export default {
         EventBus.emit('updateGroupRequest');
       }
     },
->>>>>>> back
     // 通知
     notify(message, type) {
       this.$refs.notification.show(message, type);
@@ -434,21 +362,15 @@ export default {
     EventBus.on('hide-float-component', () => {
       this.$store.hasFloatComponent = false;
     });
-<<<<<<< HEAD
-=======
 
     this.lastAccessTime = this.getCurrentFormattedTime();
     // 开始轮询
     this.startPolling();
->>>>>>> back
   },
   beforeUnmount() {
     window.removeEventListener('click', this.hideClick, true); 
     window.removeEventListener('contextmenu', this.hideContext, true); 
-<<<<<<< HEAD
-=======
     clearInterval(this.pollingInterval);
->>>>>>> back
   },
 }
 
