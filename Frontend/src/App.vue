@@ -365,7 +365,7 @@ export default {
 
     this.lastAccessTime = this.getCurrentFormattedTime();
     // 开始轮询
-    this.startPolling();
+    // this.startPolling();
   },
   beforeUnmount() {
     window.removeEventListener('click', this.hideClick, true); 
