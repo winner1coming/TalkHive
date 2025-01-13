@@ -1290,20 +1290,21 @@ func GetDivides(c *gin.Context) {
 		return
 	}
 
-	var groups []string // 只存储分组名称的数组
+	var divides []string // 只存储分组名称的数组
 	if groupType == "groups" {
-		if err := global.Db.Model(&models.GroupDivide{}).Where("account_id = ?", accountID).Pluck("gd_name", &groups).Error; err != nil {
+		if err := global.Db.Model(&models.GroupDivide{}).Where("account_id = ?", accountID).Pluck("gd_name", &divides).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "获取群聊分组失败"})
 			return
 		}
 	} else {
-		if err := global.Db.Table("friend_divides").Where("account_id = ?", accountID).Pluck("fd_name", &groups).Error; err != nil {
+		if err := global.Db.Model(&models.FriendDivide{}).Where("account_id = ?", accountID).Pluck("fd_name", &divides).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "获取好友分组失败"})
 			return
 		}
 	}
-
-	c.JSON(http.StatusOK, gin.H{"success": true, "message": "成功", "divides": groups})
+	fmt.Println("type:" + groupType)
+	fmt.Println("返回divides", divides)
+	c.JSON(http.StatusOK, gin.H{"success": true, "message": "成功", "divides": divides})
 }
 
 // CreateDivide 创建分组
@@ -1859,7 +1860,7 @@ func CreateGroup(c *gin.Context) {
 		Divide:      "未分组",
 		IsMute:      false,
 		IsBlocked:   false,
-		Remark:      "",
+		Remark:      input.GroupName,
 	}
 	if err := global.Db.Create(&contact).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "创建群聊失败"})
@@ -2104,12 +2105,17 @@ func GetGroupInfo(c *gin.Context) {
 		return
 	}
 
-	groupID := c.Param("group_id")
-	if groupID == "" {
+	groupIDStr := c.Param("group_id")
+	if groupIDStr == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "缺少群聊ID参数"})
 		return
 	}
-
+	groupID, err := strconv.Atoi(groupIDStr)
+	if err != nil {
+		// 如果转换失败，返回错误信息
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "无效的群聊ID参数"})
+		return
+	}
 	// 检测群聊是否存在
 	var group models.GroupChatInfo
 	if err := global.Db.Where("group_id = ?", groupID).First(&group).Error; err != nil {
@@ -2138,7 +2144,7 @@ func GetGroupInfo(c *gin.Context) {
 	for i, member := range members {
 		// 查询AccountInfo表
 		var accountMember models.AccountInfo
-		if err := global.Db.Where("account_id = ?", member.AccountID).First(accountMember).Error; err != nil {
+		if err := global.Db.Where("account_id = ?", member.AccountID).First(&accountMember).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "获取群聊成员失败"})
 			return
 		}
@@ -2152,7 +2158,7 @@ func GetGroupInfo(c *gin.Context) {
 
 		// 查询Contacts表来获取Remark
 		var contact models.Contacts
-		if err := global.Db.Where("owner_id = ? AND contact_id = ? AND is_group_chat = ?", member.AccountID, groupID, true).First(contact).Error; err != nil {
+		if err := global.Db.Where("owner_id = ? AND contact_id = ? AND is_group_chat = ?", member.AccountID, groupID, true).First(&contact).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "获取群聊成员失败"})
 			return
 		}
@@ -2183,25 +2189,28 @@ func GetGroupInfo(c *gin.Context) {
 
 	// 查询contacts表获取群聊分组
 	var contact models.Contacts
-	if err := global.Db.Where("owner_id = ? AND contact_id = ? AND is_group_chat = ?", accountID, groupID, true).First(contact).Error; err != nil {
+	if err := global.Db.Where("owner_id = ? AND contact_id = ? AND is_group_chat = ?", accountID, groupID, true).First(&contact).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "获取群聊成员失败"})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"success":            true,
-		"message":            "成功",
-		"group_name":         group.GroupName,
-		"group_owner":        groupOwnerID,
-		"group_introduction": groupChat.GroupIntroduction,
-		"allow_invite":       allowInvite,
-		"allow_id_search":    allowIDSearch,
-		"allow_name_search":  allowNameSearch,
-		"my_group_nickname":  myMember.GroupNickname,
-		"divide":             contact.Divide,
-		"my_group_role":      myMember.GroupRole,
-		"members":            memberList,
+		"success": true,
+		"message": "成功",
+		"data": gin.H{
+			"group_name":         group.GroupName,
+			"group_owner":        groupOwnerID,
+			"group_introduction": groupChat.GroupIntroduction,
+			"allow_invite":       allowInvite,
+			"allow_id_search":    allowIDSearch,
+			"allow_name_search":  allowNameSearch,
+			"my_group_nickname":  myMember.GroupNickname,
+			"divide":             contact.Divide,
+			"my_group_role":      myMember.GroupRole,
+			"members":            memberList,
+		},
 	})
+
 }
 
 // ChangeNickname 更改用户在群聊内的昵称

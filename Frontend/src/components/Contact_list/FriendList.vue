@@ -1,9 +1,10 @@
 <template>
   <div class="main">
     <div class="contact-header">
-        好友列表
+        <span style="width: 41.6px;">  </span>
+        <span>好友列表</span>
         <button 
-          style="float: right;"
+          class="header-button"
           @click="showContextMenu"
         >分组管理</button>
     </div>
@@ -342,5 +343,18 @@ export default {
 
 <style scoped src="@/assets/css/contactList.css"></style>
 <style scoped>
-
+.contact-header{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 50px;
+  padding: 0;
+}
+.header-button{
+  float: right;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: var(--font-size-small);
+}
 </style>

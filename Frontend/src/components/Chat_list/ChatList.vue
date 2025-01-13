@@ -497,6 +497,14 @@ export default {
       }
       this.chats.unshift(newChat); 
     });
+    EventBus.on('go-to-chat', (tid) => {
+      const chat = this.chats.find(chat => chat.id === tid);
+      if(chat){
+        this.selectChat(chat);
+      }else{
+        this.selectChat(null, tid);
+      }
+    });
   },
   beforeDestroy() {
     EventBus.off('set-mute');
@@ -504,6 +512,7 @@ export default {
     EventBus.off('set-blocked');
     EventBus.off('set-blacklist');
     EventBus.off('update-chat');
+    EventBus.off('go-to-chat');
   },
 };
 </script>
@@ -517,9 +526,13 @@ export default {
   color: var(--text-color);
   display: flex;
   flex-direction: column;
+  min-width: 170px;
 }
 .chat-header{
   flex: 1;
+}
+.chat-tag{
+  font-size: var(--font-size-small);
 }
 .chat-items {
   flex: 9;
@@ -570,7 +583,7 @@ export default {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  font-size: var(--font-size-small);
+  font-size: var(--font-size-small-small);
 
 }
 .chat-meta {

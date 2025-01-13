@@ -34,6 +34,7 @@ export default {
       const baseFontSize = parseInt(this.settings.fontSize, 10);
       return{
         '--font-size':this.settings.fontSize,
+        '--font-size-small-small':`${baseFontSize - 3}px`,
         '--font-size-small':`${baseFontSize - 2}px`,
         '--font-size-mlarge':`${baseFontSize + 2}px`,
         '--font-size-large': `${baseFontSize + 4}px`,

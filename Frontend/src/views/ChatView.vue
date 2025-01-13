@@ -65,7 +65,7 @@ export default {
       showGroupManagement: false, // 是否显示群聊管理弹窗
       showFriendManagement: false, // 是否显示好友管理弹窗
       chatListWidth: 300,  // 聊天列表的宽度
-      leftComponentWidth: 130,  // 左侧组件的宽度 todo
+      leftComponentWidth: 80,  // 左侧组件的宽度 todo
     };
   },
   methods: {
