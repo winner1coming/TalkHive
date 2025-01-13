@@ -3,6 +3,7 @@
     <div class="forgotpassword">
       <div class="container">
       <!-- 页面标题 -->
+      <img src="@/assets/icon/return.png" alt="Return" class="icon" @click="return_login"/>
       <h2>找回密码</h2>
       
       <!-- 手机号输入框 -->
@@ -31,7 +32,7 @@
         <label for="verificationCode">验证码:</label>
         <input id="verificationCode" type="text" v-model="verificationCode" placeholder="验证码" @blur="validateVerificationCode" />
         <button class="send-verification-code" @click="sendSmsCode" :disabled="isCountingDown" :class="{ 'counting-down': isCountingDown }">
-          {{ isCountingDown ? `${countdown}秒后重试` : '获取' }}</button>
+          {{ isCountingDown ? `${countdown}s` : '获取' }}</button>
       </div>
       <p v-if="errors.verificationCode" class="error">{{ errors.verificationCode }}</p>
       
@@ -71,6 +72,9 @@
     },
     
     methods: {
+      return_login(){
+        this.$router.push('/loginth');
+      },
       // 验证邮箱
       validateEmail() {
         if (!this.email) {
@@ -225,11 +229,20 @@
     border-radius: 8px; /* 添加圆角效果 */
     background-color: #fff; /* 添加背景色 */
     padding: 20px; /* 添加内边距 */
-    margin-top: 120px;
+    margin-top: 20px;
+    width: 350px;
+    height: 40vh;
+  }
+
+  .icon{
+  width:20px;
+  height: 20px;
+  margin-right: 350px;
   }
 
   h2 {
-    margin-bottom: 30px;
+    margin-top: -20px;
+    margin-bottom: 40px;
     align-items: center;
     font-size: 24px;
     color: #333;
@@ -242,19 +255,19 @@
     align-items: center;
     margin-bottom: 20px;
     width: 100%;
-    max-width: 400px;
+    max-width: 330px;
   }
 
   .input-group label {
-    font-size: 14px;
+    font-size: 16px;
     color: #666;
     text-align: left;
-    width: 60px;
+    width: 80px;
   }
 
   .input-group input {
     padding: 10px;
-    font-size: 16px;
+    font-size: 14px;
     border: 1px solid #ccc;
     border-radius: 4px;
     width: 100%;
@@ -265,38 +278,45 @@
     padding: 10px;
     width: 20%;
     font-size: 14px;
-    color: #fff;
-    background-color: #42b983;
+    color: #666;
+    background-color:var(--button-background-color1);
     border: none;
     border-radius: 4px;
     cursor: pointer;
     margin-left: 0px;
   }
 
+  .send-verification-code.counting-down, .send-verification-code.counting-down:hover{
+    background-color:#ccc;
+    cursor: not-allowed;
+  }
+
+
   .error {
     color: red;
     font-size: 12px;
-    margin-top: 5px;
+    margin-top: -10px;
+    margin-bottom: 10px;
     text-align: left;
     width: 100%;
-    max-width: 400px;
+    max-width: 150px;
   }
 
   .submit-button {
     width: 100%;
-    max-width: 100px;
+    max-width: 80px;
     padding: 10px;
     font-size: 16px;
-    color: #fff;
-    background-color: #42b983;
+    color: #666;
+    background-color: var(--button-background-color1);
     border: none;
     border-radius: 4px;
     cursor: pointer;
     margin-top: 10px;
   }
 
-  .submit-button:hover {
-    background-color: #369f6e;
+  .submit-button:hover, .submit-button.active,.send-verification-code:hover {
+    background-color: var(--button-background-color2);
   }
 
   .success-message {
