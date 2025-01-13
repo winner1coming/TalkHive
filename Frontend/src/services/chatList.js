@@ -51,6 +51,10 @@ export const collectMessage = (table_name, message_id) => {
 export const deleteMessage = (message_id) => {
   return apiClient.post(`/messages/delete`, { message_id });
 };
+// 撤回消息
+export const recallMessage = (message_id) => {
+  return apiClient.post(`/messages/recall`, { message_id });
+};
 // 获取历史记录
 export const getHistory = (tid) => {
   return apiClient.post(`/messages/history`,{tid});

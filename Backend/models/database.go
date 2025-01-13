@@ -80,6 +80,8 @@ type ApplyInfo struct {
 	GroupID    uint   `json:"group_id"`
 	Status     string `json:"status"`
 	Reason     string `json:"reason"`
+	SendTime   string `json:"send_time"`
+	DealTime   string `json:"deal_time"`
 }
 
 // GroupChatInfo 群聊	总表

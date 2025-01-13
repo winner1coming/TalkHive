@@ -151,19 +151,13 @@ export default {
         alert(error, '获取系统设置失败，请检查网络');
       }
     },
-    handleBeforeUnload(event) {
-      // 在页面关闭或刷新时调用 logout 方法
-      this.logout();
-    },
   },
   mounted() {
     this.fetchSystemSettings();
     document.addEventListener('click', this.handleClickOutside);
-    window.addEventListener('beforeunload', this.handleBeforeUnload);
   },
   beforeUnmount() {
     document.removeEventListener('click', this.handleClickOutside);
-    window.removeEventListener('beforeunload', this.handleBeforeUnload);
   },
 };
 </script>
@@ -231,6 +225,10 @@ export default {
 
 .nav-links a:hover {
   background-color: var(--sidebar-background-color);
+}
+
+.nav-links a.router-link-active {
+  background-color: var(--sidebar-background-color1);
 }
 
 .dropdown {

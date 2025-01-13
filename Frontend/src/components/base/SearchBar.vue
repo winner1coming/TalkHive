@@ -68,6 +68,7 @@
     padding: 5px;
     border: 1px solid #ddd;
     border-radius: 4px;
+    width: 100%;
   }
   .search-bar button {
     margin-left: 5px;
