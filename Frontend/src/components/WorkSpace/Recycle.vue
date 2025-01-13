@@ -1,6 +1,13 @@
 <template>
     <div class="recycle-bin">
-      <h2>回收站</h2>
+      <h2 class="trash-header">
+        <img
+          src="@/assets/icon/delete.png"
+          alt="垃圾桶"
+          class="trash-icon"
+        />
+        回收站
+      </h2>
       <ul>
         <li v-for="file in deletedFiles" :key="file.recycle_id" class="file-item">
           <div class="file-info">
@@ -13,9 +20,21 @@
           </div>
           <div class="file-actions">
             <!-- 恢复按钮 -->
-            <button @click="confirmRestore(file)" class="restore-btn">恢复</button>
+            <!-- <button @click="confirmRestore(file)" class="restore-btn">恢复</button> -->
+            <img
+              src="@/assets/icon/reuse.png"
+              title="恢复"
+              class="restore-icon"
+              @click="confirmRestore(file)"
+            />
             <!-- 删除按钮 -->
-            <button @click="confirmDelete(file)" class="delete-btn">彻底删除</button>
+            <!-- <button @click="confirmDelete(file)" class="delete-btn">彻底删除</button> -->
+            <img 
+              src="@/assets/icon/recycle_delete.png" 
+              title="彻底删除" 
+              class="delete-icon" 
+              @click="confirmDelete(file)"
+            />
           </div>
         </li>
       </ul>
@@ -87,6 +106,7 @@
       confirmDelete(file) {
         this.selectedFile = file;
         this.showDeleteModal = true;
+        console.log("进入confirmDelete");
       },
   
       // 关闭弹窗
@@ -149,9 +169,9 @@
     padding: 20px;
   }
   
-  .recycle-bin h2 {
+  /* .recycle-bin h2 {
     margin-bottom: 20px;
-  }
+  } */
   
   .file-item {
     display: flex;
@@ -178,7 +198,6 @@
     font-size: 20px;
     text-align: right;
     margin-right: 50px;
-    margin-top: 8px;
   }
   
   .file-actions {
@@ -236,6 +255,36 @@
   
   .confirm-btn:hover, .cancel-btn:hover {
     background-color: #0056b3;
+  }
+  
+  .trash-header {
+    display: inline-flex; /* 使用 inline-flex 保持行内显示 */
+    align-items: center;  /* 垂直居中对齐 */
+    gap: 8px;             /* 设置图标和文字之间的间距 */
+  }
+
+  .trash-icon{
+    width: 50px;
+    height: 50px;
+  }
+  .delete-icon {
+    width: 18px;
+    height: 18px;
+    background-color: none;
+    color: white;
+    margin-right: 13px;
+  }
+
+  .restore-icon{
+    width: 20px;
+    height: 20px;
+    background-color: none;
+    color: white;
+    margin-right: 13px;
+  }
+
+  .delete-icon:hover, .restore-icon:hover {
+    cursor: pointer;
   }
   </style>
   

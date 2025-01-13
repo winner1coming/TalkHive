@@ -300,5 +300,4 @@ export default {
   cursor: ew-resize;
   background-color: var(--background-color2);
 }
-
 </style>
