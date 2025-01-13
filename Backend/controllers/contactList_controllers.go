@@ -1741,7 +1741,7 @@ func GetGroups(c *gin.Context) {
 
 	// 查询用户所属的群聊信息
 	var contacts []models.Contacts
-	err = global.Db.Where("owner_id = ? AND is_group_chat = ? AND is_blocked = ?", accountID, true, false).Find(&contacts).Error
+	err = global.Db.Where("owner_id = ? AND is_group_chat = ? AND is_blacklist = ?", accountID, true, false).Find(&contacts).Error
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询群聊失败"})
 		return
@@ -1992,6 +1992,10 @@ func Invite(c *gin.Context) {
 		AccountID uint `json:"account_id"`
 		GroupID   uint `json:"group_id"`
 	}
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "JSON绑定失败"})
+		return
+	}
 
 	//检测被邀请的用户是否存在
 	var other models.AccountInfo
@@ -2013,17 +2017,21 @@ func Invite(c *gin.Context) {
 
 	// 是否已经在群聊中
 	var member models.GroupMemberInfo
-	if err := global.Db.Where("account_id = ? AND group_id = ?", input.AccountID, input.GroupID).First(&member).Error; err != nil {
+	if err := global.Db.Where("account_id = ? AND group_id = ?", input.AccountID, input.GroupID).First(&member).Error; err == nil {
 		c.JSON(http.StatusForbidden, gin.H{"success": false, "message": "该成员已经在群聊中"})
 		return
 	}
 
-	newMember := models.GroupMemberInfo{
-		GroupID:   input.GroupID,
-		AccountID: input.AccountID,
-		GroupRole: "group_ordinary",
+	groupInvite := models.ApplyInfo{
+		ApplyType:  "group",
+		SenderID:   uint(accountID),
+		ReceiverID: input.AccountID,
+		GroupID:    input.GroupID,
+		Status:     "pending",
+		Reason:     "invite",
+		SendTime:   time.Now().Format("2006-01-02 15:04:05"),
 	}
-	if err := global.Db.Create(&newMember).Error; err != nil {
+	if err := global.Db.Create(&groupInvite).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "邀请失败"})
 		return
 	}
@@ -2627,14 +2635,31 @@ func FetchFriendsNotInGroup(c *gin.Context) {
 		memberIDs[member.AccountID] = true
 	}
 
-	// 筛选不在群聊内的好友
-	var friendsNotInGroup []models.Contacts
+	var friendsNotInGroup []map[string]interface{}
 	for _, friend := range friends {
 		if !memberIDs[friend.ContactID] {
-			friendsNotInGroup = append(friendsNotInGroup, friend)
+			// 查询AccountInfo表
+			var friendDetails models.AccountInfo
+			if err := global.Db.Where("account_id = ?", friend.ContactID).First(&friendDetails).Error; err != nil {
+				continue
+			}
+
+			avatarBase64, mimeType, err := utils.GetFileContentAndType(friendDetails.Avatar)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": err.Error()})
+				return
+			}
+			avatarBase64 = "data:" + mimeType + ";base64," + avatarBase64
+			friendInfo := map[string]interface{}{
+				"account_id": friendDetails.AccountID,
+				"avatar":     avatarBase64,
+				"id":         friendDetails.ID,
+				"nickname":   friendDetails.Nickname,
+			}
+			friendsNotInGroup = append(friendsNotInGroup, friendInfo)
 		}
 	}
-	c.JSON(http.StatusOK, gin.H{"success": true, "data": friendsNotInGroup})
+	c.JSON(http.StatusOK, gin.H{"success": true, "message": "成功", "data": friendsNotInGroup})
 }
 
 // RemoveMember 移除某个群成员
