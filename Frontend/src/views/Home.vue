@@ -227,6 +227,10 @@ export default {
   background-color: var(--sidebar-background-color);
 }
 
+.nav-links a.router-link-active {
+  background-color: var(--sidebar-background-color1);
+}
+
 .dropdown {
   background-color: #fff;
   border: 1px solid #ddd;

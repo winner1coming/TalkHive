@@ -86,7 +86,7 @@ export default {
     getBackgroundColor1() {
       switch (this.settings.theme) {
         case 'light':
-          return '#e3e0e0';   //更深一点的灰色
+          return '#eaeaea';   //更深一点的灰色
         case 'dark':
           return '#333333';
         case 'system':
@@ -177,7 +177,7 @@ export default {
     getSidebarBackgroundColor() {
       switch (this.settings.theme) {
         case 'light':
-          return '#c9b3d9'; // 浅色主题的侧边栏背景颜色  浅紫色
+          return '#af8edd95'; // 浅色主题的侧边栏背景颜色  浅紫色
         case 'dark':
           return '#2c3e50'; // 深色主题的侧边栏背景颜色
         case 'system':
@@ -190,7 +190,7 @@ export default {
     getSidebarBackgroundColor1() {
       switch (this.settings.theme) {
         case 'light':
-          return '#b893d3'; // 更深的紫色
+          return '#7445b666'; // 更深的紫色
         case 'dark':
           return '#2c3e50'; // 深色主题的侧边栏背景颜色
         case 'system':
@@ -203,7 +203,7 @@ export default {
     getSidebarBackgroundColor2() {
       switch (this.settings.theme) {
         case 'light':
-          return '#9767b8'; // 更深的紫色
+          return '#8757c9a1'; // 更深的紫色
         case 'dark':
           return '#2c3e50'; // 深色主题的侧边栏背景颜色
         case 'system':
@@ -216,7 +216,7 @@ export default {
     getSidebarTextColor() {
       switch (this.settings.theme) {
         case 'light':
-          return '#9767b8'; // 深色一些的紫色
+          return '#000000'; // 黑色
         case 'dark':
           return '#ffffff'; // 深色主题的侧边栏文字颜色
         case 'system':
@@ -229,7 +229,7 @@ export default {
     selectBackgroundColor() {
       switch (this.settings.theme) {
         case 'light':
-          return 'rgba(62, 246, 246, 0.496)'; // 蓝色设置
+          return '#bcdfff88'; // 蓝色设置
         case 'dark':
           return '#2c3e50'; // 深色主题的侧边栏背景颜色
         case 'system':
@@ -242,7 +242,7 @@ export default {
     selectBackgroundColor1() {
       switch (this.settings.theme) {
         case 'light':
-          return 'rgba(35, 221, 231, 0.704)'; // 更深一点的蓝色
+          return '#d0e8ff'; // 更深一点的蓝色
         case 'dark':
           return '#2c3e50'; // 深色主题的侧边栏背景颜色
         case 'system':
@@ -268,7 +268,7 @@ export default {
     selectTextColor() {
       switch (this.settings.theme) {
         case 'light':
-          return 'rgba(26, 183, 226, 0.879)'; // 蓝色
+          return '#007bff'; // 蓝色
         case 'dark':
           return '#ffffff'; // 深色主题的侧边栏文字颜色
         case 'system':

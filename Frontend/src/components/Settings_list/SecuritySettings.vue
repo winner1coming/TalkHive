@@ -133,7 +133,7 @@ export default {
 
 .left-panel {
   width: 15%;
-  background-color: #f0f0f0;
+  background-color: var(--background-color1);
 }
 
 .right-panel {
@@ -153,8 +153,13 @@ export default {
 }
 
 .menu-item.active {
-  background-color: #42b983;
-  color: white;
+  background-color: var(--select-background-color1);
+  color: var(--select-text-color);
+}
+
+.menu-item:hover{
+  background-color: var(--select-background-color);
+  opacity: 70%;
 }
 
 .menu-item span {
@@ -168,7 +173,13 @@ export default {
 }
 
 .menu-item.active .content {
-  color: white;
+  color: var(--select-text-color);
+  font-weight: bold;
+}
+
+.menu-item.active,.menu-item:hover .span{
+  font-weight: bold;
+  color: var(--select-text-color);
 }
 
 .confirmation-modal {

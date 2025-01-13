@@ -116,7 +116,7 @@
 
       validatePassword(password , key){
           if(!password){
-            this.errors[key] = '请输入原密码！';
+            this.errors[key] = '请输入密码！';
           }else if(password.length < 6){
             this.errors[key] = '密码长度不能小于6位！';
           }else if(password.length > 20)
