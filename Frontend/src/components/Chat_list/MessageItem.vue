@@ -232,13 +232,13 @@ export default {
 }
 .message-sender {
   color: #888;
-  font-size: var(--font-size-small);
+  font-size: var(--font-size-small-small);
   text-align: left;
   padding: 0 0 0 10px;
 }
 .message-time {
   color: #888;
-  font-size: var(--font-size-small);
+  font-size: var(--font-size-small-small);
   text-align: right;
   padding: 0 0 0 10px;
 }
