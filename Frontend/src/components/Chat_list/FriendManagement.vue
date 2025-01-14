@@ -86,10 +86,33 @@
           <div>
 
           </div>
+          <!--消息内容-->
           <div class="message-content">
-            <p v-if="message.type==='text'" class="message-text">{{ message.content }}</p>
-            <p v-else-if="message.type==='image'" class="message-text"><img :src="message.content"/></p>
-            <p v-else-if="message.type==='file'" class="message-text">{{ message.content }}</p>
+            <!--文本-->
+            <p 
+              v-if="message.type==='text'" 
+              class="message-text">
+              {{ message.content }}
+            </p>
+            <!--图片-->
+            <p 
+              v-else-if="message.type==='image'" 
+              class="message-text">
+              <img :src="message.content" alt="image" style/>
+            </p>
+            <!--文件-->
+            <p 
+              class="file-item" 
+              v-else-if="message.type==='file'"
+              @click="downloadFile(message)"  
+            >
+              <img src="@/assets/images/default-file.png" alt="file" />
+              <div class="file-header">
+                <div class="file-name">{{ message.content.name }}</div>
+                <span class="file-size">{{ message.content.size }}</span>
+              </div>
+            </p>
+            <!--代码块-->
             <p v-else class="message-text">[代码块]</p>
           </div>
         </div>
@@ -363,9 +386,9 @@ export default {
     async viewChatHistory() {
       // 查看聊天记录
       this.componentStatus = 'history';
-      chatListAPI.getHistory(this.account_id).then(response => {
+      chatListAPI.getMessages(this.account_id, false).then(response => {
         if (response.status === 200) {
-          this.history = response.data.data;
+          this.history = response.data.data.messages;
         } else {
           this.$root.notify(response.data.message, 'error');
         }
@@ -387,6 +410,18 @@ export default {
     searchMemberHistory(event){
       this.searchHistoryType = 'member';
       this.$refs.memberSelect.show(event, this.boundD, this.boundR);
+    },
+    // 下载文件
+    downloadFile(message){
+      const blob = new Blob([message.content], { type: 'application/octet-stream' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', message.content.name);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url); // 释放 URL 对象
     },
 
     // 显示与隐藏
@@ -685,6 +720,23 @@ export default {
   margin-bottom: 5px;
   text-align: left;
   padding: 3px;
+}
+.file-item{
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  flex-direction: row;
+  padding: 3px 0 3px 0;
+}
+.file-name{
+  margin-top: 5px;
+  font-size: var(--font-size-small);
+  color: #888;
+}
+.file-size{
+  margin-top: 5px;
+  font-size: var(--font-size-small);
+  color: #888;
 }
 
 
