@@ -156,27 +156,35 @@ export default createStore({
     },
 
     connectWebSocket({ commit, state }) {
-      const socket = new WebSocket(`https://localhost:8080/ws/websocketMessage`);  
+      console.log('Try connecting to WebSocket');
+      const url = `http://localhost:8080/ws/websocketMessage/` + state.user.id.toString();
+      const socket = new WebSocket(url);  
+      socket.onopen = () => {
+        console.log('WebSocket connection opened');
+      }
       socket.onmessage = (event) => {
-        const type = JSON.parse(event.data.type);
-        const data = JSON.parse(event.data.data);
+        //const type = JSON.parse(event.data.type);
+        const data = JSON.parse(event.data);
+        console.log('Received message:', data);
         // 播放提示音
-        if(state.settings.isNotice){
-          const audio = new Audio(require(`@/assets/sound/${state.settings.sound}`));
-          audio.play();
-        }
+        // if(state.settings.isNotice){
+        //   const audio = new Audio(`@/assets/sound/${state.settings.sound}`);
+        //   audio.play();
+        // }
         // 除了对应内容外还需要type字段   todo todo
         if (true || type === 'message') {   
-          if(data.send_account_id === state.currentChat.id){
+          console.log(state.currentChat);
+          if(state.currentChat && data.sender_id === state.currentChat.id){
             const message ={
               message_id: data.message_id, 
-              send_account_id: data.send_account_id, 
+              send_account_id: data.sender_id, 
               content: data.content,
               sender: data.sender, 
               create_time: data.create_time, 
               avatar: data.avatar,
               type: data.type, 
             }
+            console.log('new message')
             EventBus.emit('new-message', message);
           }
         } else if (type === 'notification') { 

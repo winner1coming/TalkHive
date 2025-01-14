@@ -138,10 +138,10 @@ export default {
             type: type,   // 消息类型
           });
           let newChat = this.$store.state.currentChat;
-          if(type==='text')newChat.last_message = content;
-          else if(type==='image')newChat.last_message = '[图片]';
-          else if(type==='file')newChat.last_message = '[文件]';
-          else newChat.last_message = '[代码块]';
+          if(type==='text') newChat.lastMessage = content;
+          else if(type==='image')newChat.lastMessage = '[图片]';
+          else if(type==='file')newChat.lastMessage = '[文件]';
+          else newChat.lastMessage = '[代码块]';
           this.$store.dispatch('setChat', newChat);
           this.scrollToBottom();
         }

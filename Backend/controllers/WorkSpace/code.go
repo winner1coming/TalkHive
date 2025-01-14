@@ -117,10 +117,10 @@ func CreateCode(c *gin.Context) {
 
 	// 7. 返回文件元信息
 	c.JSON(http.StatusOK, gin.H{
-		"code_id":    code.CodeID,
-		"code_name":       code.Name,
-		"last_modified_time":  code.SaveTime.Format("2006-01-02 15:04"),
-		"Suffix":     code.Suffix,
+		"code_id":            code.CodeID,
+		"code_name":          code.Name,
+		"last_modified_time": code.SaveTime.Format("2006-01-02 15:04"),
+		"Suffix":             code.Suffix,
 	})
 }
 
@@ -284,6 +284,7 @@ func EditCode(c *gin.Context) {
 		"is_show":    code.IsShow,
 	})
 }
+
 // ShareCode - 分享代码文件√
 func ShareCode(c *gin.Context) {
 	// 获取请求参数

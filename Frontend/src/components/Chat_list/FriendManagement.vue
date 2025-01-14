@@ -474,6 +474,10 @@ export default {
         });
       }
       else if(this.searchHistoryType === 'member'){
+        if(!this.searchHistoryMember) return null;
+        if(!this.searchHistoryKeyword.account_id){
+          return this.history.filter(message => message.send_account_id===this.searchHistoryMember.account_id);
+        }
         return this.history.filter(message => {
           return message.send_account_id===this.searchHistoryMember 
             && message.content.includes(keyword);
