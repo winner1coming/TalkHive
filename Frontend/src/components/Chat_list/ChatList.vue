@@ -486,6 +486,9 @@ export default {
     this.fetchChatList();
     if(this.$store.state.currentChat){
       this.selectChat(this.$store.state.currentChat);
+      if(this.$store.state.currentChat.unreadCount > 0){
+        this.readMessages(this.$store.state.currentChat);
+      }
     }
   },
   mounted() {
