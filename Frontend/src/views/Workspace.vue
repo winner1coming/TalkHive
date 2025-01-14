@@ -65,7 +65,7 @@ export default {
 
 .toolbar {
   width: 150px;
-  background-color:var(--background-color);
+  background-color: var(--background-color);
   border-right: 1px solid var(--background-color2);
   padding: 10px;
   box-sizing: border-box;
@@ -106,6 +106,5 @@ export default {
   padding: 20px;
   box-sizing: border-box;
   overflow-y: auto;
-  background-color: var(--background-color);
 }
 </style>
