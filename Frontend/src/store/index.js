@@ -167,22 +167,24 @@ export default createStore({
         const data = JSON.parse(event.data);
         console.log('Received message:', data);
         // 播放提示音
-        if(state.settings.isNotice){
-          const audio = new Audio(`@/assets/sound/${state.settings.sound}`);
-          audio.play();
-        }
+        // if(state.settings.isNotice){
+        //   const audio = new Audio(`@/assets/sound/${state.settings.sound}`);
+        //   audio.play();
+        // }
         // 除了对应内容外还需要type字段   todo todo
         if (true || type === 'message') {   
-          if(data.send_account_id === state.currentChat.id){
+          console.log(state.currentChat);
+          if(state.currentChat && data.sender_id === state.currentChat.id){
             const message ={
               message_id: data.message_id, 
-              send_account_id: data.send_id, 
+              send_account_id: data.sender_id, 
               content: data.content,
               sender: data.sender, 
               create_time: data.create_time, 
               avatar: data.avatar,
               type: data.type, 
             }
+            console.log('new message')
             EventBus.emit('new-message', message);
           }
         } else if (type === 'notification') { 
