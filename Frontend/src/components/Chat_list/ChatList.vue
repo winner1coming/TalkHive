@@ -548,15 +548,15 @@ export default {
         return;
       }
       this.chats = this.chats.filter(chat => chat.id !== newChat.id);
-      if(!this.selectedChat&&newChat.id===this.selectedChat.id){
-        chat.tags = newChat.tags.filter(tag => tag !== 'unread');
-        newChat.unreadCount = 0;
-        if(newChat.tags.includes('friend')){
-          this.chatListAPI.readMessages(newChat.id, true, false);
-        }
-        else{
-          this.chatListAPI.readMessages(newChat.id, true, true);
-        }
+      if(this.selectedChat&&newChat.id===this.selectedChat.id){
+        // chat.tags = newChat.tags.filter(tag => tag !== 'unread');
+        // newChat.unreadCount = 0;
+        // if(newChat.tags.includes('friend')){
+        //   this.chatListAPI.readMessages(newChat.id, true, false);
+        // }
+        // else{
+        //   this.chatListAPI.readMessages(newChat.id, true, true);
+        // }
         
       }else{
         chat.unreadCount = chat.unreadCount+1;

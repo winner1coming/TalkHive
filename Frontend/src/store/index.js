@@ -184,20 +184,22 @@ export default createStore({
               avatar: data.avatar,
               type: data.type, 
             }
-            const newChat = {
-              id: data.sender_id,
-              avatar: '',
-              name: '',
-              remark: '',
-              lastMessage: data.content,
-              lastMessageTime: data.create_time,
-              unreadCount: 0,
-              tags: [],
-            }
+            
             console.log('new message')
             EventBus.emit('new-message', message);
-            EventBus.emit('update-chat', newChat);
+            
           }
+          const newChat = {
+            id: data.sender_id,
+            avatar: '',
+            name: '',
+            remark: '',
+            lastMessage: data.content,
+            lastMessageTime: data.create_time,
+            unreadCount: 0,
+            tags: [],
+          }
+          EventBus.emit('update-chat', newChat);
         } else if (type === 'notification') { 
           commit('ADD_NOTIFICATION', data);
         }
