@@ -6,5 +6,5 @@ import (
 )
 
 func websocketRoutes(r *gin.Engine) {
-	r.GET("/ws/websocketMessage", controllers.HandleConnections)
+	r.GET("/ws/websocketMessage/:account_id", controllers.HandleConnections)
 }
