@@ -156,7 +156,8 @@ export default createStore({
     },
 
     connectWebSocket({ commit, state }) {
-      const socket = new WebSocket(`https://localhost:8080/ws/websocketMessage`);  
+      const url = `https://localhost:8080/ws/websocketMessage/` + state.user.id.toString();
+      const socket = new WebSocket(url);  
       socket.onmessage = (event) => {
         const type = JSON.parse(event.data.type);
         const data = JSON.parse(event.data.data);
@@ -170,7 +171,7 @@ export default createStore({
           if(data.send_account_id === state.currentChat.id){
             const message ={
               message_id: data.message_id, 
-              send_account_id: data.send_account_id, 
+              send_account_id: data.send_id, 
               content: data.content,
               sender: data.sender, 
               create_time: data.create_time, 
