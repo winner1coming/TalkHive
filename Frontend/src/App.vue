@@ -12,7 +12,6 @@ import { mapActions } from 'vuex';
 import { EventBus } from '@/components/base/EventBus';
 import Notification from '@/components/base/Notification.vue';
 import { mapGetters } from 'vuex/dist/vuex.cjs.js';
-import {pullContent} from '@/services/api';
 
 export default {
   name: 'App',
@@ -307,7 +306,6 @@ export default {
     // },
     // handlePollingData(pollingData) {
     //   if(pollingData.has_new_message || pollingData.has_new_friendrequest || pollingData.has_new_grouprequest){
-    //     // todo 播放新消息提示音
     //   }
     //   if(pollingData.has_new_message){
     //     EventBus.emit('update-chat');

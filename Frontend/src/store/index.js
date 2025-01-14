@@ -142,16 +142,29 @@ export default createStore({
     },
 
     connectWebSocket({ commit, state }) {
-      const socket = new WebSocket(`ws://localhost:8080/${state.user.id}`);  
+      const socket = new WebSocket(`ws://localhost:8080/websocketMessage`);  
       socket.onmessage = (event) => {
         const data = JSON.parse(event.data);
+        // 播放提示音
+        if(state.settings.isNotice){
+          const audio = new Audio(require(`@/assets/sound/${state.settings.sound}`));
+          audio.play();
+        }
         // 除了对应内容外还需要type字段   todo todo
-        if (data.type === 'message') {    // chatlist怎么办
-          // 新增contact_id字段，原message内容被封装在message字段中
-          if(data.contact_id===state.selectedChatID){
-            EventBus.$emit('new-message', data.message);
+        if (true || data.type === 'message') {   
+          if(data.send_account_id === state.currentChat.id){
+            const message ={
+              message_id: data.message_id, 
+              send_account_id: data.send_account_id, 
+              content: data.content,
+              sender: data.sender, 
+              create_time: data.create_time, 
+              avatar: data.avatar,
+              type: data.type, 
+            }
+            EventBus.emit('new-message', message);
           }
-        } else if (data.type === 'notification') { // todo
+        } else if (data.type === 'notification') { 
           commit('ADD_NOTIFICATION', data);
         }
       };

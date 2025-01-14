@@ -243,8 +243,7 @@ export default {
             return;
           }
           else{
-            // todo
-            this.profile
+            window.location.reload();
           }
         }catch(e){
           console.log(e);

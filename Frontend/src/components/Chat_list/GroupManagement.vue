@@ -173,7 +173,10 @@
 
           </div>
           <div class="message-content">
-            <p class="message-text">{{ message.content }}</p>
+            <p v-if="message.type==='text'" class="message-text">{{ message.content }}</p>
+            <p v-else-if="message.type==='image'" class="message-text"><img :src="message.content"/></p>
+            <p v-else-if="message.type==='file'" class="message-text">{{ message.content }}</p>
+            <p v-else class="message-text">[代码块]</p>
           </div>
         </div>
       </div>
@@ -890,9 +893,9 @@ export default {
           );
         });
       }
-      else if(this.searchHistoryType === 'image'){  // todo
+      else if(this.searchHistoryType === 'image'){ 
         return this.history.filter(message => {
-          return message.type === 'image' && message.content.includes(keyword);
+          return message.type === 'image';
         });
       }
       else if(this.searchHistoryType === 'file'){  // todo

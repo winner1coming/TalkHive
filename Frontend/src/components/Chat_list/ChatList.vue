@@ -192,7 +192,7 @@ export default {
           console.log(e);
         }
       }
-      this.selectedChat = chat;   // todo 滚动到chat
+      this.selectedChat = chat;   
       this.$store.dispatch('setChat', chat);
       // 已读消息
       if(chat.tags.includes('unread')) {
