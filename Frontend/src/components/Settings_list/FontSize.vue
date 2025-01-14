@@ -67,7 +67,7 @@
     },
     data() {
       return {
-        avatar,
+        avatar:this.$store.state.user.avatar,
         fontSize:this.$store.state.settings.fontSize, // 默认字体大小
         fontStyle:this.$store.state.settings.fontStyle,
         showModal:false,

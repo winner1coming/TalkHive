@@ -9,7 +9,7 @@
       <div class="menu-item" :class="{ active: activeComponent === 'FontSize' }" @click="setActiveComponent('FontSize')">
         <img src="@/assets/icon/font.png" alt="FontSize" class="icon"/>
         <span>字体大小</span>
-        <span class="content">{{ fontsize+'px' }}</span>
+        <span class="content">{{ fontsize }}</span>
       </div>
       <div class="menu-item" :class="{ active: activeComponent === 'SoundSetting' }" @click="setActiveComponent('SoundSetting')">
         <img src="@/assets/icon/notice.png" alt="SoundSetting" class="icon"/>
@@ -48,7 +48,7 @@ export default {
   data() {
     return {
       theme:this.$store.state.settings.theme,
-      fontsize:this.$store.state.settings.fontSize,
+      fontsize:this.$store.state.settings.fontSize+'px',
       activeComponent: '',
     };
   },

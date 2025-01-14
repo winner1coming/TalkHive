@@ -1,6 +1,6 @@
 <template>
     <div class="search-bar">
-        <span class="search-icon">🔍</span>
+      <img src="@/assets/icon/find.png" alt="find" class="find-icon"/>
         <input
         type="text"
         v-model="query"
@@ -51,19 +51,23 @@
     padding: 10px;
     margin-top: 10px;
   }
+  
   .search-bar input {
     flex:1;
     padding: 5px;
-    border: 1px solid #ddd;
     border-radius: 4px;
-    padding-left: 20px;
+    padding-left: 30px;
+    color: var(--text-color);
   }
 
-  .search-icon {
-  position: absolute;
-  left: 20px;
-  font-size: var(--font-size);
-  color: #666;
-  cursor: pointer;
-}
+  .find-icon {
+    width: 25px;
+    height: 25px;
+    position: absolute;
+    top: 24px;
+    left: 32px;
+    font-size: var(--font-size);
+    color: #666;
+    cursor: pointer;
+  }
   </style>
