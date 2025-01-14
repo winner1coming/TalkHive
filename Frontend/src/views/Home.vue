@@ -155,6 +155,7 @@ export default {
   mounted() {
     this.fetchSystemSettings();
     document.addEventListener('click', this.handleClickOutside);
+    this.$store.dispatch('connectWebSocket'); // 连接 WebSocket
   },
   beforeUnmount() {
     document.removeEventListener('click', this.handleClickOutside);
