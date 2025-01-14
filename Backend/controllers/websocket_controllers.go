@@ -64,7 +64,8 @@ func HandleMessages(msg global.Message) {
 			log.Println("查询群成员失败:", err)
 		}
 		for _, member := range groupMembers {
-			if targetConn, ok := global.Clients[member.AccountID]; ok {
+			if targetConn, ok := global.
+				Clients[member.AccountID]; ok {
 				if err := targetConn.WriteJSON(msg); err != nil {
 					log.Println("群聊消息发送失败:", err)
 				}
