@@ -161,6 +161,28 @@
           </div>
         </div>
 
+        <!-- 删除确认框 -->
+        <div v-if="showDeleteConfirm" class="confirm-modal">
+          <div class="confirm-content">
+            <p>是否确认删除此DDL？</p>
+            <div class="modal-actions">
+              <button @click="deleteDdl" class="confirm-btn">确认</button>
+              <button @click="cancelDelete" class="cancel-btn">取消</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 更新为已完成确认框 -->
+        <div v-if="showUpdateConfirm" class="confirm-modal">
+          <div class="confirm-content">
+            <p>是否确认已完成此DDL？</p>
+            <div class="modal-actions">
+              <button @click="updateDdlStatus" class="confirm-btn">确认</button>
+              <button @click="cancelUpdate" class="cancel-btn">取消</button>
+            </div>
+          </div>
+        </div>
+
 
         <ul>
           <li v-for="item in ddlList" :key="item.task_id" class="ddl-item">
@@ -168,14 +190,14 @@
               type="checkbox" 
               class="ddl-checkbox" 
               v-model="item.completed" 
-              @change="updateDdlStatus(item)" 
+              @change="confirmUpdate(item)" 
             />
             <span class="deadline" @click="editDdl(item.task_id)">{{ formatDeadline(item.deadline) }}</span>
             <img v-if="item.important" src="@/assets/icon/important.png" title="重要" class="important-icon"/>
             <!-- <span v-if="item.important" class="important-label">重要</span> -->
             <span v-if="!item.important" class="invisible_important-label">  </span>
             <span class="task-content" @click="editDdl(item)">{{ item.task_content }}</span>
-            <img src="@/assets/icon/recycle_delete.png" alt="垃圾图标" class="trash-icon" @click="deleteDdl(item)"/>
+            <img src="@/assets/icon/recycle_delete.png" alt="垃圾图标" class="trash-icon" @click="confirmDelete(item)"/>
           </li>
         </ul>
       </div>
@@ -223,6 +245,10 @@ export default {
       },
       showCompleted: false, // 控制是否显示已完成的 DDL
       showCreateDdl: false, // 控制是否显示新建 DDL 编辑框
+      showDeleteConfirm: false,
+      showUpdateConfirm: false,
+      itemToDelete: null,
+      itemToUpdate: null,
       newDdl: {
         deadline: {
           year: new Date().getFullYear(),
@@ -407,9 +433,9 @@ export default {
     },
 
     // 更新 DDL 状态为已完成
-    async updateDdlStatus(item) {
+    async updateDdlStatus() {
       try {
-        const response = await WorkSpaceAPI.updateDdl(item.task_id);
+        const response = await WorkSpaceAPI.updateDdl(this.itemToUpdate.task_id);
         if (response.status === 200) {
           this.fetchDdlList();
           this.fetchCompletedDdl();
@@ -420,12 +446,14 @@ export default {
         console.error('无法更新 DDL 状态:', error);
         alert('更新 DDL 状态失败！');
       }
+      this.showUpdateConfirm = false;
+      this.itemToUpdate = null;
     },
 
     // 删除某条 DDL
-    async deleteDdl(item) {
+    async deleteDdl() {
       try {
-        const response = await WorkSpaceAPI.deleteDDL(item.task_id);
+        const response = await WorkSpaceAPI.deleteDDL(this.itemToDelete.task_id);
         if (response.status === 200) {
           // 刷新待完成和已完成的
           // 刷新待完成和已完成的 DDL 列表
@@ -438,6 +466,28 @@ export default {
         console.error('无法删除 DDL:', error);
         alert('删除 DDL 失败！');
       }
+      this.showDeleteConfirm = false;
+      this.itemToDelete = null;
+    },
+
+    // 显示删除确认框
+    confirmDelete(item) {
+      this.itemToDelete = item;
+      this.showDeleteConfirm = true;
+    },
+    // 取消删除操作
+    cancelDelete() {
+      this.showDeleteConfirm = false;
+      this.itemToDelete = null;
+    },
+    confirmUpdate(item) {
+      this.itemToUpdate = item;
+      this.showUpdateConfirm = true;
+    },
+    cancelUpdate() {
+      this.showUpdateConfirm = false;
+      this.itemToUpdate = null;
+      this.fetchDdlList();
     },
   },
   computed: {
@@ -653,4 +703,32 @@ export default {
   align-items: center; /* 垂直居中图标和文字 */
   justify-content: center; /* 水平居中 */
 }
+.confirm-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1001;
+}
+
+.confirm-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 300px;
+}
+
+.confirm-btn, .cancel-btn {
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
 </style>
