@@ -73,6 +73,7 @@ export default {
     
     saveState: function() {
       this.$store.dispatch('setChat',null);
+      this.$store.dispatch('closeWebSocket');
       sessionStorage.setItem("state", JSON.stringify(this.$store.state));
       this.$store.state.user,id;
     },
@@ -347,7 +348,7 @@ export default {
       this.$store.replaceState(JSON.parse(savedState));
     }
 
-    this.$store.dispatch('connectWebSocket'); // 连接 WebSocket
+    // this.$store.dispatch('connectWebSocket'); // 连接 WebSocket
 
     // 全局监视器
     window.addEventListener('click', this.hideClick, true); // 使用 capture 选项
@@ -369,7 +370,7 @@ export default {
   beforeUnmount() {
     window.removeEventListener('click', this.hideClick, true); 
     window.removeEventListener('contextmenu', this.hideContext, true); 
-    clearInterval(this.pollingInterval);
+    //clearInterval(this.pollingInterval);
   },
 }
 

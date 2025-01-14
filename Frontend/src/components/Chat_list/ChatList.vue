@@ -154,14 +154,17 @@ export default {
       handler: function(val) {
         if(val){
           this.$store.dispatch('setCreatingChat', false);
-          let chat=null;
-          if(this.chats) chat = this.chats.find(chat => chat.id === data.id);
-          if(chat){
-            this.selectChat(chat);
-          }else{
-            console.log(this.$store.state.newChat);
-            this.selectChat(null, this.$store.state.newChat.id, this.$store.state.newChat.is_group);
-          }
+          this.$nextTick(() => {
+            let chat=null;
+            if(this.chats) chat = this.chats.find(chat => chat.id === data.id);
+            if(chat){
+              this.selectChat(chat);
+            }else{
+              //console.log(this.$store.state.newChat);
+              this.selectChat(null, this.$store.state.newChat.id, this.$store.state.newChat.is_group);
+            }
+          });
+          
         }
       },
       immediate: true,
@@ -191,7 +194,7 @@ export default {
     },
     // 选中消息，切换到对应的聊天
     async selectChat(chat, tid=null, is_group=false) {
-      console.log(tid, is_group);
+      console.log(chat, tid, is_group);
       if (!chat) {
         if(!tid) return;
         try{
@@ -203,7 +206,8 @@ export default {
             return;
           }
           chat = response.data.data[0];
-          this.chats.unshift(chat);
+          
+          this.fetchChatList();
         }catch(e){
           console.log(e);
         }
