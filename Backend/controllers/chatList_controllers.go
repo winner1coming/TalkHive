@@ -1144,8 +1144,6 @@ func SendFile(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"success": true, "message": "文件保存成功"})
-
 	// 读取文件内容到字节数组 (Blob)
 	fileData, err := os.ReadFile(filePath)
 	if err != nil {

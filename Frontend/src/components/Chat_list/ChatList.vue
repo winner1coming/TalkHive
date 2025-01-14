@@ -484,7 +484,9 @@ export default {
   },
   created () {
     this.fetchChatList();
-    
+    if(this.$store.state.currentChat){
+      this.selectChat(this.$store.state.currentChat);
+    }
   },
   mounted() {
     EventBus.on('set-mute', (tid, is_mute) => {
