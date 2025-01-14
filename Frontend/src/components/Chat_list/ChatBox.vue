@@ -230,13 +230,16 @@ export default {
 
     handleScroll() {
       const messages = this.$refs.messages;
-      this.showScrollButton = messages.scrollTop < messages.scrollHeight - messages.clientHeight;
+      this.showScrollButton = messages.scrollTop + 50 < messages.scrollHeight - messages.clientHeight;
     },
     scrollToBottom(){
-      const messages = this.$refs.messages;
-      if (messages) {
-        messages.scrollTop = messages.scrollHeight;
-      }
+      this.$nextTick(() => {
+        const messages = this.$refs.messages;
+        if (messages) {
+          messages.scrollTop = messages.scrollHeight;
+          console.log('scroll to bottom');
+        }
+      });
     }
   },
   mounted() {
@@ -244,6 +247,12 @@ export default {
     this.boundR = this.$refs.chatBox.getBoundingClientRect().right;
     EventBus.on('new-message', (newMessage) => {
       this.messages.push(newMessage);
+      const messagesContainer = this.$refs.messages;
+      if(!messagesContainer) return;
+      //console.log(messagesContainer.scrollTop + 900, messagesContainer.scrollHeight - messagesContainer.clientHeight);
+      if(messagesContainer.scrollTop + 900 > messagesContainer.scrollHeight - messagesContainer.clientHeight){
+        this.scrollToBottom();
+      }
       //this.fetchMessages(this.selectedChat.id);
     });
   },

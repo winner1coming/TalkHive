@@ -121,6 +121,7 @@ export default {
           return;
         }
         this.fetchRequests();
+        EventBus.emit('updateGroupList');
       }catch(err){
         console.error(err);
       }
@@ -133,6 +134,7 @@ export default {
           return;
         }
         this.fetchRequests();
+        //this.emit('updateGroupList');
       }catch(err){
         console.error(err);
       }
@@ -145,6 +147,7 @@ export default {
           return;
         }
         this.fetchRequests();
+        this.emit('updateGroupList');
       }catch(err){
         console.error(err);
       }
@@ -157,6 +160,7 @@ export default {
           return;
         }
         this.fetchRequests();
+        //this.emit('updateGroupList');
       }catch(err){
         console.error(err);
       }

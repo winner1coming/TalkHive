@@ -331,8 +331,9 @@ export default {
     this.fetchTags();
     this.boundD = document.documentElement.clientHeight;
     this.boundR = document.documentElement.clientWidth;
-    EventBus.on('updateFriendList', (newFriend) => {
-      this.items.unshift(newFriend);
+    EventBus.on('updateFriendList', () => {
+      //this.items.unshift(newFriend);
+      this.fetchFriends();
     });
   },
   beforeUnmount() {

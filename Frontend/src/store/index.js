@@ -171,7 +171,7 @@ export default createStore({
         //   const audio = new Audio(`@/assets/sound/${state.settings.sound}`);
         //   audio.play();
         // }
-        // 除了对应内容外还需要type字段   todo todo
+        // 除了对应内容外还需要type字段   
         if (true || type === 'message') {   
           console.log(state.currentChat);
           if(state.currentChat && data.sender_id === state.currentChat.id){
@@ -184,12 +184,23 @@ export default createStore({
               avatar: data.avatar,
               type: data.type, 
             }
+            
             console.log('new message')
             EventBus.emit('new-message', message);
+            
           }
-        } else if (type === 'notification') { 
-          commit('ADD_NOTIFICATION', data);
-        }
+          const newChat = {
+            id: data.sender_id,
+            avatar: '',
+            name: '',
+            remark: '',
+            lastMessage: data.content,
+            lastMessageTime: data.create_time,
+            unreadCount: 0,
+            tags: [],
+          }
+          EventBus.emit('update-chat', newChat);
+        } 
       };
       socket.onclose = () => {
         console.log('WebSocket connection closed');
