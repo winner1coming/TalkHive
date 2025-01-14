@@ -11,7 +11,7 @@ import (
 
 // HandleConnections 处理WebSocket连接
 func HandleConnections(c *gin.Context) {
-	userID := c.GetHeader("User-ID")
+	userID := c.Param("account_id")
 	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "HTTP header中用户ID为空"})
 		return
