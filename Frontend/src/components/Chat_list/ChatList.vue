@@ -175,6 +175,7 @@ export default {
     },
     // 选中消息，切换到对应的聊天
     async selectChat(chat, tid=null, is_group=false) {
+      console.log(is_group);
       if (!chat) {
         if(!tid) return;
         try{
@@ -532,13 +533,13 @@ export default {
       // this.chats.unshift(newChat); 
       this.fetchChatList();
     });
-    EventBus.on('go-to-chat', (tid, is_group) => {
+    EventBus.on('go-to-chat', (data) => {
       let chat=null;
-      if(this.chats) chat = this.chats.find(chat => chat.id === tid);
+      if(this.chats) chat = this.chats.find(chat => chat.id === data.id);
       if(chat){
         this.selectChat(chat);
       }else{
-        this.selectChat(null, tid, is_group);
+        this.selectChat(null, data.id, data.is_group);
       }
     });
   },

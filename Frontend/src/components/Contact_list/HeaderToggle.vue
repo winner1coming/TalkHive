@@ -1,7 +1,7 @@
 <template>
 	<div style="width: 100%;">
-	  <div class="header-toggle">
-			<p class="toggle" @click="toggleContent">
+	  <div class="header-toggle" @click="toggleContent">
+			<p class="toggle" >
 				<span :class="{'arrow-down': showFullContent, 'arrow-right': !showFullContent}">
 					<img v-show="!showFullContent" src="@/assets/images/arrow-right.png" class="arrow-right-img"/>
 					<img v-show="showFullContent" src="@/assets/images/arrow-down.png" class="arrow-down-img"/>
@@ -10,7 +10,7 @@
 			<p class="title">{{ previewText }}</p>
 			<button 
 				:style="{visibility: visibility}" 
-				@click="manageDivide" 
+				@click.prevent="manageDivide" 
 				class="toggle-button"
 			>管理</button>
 	  </div>
@@ -49,6 +49,7 @@ export default {
 			this.showFullContent = !this.showFullContent;
 	  },
 	  manageDivide(event) {
+			event.stopPropagation();
 			this.$emit('manage-divide', event);
 	  },
 	}
