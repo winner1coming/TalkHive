@@ -84,7 +84,7 @@ export default {
         case 'dark':
           return '#0b0c0f6a';
         case 'system':
-          return '#f0f0f0';
+          return '#ffffff';
         default:
           return '#ffffff';
       }
@@ -96,7 +96,7 @@ export default {
         case 'dark':
           return '#0a0a0a92';
         case 'system':
-          return '#f0f0f0';
+          return '#f5f5f5';
         default:
           return '#ffffff';
       }
@@ -108,7 +108,7 @@ export default {
         case 'dark':
           return '#101011a4';
         case 'system':
-          return '#f0f0f0';
+          return '#d5d2d2';
         default:
           return '#ffffff';
       }
@@ -132,7 +132,7 @@ export default {
         case 'dark':
           return '#4b997689';
         case 'system':
-          return '#42b983';
+          return 'rgba(194, 234, 106, 0.807)';
         default:
           return '#42b983';
       }
@@ -144,7 +144,7 @@ export default {
         case 'dark':
           return '#216c4c82';
         case 'system':
-          return '#42b983';
+          return 'rgba(162, 200, 80, 0.741)';
         default:
           return '#42b983';
       }
@@ -156,7 +156,7 @@ export default {
         case 'dark':
           return '#216c4baa';
         case 'system':
-          return '#42b983';
+          return 'rgba(132, 169, 54, 0.758)';
         default:
           return '#42b983';
       }
@@ -168,7 +168,7 @@ export default {
         case 'dark':
           return '#ffffff';
         case 'system':
-          return '#ffffff';
+          return '#333333';
         default:
           return '#ffffff';
       }
@@ -180,7 +180,7 @@ export default {
         case 'dark':
           return '#57708cad'; // 深色主题的侧边栏背景颜色
         case 'system':
-          return '#6dc79fb1'; // 根据系统主题设置
+          return 'rgba(237, 204, 142, 0.818)'; // 根据系统主题设置
         default:
           return '#6dc79fb1';
       }
@@ -192,7 +192,7 @@ export default {
         case 'dark':
           return '#3a546fb8'; // 深色主题的侧边栏背景颜色
         case 'system':
-          return '#6dc79fb1'; // 根据系统主题设置
+          return 'rgba(214, 118, 62, 0.489)'; // 根据系统主题设置
         default:
           return '#6dc79fb1';
       }
@@ -204,7 +204,7 @@ export default {
         case 'dark':
           return '#1a3a5cb1'; // 深色主题的侧边栏背景颜色
         case 'system':
-          return '#6dc79fb1'; // 根据系统主题设置
+          return 'rgba(214, 118, 62, 0.549)'; // 根据系统主题设置
         default:
           return '#6dc79fb1';
       }
@@ -228,7 +228,7 @@ export default {
         case 'dark':
           return '#618ab3'; // 深色主题的侧边栏背景颜色
         case 'system':
-          return '#6dc79fb1'; // 根据系统主题设置
+          return 'rgba(214, 62, 184, 0.226)'; // 根据系统主题设置
         default:
           return '#6dc79fb1';
       }
@@ -240,7 +240,7 @@ export default {
         case 'dark':
           return '#508bc6'; // 深色主题的侧边栏背景颜色
         case 'system':
-          return '#6dc79fb1'; // 根据系统主题设置
+          return 'rgba(214, 62, 184, 0.352)'; // 根据系统主题设置
         default:
           return '#6dc79fb1';
       }
