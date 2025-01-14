@@ -12,15 +12,15 @@
         <!--文本消息-->
         <div class="message-content" 
             v-if="message.type==='text'"
-             v-html="message.content" 
-             @contextmenu.prevent="showContextMenu($event, message)">
+            v-html="message.content" 
+            @contextmenu.prevent="showContextMenu($event, message)">
         </div>
         <!--图片消息-->
-        <div v-else-if="message.type==='image'">
+        <div v-else-if="message.type==='image'" @contextmenu.prevent="showContextMenu($event, message)">
           <img :src="message.content" alt="image" style="max-width: 100%; max-height: 200px;"/>
         </div>
         <!--文件消息-->
-        <div class="message-file" v-else-if="message.type==='file'">
+        <div class="message-file" v-else-if="message.type==='file'" @contextmenu.prevent="showContextMenu($event, message)">
           <div class="file-item">
             <img src="@/assets/images/default-file.png" alt="file"/>
             <div class="file-header">
@@ -35,7 +35,7 @@
           </span>
         </div>
         <!--代码消息-->
-        <div v-else class="editor-container">
+        <div v-else class="editor-container" @contextmenu.prevent="showContextMenu($event, message)">
           <div ref="editor" class="editor"></div>
         </div>
       </div>
@@ -55,11 +55,11 @@
              @contextmenu.prevent="showContextMenu($event, message)">
         </div>
         <!--图片消息-->
-        <div v-else-if="message.type==='image'">
+        <div v-else-if="message.type==='image'" @contextmenu.prevent="showContextMenu($event, message)">
           <img :src="message.content" alt="image" style="max-width: 100%; max-height: 200px;"/>
         </div>
         <!--文件消息-->
-        <div class="message-file" v-else-if="message.type==='file'">
+        <div class="message-file" v-else-if="message.type==='file'" @contextmenu.prevent="showContextMenu($event, message)">
           <div class="file-item">
             <img src="@/assets/images/default-file.png" alt="file"/>
             <div class="file-header">
@@ -74,7 +74,7 @@
           </span>
         </div>
         <!--代码消息-->
-        <div v-else class="editor-container">
+        <div v-else class="editor-container" @contextmenu.prevent="showContextMenu($event, message)">
           <div ref="editor" class="editor"></div>
         </div>
       </div>
@@ -304,8 +304,9 @@ export default {
 }
 
 .editor-container {
-  width: 300px;
+  width: 350px;
   max-height: 400px;
+  padding: 3px;
 }
 .editor {
   width: 100%;
