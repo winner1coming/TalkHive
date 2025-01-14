@@ -148,6 +148,7 @@ export default {
   margin-left: 10px;
   flex-wrap: nowrap;
   width: fit-content;
+  color: var(--text-color);
 }
 
 .menu-item .content {

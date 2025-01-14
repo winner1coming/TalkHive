@@ -197,6 +197,7 @@ export default {
 .menu-item span {
   font-size: var(--font-size);
   margin-left: 5px;
+  color: var(--text-color);
 }
 
 .menu-item .content {
@@ -296,6 +297,5 @@ export default {
   width: 3px;
   height: 100%;
   cursor: ew-resize;
-  background-color: var(--background-color2);
 }
 </style>
