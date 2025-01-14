@@ -156,6 +156,9 @@ export default createStore({
     },
 
     connectWebSocket({ commit, state }) {
+      if(state.socket){
+        //socket.close();
+      }
       console.log('Try connecting to WebSocket');
       const url = `http://localhost:8080/ws/websocketMessage/` + state.user.id.toString();
       const socket = new WebSocket(url);  
@@ -206,6 +209,10 @@ export default createStore({
         console.log('WebSocket connection closed');
       };
       commit('SET_SOCKET', socket);
+    },
+    closeWebSocket({ commit, state }) {
+      state.socket.close();
+      commit('SET_SOCKET', null);
     },
 
     // 发送消息操作
