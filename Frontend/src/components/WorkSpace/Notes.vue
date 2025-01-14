@@ -657,6 +657,7 @@ select {
   padding:5px;
   border: none; 
   color:var(--text-color); 
+  background-color: var(--background-color);
 }
 
 .dropdown_delete_btn:hover{
