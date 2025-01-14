@@ -567,7 +567,7 @@ func AddFriend(c *gin.Context) {
 
 	// 检查是否已发送过好友申请
 	var existingApply models.ApplyInfo
-	err = global.Db.Where("sender_id = ? AND receiver_id = ? AND apply_type = ?", me.AccountID, other.AccountID, "friend").First(&existingApply).Error
+	err = global.Db.Where("sender_id = ? AND receiver_id = ? AND apply_type = ? AND status = ?", me.AccountID, other.AccountID, "friend", "pending").First(&existingApply).Error
 	if err == nil {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "好友申请已发送，请勿重复申请"})
 		return
@@ -1281,22 +1281,10 @@ func DeleteFriend(c *gin.Context) {
 	}
 
 	// 删除好友和我的聊天记录
-	if err := global.Db.Where("(owner_id = ? AND contact_id = ?) OR (owner_id = ? AND contact_id = ?)", accountID, input.AccountID, input.AccountID, accountID).Delete(&models.ChatInfo{}).Error; err != nil {
+	if err := global.Db.Where("(account_id = ? AND target_id = ?) OR (account_id = ? AND target_id = ?)", accountID, input.AccountID, input.AccountID, accountID).Delete(&models.ChatInfo{}).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "删除聊天记录失败"})
 		return
 	}
-
-	//// 从FriendDivide表中移除好友
-	//if err := global.Db.Where("account_id = ? AND friend_divide_id IN (SELECT friend_divide_id FROM friend_divide WHERE account_id = ?)", accountID, input.AccountID).Delete(&models.FriendDivide{}).Error; err != nil {
-	//	c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "移除好友分组失败"})
-	//	return
-	//}
-	//
-	//// 从好友的FriendDivide中移除当前用户
-	//if err := global.Db.Where("account_id = ? AND friend_divide_id IN (SELECT friend_divide_id FROM friend_divide WHERE account_id = ?)", input.AccountID, accountID).Delete(&models.FriendDivide{}).Error; err != nil {
-	//	c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "移除好友分组失败"})
-	//	return
-	//}
 
 	c.JSON(http.StatusOK, gin.H{"success": true, "message": "删除好友成功"})
 }
@@ -1343,8 +1331,6 @@ func GetDivides(c *gin.Context) {
 			return
 		}
 	}
-	fmt.Println("type:" + groupType)
-	fmt.Println("返回divides", divides)
 	c.JSON(http.StatusOK, gin.H{"success": true, "message": "成功", "divides": divides})
 }
 
