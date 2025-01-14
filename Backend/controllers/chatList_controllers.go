@@ -319,17 +319,6 @@ func CreateChat(c *gin.Context) {
 			return
 		}
 
-		//chatOther := models.ChatInfo{
-		//	AccountID:  uint(input.Tid),
-		//	TargetID:   uint(accountID),
-		//	IsGroup:    input.IsGroup,
-		//	CreateTime: time.Now().Format("2006-01-02 15:04:05"),
-		//}
-		//if err := global.Db.Create(&chatOther).Error; err != nil {
-		//	c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "创建聊天记录失败"})
-		//	return
-		//}
-
 		tags := append(tags, "friend")
 		if contact.IsPinned {
 			tags = append(tags, "Pinned")
@@ -838,7 +827,7 @@ func BlockChat(c *gin.Context) {
 			return
 		}
 		var contact models.Contacts
-		if err := global.Db.Where("owner_id = ? AND contact_id = ? is_group_chat = ?", me.AccountID, other.AccountID, input.IsGroup).First(&contact).Error; err != nil {
+		if err := global.Db.Where("owner_id = ? AND contact_id = ? AND is_group_chat = ?", me.AccountID, other.AccountID, input.IsGroup).First(&contact).Error; err != nil {
 			c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "Contacts表中无此条记录"})
 		}
 		contact.IsBlocked = input.IsBlocked

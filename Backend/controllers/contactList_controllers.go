@@ -1247,18 +1247,16 @@ func DeleteFriend(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "当前用户已注销，无法进行操作"})
 		return
 	}
-	friendID := c.PostForm("account_id")
-	if friendID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "好友ID为空，请检查请求参数"})
-		return
+
+	var input struct {
+		AccountID uint `json:"account_id"`
 	}
-	friendAccountID, err := strconv.Atoi(friendID)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "好友ID无效"})
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Json绑定失败"})
 		return
 	}
 	var friend models.AccountInfo
-	if err := global.Db.Where("account_id = ?", friendAccountID).First(&friend).Error; err != nil {
+	if err := global.Db.Where("account_id = ?", input.AccountID).First(&friend).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "好友用户不存在"})
 		return
 	}
@@ -1269,7 +1267,7 @@ func DeleteFriend(c *gin.Context) {
 
 	// 查找当前用户与好友之间的所有联系
 	var contacts []models.Contacts
-	err = global.Db.Where("(owner_id = ? AND contact_id = ?) OR (owner_id = ? AND contact_id = ?)", accountID, friendAccountID, friendAccountID, accountID).Find(&contacts).Error
+	err = global.Db.Where("(owner_id = ? AND contact_id = ?) OR (owner_id = ? AND contact_id = ?)", accountID, input.AccountID, input.AccountID, accountID).Find(&contacts).Error
 	if err != nil || len(contacts) == 0 {
 		c.JSON(http.StatusNotFound, gin.H{"success": false, "message": "没有找到与该好友的关系"})
 		return
@@ -1281,17 +1279,24 @@ func DeleteFriend(c *gin.Context) {
 		return
 	}
 
-	// 从FriendDivide表中移除好友
-	if err := global.Db.Where("account_id = ? AND friend_divide_id IN (SELECT friend_divide_id FROM friend_divide WHERE account_id = ?)", accountID, friendAccountID).Delete(&models.FriendDivide{}).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "移除好友分组失败"})
+	// 删除好友和我的聊天记录
+	if err := global.Db.Where("(owner_id = ? AND contact_id = ?) OR (owner_id = ? AND contact_id = ?)", accountID, input.AccountID, input.AccountID, accountID).Delete(&models.ChatInfo{}).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "删除聊天记录失败"})
 		return
 	}
 
-	// 从好友的FriendDivide中移除当前用户
-	if err := global.Db.Where("account_id = ? AND friend_divide_id IN (SELECT friend_divide_id FROM friend_divide WHERE account_id = ?)", friendAccountID, accountID).Delete(&models.FriendDivide{}).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "移除好友分组失败"})
-		return
-	}
+	//// 从FriendDivide表中移除好友
+	//if err := global.Db.Where("account_id = ? AND friend_divide_id IN (SELECT friend_divide_id FROM friend_divide WHERE account_id = ?)", accountID, input.AccountID).Delete(&models.FriendDivide{}).Error; err != nil {
+	//	c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "移除好友分组失败"})
+	//	return
+	//}
+	//
+	//// 从好友的FriendDivide中移除当前用户
+	//if err := global.Db.Where("account_id = ? AND friend_divide_id IN (SELECT friend_divide_id FROM friend_divide WHERE account_id = ?)", input.AccountID, accountID).Delete(&models.FriendDivide{}).Error; err != nil {
+	//	c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "移除好友分组失败"})
+	//	return
+	//}
+
 	c.JSON(http.StatusOK, gin.H{"success": true, "message": "删除好友成功"})
 }
 
