@@ -459,7 +459,7 @@ export default {
       }
       else if(this.searchHistoryType === 'file'){  // todo content只是文件名
         return this.history.filter(message => {
-          return message.type === 'file' && message.content.includes(keyword);
+          return message.type === 'file' && message.content.name.includes(keyword);
         });
       }
       else if(this.searchHistoryType === 'date'){ 

@@ -912,7 +912,7 @@ export default {
       }
       else if(this.searchHistoryType === 'file'){  // todo
         return this.history.filter(message => {
-          return message.type === 'file' && message.content.includes(keyword);
+          return message.type === 'file' && message.content.name.includes(keyword);
         });
       }
       else if(this.searchHistoryType === 'date'){ 
