@@ -120,8 +120,6 @@ export default {
           });
           this.$store.commit('SET_LINKS',response.links);
 
-          localStorage.removeItem('users');
-
           let users = JSON.parse(localStorage.getItem('users')) || [];
           //本地缓存的处理
           if (users.length >= 2) {
@@ -141,6 +139,7 @@ export default {
           }else{
             users.push(userInfo);
           }
+          localStorage.removeItem('users');
           localStorage.setItem('users', JSON.stringify(users));
 
           alert(response.message);
