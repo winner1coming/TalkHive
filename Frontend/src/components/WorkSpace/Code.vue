@@ -280,8 +280,8 @@ export default {
 }
 
 .new-btn {
-  background-color: #c7d7e9;
-  color: rgb(75, 103, 216);
+  background-color: var(--button-background-color);
+  color: var(--text-color);
   border: none;
   cursor: pointer;
   margin-left: 20px;
@@ -292,7 +292,7 @@ export default {
 }
 
 .new-btn:hover {
-  background-color: #0056b3;
+  background-color: var(--button-background-color2);
   color: rgb(134, 154, 233);
 }
 
@@ -323,7 +323,6 @@ input[type="text"], select {
   margin: 10px 0;
   border: 1px solid #ddd;
   border-radius: 4px;
-  color: var(--text-color);
 }
 
 .modal-actions {

@@ -576,7 +576,6 @@ select {
   margin: 10px 0;
   border: 1px solid var(--background-color2);
   border-radius: 4px;
-  color: var(--text-color);
 }
 
 .modal-actions {
@@ -614,6 +613,7 @@ select {
   border-bottom: 1px solid var(--background-color2);
   justify-content: space-between;
   position: relative; /* 给父元素设置相对定位 */
+  color: var(--text-color);
 }
 
 .note-item .filename {
@@ -657,7 +657,6 @@ select {
   padding:5px;
   border: none; 
   color:var(--text-color); 
-  background-color: white;
 }
 
 .dropdown_delete_btn:hover{

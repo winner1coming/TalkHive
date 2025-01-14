@@ -297,5 +297,6 @@ export default {
   width: 3px;
   height: 100%;
   cursor: ew-resize;
+  background-color: #ccc;
 }
 </style>

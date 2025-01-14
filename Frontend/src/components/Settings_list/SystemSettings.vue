@@ -47,9 +47,10 @@ export default {
   },
   data() {
     return {
-      theme:this.$store.state.settings.theme,
+      theme:this.$store.state.settings.theme==='system' ? 'warm':this.$store.state.settings.theme,
       fontsize:this.$store.state.settings.fontSize+'px',
       activeComponent: '',
+      themeMap:'',
     };
   },
   computed:{
@@ -74,8 +75,9 @@ export default {
       const themeMap = {
         light: '浅色',
         dark: '深色',
-        system: '系统默认',
+        system: '暖色',
       };
+      this.themeMap = themeMap;
       return themeMap[themeValue] || '浅色';
     },
 
