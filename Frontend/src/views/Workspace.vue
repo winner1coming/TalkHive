@@ -65,8 +65,8 @@ export default {
 
 .toolbar {
   width: 150px;
-  background-color: #f5f5f5;
-  border-right: 1px solid #ddd;
+  background-color:var(--background-color);
+  border-right: 1px solid var(--background-color2);
   padding: 10px;
   box-sizing: border-box;
 }
@@ -87,13 +87,13 @@ export default {
 }
 
 .toolbar li:hover {
-  background-color: #eaeaea;
+  background-color: var(--select-background-color);
 }
 
 .toolbar li.active {
   font-weight: bold;
-  background-color: #d0e8ff;
-  color: #007bff;
+  background-color: var(--select-background-color1);
+  color: var(--select-text-color);
 }
 
 .toolbar-icon {
@@ -106,5 +106,6 @@ export default {
   padding: 20px;
   box-sizing: border-box;
   overflow-y: auto;
+  background-color: var(--background-color);
 }
 </style>
