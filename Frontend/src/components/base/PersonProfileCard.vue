@@ -361,7 +361,7 @@ export default {
 .remark {
   margin-top: 5px;
   font-size: var(--font-size-small);
-  color: #666;
+  color: var(--text-color);
 }
 
 .add-modal {
