@@ -537,20 +537,36 @@ export default {
         }
       } 
     });
-    EventBus.on('update-chat', () => {
-      // this.chats = this.chats.filter(chat => chat.id !== newChat.id);
-      // if(!this.selectedChat&&newChat.id===this.selectedChat.id){
-      //   newChat.tags = newChat.tags.filter(tag => tag !== 'unread');
-      //   newChat.unreadCount = 0;
-      //   if(newChat.tags.includes('friend')){
-      //     this.chatListAPI.readMessages(newChat.id, true, false);
-      //   }
-      //   else{
-      //     this.chatListAPI.readMessages(newChat.id, true, true);
-      //   }
-      // }
-      // this.chats.unshift(newChat); 
-      this.fetchChatList();
+    EventBus.on('update-chat', (newChat) => {
+      if(!this.chats){
+        this.fetchChatList();
+        return;
+      }
+      const chat = this.chats.find(chat => chat.id === newChat.id);
+      if(!chat){
+        this.fetchChatList();
+        return;
+      }
+      this.chats = this.chats.filter(chat => chat.id !== newChat.id);
+      if(this.selectedChat&&newChat.id===this.selectedChat.id){
+        // chat.tags = newChat.tags.filter(tag => tag !== 'unread');
+        // newChat.unreadCount = 0;
+        // if(newChat.tags.includes('friend')){
+        //   this.chatListAPI.readMessages(newChat.id, true, false);
+        // }
+        // else{
+        //   this.chatListAPI.readMessages(newChat.id, true, true);
+        // }
+        
+      }else{
+        chat.unreadCount = chat.unreadCount+1;
+        chat.tags = chat.tags.filter(tag => tag !== 'unread');
+        chat.tags.push('unread');
+      }
+      chat.lastMessage = newChat.lastMessage;
+      chat.lastMessageTime = newChat.lastMessageTime;
+      this.chats.unshift(chat); 
+      // this.fetchChatList();
     });
   },
   beforeUnmount() {

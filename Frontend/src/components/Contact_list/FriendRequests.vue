@@ -79,6 +79,7 @@ export default {
           return;
         }
         this.fetchRequests();
+        EventBus.emit('updateFriendList');
       } catch (error) {
         console.error(error);
       }

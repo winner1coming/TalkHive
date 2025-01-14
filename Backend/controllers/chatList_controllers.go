@@ -5,13 +5,14 @@ import (
 	"TalkHive/models"
 	"TalkHive/utils"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 // ---------------------------------------------------
@@ -171,7 +172,13 @@ func GetChatList(c *gin.Context) {
 				"tags":            tags,
 			}
 			if lastMessage.Type == "file" {
+				chatResponse["lastMessage"] = "[文件]"
+			} else if lastMessage.Type == "image" {
 				chatResponse["lastMessage"] = "[图片]"
+			} else if lastMessage.Type == "text" {
+
+			} else {
+				chatResponse["lastMessage"] = "[代码块]"
 			}
 			response = append(response, chatResponse)
 		} else {
@@ -199,7 +206,13 @@ func GetChatList(c *gin.Context) {
 				"tags":            tags,
 			}
 			if lastMessage.Type == "file" {
+				chatResponse["lastMessage"] = "[文件]"
+			} else if lastMessage.Type == "image" {
 				chatResponse["lastMessage"] = "[图片]"
+			} else if lastMessage.Type == "text" {
+
+			} else {
+				chatResponse["lastMessage"] = "[代码块]"
 			}
 			response = append(response, chatResponse)
 		}
