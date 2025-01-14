@@ -156,14 +156,19 @@ export default createStore({
     },
 
     connectWebSocket({ commit, state }) {
-      const url = `https://localhost:8080/ws/websocketMessage/` + state.user.id.toString();
+      console.log('Try connecting to WebSocket');
+      const url = `http://localhost:8080/ws/websocketMessage/` + state.user.id.toString();
       const socket = new WebSocket(url);  
+      socket.onopen = () => {
+        console.log('WebSocket connection opened');
+      }
       socket.onmessage = (event) => {
-        const type = JSON.parse(event.data.type);
-        const data = JSON.parse(event.data.data);
+        //const type = JSON.parse(event.data.type);
+        const data = JSON.parse(event.data);
+        console.log('Received message:', data);
         // 播放提示音
         if(state.settings.isNotice){
-          const audio = new Audio(require(`@/assets/sound/${state.settings.sound}`));
+          const audio = new Audio(`@/assets/sound/${state.settings.sound}`);
           audio.play();
         }
         // 除了对应内容外还需要type字段   todo todo
