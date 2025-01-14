@@ -601,9 +601,9 @@ export default {
     async viewChatHistory() {
       // 查看聊天记录
       this.componentStatus = 'history';
-      chatListAPI.getHistory(this.group_id).then(response => {
+      chatListAPI.getMessages(this.group_id, true).then(response => {
         if (response.status === 200) {
-          this.history = response.data.data;
+          this.history = response.data.data.messages;
         } else {
           this.$root.notify(response.data.message, 'error');
         }
@@ -625,6 +625,18 @@ export default {
     searchMemberHistory(event){
       this.searchHistoryType = 'member';
       this.$refs.memberSelect.show(event, this.boundD, this.boundR);
+    },
+    // 下载文件
+    downloadFile(message){
+      const blob = new Blob([message.content], { type: 'application/octet-stream' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', message.content.name);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url); // 释放 URL 对象
     },
 
 
@@ -1202,6 +1214,23 @@ export default {
   margin-bottom: 5px;
   text-align: left;
   padding: 3px;
+}
+.file-item{
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  flex-direction: row;
+  padding: 3px 0 3px 0;
+}
+.file-name{
+  margin-top: 5px;
+  font-size: var(--font-size-small);
+  color: #888;
+}
+.file-size{
+  margin-top: 5px;
+  font-size: var(--font-size-small);
+  color: #888;
 }
 
 .muted-members-list {
