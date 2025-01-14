@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -1122,8 +1123,31 @@ func SendFile(c *gin.Context) {
 		return
 	}
 
+	//// 获取文件后缀作为消息类型
+	//fileExt := filepath.Ext(file.Filename)
+
 	// 获取文件后缀作为消息类型
-	fileExt := filepath.Ext(file.Filename)
+	fileExt := strings.ToLower(filepath.Ext(file.Filename)) // 转为小写方便匹配
+
+	// 定义图片和文件的后缀集合
+	imageExtensions := map[string]bool{
+		".png": true, ".jpg": true, ".jpeg": true, ".gif": true, ".bmp": true,
+	}
+
+	fileExtensions := map[string]bool{
+		".txt": true, ".pdf": true, ".docx": true, ".doc": true, ".c": true, ".cpp": true,
+		".go": true, ".java": true, ".py": true, ".mp4": true, ".avi": true, ".mkv": true,
+	}
+
+	// 分类文件类型
+	var fileType string
+	if imageExtensions[fileExt] {
+		fileType = "image"
+	} else if fileExtensions[fileExt] {
+		fileType = "file"
+	} else {
+		fileType = "file"
+	}
 
 	// 定义文件保存路径
 	filePath := fmt.Sprintf("D:/TalkHive/message/%s", file.Filename)
@@ -1143,8 +1167,6 @@ func SendFile(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "文件保存失败"})
 		return
 	}
-
-	c.JSON(http.StatusOK, gin.H{"success": true, "message": "文件保存成功"})
 
 	// 读取文件内容到字节数组 (Blob)
 	fileData, err := os.ReadFile(filePath)
@@ -1189,7 +1211,7 @@ func SendFile(c *gin.Context) {
 			TargetID:      group.GroupID,
 			SenderChatID:  chat.ChatID,
 			Content:       filePath, // content存文件的地址
-			Type:          fileExt,  // 存储文件类型
+			Type:          fileType, // 存储文件类型
 			CreateTime:    time.Now().Format("2006-01-02 15:04:05"),
 		}
 		if err := global.Db.Create(&message).Error; err != nil {
@@ -1259,7 +1281,7 @@ func SendFile(c *gin.Context) {
 			SenderChatID:   chat_sender.ChatID,
 			ReceiverChatID: chat_receiver.ChatID,
 			Content:        filePath,
-			Type:           fileExt,
+			Type:           fileType,
 			IsRead:         false,
 			CreateTime:     time.Now().Format("2006-01-02 15:04:05"),
 		}

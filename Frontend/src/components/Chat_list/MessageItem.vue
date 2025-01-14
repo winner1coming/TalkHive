@@ -64,7 +64,7 @@
             <img src="@/assets/images/default-file.png" alt="file"/>
             <div class="file-header">
               <div class="file-name">{{ message.content.name }}</div>
-              <span class="file-size">{{ message.content.size }}</span>
+                <span class="file-size">{{ formatFileSize(message.content.size) }}</span>
             </div>
           </div>
           <span class="file-buttons">
@@ -136,6 +136,17 @@ export default {
         return messageTime.toLocaleDateString('zh-CN', { month: '2-digit', day: '2-digit' }) + ' ' + messageTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       }else{
         return messageTime.toLocaleDateString();
+      }
+    },
+    formatFileSize(size) {
+      if (size < 1024) {
+        return size + 'B';
+      } else if (size < 1024 * 1024) {
+        return (size / 1024).toFixed(2) + 'KB';
+      } else if (size < 1024 * 1024 * 1024) {
+        return (size / 1024 / 1024).toFixed(2) + 'MB';
+      } else {
+        return (size / 1024 / 1024 / 1024).toFixed(2) + 'GB';
       }
     },
     showBanned(event){
