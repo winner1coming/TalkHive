@@ -171,7 +171,7 @@ export default createStore({
         //   const audio = new Audio(`@/assets/sound/${state.settings.sound}`);
         //   audio.play();
         // }
-        // 除了对应内容外还需要type字段   todo todo
+        // 除了对应内容外还需要type字段   
         if (true || type === 'message') {   
           console.log(state.currentChat);
           if(state.currentChat && data.sender_id === state.currentChat.id){
@@ -200,9 +200,7 @@ export default createStore({
             tags: [],
           }
           EventBus.emit('update-chat', newChat);
-        } else if (type === 'notification') { 
-          commit('ADD_NOTIFICATION', data);
-        }
+        } 
       };
       socket.onclose = () => {
         console.log('WebSocket connection closed');
