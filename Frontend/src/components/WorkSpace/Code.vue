@@ -52,6 +52,7 @@
         <span class="modified"> - 上次修改时间: {{ code.last_modified_time }}</span>
         <button class="more-btn" @click="toggleDropdown(code.code_id)">...</button>
         <div v-if="code.showDropdown" class="dropdown">
+          <button class="dropdown_delete_btn" @click="showFriendSelect(code.code_id,code.code_name, code.Suffix)">转发</button>
           <button class="dropdown_delete_btn" @click="confirmDelete(code.code_id)">删除</button>
         </div>
       </li>
@@ -67,14 +68,25 @@
         </div>
       </div>
     </div>
+    <SelectFriend
+      v-if="showSelectFriend"
+      @close="showSelectFriend = false"
+      @forwordNote="forwardCode"
+    />
   </div>
+  
 </template>
 
 <script>
 import * as WorkSpaceAPI from '@/services/workspace_api';
+import * as chatListAPI from '@/services/chatList';
+import SelectFriend from '@/components/WorkSpace/SelectFriend.vue';
 
 export default {
   name: "Codes",
+  components: {
+    SelectFriend,
+  },
   data() {
     return {
       showCreateFile: false, // 控制新建文件编辑框的显示
@@ -90,6 +102,12 @@ export default {
       codes:[],
       showDeleteConfirm: false,
       fileToDelete: null, // 用于存储待删除文件的id
+      showSelectFriend: false,
+      forwardCodeContent:{
+        code_id: null,
+        name: null,
+        Suffix: null,
+      }
     };
   },
   mounted() {
@@ -161,6 +179,32 @@ export default {
         alert('创建文件失败！');
       }
       // this.editCode(1);
+    },
+
+    // 显示转发好友选择框
+    showFriendSelect(code_id, name, Suffix) {
+      this.forwardCodeContent.code_id = code_id;
+      this.forwardCodeContent.name = name;
+      this.forwardCodeContent.Suffix = Suffix;
+      this.showSelectFriend = true;
+    },
+    // 转发代码
+    async forwardCode(tid) {
+      this.showSelectFriend = false;
+      try {
+        // 获取转发者
+        // 获取文件
+        const response = await WorkSpaceAPI.getCodeContent(this.forwardCodeContent.code_id);
+        const content = response.data;
+        response = await chatListAPI.sendMessage(tid, content, this.forwardCodeContent.Suffix.slice(1), false);
+        if (response.status === 200) {
+          this.$root.notify('转发成功', 'success');
+        } else {
+          this.$root.notify(response.data.message, 'error');
+        }
+      } catch (error) {
+        console.error('无法转发代码:', error);
+      }
     },
 
     // 跳转到文件编辑页
@@ -339,6 +383,8 @@ input[type="text"], select {
 }
 
 .dropdown {
+  display: flex;
+  flex-direction: column;
   position: absolute;
   right: -25px;
   bottom: 23px;
@@ -362,7 +408,7 @@ input[type="text"], select {
 }
 
 .dropdown_delete_btn:hover{
-  background-color: var(--button-background-color);
+  background-color: var(--background-color1);
 }
 
 .confirm-modal {
