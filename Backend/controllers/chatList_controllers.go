@@ -1292,7 +1292,7 @@ func GetMessagesWebSocket(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询用户失败"})
 		return
 	}
-	if me.Deactivate == true {
+	if me.Deactivate {
 		c.JSON(http.StatusUnauthorized, gin.H{"success": false, "message": "用户注销"})
 		return
 	}

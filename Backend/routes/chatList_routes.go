@@ -18,7 +18,7 @@ func ChatListRoutes(r *gin.Engine) {
 
 	//聊天消息
 	r.POST("/messages", controllers.GetMessages)
-	r.POST("/websocketMessages", controllers.GetMessagesWebSocket)
+	r.GET("/websocketMessages", controllers.GetMessagesWebSocket)
 	r.POST("/messages/send", controllers.SendMessage)
 	r.POST("/messages/collect", controllers.CollectMessage)
 	r.POST("/messages/delete", controllers.DeleteMessage)
