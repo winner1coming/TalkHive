@@ -93,7 +93,7 @@ export default {
     getBackgroundColor1() {
       switch (this.settings.theme) {
         case 'light':
-          return '#eaeaea';   //更深一点的灰色
+          return '#f5f5f5';   //更深一点的灰色
         case 'dark':
           return '#333333';
         case 'system':
@@ -349,8 +349,9 @@ export default {
       this.$store.replaceState(JSON.parse(savedState));
     }
 
+    this.$store.dispatch('connectWebSocket'); // 连接 WebSocket
+
     // 全局监视器
-    //this.$store.dispatch('connectWebSocket');
     window.addEventListener('click', this.hideClick, true); // 使用 capture 选项
     window.addEventListener('contextmenu', this.hideContext, true); // 使用 capture 选项
     EventBus.on('float-component-open', (component) => {

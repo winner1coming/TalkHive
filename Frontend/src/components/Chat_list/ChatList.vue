@@ -111,6 +111,9 @@ export default {
   computed: {
     // 过滤后的消息列表
     filteredChats() {
+      if(!this.chats) {
+        return [];
+      }
       let chats = this.chats;
       if(this.activeTag === 'blocked') {
         chats = chats.filter(chat => chat.tags.includes(this.activeTag));
@@ -155,6 +158,9 @@ export default {
         const response = await chatListAPI.getChatList();
         if(response.status === 200) {
           this.chats = response.data.data;
+          if(!this.chats){
+            this.chats = [];
+          }
         }
         else{
           this.$root.notify(response.data.message, 'error');
@@ -169,15 +175,18 @@ export default {
     },
     // 选中消息，切换到对应的聊天
     async selectChat(chat, tid=null, is_group=false) {
+      console.log(is_group);
       if (!chat) {
+        if(!tid) return;
         try{
+          console.log('CreateChat');
           const response = await chatListAPI.getChat(tid, is_group);
           console.log(response);
           if(response.status !== 200){
             this.$root.notify(response.data.message, 'error');
             return;
           }
-          chat = response.data.data;
+          chat = response.data.data[0];
           this.chats.unshift(chat);
         }catch(e){
           console.log(e);
@@ -206,6 +215,7 @@ export default {
     },
     // 格式化时间
     formatTime(time) {
+      if(!time) return '';
       const now = new Date();
       const messageTime = new Date(time);
       const isToday = now.toDateString() === messageTime.toDateString();
@@ -458,6 +468,9 @@ export default {
   },
   created () {
     this.fetchChatList();
+    
+  },
+  mounted() {
     EventBus.on('set-mute', (tid, is_mute) => {
       for (let i = 0; i < this.chats.length; i++) {
         if (this.chats[i].id === tid) {
@@ -521,16 +534,18 @@ export default {
       // this.chats.unshift(newChat); 
       this.fetchChatList();
     });
-    EventBus.on('go-to-chat', (tid, is_group) => {
-      const chat = this.chats.find(chat => chat.id === tid);
+    EventBus.on('go-to-chat', (data) => {
+      let chat=null;
+      if(this.chats) chat = this.chats.find(chat => chat.id === data.id);
       if(chat){
         this.selectChat(chat);
       }else{
-        this.selectChat(null, tid, is_group);
+        this.selectChat(null, data.id, data.is_group);
       }
     });
   },
-  beforeDestroy() {
+  beforeUnmount() {
+    console.log('destroy');
     EventBus.off('set-mute');
     EventBus.off('set-pinned');
     EventBus.off('set-blocked');

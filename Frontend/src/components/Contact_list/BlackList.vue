@@ -1,8 +1,9 @@
 <template>
   <div class="main">
     <div class="contact-header">
-        黑名单
-      <button style="float: right;" @click="showContextMenu">批量管理</button>
+      <span style="width: 41.6px;">  </span>
+        <span>黑名单</span>
+      <button class="header-button" @click="showContextMenu">批量管理</button>
     </div>
     <div 
       v-for="person in blackList" 
@@ -187,15 +188,18 @@ export default {
 
 <style scoped src="@/assets/css/contactList.css"></style>
 <style scoped>
-button {
-  margin-right: 5px;
-  padding: 5px 10px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
+.contact-header{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 50px;
+  padding: 0;
 }
-button {
-  background-color: var(--button-background-color);
-  color: var(--button-text-color);
+.header-button{
+  float: right;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: var(--font-size-small);
 }
 </style>

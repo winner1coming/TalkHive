@@ -206,6 +206,7 @@ export default {
       this.showDeleteConfirm = false;
       this.toggleDropdown(this.fileToDelete);
       this.fileToDelete = null;
+      this.fetchCodes();
     },
 
     // 取消删除操作

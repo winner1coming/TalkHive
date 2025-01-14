@@ -26,6 +26,7 @@ export default {
 	props:['items','type','tags'],
 	methods: {
 		filteredItemsByTag(tag) {
+			if(!this.items) return [];
 			if(tag === '全部') return this.items;
 			if(tag === '我创建的') return this.items.filter(item => item.group_owner === this.$store.state.user.id);
 			return this.items.filter(item => item.tag === tag);

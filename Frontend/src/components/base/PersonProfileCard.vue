@@ -1,6 +1,6 @@
 <template>
   <div v-if="visible" class="profile-card" :style="{ top: `${y}px`, left: `${x}px` }">
-    <div class="options-button" @click="handleOptionsClick($event)">···</div>
+    <div v-if="profile.account_id !== this.$store.state.user.id" class="options-button" @click="handleOptionsClick($event)">···</div>
     <div class="avatar">
       <img :src="profile.avatar" alt="avatar" />
     </div>
@@ -44,6 +44,7 @@ import ContextMenu from '@/components/base/ContextMenu';
 import DivideMove from '@/components/Contact_list/DivideMove.vue';
 import * as chatListAPI from '@/services/chatList';
 import * as contactListAPI from '@/services/contactList';
+import { nextTick } from 'vue';
 export default {
   components: {
     ContextMenu,
@@ -280,7 +281,11 @@ export default {
     async sendMessage() {
       this.hide();
       this.$router.push({name: 'chat'});
-      EventBus.emit('go-to-chat', this.profile.account_id, true);
+      this.$nextTick(() => {
+        setTimeout(() => {
+          EventBus.emit('go-to-chat', {id: this.profile.account_id, is_group: false});
+        }, 300);
+      });
     },
 
     show(event, profile, boundD, boundR) {  // boundD, boundR 为边界的坐标

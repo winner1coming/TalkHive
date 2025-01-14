@@ -232,12 +232,12 @@ export default {
 }
 
 .dropdown {
-  background-color: #fff;
-  border: 1px solid #ddd;
+  background-color: var(--background-color);
+  border: 1px solid var(--background-color2);
   border-radius: 4px;
   margin-top: 5px;
   padding: 10px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px var(--background-color2);
   width: 100%;
 }
 
@@ -246,7 +246,7 @@ export default {
 }
 
 .dropdown a {
-  color: #333;
+  color: var(--text-color);
   display: block;
   padding: 5px 0;
 }
@@ -303,10 +303,41 @@ export default {
     font-size: var(--font-size-large);
   }
   
+  .confirmation-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* 确保模态框居中 */
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .modal-content {
+    background-color: var(--background-color);
+    color: var(--sidebar-text-color);
+    padding: 20px;
+    border-radius: 8px;
+    position: relative;
+    width: 300px;
+  }
+  
+  .close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+    font-size: var(--font-size-large);
+  }
+  
   .modal-buttons {
     display: flex;
-    justify-content: flex-end;
-    margin-top: 20px;
+    justify-content: space-evenly;
+    margin-top: 30px;
+    font-size: var(--font-size);
   }
   
   .modal-buttons button {
@@ -315,15 +346,30 @@ export default {
     border: none;
     border-radius: 4px;
     cursor: pointer;
+    color: var(--button-text-color);
   }
   
+  
   .modal-buttons button:first-child {
-    background-color: #42b983;
-    color: white;
+    background-color: var(--button-background-color2);
+    color: var(--button-text-color);
   }
   
   .modal-buttons button:last-child {
-    background-color: #ccc;
-    color: black;
+    background-color:var(--background-color2);
+    color: var(--button-text-color);
+  }
+
+  .modal-buttons button:hover{
+    background-color: var(--button-background-color);
+  }
+
+  .modal-buttons button:active{
+    background-color: var(--button-background-color2);
+  }
+
+  .modal-content p{
+    color: var(--text-color);
+    font-size: var(--font-size);
   }
 </style>

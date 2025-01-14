@@ -20,8 +20,8 @@
             v-model="fontSize"
             @input="onFontSizeChange"
             />
-            <span>{{ fontSize }}</span>
-            <button @click="saveFontSize">完成</button>
+            <span>{{ fontSize+'px' }}</span>
+            <img src="@/assets/icon/comfirm.png" alt="Contact" class="icon" @click="saveFontSize"/>
         </div>
         <div class="description">
             <p>拖动上面的滑块，可设置字体大小</p>
@@ -42,7 +42,7 @@
             <option value="STXihei">华文细黑</option>
             <option value="STKaiti">华文楷体</option>
           </select>
-          <button @click="saveFontStyle">完成</button>
+          <img src="@/assets/icon/comfirm.png" alt="Contact" class="icon" @click="saveFontStyle"/>
         </div>
       </div>
       </div>
@@ -67,7 +67,7 @@
     },
     data() {
       return {
-        avatar,
+        avatar:this.$store.state.user.avatar,
         fontSize:this.$store.state.settings.fontSize, // 默认字体大小
         fontStyle:this.$store.state.settings.fontStyle,
         showModal:false,
@@ -151,8 +151,8 @@
   
   <style scoped>
   .font-size-settings {
+    margin-top: 60px;
     padding: 20px;
-    height: 50vh;
     width: 100%;
     display: flex;
     justify-content: center;
@@ -164,9 +164,9 @@
   width: 100%;
   height: 80%;
   max-width: 500px; /* 设置最大宽度 */
-  background-color: #f9f9f9; /* 添加背景色 */
+  background-color: var(--background-color); /* 添加背景色 */
   border-radius: 8px; /* 添加圆角 */
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* 添加阴影 */
+  box-shadow: 0 2px 10px var(--background-color2); /* 添加阴影 */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -178,20 +178,22 @@
   display: flex;
   flex-direction: column;
   width: 350px;
-  height: 450px;
-  justify-content: flex-start;
+  height: 400px;
+  justify-content: space-around;
   align-items: center;
-  gap:10px;
+  gap:5px;
 }
   
   h3 {
+    font-size: var(--font-size-large);
     margin-top: 10px;
-    margin-bottom: 20px;
-    color: #000;
-    background-color: rgb(173, 229, 210);
-    width: 300px;
-    border-radius: 8px; /* 添加圆角 */
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* 添加阴影*/ 
+    margin-bottom: 15px;
+    color: var(--text-color);
+    background-color: var(--sidebar-background-color1);
+    width: 350px;
+    height: 33px;
+    border-radius: 10px; /* 添加圆角 */
+    box-shadow: 0 2px 10px var(--background-color2); /* 添加阴影*/ 
   }
   
   .preview {
@@ -203,7 +205,7 @@
   }
 
   .message-box {
-  background-color: #e0f7fa; /* 浅蓝色背景 */
+  background-color: var(--sidebar-background-color); /* 浅蓝色背景 */
   border-radius: 8px; /* 圆角 */
   padding: 10px;
   margin: 0 auto; /* 居中 */
@@ -213,6 +215,7 @@
 
 .message-box p {
   font-size: var(--font-size); /* 默认字体大小 */
+  color: var(--sidebar-text-color);
   margin: 0;
 }
 
@@ -230,19 +233,23 @@
 }
   
   .preview p {
-    font-size: var(--font-size); /* 默认字体大小 */
+    font-size: var(--font-size);
+    color: var(--text-color);
   }
   
   .slider-container {
+    font-size: var(--font-size);
+    color: var(--text-color);
     display: flex;
     align-items: center;
-    margin-bottom: 20px;
     width: 350px;
-    gap:5px;
   }
   
   input[type="range"] {
     flex: 1;
+  }
+
+  span{
     margin-right: 10px;
   }
   
@@ -255,6 +262,8 @@
   }
 
   .font-style-container {
+    font-size: var(--font-size);
+    color:var(--text-color);
     width: fit-content;
     display: flex;
     align-items: center;
@@ -273,19 +282,15 @@
     border: 1px solid #ccc;
   }
 
-  
-  button {
-    width: fit-content;
-    padding: 8px 8px;
-    background-color: #42b983;
-    color: white;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
+  .icon{
+    width:30px;
+    height: 30px;
+    margin-right: 10px;
   }
-  
-  button:hover {
-    background-color: #369f6e;
+
+  .icon:hover{
+    background-color: var(--button-background-color);
+    border-radius: 15px;
   }
 
   label{
