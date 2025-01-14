@@ -107,10 +107,12 @@ export default {
   color: var(--text-color);
 }
 .menu li:hover {
-  background-color: var(--background-color1);
+  background-color: var(--select-background-color);
 }
 .menu li.active {
-  background-color: var(--background-color2);
+  font-weight: bold;
+  background-color: var(--select-background-color1);
+  color: var(--select-text-color);
 }
 </style>
   
