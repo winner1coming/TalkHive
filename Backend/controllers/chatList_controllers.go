@@ -6,7 +6,10 @@ import (
 	"TalkHive/utils"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -1134,6 +1137,236 @@ func SendMessage(c *gin.Context) {
 			},
 		})
 	}
+}
+
+// SendFile 发送文件
+func SendFile(c *gin.Context) {
+	// 获取用户ID
+	userID := c.GetHeader("User-ID")
+	if userID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "HTTP header中用户ID为空"})
+		return
+	}
+	accountID, err := strconv.Atoi(userID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "ID解析失败"})
+		return
+	}
+
+	// 查询用户信息
+	var me models.AccountInfo
+	if err := global.Db.Where("account_id = ?", accountID).First(&me).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询用户失败"})
+		return
+	}
+	if me.Deactivate {
+		c.JSON(http.StatusUnauthorized, gin.H{"success": false, "message": "用户已注销"})
+		return
+	}
+
+	// 解析请求中的表单数据
+	var input struct {
+		Tid     uint `form:"tid"`
+		IsGroup bool `form:"is_group"`
+	}
+	if err := c.ShouldBind(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "表单解析失败"})
+		return
+	}
+
+	// 获取上传的文件
+	file, _ := c.FormFile("content")
+	if file == nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "文件未上传"})
+		return
+	}
+
+	//// 获取文件后缀作为消息类型
+	//fileExt := filepath.Ext(file.Filename)
+
+	// 获取文件后缀作为消息类型
+	fileExt := strings.ToLower(filepath.Ext(file.Filename)) // 转为小写方便匹配
+
+	// 定义图片和文件的后缀集合
+	imageExtensions := map[string]bool{
+		".png": true, ".jpg": true, ".jpeg": true, ".gif": true, ".bmp": true,
+	}
+
+	fileExtensions := map[string]bool{
+		".txt": true, ".pdf": true, ".docx": true, ".doc": true, ".c": true, ".cpp": true,
+		".go": true, ".java": true, ".py": true, ".mp4": true, ".avi": true, ".mkv": true,
+	}
+
+	// 分类文件类型
+	var fileType string
+	if imageExtensions[fileExt] {
+		fileType = "image"
+	} else if fileExtensions[fileExt] {
+		fileType = "file"
+	} else {
+		fileType = "file"
+	}
+
+	// 定义文件保存路径
+	filePath := fmt.Sprintf("D:/TalkHive/message/%s", file.Filename)
+
+	// 检查文件是否存在
+	if _, err := os.Stat(filePath); err == nil {
+		// 文件已存在，进行覆盖
+		fmt.Printf("文件 %s 已存在，将覆盖。\n", filePath)
+	} else if !os.IsNotExist(err) {
+		// 发生其他错误
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "文件状态检查失败"})
+		return
+	}
+
+	// 保存文件（如果已存在，将覆盖）
+	if err := c.SaveUploadedFile(file, filePath); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "文件保存失败"})
+		return
+	}
+
+	// 读取文件内容到字节数组 (Blob)
+	fileData, err := os.ReadFile(filePath)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "文件读取失败"})
+		return
+	}
+
+	// 根据群聊或私聊处理
+	if input.IsGroup {
+		// 查询群聊是否存在
+		var group models.GroupChatInfo
+		if err := global.Db.Where("group_id = ?", input.Tid).First(&group).Error; err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "群聊不存在"})
+			return
+		}
+		// 查询是否为群成员
+		var groupMember models.GroupMemberInfo
+		if err := global.Db.Where("account_id = ? AND group_id = ?", me.AccountID, group.GroupID).First(&groupMember).Error; err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户不在该群聊中"})
+			return
+		}
+
+		// 查询当前用户与该群聊的聊天记录，如果没有则创建聊天记录
+		var chat models.ChatInfo
+		if err := global.Db.Where("account_id = ? AND target_id = ?", me.AccountID, group.GroupID).First(&chat).Error; err != nil {
+			chat = models.ChatInfo{
+				AccountID:  me.AccountID,
+				TargetID:   group.GroupID,
+				IsGroup:    true,
+				CreateTime: time.Now().Format("2006-01-02 15:04:05"),
+			}
+			if err := global.Db.Create(&chat).Error; err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "创建聊天记录失败"})
+				return
+			}
+		}
+
+		// 创建消息
+		message := models.MessageInfo{
+			SendAccountID: me.AccountID,
+			TargetID:      group.GroupID,
+			SenderChatID:  chat.ChatID,
+			Content:       filePath, // content存文件的地址
+			Type:          fileType, // 存储文件类型
+			CreateTime:    time.Now().Format("2006-01-02 15:04:05"),
+		}
+		if err := global.Db.Create(&message).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "保存消息失败"})
+			return
+		}
+
+		// 返回消息数据
+		c.JSON(http.StatusOK, gin.H{
+			"success": true,
+			"message": "消息发送成功",
+			"data": gin.H{
+				"message_id":      message.MessageID,
+				"create_time":     message.CreateTime,
+				"send_account_id": message.SendAccountID,
+				"target_id":       message.TargetID,
+				"content":         fileData,
+				"type":            message.Type,
+				"is_read":         false,
+			},
+		})
+
+	} else {
+		// 查询目标用户是否存在和注销
+		var friend models.AccountInfo
+		if err := global.Db.Where("account_id = ?", input.Tid).First(&friend).Error; err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "目标用户不存在"})
+			return
+		}
+		if friend.Deactivate {
+			c.JSON(http.StatusUnauthorized, gin.H{"success": false, "message": "目标用户已注销"})
+			return
+		}
+
+		// 如果没有则创建两个聊天记录
+		var chat_sender, chat_receiver models.ChatInfo
+		if err := global.Db.Where("account_id = ? AND target_id = ?", me.AccountID, friend.AccountID).First(&chat_sender).Error; err != nil {
+			chat_sender = models.ChatInfo{
+				AccountID:  me.AccountID,
+				TargetID:   friend.AccountID,
+				IsGroup:    false,
+				CreateTime: time.Now().Format("2006-01-02 15:04:05"),
+			}
+			if err := global.Db.Create(&chat_sender).Error; err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "创建发送者聊天记录失败"})
+				return
+			}
+		}
+
+		if err := global.Db.Where("account_id = ? AND target_id = ?", friend.AccountID, me.AccountID).First(&chat_receiver).Error; err != nil {
+			chat_receiver = models.ChatInfo{
+				AccountID:  friend.AccountID,
+				TargetID:   me.AccountID,
+				IsGroup:    false,
+				CreateTime: time.Now().Format("2006-01-02 15:04:05"),
+			}
+			if err := global.Db.Create(&chat_receiver).Error; err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "创建接收者聊天记录失败"})
+				return
+			}
+		}
+
+		// 创建发送人的消息
+		message := models.MessageInfo{
+			SendAccountID:  me.AccountID,
+			TargetID:       friend.AccountID,
+			SenderChatID:   chat_sender.ChatID,
+			ReceiverChatID: chat_receiver.ChatID,
+			Content:        filePath,
+			Type:           fileType,
+			IsRead:         false,
+			CreateTime:     time.Now().Format("2006-01-02 15:04:05"),
+		}
+
+		if err := global.Db.Create(&message).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "保存消息失败"})
+			return
+		}
+
+		// 返回文件内容作为Blob，以及文件的类型
+		c.JSON(http.StatusOK, gin.H{
+			"success": true,
+			"message": "消息发送成功",
+			"data": gin.H{
+				"message_id":       message.MessageID,
+				"create_time":      message.CreateTime,
+				"send_account_id":  message.SendAccountID,
+				"target_id":        message.TargetID,
+				"content":          fileData,
+				"type":             message.Type,
+				"sender_chat_id":   message.SenderChatID,
+				"receiver_chat_id": message.ReceiverChatID,
+				"is_read":          false,
+			},
+		})
+	}
+
 }
 
 // GetMessages 获取聊天消息

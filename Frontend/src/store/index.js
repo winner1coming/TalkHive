@@ -13,6 +13,8 @@ export default createStore({
 
     hasFloatComponent: null,   // 当前正在开启的悬浮组件
     currentChat: null, // 当前聊天对象
+    creatingChat: false, // 是否正在创建聊天
+    newChat: null, // 新创建的聊天的参数
 
     // 系统设置
     settings: {
@@ -64,6 +66,12 @@ export default createStore({
     
     SET_CHAT(state, chat) {
       state.currentChat = chat;
+    },
+    SET_CREATING_CHAT(state, creatingChat) {
+      state.creatingChat = creatingChat;
+    },
+    SET_NEW_CHAT(state, newChat) {
+      state.newChat = newChat;
     },
 
 
@@ -134,6 +142,12 @@ export default createStore({
     setChat({ commit }, chat) {
       commit('SET_CHAT', chat);
     },
+    setCreatingChat({ commit }, creatingChat) {
+      commit('SET_CREATING_CHAT', creatingChat);
+    },
+    setNewChat({ commit }, newChat) {
+      commit('SET_NEW_CHAT', newChat);
+    },
 
     // 注册操作
     register({ commit }, user) {
@@ -142,16 +156,30 @@ export default createStore({
     },
 
     connectWebSocket({ commit, state }) {
-      const socket = new WebSocket(`ws://localhost:8080/${state.user.id}`);  
+      const socket = new WebSocket(`https://localhost:8080/ws/websocketMessage`);  
       socket.onmessage = (event) => {
-        const data = JSON.parse(event.data);
+        const type = JSON.parse(event.data.type);
+        const data = JSON.parse(event.data.data);
+        // 播放提示音
+        if(state.settings.isNotice){
+          const audio = new Audio(require(`@/assets/sound/${state.settings.sound}`));
+          audio.play();
+        }
         // 除了对应内容外还需要type字段   todo todo
-        if (data.type === 'message') {    // chatlist怎么办
-          // 新增contact_id字段，原message内容被封装在message字段中
-          if(data.contact_id===state.selectedChatID){
-            EventBus.$emit('new-message', data.message);
+        if (true || type === 'message') {   
+          if(data.send_account_id === state.currentChat.id){
+            const message ={
+              message_id: data.message_id, 
+              send_account_id: data.send_account_id, 
+              content: data.content,
+              sender: data.sender, 
+              create_time: data.create_time, 
+              avatar: data.avatar,
+              type: data.type, 
+            }
+            EventBus.emit('new-message', message);
           }
-        } else if (data.type === 'notification') { // todo
+        } else if (type === 'notification') { 
           commit('ADD_NOTIFICATION', data);
         }
       };

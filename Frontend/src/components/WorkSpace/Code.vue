@@ -33,7 +33,6 @@
           <option value=".cpp">.cpp</option>
           <option value=".js">.js</option>
           <option value=".html">.html</option>
-          <option value=".css">.css</option>
           <option value=".txt">.txt</option>
           <!-- 可以根据需求继续添加文件类型 -->
         </select>
@@ -52,6 +51,7 @@
         <span class="modified"> - 上次修改时间: {{ code.last_modified_time }}</span>
         <button class="more-btn" @click="toggleDropdown(code.code_id)">...</button>
         <div v-if="code.showDropdown" class="dropdown">
+          <button class="dropdown_delete_btn" @click="showFriendSelect(code.code_id,code.code_name, code.Suffix)">转发</button>
           <button class="dropdown_delete_btn" @click="confirmDelete(code.code_id)">删除</button>
         </div>
       </li>
@@ -67,14 +67,25 @@
         </div>
       </div>
     </div>
+    <SelectFriend
+      v-if="showSelectFriend"
+      @close="showSelectFriend = false"
+      @forwordNote="forwardCode"
+    />
   </div>
+  
 </template>
 
 <script>
 import * as WorkSpaceAPI from '@/services/workspace_api';
+import * as chatListAPI from '@/services/chatList';
+import SelectFriend from '@/components/WorkSpace/SelectFriend.vue';
 
 export default {
   name: "Codes",
+  components: {
+    SelectFriend,
+  },
   data() {
     return {
       showCreateFile: false, // 控制新建文件编辑框的显示
@@ -90,6 +101,12 @@ export default {
       codes:[],
       showDeleteConfirm: false,
       fileToDelete: null, // 用于存储待删除文件的id
+      showSelectFriend: false,
+      forwardCodeContent:{
+        code_id: null,
+        name: null,
+        Suffix: null,
+      }
     };
   },
   mounted() {
@@ -161,6 +178,32 @@ export default {
         alert('创建文件失败！');
       }
       // this.editCode(1);
+    },
+
+    // 显示转发好友选择框
+    showFriendSelect(code_id, name, Suffix) {
+      this.forwardCodeContent.code_id = code_id;
+      this.forwardCodeContent.name = name;
+      this.forwardCodeContent.Suffix = Suffix;
+      this.showSelectFriend = true;
+    },
+    // 转发代码
+    async forwardCode(tid) {
+      this.showSelectFriend = false;
+      try {
+        // 获取转发者
+        // 获取文件
+        const response = await WorkSpaceAPI.getCodeContent(this.forwardCodeContent.code_id);
+        const content = response.data;
+        response = await chatListAPI.sendMessage(tid, content, this.forwardCodeContent.Suffix.slice(1), false);
+        if (response.status === 200) {
+          this.$root.notify('转发成功', 'success');
+        } else {
+          this.$root.notify(response.data.message, 'error');
+        }
+      } catch (error) {
+        console.error('无法转发代码:', error);
+      }
     },
 
     // 跳转到文件编辑页
@@ -236,8 +279,8 @@ export default {
 }
 
 .new-btn {
-  background-color: #c7d7e9;
-  color: rgb(75, 103, 216);
+  background-color: var(--button-background-color);
+  color: var(--text-color);
   border: none;
   cursor: pointer;
   margin-left: 20px;
@@ -248,7 +291,7 @@ export default {
 }
 
 .new-btn:hover {
-  background-color: #0056b3;
+  background-color: var(--button-background-color2);
   color: rgb(134, 154, 233);
 }
 
@@ -266,7 +309,8 @@ export default {
 }
 
 .modal-content {
-  background-color: white;
+  background-color: var(--background-color);
+  color: var(--text-color);
   padding: 20px;
   border-radius: 10px;
   width: 300px;
@@ -286,16 +330,16 @@ input[type="text"], select {
   justify-content: space-between;
 }
 
-.save-btn, .cancel-btn {
+.save-btn, .cancel-btn{
   padding: 10px;
-  background-color: #007bff;
-  color: white;
+  background-color: var(--button-background-color);
+  color: var(--button-text-color);
   border: none;
   cursor: pointer;
 }
 
 .save-btn:hover, .cancel-btn:hover {
-  background-color: #0056b3;
+  background-color: var(--button-background-color2);
 }
 
 .codes ul {
@@ -307,9 +351,10 @@ input[type="text"], select {
   display: flex;
   align-items: center;
   padding: 10px 0;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid var(--background-color2);
   justify-content: space-between;
   position: relative; /* 给父元素设置相对定位 */
+  color: var(--text-color);
 }
 
 .code-item .filename {
@@ -319,7 +364,8 @@ input[type="text"], select {
 }
 
 .code-item .modified {
-  color: #666;
+  color: var(--text-color);
+  opacity: 80%;
 }
 
 .more-btn {
@@ -327,21 +373,23 @@ input[type="text"], select {
   border: none;
   cursor: pointer;
   font-size: 23px;
-  color: #333;
+  color: var(--text-color);
 }
 
 .more-btn:hover {
-  color: #007bff;
+  color: var(--button-background-color2);
 }
 
 .dropdown {
+  display: flex;
+  flex-direction: column;
   position: absolute;
   right: -25px;
   bottom: 23px;
-  background-color: white;
+  background-color: var(--background-color);
   border: 1px solid #ddd;
   border-radius: 5px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px var(--background-color2);
   z-index: 10;  /* 确保 dropdown 在按钮上方显示 */
 }
 
@@ -353,12 +401,12 @@ input[type="text"], select {
   margin: 5px; 
   padding:5px;
   border: none; 
-  color:#333; 
-  background-color: white;
+  color:var(--text-color); 
+  background-color:var(--background-color);
 }
 
 .dropdown_delete_btn:hover{
-  background-color: rgb(208, 208, 208);
+  background-color: var(--background-color1);
 }
 
 .confirm-modal {
@@ -375,7 +423,7 @@ input[type="text"], select {
 }
 
 .confirm-content {
-  background-color: white;
+  background-color: var(--background-color);
   padding: 20px;
   border-radius: 10px;
   width: 300px;
@@ -383,14 +431,14 @@ input[type="text"], select {
 
 .confirm-btn, .cancel-btn {
   padding: 10px;
-  background-color: #007bff;
-  color: white;
+  background-color: var(--button-background-color);
+  color: var(--button-text-color);
   border: none;
   cursor: pointer;
 }
 
 .confirm-btn:hover, .cancel-btn:hover {
-  background-color: #0056b3;
+  background-color: var(--button-background-color2);
 }
 
 .create_note_icon:hover{

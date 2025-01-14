@@ -177,7 +177,8 @@
     display: flex;
     justify-content: space-between;
     padding: 10px 0;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid var(--background-color2);
+    color: var(--text-color);
   }
   
   .file-info {
@@ -194,8 +195,9 @@
   }
   
   .deleted-time {
-    color: #666;
-    font-size: 20px;
+    color: var(--text-color);
+    opacity: 70%;
+    font-size: var(--font-size-large);
     text-align: right;
     margin-right: 50px;
   }
@@ -213,14 +215,14 @@
 
   .restore-btn, .delete-btn {
     padding: 5px 10px;
-    background-color: #007bff;
-    color: white;
+    background-color: var(--button-background-color);
+    color: var(--button-text-color);
     border: none;
     cursor: pointer;
   }
   
   .restore-btn:hover, .delete-btn:hover {
-    background-color: #0056b3;
+    background-color: var(--button-background-color2);
   }
   
   .modal-overlay {
@@ -236,7 +238,9 @@
   }
   
   .modal {
-    background-color: white;
+    background-color: var(--background-color1);
+    color: var(--text-color);
+    font-size: var(--font-size);
     padding: 20px;
     border-radius: 10px;
     width: 300px;
@@ -245,8 +249,8 @@
   
   .confirm-btn, .cancel-btn {
     padding: 10px;
-    background-color: #007bff;
-    color: white;
+    background-color: var(--button-background-color);
+    color: var(--button-text-color);
     border: none;
     cursor: pointer;
     margin-top: 10px;
@@ -254,7 +258,7 @@
   }
   
   .confirm-btn:hover, .cancel-btn:hover {
-    background-color: #0056b3;
+    background-color: var(--button-background-color2);
   }
   
   .trash-header {
@@ -267,6 +271,7 @@
     width: 50px;
     height: 50px;
   }
+
   .delete-icon {
     width: 18px;
     height: 18px;

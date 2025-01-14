@@ -12,7 +12,6 @@ import { mapActions } from 'vuex';
 import { EventBus } from '@/components/base/EventBus';
 import Notification from '@/components/base/Notification.vue';
 import { mapGetters } from 'vuex/dist/vuex.cjs.js';
-import {pullContent} from '@/services/api';
 
 export default {
   name: 'App',
@@ -83,9 +82,9 @@ export default {
         case 'light':
           return '#ffffff';   //纯白色
         case 'dark':
-          return '#333333';
+          return '#0b0c0f6a';
         case 'system':
-          return '#f0f0f0';
+          return '#ffffff';
         default:
           return '#ffffff';
       }
@@ -95,9 +94,9 @@ export default {
         case 'light':
           return '#f5f5f5';   //更深一点的灰色
         case 'dark':
-          return '#333333';
+          return '#0a0a0a92';
         case 'system':
-          return '#f0f0f0';
+          return '#f5f5f5';
         default:
           return '#ffffff';
       }
@@ -107,9 +106,9 @@ export default {
         case 'light':
           return '#d5d2d2';   //最深的灰色
         case 'dark':
-          return '#333333';
+          return '#101011a4';
         case 'system':
-          return '#f0f0f0';
+          return '#d5d2d2';
         default:
           return '#ffffff';
       }
@@ -131,9 +130,9 @@ export default {
         case 'light':
           return '#8ae2ba80';     //浅绿色
         case 'dark':
-          return '#666666';
+          return '#4b997689';
         case 'system':
-          return '#42b983';
+          return 'rgba(194, 234, 106, 0.807)';
         default:
           return '#42b983';
       }
@@ -143,9 +142,9 @@ export default {
         case 'light':
           return '#8ae2ba';   //更深的绿色
         case 'dark':
-          return '#666666';
+          return '#216c4c82';
         case 'system':
-          return '#42b983';
+          return 'rgba(162, 200, 80, 0.741)';
         default:
           return '#42b983';
       }
@@ -155,9 +154,9 @@ export default {
         case 'light':
           return  '#76cea7d4';  //最深的绿色
         case 'dark':
-          return '#666666';
+          return '#216c4baa';
         case 'system':
-          return '#42b983';
+          return 'rgba(132, 169, 54, 0.758)';
         default:
           return '#42b983';
       }
@@ -169,7 +168,7 @@ export default {
         case 'dark':
           return '#ffffff';
         case 'system':
-          return '#ffffff';
+          return '#333333';
         default:
           return '#ffffff';
       }
@@ -179,9 +178,9 @@ export default {
         case 'light':
           return '#af8edd95'; // 浅色主题的侧边栏背景颜色  浅紫色
         case 'dark':
-          return '#2c3e50'; // 深色主题的侧边栏背景颜色
+          return '#57708cad'; // 深色主题的侧边栏背景颜色
         case 'system':
-          return '#6dc79fb1'; // 根据系统主题设置
+          return 'rgba(237, 204, 142, 0.818)'; // 根据系统主题设置
         default:
           return '#6dc79fb1';
       }
@@ -191,9 +190,9 @@ export default {
         case 'light':
           return '#7445b666'; // 更深的紫色
         case 'dark':
-          return '#2c3e50'; // 深色主题的侧边栏背景颜色
+          return '#3a546fb8'; // 深色主题的侧边栏背景颜色
         case 'system':
-          return '#6dc79fb1'; // 根据系统主题设置
+          return 'rgba(214, 118, 62, 0.489)'; // 根据系统主题设置
         default:
           return '#6dc79fb1';
       }
@@ -203,9 +202,9 @@ export default {
         case 'light':
           return '#8757c9a1'; // 更深的紫色
         case 'dark':
-          return '#2c3e50'; // 深色主题的侧边栏背景颜色
+          return '#1a3a5cb1'; // 深色主题的侧边栏背景颜色
         case 'system':
-          return '#6dc79fb1'; // 根据系统主题设置
+          return 'rgba(214, 118, 62, 0.549)'; // 根据系统主题设置
         default:
           return '#6dc79fb1';
       }
@@ -227,9 +226,9 @@ export default {
         case 'light':
           return '#bcdfff88'; // 蓝色设置
         case 'dark':
-          return '#2c3e50'; // 深色主题的侧边栏背景颜色
+          return '#618ab3'; // 深色主题的侧边栏背景颜色
         case 'system':
-          return '#6dc79fb1'; // 根据系统主题设置
+          return 'rgba(214, 62, 184, 0.226)'; // 根据系统主题设置
         default:
           return '#6dc79fb1';
       }
@@ -239,9 +238,9 @@ export default {
         case 'light':
           return '#d0e8ff'; // 更深一点的蓝色
         case 'dark':
-          return '#2c3e50'; // 深色主题的侧边栏背景颜色
+          return '#508bc6'; // 深色主题的侧边栏背景颜色
         case 'system':
-          return '#6dc79fb1'; // 根据系统主题设置
+          return 'rgba(214, 62, 184, 0.352)'; // 根据系统主题设置
         default:
           return '#6dc79fb1';
       }
@@ -249,9 +248,9 @@ export default {
     selectBackgroundColor2() {
       switch (this.settings.theme) {
         case 'light':
-          return 'rgba(26, 216, 226, 0.879)'; // 最深的蓝色
+          return '#376da3'; // 最深的蓝色
         case 'dark':
-          return '#2c3e50'; // 深色主题的侧边栏背景颜色
+          return '#376da3'; // 深色主题的侧边栏背景颜色
         case 'system':
           return '#6dc79fb1'; // 根据系统主题设置
         default:
@@ -263,7 +262,7 @@ export default {
         case 'light':
           return '#007bff'; // 蓝色
         case 'dark':
-          return '#ffffff'; // 深色主题的侧边栏文字颜色
+          return '#007bff'; // 深色主题的侧边栏文字颜色
         case 'system':
           return '#000000'; // 根据系统主题设置
         default:
@@ -307,7 +306,6 @@ export default {
     // },
     // handlePollingData(pollingData) {
     //   if(pollingData.has_new_message || pollingData.has_new_friendrequest || pollingData.has_new_grouprequest){
-    //     // todo 播放新消息提示音
     //   }
     //   if(pollingData.has_new_message){
     //     EventBus.emit('update-chat');

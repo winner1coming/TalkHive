@@ -108,7 +108,7 @@
     justify-content: space-around; /* 均匀分布按钮 */
     align-items: center; /* 垂直居中 */
     padding: 10px;
-    background-color: var(--sidebar-background-color1); /* 使用 CSS 变量 */
+    background-color: var(--sidebar-background-color); /* 使用 CSS 变量 */
     border-bottom: 1px solid #ccc;
     border-radius: 10px;
     width: 100%;
@@ -156,7 +156,6 @@
   .bottom-panel {
     flex: 1;
     overflow-y: auto;
-    background-color: var(--background-color);
   }
   
   .confirmation-modal {

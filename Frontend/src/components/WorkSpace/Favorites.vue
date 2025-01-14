@@ -145,6 +145,7 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  color: var(--text-color);
 }
 
 /* .more-btn {
@@ -155,7 +156,7 @@ export default {
 } */
 
 .more-btn:hover {
-  background-color: #c6c6c6;
+  background-color: var(--button-background-color);
 }
 
 .dropdown {
@@ -163,8 +164,8 @@ export default {
   top: 85px;
   right: 50px;
   border: 1px solid #ddd;
-  background-color: white;
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+  background-color: var(--background-color);
+  box-shadow: 0 0 5px var(--background-color2);
   z-index: 100;
   font-size: 20px;
 }
@@ -181,7 +182,7 @@ export default {
 }
 
 .dropdown li:hover {
-  background-color: #f0f0f0;
+  background-color: var(--background-color);
 }
 
 .trash-actions {
@@ -193,13 +194,13 @@ export default {
 .cancel-delete-btn {
   margin-left: 10px;
   padding: 5px 10px;
-  background-color: #eff0f0;
-  color: rgb(91, 91, 91);
+  background-color: var(--button-background-color);
+  color: var(--button-text-color);
   cursor: pointer;
 }
 
 .cancel-delete-btn:hover {
-  background-color: #bebfc0;
+  background-color: var(--button-background-color2);
 }
 
 .favorite-checkbox {
@@ -244,9 +245,9 @@ export default {
   left: 50%;
   transform: translate(-50%, -50%);
   padding: 20px;
-  background-color: white;
+  background-color: var(--background-color);
   border: 1px solid #ddd;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 10px var(--background-color2);
   z-index: 200;
 }
 

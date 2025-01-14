@@ -306,7 +306,8 @@ export default {
 .edit{
   display: flex;
   justify-content: center;
-  margin-top: 60px;
+  height: 100%;
+  background-color: var(--background-color);
 }
 
 /* 编辑资料页面的样式 */
@@ -315,11 +316,12 @@ export default {
   grid-template-columns: 1fr;
   gap: 10px;
   align-items: center;
+  align-content: center;
   justify-items: center;
-  margin-top: 20px;
+  margin-top: 60px;
   width: 100%;
+  height: 70%;
   max-width: 600px;
-  height: 100%;
   border-radius: 8px;
   box-shadow: 0 2px 10px var(--background-color1);
   background-color: var(--background-color);
@@ -327,7 +329,7 @@ export default {
 
 h2{
   align-items: center;
-  margin-top: 30px;
+  margin-top: 10px;
 }
 
 .avatar-container {
@@ -413,6 +415,7 @@ h2{
   color: var(--text-color);
   outline: none;
   text-align: center;
+  background-color: var(--background-color);
 }
 
 
@@ -444,6 +447,7 @@ h2{
   width: 400px;
   margin-right: -55px;
   color: var(--text-color);
+  background-color: var(--background-color);
 }
 
 .input_text textarea {

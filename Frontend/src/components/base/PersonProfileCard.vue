@@ -243,8 +243,7 @@ export default {
             return;
           }
           else{
-            // todo
-            this.profile
+            window.location.reload();
           }
         }catch(e){
           console.log(e);
@@ -280,12 +279,9 @@ export default {
     },
     async sendMessage() {
       this.hide();
+      this.$store.dispatch('setCreatingChat', true);
+      this.$store.dispatch('setNewChat',  {id:this.profile.account_id, is_group:false});
       this.$router.push({name: 'chat'});
-      this.$nextTick(() => {
-        setTimeout(() => {
-          EventBus.emit('go-to-chat', {id: this.profile.account_id, is_group: false});
-        }, 300);
-      });
     },
 
     show(event, profile, boundD, boundR) {  // boundD, boundR 为边界的坐标
@@ -365,7 +361,7 @@ export default {
 .remark {
   margin-top: 5px;
   font-size: var(--font-size-small);
-  color: #666;
+  color: var(--text-color);
 }
 
 .add-modal {

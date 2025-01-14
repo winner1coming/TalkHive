@@ -194,18 +194,19 @@ export default {
   resize: none;
   padding-right: 50px;
   border:none;
-  background-color: var(--background-color1);
+  background-color: transparent;
   color: var(--text-color);
   outline: none;
   text-align: center;
-  font-size: var(--font-size-large);
+  font-size: var(--font-size);
 }
+
 .normal-textarea {
   flex: 1;
   resize: none;
   padding-right: 50px;
   border:none;
-  background-color: var(--background-color1);
+  background-color: transparent;
   color: var(--text-color);
   outline: none;
 }
