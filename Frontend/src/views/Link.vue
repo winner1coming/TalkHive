@@ -10,7 +10,9 @@
   </div>
     <div v-if="showWebLinksDropdown || isDropdownPinned" class="web-links-dropdown" @mouseleave="handleDropdownMouseLeave">
       <div class="pin-icon" @click="togglePinDropdown" >
+        
         <img v-if="isDropdownPinned === true" src="@/assets/icon/ding1.png" alt="Pin" class="ding_icon"/>
+        <img v-else-if="isDropdownPinned === false && this.$store.state.settings.theme === 'dark'" src="@/assets/icon/dark-ding.png" alt="Pin" class="ding_icon"/>
         <img v-else src="@/assets/icon/ding0.png" alt="Pin" class="ding_icon"/>
       </div>
       <div class="put">
@@ -21,7 +23,8 @@
           @blur="handleBlur"
           placeholder="搜索网页链接"
         />
-        <img src="@/assets/icon/add_tag.png" alt="Add" class="add-icon" @click="handleAddLinkClick"/>
+        <img v-if="this.$store.state.settings.theme === 'dark'" src="@/assets/icon/add_tag.png" alt="Add" class="dark-icon" @click="handleAddLinkClick"/>
+        <img v-else src="@/assets/icon/add_tag.png" alt="Add" class="add-icon" @click="handleAddLinkClick"/>
       </div>
       <ul class="web-links-list">
         <li v-for="(link, index) in filteredWebLinks" :key="index">
@@ -32,7 +35,8 @@
               <span class="web-url">{{ link.url }}</span>
             </div>
           </a>
-          <img src="@/assets/icon/delete_tag.png" alt="Delete" class="delete-icon" @click="removeWebLink(index)"/>
+          <img v-if="this.$store.state.settings.theme === 'dark'" src="@/assets/icon/delete_tag.png" alt="Delete" class="dark-delete-icon" @click="removeWebLink(index)"/>
+          <img v-else src="@/assets/icon/delete_tag.png" alt="Delete" class="delete-icon" @click="removeWebLink(index)"/>
         </li>
       </ul>
     </div>
@@ -50,9 +54,11 @@
           </div>
           <div class="form-actions">
             <button type="submit">
-              <img src="@/assets/icon/comfirm.png" alt="Comfirm" class="comfirm-icon" />
+              <img v-if="this.$store.state.settings.theme === 'dark'" src="@/assets/icon/comfirm.png" alt="Comfirm" class="dark-comfirm-icon" />
+              <img v-else src="@/assets/icon/comfirm.png" alt="Comfirm" class="comfirm-icon" />
             </button>
-            <img src="@/assets/icon/cancel.png" alt="Cancel" class="cancel-icon" @click="CancelClick"/>
+            <img v-if="this.$store.state.settings.theme === 'dark'" src="@/assets/icon/cancel.png" alt="Cancel" class="dark-cancel-icon" @click="CancelClick"/>
+            <img v-else src="@/assets/icon/cancel.png" alt="Cancel" class="cancel-icon" @click="CancelClick"/>
           </div>
         </form>
       </div>
@@ -306,12 +312,31 @@ export default {
     margin-top: 5px;
   }
 
+.dark-icon{
+    width: 45px;
+    height: 45px;
+    margin-top: 5px;
+    background-color: #f9f9f9;
+    border-radius: 12px;
+}
+
 .delete-icon{
   width: 40px;
   height: 40px;
 }
 
-.add-icon:hover, .delete-icon:hover{
+.dark-delete-icon{
+  width: 40px;
+  height: 40px;
+  margin-top: 5px;
+  background-color: #f9f9f9;
+  border-radius: 20px;
+}
+
+.add-icon:hover, 
+.delete-icon:hover,
+.dark-delete-icon:hover,
+.dark-icon:hover{
   background-color: var(--button-background-color);
   cursor: pointer;
   border-radius: 30px;
@@ -383,12 +408,22 @@ export default {
     height: 40px;
   }
 
+  .dark-comfirm-icon, .dark-cancel-icon{
+    width: 40px;
+    height: 40px;
+    background-color: #f9f9f9;
+    border-radius: 16px;
+  }
+
   .cancel-icon {
     width: 40px;
     height: 40px;
   }
 
-  .comfirm-icon:hover, .cancel-icon:hover {
+  .comfirm-icon:hover, 
+  .cancel-icon:hover,
+  .dark-comfirm-icon:hover, 
+  .dark-cancel-icon:hover {
     background-color: var(--button-background-color);
     border-radius: 16px;
     cursor: pointer;

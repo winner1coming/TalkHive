@@ -215,7 +215,7 @@ export default {
   padding: 10px;
   text-align: left;
   background-color: var(--background-color);
-  color: var(---text-color);
+  color: var(--text-color);
 }
 
 .editor-toolbar {
@@ -233,6 +233,7 @@ export default {
 .toolbar-item label {
   margin-right: 10px;
   font-size: var(--font-size-small);
+  color: var(--text-color);
 }
 
 select,
@@ -242,6 +243,7 @@ input[type="text"] {
   font-size: var(--font-size-small);
   border-radius: 5px;
   border: 1px solid var(--background-color2);
+  color: var(--text-color);
 }
 
 .monaco-editor-container {

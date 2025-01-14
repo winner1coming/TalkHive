@@ -202,7 +202,7 @@ export default {
         case 'light':
           return '#8757c9a1'; // 更深的紫色
         case 'dark':
-          return '547190ad'; // 深色主题的侧边栏背景颜色
+          return '#1a3a5cb1'; // 深色主题的侧边栏背景颜色
         case 'system':
           return '#6dc79fb1'; // 根据系统主题设置
         default:
@@ -226,7 +226,7 @@ export default {
         case 'light':
           return '#bcdfff88'; // 蓝色设置
         case 'dark':
-          return '#2c3e50'; // 深色主题的侧边栏背景颜色
+          return '#618ab3'; // 深色主题的侧边栏背景颜色
         case 'system':
           return '#6dc79fb1'; // 根据系统主题设置
         default:
@@ -238,7 +238,7 @@ export default {
         case 'light':
           return '#d0e8ff'; // 更深一点的蓝色
         case 'dark':
-          return '#2c3e50'; // 深色主题的侧边栏背景颜色
+          return '#508bc6'; // 深色主题的侧边栏背景颜色
         case 'system':
           return '#6dc79fb1'; // 根据系统主题设置
         default:
@@ -248,9 +248,9 @@ export default {
     selectBackgroundColor2() {
       switch (this.settings.theme) {
         case 'light':
-          return 'rgba(26, 216, 226, 0.879)'; // 最深的蓝色
+          return '#376da3'; // 最深的蓝色
         case 'dark':
-          return '#2c3e50'; // 深色主题的侧边栏背景颜色
+          return '#376da3'; // 深色主题的侧边栏背景颜色
         case 'system':
           return '#6dc79fb1'; // 根据系统主题设置
         default:
@@ -262,7 +262,7 @@ export default {
         case 'light':
           return '#007bff'; // 蓝色
         case 'dark':
-          return '#ffffff'; // 深色主题的侧边栏文字颜色
+          return '#007bff'; // 深色主题的侧边栏文字颜色
         case 'system':
           return '#000000'; // 根据系统主题设置
         default:

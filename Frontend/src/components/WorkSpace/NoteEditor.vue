@@ -221,7 +221,6 @@ export default {
   gap: 10px;
   margin-bottom: 10px;
   align-items: center;
-  color: var(---text-color);
 }
 
 .toolbar-item {
@@ -232,6 +231,7 @@ export default {
 .toolbar-item label {
   margin-right: 10px;
   font-size: 14px;
+  color: var(--text-color);
 }
 
 select,
@@ -242,7 +242,7 @@ input[type="text"] {
   border-radius: 5px;
   border: 1px solid var(--background-color2);
   font-size: var(--font-size-small);
-  color: var(---text-color);
+  color: var(--text-color);
 }
 
 .monaco-editor-container {
@@ -260,7 +260,7 @@ button {
   padding: 10px 20px;
   font-size: 16px;
   cursor: pointer;
-  color: var(---text-color);
+  color: var(--text-color);
   background-color: var(--button-background-color);
 }
 

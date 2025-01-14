@@ -572,7 +572,6 @@ export default {
   margin-left: 4px;
   margin-right: 1px;
   width: 65px;
-  color: var(--text-color);
 }
 
 .modal-actions {
