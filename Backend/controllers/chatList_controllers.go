@@ -302,6 +302,11 @@ func CreateChat(c *gin.Context) {
 			return
 		}
 
+		var hasChatInfo models.ChatInfo
+		if err := global.Db.Where("account_id = ? AND target_id = ?", accountID, input.Tid).First(&hasChatInfo).Error; err == nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"success": true, "message": "已经有现成的聊天记录"})
+			return
+		}
 		// 生成me对other以及other对me的聊天消息记录
 		chat := models.ChatInfo{
 			AccountID:  uint(accountID),
@@ -314,16 +319,16 @@ func CreateChat(c *gin.Context) {
 			return
 		}
 
-		chatOther := models.ChatInfo{
-			AccountID:  uint(input.Tid),
-			TargetID:   uint(accountID),
-			IsGroup:    input.IsGroup,
-			CreateTime: time.Now().Format("2006-01-02 15:04:05"),
-		}
-		if err := global.Db.Create(&chatOther).Error; err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "创建聊天记录失败"})
-			return
-		}
+		//chatOther := models.ChatInfo{
+		//	AccountID:  uint(input.Tid),
+		//	TargetID:   uint(accountID),
+		//	IsGroup:    input.IsGroup,
+		//	CreateTime: time.Now().Format("2006-01-02 15:04:05"),
+		//}
+		//if err := global.Db.Create(&chatOther).Error; err != nil {
+		//	c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "创建聊天记录失败"})
+		//	return
+		//}
 
 		tags := append(tags, "friend")
 		if contact.IsPinned {
@@ -846,7 +851,203 @@ func BlockChat(c *gin.Context) {
 }
 
 // ---------------------------------------------------------------------------
-// 聊天消息
+
+// GetMessages 获取聊天消息
+func GetMessages(c *gin.Context) {
+	userID := c.GetHeader("User-ID")
+	if userID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "HTTP header中用户ID为空"})
+		return
+	}
+	accountID, err := strconv.Atoi(userID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "ID解析失败"})
+		return
+	}
+	var me models.AccountInfo
+	if err := global.Db.Where("account_id = ?", accountID).First(&me).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询用户失败"})
+		return
+	}
+	if me.Deactivate == true {
+		c.JSON(http.StatusUnauthorized, gin.H{"success": false, "message": "用户注销"})
+		return
+	}
+	var input struct {
+		Tid     uint `json:"tid"`
+		IsGroup bool `json:"is_group"`
+	}
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Json绑定失败"})
+		return
+	}
+
+	if input.IsGroup == true {
+		// 查询GroupChatInfo表
+		var group models.GroupChatInfo
+		if err := global.Db.Where("group_id = ?", input.Tid).First(&group).Error; err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "查询GroupChatInfo表，群聊不存在"})
+			return
+		}
+
+		// 查询GroupMemberInfo表
+		var groupMember models.GroupMemberInfo
+		if err := global.Db.Where("account_id = ? AND group_id = ?", me.AccountID, group.GroupID).First(&groupMember).Error; err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "GroupMemberInfo表查询失败"})
+			return
+		}
+
+		// 查询聊天记录
+		var chat models.ChatInfo
+		if err := global.Db.Where("account_id = ? AND target_id = ? AND is_group = ?", me.AccountID, group.GroupID, true).First(&chat).Error; err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"success": true, "message": "聊天记录不存在", "data": gin.H{}})
+			return
+		}
+
+		// 查询当前聊天记录下的message
+		var messages []models.MessageInfo
+		if err := global.Db.Where("sender_chat_id = ?", chat.ChatID).Order("create_time DESC").Find(&messages).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询messageInfo表失败"})
+			return
+		}
+
+		if len(messages) == 0 {
+			c.JSON(http.StatusOK, gin.H{"success": true, "message": "当前聊天记录为空", "data": gin.H{}})
+			return
+		}
+
+		// 标记消息已读
+		if err := global.Db.Model(&messages).Updates(map[string]interface{}{"is_read": true}).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "更新消息状态失败"})
+			return
+		}
+
+		// 返回消息
+		var result []gin.H
+		for _, message := range messages {
+			// 查询GroupMemberInfo表
+			var senderGroupMember models.GroupMemberInfo
+			if err := global.Db.Where("account_id = ?", message.SendAccountID).First(&senderGroupMember).Error; err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询发送者失败"})
+				return
+			}
+
+			// 查询AccountInfo表
+			var sender models.AccountInfo
+			if err := global.Db.Where("account_id = ?", message.SendAccountID).First(&sender).Error; err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询发送者失败"})
+				return
+			}
+			avatarBase64, mimeType, err := utils.GetFileContentAndType(sender.Avatar)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": err.Error()})
+				return
+			}
+			avatarBase64 = "data:" + mimeType + ";base64," + avatarBase64
+
+			result = append(result, gin.H{
+				"message_id":      message.MessageID,
+				"send_account_id": message.SendAccountID,
+				"content":         message.Content,
+				"sender":          senderGroupMember.GroupNickname,
+				"avatar":          avatarBase64,
+				"create_time":     message.CreateTime,
+				"type":            message.Type,
+			})
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"success": true,
+			"message": "成功",
+			"data": gin.H{
+				"is_all_banned": group.IsAllBanned,
+				"is_banned":     groupMember.IsBanned,
+				"group_role":    groupMember.GroupRole,
+				"messages":      result,
+			},
+		})
+	} else {
+		var friend models.AccountInfo
+		if err := global.Db.Where("account_id = ?", input.Tid).First(&friend).Error; err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户不存在"})
+			return
+		}
+		if friend.Deactivate {
+			c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户已注销"})
+			return
+		}
+
+		// 查询聊天记录
+		var chat models.ChatInfo
+		if err := global.Db.Where("account_id = ? AND target_id = ? AND is_group = ?", me.AccountID, friend.AccountID, false).First(&chat).Error; err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "聊天记录不存在", "data": gin.H{}})
+			return
+		}
+
+		// 查询当前聊天记录下的message
+		var messages []models.MessageInfo
+		if err := global.Db.Where("sender_chat_id = ? OR receiver_chat_id = ?", chat.ChatID, chat.ChatID).Order("create_time ASC").Find(&messages).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询messageInfo表失败"})
+			return
+		}
+
+		if len(messages) == 0 {
+			c.JSON(http.StatusOK, gin.H{"success": true, "message": "当前聊天记录为空", "data": gin.H{}})
+			return
+		}
+
+		// 标记消息已读
+		if err := global.Db.Model(&messages).Updates(map[string]interface{}{"is_read": true}).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "更新消息状态失败"})
+			return
+		}
+
+		// 返回消息
+		var result []gin.H
+		for _, message := range messages {
+			// 查询Contacts表
+			// 接收者对发送者的contacts表
+			var receiver_sender models.Contacts
+			if err := global.Db.Where("owner_id = ? AND contact_id = ?", message.TargetID, message.SendAccountID).First(&receiver_sender).Error; err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询contacts表失败"})
+				return
+			}
+
+			// 查询AccountInfo表
+			var sender models.AccountInfo
+			if err := global.Db.Where("account_id = ?", message.SendAccountID).First(&sender).Error; err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询发送者失败"})
+				return
+			}
+
+			avatarBase64, mimeType, err := utils.GetFileContentAndType(sender.Avatar)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": err.Error()})
+				return
+			}
+			avatarBase64 = "data:" + mimeType + ";base64," + avatarBase64
+
+			result = append(result, gin.H{
+				"message_id":      message.MessageID,
+				"send_account_id": message.SendAccountID,
+				"content":         message.Content,
+				"sender":          receiver_sender.Remark,
+				"avatar":          avatarBase64,
+				"create_time":     message.CreateTime,
+				"type":            message.Type,
+			})
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"success": true,
+			"message": "成功",
+			"data": gin.H{
+				"is_all_banned": nil,
+				"is_banned":     nil,
+				"group_role":    nil,
+				"messages":      result,
+			},
+		})
+	}
+}
 
 func GetMessagesWebSocket(c *gin.Context) {
 	userID := c.GetHeader("User-ID")
@@ -931,6 +1132,7 @@ func GetMessagesWebSocket(c *gin.Context) {
 			}
 			conn.WriteJSON(gin.H{
 				"success": true,
+				"message": "获取群聊消息成功",
 				"data": gin.H{
 					"is_all_banned": group.IsAllBanned,
 					"is_banned":     groupMember.IsBanned,
