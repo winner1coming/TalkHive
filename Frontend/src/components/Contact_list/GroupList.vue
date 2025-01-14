@@ -324,8 +324,9 @@ export default {
     this.fetchTags();
     this.boundD = document.documentElement.clientHeight;
     this.boundR = document.documentElement.clientWidth;
-    EventBus.on('updateGroupList', (newGroup) => {
-      this.items.unshift(newGroup);
+    EventBus.on('updateGroupList', () => {
+      //this.items.unshift(newGroup);
+      this.fetchGroups();
     });
   },
   beforeDestroy() {
