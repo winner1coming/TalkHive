@@ -33,7 +33,6 @@
           <option value=".cpp">.cpp</option>
           <option value=".js">.js</option>
           <option value=".html">.html</option>
-          <option value=".css">.css</option>
           <option value=".txt">.txt</option>
           <!-- 可以根据需求继续添加文件类型 -->
         </select>
