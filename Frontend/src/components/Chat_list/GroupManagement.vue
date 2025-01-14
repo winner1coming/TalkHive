@@ -928,6 +928,10 @@ export default {
       }
       else if(this.searchHistoryType === 'member'){
         console.log(this.searchHistoryMember);
+        if(!this.searchHistoryMember) return null;
+        if(!this.searchHistoryKeyword) 
+          return this.history.filter(message => message.send_account_id===this.searchHistoryMember.account_id);
+        
         return this.history.filter(message => {
           return message.send_account_id===this.searchHistoryMember.account_id 
             && message.content.includes(keyword);
