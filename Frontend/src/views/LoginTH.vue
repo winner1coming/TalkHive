@@ -4,7 +4,7 @@
       <!-- 登录选项 -->
         <div class="login-options">
           <button :class="{ active: loginType === 'account' }" @click="loginType = 'account'">账号登录</button>
-          <button :class="{ active: loginType === 'sms' }" @click="loginType = 'sms'">短信登录</button>
+          <button :class="{ active: loginType === 'sms' }" @click="loginType = 'sms'">邮箱登录</button>
         </div>
         <div class="select" v-if="loginType === 'account'">
           <AccountLogin />
