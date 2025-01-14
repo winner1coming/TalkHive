@@ -153,7 +153,7 @@ export default {
     '$store.state.creatingChat': {
       handler: function(val) {
         if(val){
-          val=false;
+          this.$store.dispatch('setCreatingChat', false);
           let chat=null;
           if(this.chats) chat = this.chats.find(chat => chat.id === data.id);
           if(chat){
