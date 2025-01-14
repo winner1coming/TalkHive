@@ -3,22 +3,25 @@
     @mouseover="handleMouseOver" 
     @mouseleave="handleMouseLeave"
   >
+  <div class="click-button">
     <a href="#" @mouseover="showWebLinksDropdown = true">
       <img src="@/assets/icon/Link.png" alt="Link" class="icon"/>
     </a>
+  </div>
     <div v-if="showWebLinksDropdown || isDropdownPinned" class="web-links-dropdown" @mouseleave="handleDropdownMouseLeave">
-      <div class="pin-icon" @click="togglePinDropdown" :style="{ backgroundColor: isDropdownPinned ? 'red' : '#706a6a' }">
-        <i class="fas fa-thumbtack">📍</i>
+      <div class="pin-icon" @click="togglePinDropdown" >
+        <img v-if="isDropdownPinned === true" src="@/assets/icon/ding1.png" alt="Pin" class="ding_icon"/>
+        <img v-else src="@/assets/icon/ding0.png" alt="Pin" class="ding_icon"/>
       </div>
       <div class="put">
-      <SearchLink
-        v-model="searchQuery"
-        @input="handleSearchInput"
-        @focus="handleFocus"
-        @blur="handleBlur"
-        placeholder="搜索网页链接"
-      />
-      <button @click="handleAddLinkClick" class="add-button">➕</button>
+        <SearchLink
+          v-model="searchQuery"
+          @input="handleSearchInput"
+          @focus="handleFocus"
+          @blur="handleBlur"
+          placeholder="搜索网页链接"
+        />
+        <img src="@/assets/icon/add_tag.png" alt="Add" class="add-icon" @click="handleAddLinkClick"/>
       </div>
       <ul class="web-links-list">
         <li v-for="(link, index) in filteredWebLinks" :key="index">
@@ -29,7 +32,7 @@
               <span class="web-url">{{ link.url }}</span>
             </div>
           </a>
-          <button @click="removeWebLink(index)" class="delete-button">删除</button>
+          <img src="@/assets/icon/delete_tag.png" alt="Delete" class="delete-icon" @click="removeWebLink(index)"/>
         </li>
       </ul>
     </div>
@@ -46,9 +49,10 @@
             <input type="url" id="linkUrl" v-model="newlink.url" required />
           </div>
           <div class="form-actions">
-            <button type="submit" class="add-button">添加</button>
-            <button @click="showAddLinkModal = false,isAddingLink= false,this.newlink = { name: '', url: '', icon: '' };" 
-                    class="cancel-button">取消</button>
+            <button type="submit">
+              <img src="@/assets/icon/comfirm.png" alt="Comfirm" class="comfirm-icon" />
+            </button>
+            <img src="@/assets/icon/cancel.png" alt="Cancel" class="cancel-icon" @click="CancelClick"/>
           </div>
         </form>
       </div>
@@ -140,8 +144,8 @@ export default {
         }
         this.showModal = true;
         this.modalMessage = `${this.newlink.name}\n${this.newlink.url}\n添加网址成功`;
-        this.showAddLinkModal = false;
         this.isAddingLink = false;
+        this.showAddLinkModal = false;
       } catch (error) {
         this.showModal = true;
         this.modalMessage = `${this.newlink.name}\n${this.newlink.url}\n添加网址失败`;
@@ -164,7 +168,7 @@ export default {
           this.$store.commit('SET_LINKS',this.defaultwebLinks);
         }
         this.showModal = true;
-        this.modalMessage = `${this.defaultwebLinks[index].name}\n${this.defaultwebLinks[index].url}\n${response.message}`;
+        this.modalMessage = `${this.defaultwebLinks[index].name}\n${this.defaultwebLinks[index].url}\n$删除链接成功`;
       } catch (error) {
         this.showModal = true;
         this.modalMessage = `${this.defaultwebLinks[index].name}\n${this.defaultwebLinks[index].url}\n请检查网络`;
@@ -196,11 +200,22 @@ export default {
     handleIconError(event) {
       event.target.src = this.defaulticon;
     },
+
+    CancelClick(){
+      this.showAddLinkModal = false;
+      this.isAddingLink= false;
+      this.newlink = { name: '', url: '', icon: '' };
+    },
   },
 };
 </script>
 
 <style scoped>
+
+.click-button:hover{
+  background-color: var(--sidebar-background-color1);
+}
+
 .web-linker-container {
   position: absolute; /* 为下拉列表提供定位参考 */
   width: 100%;
@@ -212,7 +227,7 @@ export default {
 }
 
 .web-linker-container a {
-  color: #fdfdfd;
+  color: var(--background-color);
   text-decoration: none;
   display: block;
   padding: 10px;
@@ -220,23 +235,19 @@ export default {
   transition: background-color 0.3s;
 }
 
-.web-linker-container a:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-}
 
 /* 网页链接器下拉列表 */
 .web-links-dropdown {
-  background-color: #fff;
+  background-color: var(--background-color);
   border: 1px solid #ddd;
   border-radius: 4px;
-  padding: 10px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  width: 250px;
+  box-shadow: 0 2px 4px var(--background-color2);
+  width: 300px;
   position: absolute;
   top: 0%; /* 下拉列表紧贴按钮 */
   left: 60px;
   z-index: 10; /* 确保下拉列表在其他内容之上 */
-  height: 300px;
+  height: 350px;
   overflow: hidden;
 }
 
@@ -251,15 +262,21 @@ export default {
 .web-links-list li {
   margin: 5px 0;
   display: flex;
-  justify-content: space-between;
+  justify-content: space-around;
   align-items: center;
+  background-color: var(--background-color);
+  border-radius: 8px;
+}
+
+.web-links-list li:hover{
+  background-color: var(--background-color2);
 }
 
 .web-links-list a {
   display: flex;
   align-items: center;
   text-decoration: none;
-  color: #333;
+  color: var(--text-color);
 }
 
 .web-icon {
@@ -275,6 +292,7 @@ export default {
 
 .web-name {
   font-weight: bold;
+  text-align: left;
 }
 
 .web-url {
@@ -282,51 +300,23 @@ export default {
   color: #666;
 }
 
-/* 添加和删除按钮样式 */
-.add-button, .delete-button {
-  padding: 5px 10px;
-  border: none;
-  border-radius: 4px;
+.add-icon {
+    width: 45px;
+    height: 45px;
+    margin-top: 5px;
+  }
+
+.delete-icon{
+  width: 40px;
+  height: 40px;
+}
+
+.add-icon:hover, .delete-icon:hover{
+  background-color: var(--button-background-color);
   cursor: pointer;
-  font-size: var(--font-size-small);
+  border-radius: 30px;
 }
 
-.add-button {
-  background-color: #28a745;
-  color: white;
-  margin-top: 20px;
-  margin-bottom: 10px;
-}
-
-.delete-button {
-  background-color: #dc3545;
-  color: white;
-}
-
-  /* 钉子图标样式 */
-  .pin-icon {
-  position: absolute;
-  top: 5px;
-  left: 1px;
-  cursor: pointer;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  }
-
-  .pin-icon-content {
-  width: 10px;
-  height: 10px;
-  background-color: #fff;
-  border-radius: 2px;
-  }
-
-  .pin-icon:hover {
-  background-color: #b72424;
-  }
   
   .modal-overlay {
     position: fixed;
@@ -342,17 +332,19 @@ export default {
   }
 
   .modal-content {
-    background: white;
-    padding: 20px;
+    background: var(--background-color);
+    padding: 10px;
     border-radius: 8px;
     width: 300px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 10px var(--background-color2);
   }
 
   .modal-content h3 {
-    margin-top: 0;
+    margin-top: 10px;
     font-size: var(--font-size-mlarge);
+    color: var(--text-color);
     text-align: center;
+    margin-bottom: 15px;
   }
 
   .form-group {
@@ -363,45 +355,62 @@ export default {
   }
 
   .form-group label {
+    width: 20%;
     display: block;
     margin-bottom: 5px;
-    font-weight: bold;
-    color: #333;
+    color: var(--text-color);
   }
 
   .form-group input {
     width: 80%;
-    padding: 8px;
-    border: 1px solid #ddd;
+    padding: 6px;
     border-radius: 4px;
   }
 
   .form-actions {
     display: flex;
-    justify-content: space-between;
+    justify-content: space-around;
     margin-top: 20px;
   }
 
   .form-actions button {
-    padding: 8px 15px;
     border: none;
-    border-radius: 4px;
+    background-color: var(--background-color);
+  }
+
+  .comfirm-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .cancel-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .comfirm-icon:hover, .cancel-icon:hover {
+    background-color: var(--button-background-color);
+    border-radius: 16px;
     cursor: pointer;
-    font-size: var(--font-size-small);
-  }
-
-  .add-button {
-    background-color: #28a745;
-    color: white;
-  }
-
-  .cancel-button {
-    background-color: #dc3545;
-    color: white;
   }
 
   .put{
     display: flex;
+    flex-direction: row;
+    margin-left: 20px;
+    align-items: center;
+  }
+  
+  .pin-icon{
+    width: 25px;
+    margin-bottom: px;
+    position:absolute;
+  }
+
+  .ding_icon{
+    width: 25px;
+    height: 25px;
+    
   }
 
   a .icon {
@@ -409,4 +418,5 @@ export default {
   height: 25px; /* 图标大小 */
   margin-right: 5px; /* 图标和文字之间的间距 */
 }
+
 </style>

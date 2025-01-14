@@ -13,7 +13,7 @@
       </div>
       <div class="menu-item" :class="{ active: activeComponent === 'FriendPermission' }" @click="setActiveComponent('FriendPermission')">
         <img src="@/assets/icon/permission.png" alt="FriendPermission" class="icon"/>
-        <span>好友权限设置</span>
+        <span>好友权限</span>
         <span class="content"></span>
       </div>
       <div class="menu-item" :class="{ active: activeComponent === 'DeactivateAccount' }" @click="showDeactivateConfirmation">
