@@ -628,7 +628,7 @@ select {
   width: 35px;
   height: 35px;
   cursor: pointer;
-  margin-left: 10px;
+  margin-left: 5px;
   object-fit: contain; /* 确保图片按比例缩放 */
   flex-shrink: 0;
   align-self: center;
