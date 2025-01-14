@@ -266,7 +266,8 @@ export default {
 }
 
 .modal-content {
-  background-color: white;
+  background-color: var(--background-color);
+  color: var(--text-color);
   padding: 20px;
   border-radius: 10px;
   width: 300px;
@@ -278,6 +279,7 @@ input[type="text"], select {
   margin: 10px 0;
   border: 1px solid #ddd;
   border-radius: 4px;
+  color: var(--text-color);
 }
 
 .modal-actions {
@@ -286,16 +288,16 @@ input[type="text"], select {
   justify-content: space-between;
 }
 
-.save-btn, .cancel-btn {
+.save-btn, .cancel-btn{
   padding: 10px;
-  background-color: #007bff;
-  color: white;
+  background-color: var(--button-background-color);
+  color: var(--button-text-color);
   border: none;
   cursor: pointer;
 }
 
 .save-btn:hover, .cancel-btn:hover {
-  background-color: #0056b3;
+  background-color: var(--button-background-color2);
 }
 
 .codes ul {
@@ -307,9 +309,10 @@ input[type="text"], select {
   display: flex;
   align-items: center;
   padding: 10px 0;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid var(--background-color2);
   justify-content: space-between;
   position: relative; /* 给父元素设置相对定位 */
+  color: var(--text-color);
 }
 
 .code-item .filename {
@@ -319,7 +322,8 @@ input[type="text"], select {
 }
 
 .code-item .modified {
-  color: #666;
+  color: var(--text-color);
+  opacity: 80%;
 }
 
 .more-btn {
@@ -327,21 +331,21 @@ input[type="text"], select {
   border: none;
   cursor: pointer;
   font-size: 23px;
-  color: #333;
+  color: var(--text-color);
 }
 
 .more-btn:hover {
-  color: #007bff;
+  color: var(--button-background-color2);
 }
 
 .dropdown {
   position: absolute;
   right: -25px;
   bottom: 23px;
-  background-color: white;
+  background-color: var(--background-color);
   border: 1px solid #ddd;
   border-radius: 5px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px var(--background-color2);
   z-index: 10;  /* 确保 dropdown 在按钮上方显示 */
 }
 
@@ -353,12 +357,12 @@ input[type="text"], select {
   margin: 5px; 
   padding:5px;
   border: none; 
-  color:#333; 
-  background-color: white;
+  color:var(--text-color); 
+  background-color:var(--background-color);
 }
 
 .dropdown_delete_btn:hover{
-  background-color: rgb(208, 208, 208);
+  background-color: var(--button-background-color);
 }
 
 .confirm-modal {
@@ -375,7 +379,7 @@ input[type="text"], select {
 }
 
 .confirm-content {
-  background-color: white;
+  background-color: var(--background-color);
   padding: 20px;
   border-radius: 10px;
   width: 300px;
@@ -383,14 +387,14 @@ input[type="text"], select {
 
 .confirm-btn, .cancel-btn {
   padding: 10px;
-  background-color: #007bff;
-  color: white;
+  background-color: var(--button-background-color);
+  color: var(--button-text-color);
   border: none;
   cursor: pointer;
 }
 
 .confirm-btn:hover, .cancel-btn:hover {
-  background-color: #0056b3;
+  background-color: var(--button-background-color2);
 }
 
 .create_note_icon:hover{

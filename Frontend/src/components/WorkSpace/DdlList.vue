@@ -545,7 +545,8 @@ export default {
 }
 
 .modal-content {
-  background-color: white;
+  background-color:var(--background-color);
+  color: var(--text-color);
   padding: 20px;
   border-radius: 10px;
   width: 300px;
@@ -571,24 +572,25 @@ export default {
   margin-left: 4px;
   margin-right: 1px;
   width: 65px;
+  color: var(--text-color);
 }
 
 .modal-actions {
   margin-top: 20px;
   display: flex;
-  justify-content: space-between;
+  justify-content: space-around;
 }
 
 .save-btn, .cancel-btn {
   padding: 10px;
-  background-color: #007bff;
-  color: white;
+  background-color: var(--button-background-color);
+  color: var(--button-text-color);
   border: none;
   cursor: pointer;
 }
 
 .save-btn:hover, .cancel-btn:hover {
-  background-color: #0056b3;
+  background-color: var(--button-background-color2);
 }
 
 .ddl-container {
@@ -614,7 +616,8 @@ export default {
   display: flex;
   align-items: center;
   padding: 10px 0;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid var(--background-color2);
+  font-size: var(--font-size);
 }
 
 .ddl-item .ddl-checkbox {
@@ -629,25 +632,26 @@ export default {
 }
 
 .ddl-item .task-content {
-  color: #666;
+  color: var(--text-color);
+  opacity: 70%;
   flex-grow: 1;
 }
 
 .ddl-item .delete-btn {
-  background-color: #007bff;
-  color: rgb(255, 255, 255);
+  background-color: var(--button-background-color);
+  color: var(--button-background-color);
   border: none;
   padding: 5px 10px;
   cursor: pointer;
 }
 
 .ddl-item .delete-btn:hover {
-  background-color:rgb(75, 103, 216);
+  background-color:var(--button-background-color2);
 }
 
 .completed {
-  background-color: #f0f8ff;
-  color: #888;
+  background-color: var(--sidebar-background-color);
+  color: var(--sidebar-text-color);
 }
 
 .toggle-btn-container {
@@ -658,14 +662,14 @@ export default {
 
 .toggle-btn {
   padding: 10px;
-  background-color: #9fbddf;
-  color: white;
+  background-color: var(--button-background-color);
+  color: var(--text-color);
   border: none;
   cursor: pointer;
 }
 
 .toggle-btn:hover {
-  background-color: #0056b3;
+  background-color: var(--button-background-color2);
 }
 
 .trash-icon:hover, 
@@ -688,7 +692,7 @@ export default {
   width: 18px;
   height: 18px;
   background-color: none;
-  color: white;
+  color: var(--text-color);
   margin-right: 13px;
 }
 
@@ -717,7 +721,7 @@ export default {
 }
 
 .confirm-content {
-  background-color: white;
+  background-color: var(--background-color);
   padding: 20px;
   border-radius: 10px;
   width: 300px;
@@ -725,8 +729,8 @@ export default {
 
 .confirm-btn, .cancel-btn {
   padding: 10px;
-  background-color: #007bff;
-  color: white;
+  background-color: var(--button-background-color);
+  color: var(--button-text-color);
   border: none;
   cursor: pointer;
 }

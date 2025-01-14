@@ -213,6 +213,7 @@ export default {
 .note-editor {
   padding: 10px;
   text-align: left;
+  background-color: var(--background-color);
 }
 
 .editor-toolbar {
@@ -220,6 +221,7 @@ export default {
   gap: 10px;
   margin-bottom: 10px;
   align-items: center;
+  color: var(---text-color);
 }
 
 .toolbar-item {
@@ -238,13 +240,15 @@ input[type="text"] {
   padding: 5px 10px;
   font-size: 14px;
   border-radius: 5px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--background-color2);
+  font-size: var(--font-size-small);
+  color: var(---text-color);
 }
 
 .monaco-editor-container {
   height: 700px;
   width: 100%;
-  border: 1px solid #ccc;
+  border: 1px solid var(--background-color2);
 }
 
 .actions {
@@ -256,11 +260,11 @@ button {
   padding: 10px 20px;
   font-size: 16px;
   cursor: pointer;
-  color: #000;
-  background-color: #ffffff;
+  color: var(---text-color);
+  background-color: var(--button-background-color);
 }
 
 button:hover {
-  background-color: #eaeaea;
+  background-color: var(--button-background-color2);
 }
 </style>
