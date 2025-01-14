@@ -18,7 +18,7 @@
     <!-- 删除模式开启后，显示垃圾桶按钮 -->
     <!-- 垃圾桶图标和取消按钮 -->
     <div v-if="deleteMode" class="trash-actions">
-      <img src="@/assets/icon/delete.png" alt="垃圾图标" class="trash-icon" click="deleteSelected"/>
+      <img src="@/assets/icon/delete.png" alt="垃圾图标" class="trash-icon" @click="deleteSelected"/>
       <button class="cancel-delete-btn" @click="cancelDelete">取消</button>
     </div>
     <ul>

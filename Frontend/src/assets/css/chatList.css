@@ -27,7 +27,8 @@ button {
   border: none;
   padding: 5px;
   cursor: pointer;
-  border-radius: 20%;
+  font-size: var(--font-size-small);
+  border-radius: 5px;
 }
 button:hover {
   background-color:var(--button-background-color1);

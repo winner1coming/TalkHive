@@ -19,7 +19,7 @@
         <p class="title">备注: </p>
         <EditableText class="detail" :text="remark" @update-text="changeFriendRemark" />
         <p class="title">分组: </p>
-        <p class="detail">
+        <p class="divide-detail">
           {{ friendInfo.tag }} 
           <button @click="showDivideMove">更改</button>
         </p>
@@ -551,6 +551,19 @@ export default {
   color: #888;
   padding: 5px;
 }
+.divide-detail {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  font-size: var(--font-size-small);
+  text-align: left;
+  color: #888;
+  padding: 5px;
+}
+.divide-detail button{
+  padding: 0 5px 0 5px;
+  margin-left: 40px;
+}
 
 .flex-container{
   display: flex;
@@ -559,7 +572,7 @@ export default {
 }
 
 .friend-actions {
-  margin-top: 20px;
+  margin-top: 10px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -570,7 +583,8 @@ export default {
   margin-right: 10px;
 }
 .friend-actions button {
-  margin-top: 10px;
+  margin-top: 5px;
+  width: 80%;
 }
 
 .divider {

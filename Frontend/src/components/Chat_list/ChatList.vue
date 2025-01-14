@@ -215,6 +215,7 @@ export default {
     },
     // 格式化时间
     formatTime(time) {
+      if(!time) return '';
       const now = new Date();
       const messageTime = new Date(time);
       const isToday = now.toDateString() === messageTime.toDateString();
