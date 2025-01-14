@@ -19,6 +19,7 @@ func main() {
 	// 初始化 Gin 引擎
 	r := gin.Default()
 
+	// 设置跨域
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"*"},
 		AllowMethods:     []string{"GET", "POST", "OPTIONS"},
