@@ -62,6 +62,8 @@
   .search-bar {
     display: flex;
     padding: 10px;
+    align-items: center;
+    flex-direction: row;
   }
   .search-bar input {
     flex: 1;
@@ -71,8 +73,8 @@
     width: 100%;
   }
   .search-bar button {
-    margin-left: 5px;
-    padding: 5px 10px;
+    margin-left: 9px;
+    padding: 5px;
     border: none;
     background-color: var(--button-background-color);
     color: var(--button-text-color);
