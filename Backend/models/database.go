@@ -9,7 +9,7 @@ type MessageInfo struct {
 	MessageID      uint   `gorm:"primaryKey" json:"message_id"`
 	CreateTime     string `json:"create_time"`
 	SendAccountID  uint   `json:"send_account_id"`
-	TargetID       uint   `json:"receive_account_id"`
+	TargetID       uint   `json:"target_id"`
 	Content        string `json:"content"`
 	Type           string `json:"type"`
 	SenderChatID   uint   `json:"sender_chat_id" gorm:"foreignKey:ChatID;references:ChatID"`

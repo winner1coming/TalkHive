@@ -15,11 +15,6 @@ func AddLinks(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "http的Header中用户ID为空"})
 		return
 	}
-	//accountID, err := strconv.Atoi(userID)
-	//if err != nil {
-	//	c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "ID解析失败"})
-	//	return
-	//}
 	var user models.AccountInfo
 	if err := global.Db.Where("account_id = ?", global.ParseUint(userID)).First(&user).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询用户失败"})
