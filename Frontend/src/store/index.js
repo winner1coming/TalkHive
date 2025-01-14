@@ -156,16 +156,17 @@ export default createStore({
     },
 
     connectWebSocket({ commit, state }) {
-      const socket = new WebSocket(`ws://localhost:8080/websocketMessage`);  
+      const socket = new WebSocket(`https://localhost:8080/ws/websocketMessage`);  
       socket.onmessage = (event) => {
-        const data = JSON.parse(event.data);
+        const type = JSON.parse(event.data.type);
+        const data = JSON.parse(event.data.data);
         // 播放提示音
         if(state.settings.isNotice){
           const audio = new Audio(require(`@/assets/sound/${state.settings.sound}`));
           audio.play();
         }
         // 除了对应内容外还需要type字段   todo todo
-        if (true || data.type === 'message') {   
+        if (true || type === 'message') {   
           if(data.send_account_id === state.currentChat.id){
             const message ={
               message_id: data.message_id, 
@@ -178,7 +179,7 @@ export default createStore({
             }
             EventBus.emit('new-message', message);
           }
-        } else if (data.type === 'notification') { 
+        } else if (type === 'notification') { 
           commit('ADD_NOTIFICATION', data);
         }
       };

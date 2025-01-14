@@ -12,7 +12,7 @@
       </select>
     </div>
     <div ref="editor" class="editor"></div>
-    <button @click="sendCode">发送</button>
+    <button style="padding: 0 2px 0 2px;" @click="sendCode">发送</button>
   </div>
 </template>
 
@@ -111,6 +111,7 @@ export default {
 };
 </script>
 
+<style src="@/assets/css/chatList.css" scoped></style>
 <style scoped>
 .editor-container {
   position: fixed;
