@@ -149,7 +149,23 @@ export default {
       },
       immediate: true,
       deep: true,
-    }
+    },
+    '$store.state.creatingChat': {
+      handler: function(val) {
+        if(val){
+          val=false;
+          let chat=null;
+          if(this.chats) chat = this.chats.find(chat => chat.id === data.id);
+          if(chat){
+            this.selectChat(chat);
+          }else{
+            console.log(this.$store.state.newChat);
+            this.selectChat(null, this.$store.state.newChat.id, this.$store.state.newChat.is_group);
+          }
+        }
+      },
+      immediate: true,
+    },
   },
   methods: {
     async fetchChatList() {
@@ -175,7 +191,7 @@ export default {
     },
     // 选中消息，切换到对应的聊天
     async selectChat(chat, tid=null, is_group=false) {
-      console.log(is_group);
+      console.log(tid, is_group);
       if (!chat) {
         if(!tid) return;
         try{
@@ -534,15 +550,6 @@ export default {
       // this.chats.unshift(newChat); 
       this.fetchChatList();
     });
-    EventBus.on('go-to-chat', (data) => {
-      let chat=null;
-      if(this.chats) chat = this.chats.find(chat => chat.id === data.id);
-      if(chat){
-        this.selectChat(chat);
-      }else{
-        this.selectChat(null, data.id, data.is_group);
-      }
-    });
   },
   beforeUnmount() {
     console.log('destroy');
@@ -551,7 +558,6 @@ export default {
     EventBus.off('set-blocked');
     EventBus.off('set-blacklist');
     EventBus.off('update-chat');
-    EventBus.off('go-to-chat');
   },
 };
 </script>

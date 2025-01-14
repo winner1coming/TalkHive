@@ -279,12 +279,9 @@ export default {
     },
     async sendMessage() {
       this.hide();
+      this.$store.dispatch('setCreatingChat', true);
+      this.$store.dispatch('setNewChat',  {id:this.profile.account_id, is_group:false});
       this.$router.push({name: 'chat'});
-      this.$nextTick(() => {
-        setTimeout(() => {
-          EventBus.emit('go-to-chat', {id: this.profile.account_id, is_group: false});
-        }, 300);
-      });
     },
 
     show(event, profile, boundD, boundR) {  // boundD, boundR 为边界的坐标

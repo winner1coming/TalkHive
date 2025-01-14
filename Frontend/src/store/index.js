@@ -13,6 +13,8 @@ export default createStore({
 
     hasFloatComponent: null,   // 当前正在开启的悬浮组件
     currentChat: null, // 当前聊天对象
+    creatingChat: false, // 是否正在创建聊天
+    newChat: null, // 新创建的聊天的参数
 
     // 系统设置
     settings: {
@@ -64,6 +66,12 @@ export default createStore({
     
     SET_CHAT(state, chat) {
       state.currentChat = chat;
+    },
+    SET_CREATING_CHAT(state, creatingChat) {
+      state.creatingChat = creatingChat;
+    },
+    SET_NEW_CHAT(state, newChat) {
+      state.newChat = newChat;
     },
 
 
@@ -133,6 +141,12 @@ export default createStore({
     // 设置聊天对象
     setChat({ commit }, chat) {
       commit('SET_CHAT', chat);
+    },
+    setCreatingChat({ commit }, creatingChat) {
+      commit('SET_CREATING_CHAT', creatingChat);
+    },
+    setNewChat({ commit }, newChat) {
+      commit('SET_NEW_CHAT', newChat);
     },
 
     // 注册操作
