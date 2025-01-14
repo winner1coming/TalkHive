@@ -88,8 +88,6 @@ export default {
     async fetchMessages(account_id){
       try{
         const response = await chatListAPI.getMessages(account_id, this.selectedChat.tags.includes('group') ? true : false);
-        // 若被禁言  
-        //todo
         if(response.status !== 200){
           this.$root.notify(response.data.message, 'error');
           return;
@@ -160,13 +158,7 @@ export default {
       const items = ['删除', '撤回', '复制','收藏'];
       this.$refs.contextMenu.show(event, items, message, this.boundD, this.boundR);
     },
-    async handleMenuSelect(option, message){   // todo api没搞完
-      // if(option === '引用'){
-      //   // todo
-      //   this.$emit('reply', message);
-      // }else if(option === '转发'){
-      //   this.$emit('forward', message);
-      // }else 
+    async handleMenuSelect(option, message){   
       if(option === '删除'){
         try{
           const response = await chatListAPI.deleteMessage(message.message_id);
@@ -201,9 +193,6 @@ export default {
           this.$root.notify('复制失败','error');
         }
       }
-      // else if(option === '多选'){
-      //   // todo
-      // }
       else if(option === '收藏'){
         try{
           const response = await chatListAPI.collectMessage({table_name:"message",message_id: message.message_id});
@@ -253,11 +242,9 @@ export default {
   mounted() {
     this.boundD = this.$refs.chatBox.getBoundingClientRect().bottom;
     this.boundR = this.$refs.chatBox.getBoundingClientRect().right;
-    EventBus.on('new-message', () => {
-      // if(newMessage.chat_id === this.selectedChat.id){
-      //   this.messages.push(newMessage);
-      // }
-      this.fetchMessages(this.selectedChat.id);
+    EventBus.on('new-message', (newMessage) => {
+      this.messages.push(newMessage);
+      //this.fetchMessages(this.selectedChat.id);
     });
   },
   beforeDestroy() {

@@ -87,7 +87,10 @@
 
           </div>
           <div class="message-content">
-            <p class="message-text">{{ message.content }}</p>
+            <p v-if="message.type==='text'" class="message-text">{{ message.content }}</p>
+            <p v-else-if="message.type==='image'" class="message-text"><img :src="message.content"/></p>
+            <p v-else-if="message.type==='file'" class="message-text">{{ message.content }}</p>
+            <p v-else class="message-text">[代码块]</p>
           </div>
         </div>
       </div>
@@ -416,10 +419,10 @@ export default {
       }
       else if(this.searchHistoryType === 'image'){  // todo
         return this.history.filter(message => {
-          return message.type === 'image' && message.content.includes(keyword);
+          return message.type === 'image';
         });
       }
-      else if(this.searchHistoryType === 'file'){  // todo
+      else if(this.searchHistoryType === 'file'){  // todo content只是文件名
         return this.history.filter(message => {
           return message.type === 'file' && message.content.includes(keyword);
         });
@@ -558,10 +561,10 @@ export default {
   font-size: var(--font-size-small);
   text-align: left;
   color: #888;
-  padding: 5px;
+  padding: 0 0 0 5px;
 }
 .divide-detail button{
-  padding: 0 5px 0 5px;
+  padding: 2px 5px 2px 5px;
   margin-left: 40px;
 }
 
