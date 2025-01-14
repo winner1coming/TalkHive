@@ -65,7 +65,7 @@ export default {
 
 .toolbar {
   width: 150px;
-  background-color: var(--background-color);
+  background-color: var(--background-color1);
   border-right: 1px solid var(--background-color2);
   padding: 10px;
   box-sizing: border-box;
@@ -84,6 +84,7 @@ export default {
   align-items: center;
   gap: 10px;
   transition: background-color 0.3s;
+  color: var(--text-color);
 }
 
 .toolbar li:hover {
@@ -106,5 +107,6 @@ export default {
   padding: 20px;
   box-sizing: border-box;
   overflow-y: auto;
+  background-color: var(--background-color);
 }
 </style>

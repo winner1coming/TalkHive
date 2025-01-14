@@ -156,7 +156,6 @@
   .bottom-panel {
     flex: 1;
     overflow-y: auto;
-    background-color: var(--background-color);
   }
   
   .confirmation-modal {

@@ -410,7 +410,6 @@ export default {
   .ding_icon{
     width: 25px;
     height: 25px;
-    
   }
 
   a .icon {

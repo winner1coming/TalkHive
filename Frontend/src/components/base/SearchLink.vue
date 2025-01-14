@@ -58,6 +58,7 @@
     border-radius: 4px;
     padding-left: 30px;
     color: var(--text-color);
+    background-color: var(--background-color);
   }
 
   .find-icon {
