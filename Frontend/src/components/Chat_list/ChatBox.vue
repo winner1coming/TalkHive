@@ -248,7 +248,7 @@ export default {
     EventBus.on('new-message', (newMessage) => {
       this.messages.push(newMessage);
       const messagesContainer = this.$refs.messages;
-      console.log(messagesContainer);
+      if(!messagesContainer) return;
       //console.log(messagesContainer.scrollTop + 900, messagesContainer.scrollHeight - messagesContainer.clientHeight);
       if(messagesContainer.scrollTop + 900 > messagesContainer.scrollHeight - messagesContainer.clientHeight){
         this.scrollToBottom();
