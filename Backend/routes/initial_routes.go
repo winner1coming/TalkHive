@@ -10,4 +10,5 @@ func SetupRoutes(r *gin.Engine) {
 	linksRoutes(r)
 	workspaceRoutes(r)
 	pollRoutes(r)
+	websocketRoutes(r)
 }
