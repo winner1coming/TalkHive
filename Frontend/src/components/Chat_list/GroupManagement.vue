@@ -1070,7 +1070,7 @@ export default {
   padding: 5px;
   height: 20px;
   border: solid 1px #ccc;
-  border-radius: 5%;
+  border-radius: 5px;
 }
 .introduction-detail{
   text-align: left;
@@ -1078,7 +1078,7 @@ export default {
   padding: 5px;
   height: 100px;
   border: solid 1px #ccc;
-  border-radius: 5%;
+  border-radius: 5px;
 }
 
 .flex-container{
@@ -1088,18 +1088,19 @@ export default {
 }
 
 .group-actions {
-  margin-top: 20px;
+  margin-top: 10px;
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 10px;
 }
-
 .group-actions input {
   margin-right: 10px;
 }
 .group-actions button {
-  margin-top: 10px;
+  margin-top: 5px;
+  width: 80%;
+  
 }
 
 .divider {

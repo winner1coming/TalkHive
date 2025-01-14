@@ -1,6 +1,6 @@
 <template>
   <div v-if="visible" class="profile-card" :style="{ top: `${y}px`, left: `${x}px` }">
-    <div class="options-button" @click="handleOptionsClick($event)">···</div>
+    <div v-if="profile.account_id !== this.$store.state.user.id" class="options-button" @click="handleOptionsClick($event)">···</div>
     <div class="avatar">
       <img :src="profile.avatar" alt="avatar" />
     </div>
