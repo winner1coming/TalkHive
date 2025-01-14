@@ -1058,10 +1058,10 @@ export default {
   font-size: var(--font-size-small);
   text-align: left;
   color: #888;
-  padding: 5px;
+  padding: 0 0 0 5px;
 }
 .divide-detail button{
-  padding: 0 5px 0 5px;
+  padding: 2px 5px 2px 5px;
   margin-left: 40px;
 }
 .group-name-detail{
