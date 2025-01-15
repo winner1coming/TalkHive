@@ -151,12 +151,13 @@ export default {
       deep: true,
     },
     '$store.state.creatingChat': {
-      handler: function(val) {
+      handler: async function(val) {
         if(val){
           this.$store.dispatch('setCreatingChat', false);
+          await this.fetchChatList();
           this.$nextTick(() => {
             let chat=null;
-            if(this.chats) chat = this.chats.find(chat => chat.id === data.id);
+            if(this.chats) chat = this.chats.find(chat => chat.id === this.$store.state.newChat.id);
             if(chat){
               this.selectChat(chat);
             }else{
@@ -172,7 +173,7 @@ export default {
   },
   methods: {
     async fetchChatList() {
-      try{
+      try {
         // 从后端获取聊天列表
         const response = await chatListAPI.getChatList();
         if(response.status === 200) {
@@ -207,7 +208,7 @@ export default {
           }
           chat = response.data.data[0];
           
-          this.fetchChatList();
+          await this.fetchChatList();
         }catch(e){
           console.log(e);
         }
@@ -485,15 +486,19 @@ export default {
       if(this.menuType === 'new') this.handleNewMenu(item);
       if(this.menuType === 'chat') this.handleChatMenu(item, obj);
     },
-  },
-  created () {
-    this.fetchChatList();
-    if(this.$store.state.currentChat){
-      this.selectChat(this.$store.state.currentChat);
-      if(this.$store.state.currentChat.unreadCount > 0){
-        this.readMessages(this.$store.state.currentChat);
+
+    async init(){
+      await this.fetchChatList();
+      if(this.$store.state.currentChat){
+        this.selectChat(this.$store.state.currentChat);
+        if(this.$store.state.currentChat.unreadCount > 0){
+          this.readMessages(this.$store.state.currentChat);
+        }
       }
     }
+  },
+  created () {
+    this.init();
   },
   mounted() {
     EventBus.on('set-mute', (tid, is_mute) => {
@@ -544,7 +549,7 @@ export default {
         }
       } 
     });
-    EventBus.on('update-chat', (newChat) => {
+    EventBus.on('update-chat', async (newChat) => {
       if(!this.chats){
         this.fetchChatList();
         return;
