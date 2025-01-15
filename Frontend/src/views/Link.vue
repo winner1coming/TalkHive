@@ -31,7 +31,7 @@
           <a :href="link.url" target="_blank">
             <img :src="link.icon" alt="Icon" class="web-icon" @error="handleIconError" />
             <div class="web-info">
-              <span class="web-name">{{ link.name }}</span>
+              <span class="web-name">{{ link.url_name }}</span>
               <span class="web-url">{{ link.url }}</span>
             </div>
           </a>
@@ -46,7 +46,7 @@
         <form @submit.prevent="addWebLink">
           <div class="form-group">
             <label for="linkName">名称:</label>
-            <input type="text" id="linkName" v-model="newlink.name" required />
+            <input type="text" id="linkName" v-model="newlink.url_name" required />
           </div>
           <div class="form-group">
             <label for="linkUrl">网址:</label>
@@ -91,7 +91,7 @@ export default {
       defaultwebLinks: this.$store.state.links,//从vuex获取 this.$store.state.links;
       showAddLinkModal: false,
       newlink: {
-        name: '',
+        url_name: '',
         url: '',
         icon: '',
       },
@@ -111,7 +111,7 @@ export default {
       const query = this.searchQuery.toLowerCase();
       return this.defaultwebLinks.filter(link => {
         return (
-          (link.name && link.name.toLowerCase().includes(query)) ||
+          (link.url_name && link.url_name.toLowerCase().includes(query)) ||
           (link.url && link.url.toLowerCase().includes(query))
         );
       });
@@ -139,7 +139,7 @@ export default {
       try {
         this.newlink.icon = `${this.newlink.url}/favicon.ico`;
         const response = await AddLinks({
-          url_name: this.newlink.name,
+          url_name: this.newlink.url_name,
           url: this.newlink.url,
           icon: this.newlink.icon,
         });
@@ -149,12 +149,12 @@ export default {
           this.newlink = { name: '', url: '', icon: '' };
         }
         this.showModal = true;
-        this.modalMessage = `${this.newlink.name}\n${this.newlink.url}\n添加网址成功`;
+        this.modalMessage = `${this.newlink.url_name}\n${this.newlink.url}\n添加网址成功`;
         this.isAddingLink = false;
         this.showAddLinkModal = false;
       } catch (error) {
         this.showModal = true;
-        this.modalMessage = `${this.newlink.name}\n${this.newlink.url}\n添加网址失败`;
+        this.modalMessage = `${this.newlink.url_name}\n${this.newlink.url}\n添加网址失败`;
       } finally {
         // 添加完成后延迟 5 秒关闭下拉框
         this.dropdownTimeout = setTimeout(() => {
@@ -174,10 +174,10 @@ export default {
           this.$store.commit('SET_LINKS',this.defaultwebLinks);
         }
         this.showModal = true;
-        this.modalMessage = `${this.defaultwebLinks[index].name}\n${this.defaultwebLinks[index].url}\n$删除链接成功`;
+        this.modalMessage = `${this.defaultwebLinks[index].url_name}\n${this.defaultwebLinks[index].url}\n$删除链接成功`;
       } catch (error) {
         this.showModal = true;
-        this.modalMessage = `${this.defaultwebLinks[index].name}\n${this.defaultwebLinks[index].url}\n请检查网络`;
+        this.modalMessage = `${this.defaultwebLinks[index].url_name}\n${this.defaultwebLinks[index].url}\n请检查网络`;
       }
     },
     togglePinDropdown() {
@@ -210,7 +210,7 @@ export default {
     CancelClick(){
       this.showAddLinkModal = false;
       this.isAddingLink= false;
-      this.newlink = { name: '', url: '', icon: '' };
+      this.newlink = { url_name: '', url: '', icon: '' };
     },
   },
 };
