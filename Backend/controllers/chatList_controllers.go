@@ -175,6 +175,8 @@ func GetChatList(c *gin.Context) {
 				chatResponse["lastMessage"] = "[文件]"
 			} else if lastMessage.Type == "image" {
 				chatResponse["lastMessage"] = "[图片]"
+			} else if lastMessage.Type == "collab_doc" {
+				chatResponse["lastMessage"] = "[共享文档]"
 			} else if lastMessage.Type == "text" {
 
 			} else {
@@ -209,6 +211,8 @@ func GetChatList(c *gin.Context) {
 				chatResponse["lastMessage"] = "[文件]"
 			} else if lastMessage.Type == "image" {
 				chatResponse["lastMessage"] = "[图片]"
+			} else if lastMessage.Type == "collab_doc" {
+				chatResponse["lastMessage"] = "[共享文档]"
 			} else if lastMessage.Type == "text" {
 
 			} else {
@@ -954,7 +958,7 @@ func SendMessage(c *gin.Context) {
 				continue
 			}
 			var chatMember models.ChatInfo
-			if err := global.Db.Where("account_id = ? AND target_id = ?", member.AccountID, group.GroupID).First(&chatMember).Error; err != nil {
+			if err := global.Db.Where("account_id = ? AND target_id = ? and is_group = ?", member.AccountID, group.GroupID, true).First(&chatMember).Error; err != nil {
 				// 如果没有找到聊天记录，创建一个新的记录
 				chatMember = models.ChatInfo{
 					AccountID:  member.AccountID,
@@ -1004,7 +1008,7 @@ func SendMessage(c *gin.Context) {
 
 		// 查询当前用户与该群聊的聊天记录，如果没有则创建聊天记录
 		var chat models.ChatInfo
-		if err := global.Db.Where("account_id = ? AND target_id = ?", me.AccountID, group.GroupID).First(&chat).Error; err != nil {
+		if err := global.Db.Where("account_id = ? AND target_id = ? and is_group = ?", me.AccountID, group.GroupID, true).First(&chat).Error; err != nil {
 			chat = models.ChatInfo{
 				AccountID:  me.AccountID,
 				TargetID:   group.GroupID,
@@ -1079,7 +1083,7 @@ func SendMessage(c *gin.Context) {
 
 		// 如果没有则创建两个聊天记录
 		var chat_sender, chat_receiver models.ChatInfo
-		if err := global.Db.Where("account_id = ? AND target_id = ?", me.AccountID, friend.AccountID).First(&chat_sender).Error; err != nil {
+		if err := global.Db.Where("account_id = ? AND target_id = ? AND is_group = ?", me.AccountID, friend.AccountID, false).First(&chat_sender).Error; err != nil {
 			chat_sender = models.ChatInfo{
 				AccountID:  me.AccountID,
 				TargetID:   friend.AccountID,
@@ -1092,7 +1096,7 @@ func SendMessage(c *gin.Context) {
 			}
 		}
 
-		if err := global.Db.Where("account_id = ? AND target_id = ?", friend.AccountID, me.AccountID).First(&chat_receiver).Error; err != nil {
+		if err := global.Db.Where("account_id = ? AND target_id = ? AND is_group = ?", friend.AccountID, me.AccountID, false).First(&chat_receiver).Error; err != nil {
 			chat_receiver = models.ChatInfo{
 				AccountID:  friend.AccountID,
 				TargetID:   me.AccountID,
@@ -1389,6 +1393,296 @@ func SendFile(c *gin.Context) {
 
 }
 
+// SendForwardCollabDoc 转发
+// func SendForwardCollabDoc(c *gin.Context) {
+// 	// ForwardContent is stored in MessageInfo.Content as JSON
+// 	type ForwardContent struct {
+// 		DocID   uint   `json:"doc_id"`
+// 		DocName string `json:"doc_name"`
+// 		// 可以扩展字段，例如 doc_owner、preview_url 等
+// 	}
+//     userID := c.GetHeader("User-ID")
+//     if userID == "" {
+//         c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "HTTP header中用户ID为空"})
+//         return
+//     }
+//     accountID, err := strconv.Atoi(userID)
+//     if err != nil {
+//         c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "ID解析失败"})
+//         return
+//     }
+
+//     // 校验发送者账户
+//     var me models.AccountInfo
+//     if err := global.Db.Where("account_id = ?", accountID).First(&me).Error; err != nil {
+//         c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询用户失败"})
+//         return
+//     }
+//     if me.Deactivate {
+//         c.JSON(http.StatusUnauthorized, gin.H{"success": false, "message": "用户已注销"})
+//         return
+//     }
+
+//     // 绑定请求体
+//     var input struct {
+//         Tid     uint   `json:"tid" binding:"required"`
+//         DocID   uint   `json:"doc_id" binding:"required"`
+//         DocName string `json:"doc_name" binding:"required"`
+//         IsGroup bool   `json:"is_group"`
+//     }
+//     if err := c.ShouldBindJSON(&input); err != nil {
+//         c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "Json解析失败"})
+//         return
+//     }
+
+//     // 构造转发内容 JSON 字符串
+//     fcontent := ForwardContent{
+//         DocID:   input.DocID,
+//         DocName: input.DocName,
+//     }
+//     contentBytes, _ := json.Marshal(fcontent)
+//     contentStr := string(contentBytes) // 存进 MessageInfo.Content
+
+//     // 插入/广播逻辑分组处理（群聊 / 单聊）
+//     if input.IsGroup {
+//         // 检查群是否存在
+//         var group models.GroupChatInfo
+//         if err := global.Db.Where("group_id = ?", input.Tid).First(&group).Error; err != nil {
+//             c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "群聊不存在"})
+//             return
+//         }
+
+//         // 如果群被全体禁言，阻止发送（与 SendMessage 保持一致）
+//         if group.IsAllBanned {
+//             c.JSON(http.StatusForbidden, gin.H{"success": false, "message": "所有成员都被禁言"})
+//             return
+//         }
+
+//         // 查询发送者是否为群成员且是否被禁言
+//         var groupMember models.GroupMemberInfo
+//         if err := global.Db.Where("account_id = ? AND group_id = ?", me.AccountID, group.GroupID).First(&groupMember).Error; err != nil {
+//             c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户不在该群聊中"})
+//             return
+//         }
+//         if groupMember.IsBanned {
+//             c.JSON(http.StatusForbidden, gin.H{"success": false, "message": "用户被禁言"})
+//             return
+//         }
+
+//         // 获取群成员列表
+//         var groupMembers []models.GroupMemberInfo
+//         if err := global.Db.Where("group_id = ?", group.GroupID).Find(&groupMembers).Error; err != nil {
+//             c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "获取群成员失败"})
+//             return
+//         }
+
+//         // 为群内每个成员（除了自己）创建单独的消息记录并广播（与 SendMessage 保持风格）
+//         for _, member := range groupMembers {
+//             if member.AccountID == me.AccountID {
+//                 continue
+//             }
+
+//             // 确保接收成员有聊天记录（针对群聊，这里的 target_id 仍为 group.GroupID）
+//             var chatMember models.ChatInfo
+//             if err := global.Db.Where("account_id = ? AND target_id = ?", member.AccountID, group.GroupID).First(&chatMember).Error; err != nil {
+//                 chatMember = models.ChatInfo{
+//                     AccountID:  member.AccountID,
+//                     TargetID:   group.GroupID,
+//                     IsGroup:    true,
+//                     CreateTime: time.Now().Format("2006-01-02 15:04:05"),
+//                 }
+//                 if err := global.Db.Create(&chatMember).Error; err != nil {
+//                     c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "为成员创建聊天记录失败"})
+//                     return
+//                 }
+//             }
+
+//             // 创建 MessageInfo
+//             message := models.MessageInfo{
+//                 SendAccountID: me.AccountID,
+//                 TargetID:      group.GroupID,
+//                 SenderChatID:  chatMember.ChatID,
+//                 Content:       contentStr,
+//                 Type:          "collab_doc",
+//                 CreateTime:    time.Now().Format("2006-01-02 15:04:05:01"),
+//             }
+//             if err := global.Db.Create(&message).Error; err != nil {
+//                 c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "保存消息失败"})
+//                 return
+//             }
+
+//             // 获取头像 base64 用于消息广播（沿用 SendMessage 的工具）
+//             avatarBase64, mimeType, err := utils.GetFileContentAndType(me.Avatar)
+//             if err != nil {
+//                 c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": err.Error()})
+//                 return
+//             }
+//             avatarBase64 = "data:" + mimeType + ";base64," + avatarBase64
+
+//             // 构造并广播消息到消息处理逻辑
+//             msg := global.Message{
+//                 MessageID:  message.MessageID,
+//                 AccountID:  member.AccountID,
+//                 TargetID:   input.Tid,
+//                 Content:    contentStr,
+//                 Type:       "collab_doc",
+//                 IsGroup:    true,
+//                 Avatar:     avatarBase64,
+//                 CreateTime: time.Now().Format("2006-01-02 15:04:05"),
+//             }
+//             HandleMessages(msg)
+//         }
+
+//         // 给发送者自己也创建一条群聊消息（与 SendMessage 保持一致）
+//         var chatSender models.ChatInfo
+//         if err := global.Db.Where("account_id = ? AND target_id = ?", me.AccountID, group.GroupID).First(&chatSender).Error; err != nil {
+//             chatSender = models.ChatInfo{
+//                 AccountID:  me.AccountID,
+//                 TargetID:   group.GroupID,
+//                 IsGroup:    true,
+//                 CreateTime: time.Now().Format("2006-01-02 15:04:05"),
+//             }
+//             if err := global.Db.Create(&chatSender).Error; err != nil {
+//                 c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "创建聊天记录失败"})
+//                 return
+//             }
+//         }
+
+//         message := models.MessageInfo{
+//             SendAccountID: me.AccountID,
+//             TargetID:      group.GroupID,
+//             SenderChatID:  chatSender.ChatID,
+//             Content:       contentStr,
+//             Type:          "collab_doc",
+//             CreateTime:    time.Now().Format("2006-01-02 15:04:05:01"),
+//         }
+//         if err := global.Db.Create(&message).Error; err != nil {
+//             c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "保存消息失败"})
+//             return
+//         }
+
+//         avatarBase64, mimeType, err := utils.GetFileContentAndType(me.Avatar)
+//         if err != nil {
+//             c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": err.Error()})
+//             return
+//         }
+//         avatarBase64 = "data:" + mimeType + ";base64," + avatarBase64
+
+//         msg := global.Message{
+//             MessageID:  message.MessageID,
+//             AccountID:  uint(accountID),
+//             TargetID:   input.Tid,
+//             Content:    contentStr,
+//             Type:       "collab_doc",
+//             IsGroup:    true,
+//             Avatar:     avatarBase64,
+//             CreateTime: time.Now().Format("2006-01-02 15:04:05"),
+//         }
+//         HandleMessages(msg)
+
+//         c.JSON(http.StatusOK, gin.H{
+//             "success": true,
+//             "message": "转发成功（群聊）",
+//             "data": gin.H{
+//                 "message_id":  message.MessageID,
+//                 "create_time": message.CreateTime,
+//                 "type":        message.Type,
+//             },
+//         })
+//         return
+
+//     } else {
+//         // 单聊情况：检查目标用户存在且未注销
+//         var friend models.AccountInfo
+//         if err := global.Db.Where("account_id = ?", input.Tid).First(&friend).Error; err != nil {
+//             c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "目标用户不存在"})
+//             return
+//         }
+//         if friend.Deactivate {
+//             c.JSON(http.StatusUnauthorized, gin.H{"success": false, "message": "目标用户已注销"})
+//             return
+//         }
+
+//         // 确保两端都有 ChatInfo（发送者和接收者）
+//         var chatSender, chatReceiver models.ChatInfo
+//         if err := global.Db.Where("account_id = ? AND target_id = ?", me.AccountID, friend.AccountID).First(&chatSender).Error; err != nil {
+//             chatSender = models.ChatInfo{
+//                 AccountID:  me.AccountID,
+//                 TargetID:   friend.AccountID,
+//                 IsGroup:    false,
+//                 CreateTime: time.Now().Format("2006-01-02 15:04:05"),
+//             }
+//             if err := global.Db.Create(&chatSender).Error; err != nil {
+//                 c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "创建发送者聊天记录失败"})
+//                 return
+//             }
+//         }
+
+//         if err := global.Db.Where("account_id = ? AND target_id = ?", friend.AccountID, me.AccountID).First(&chatReceiver).Error; err != nil {
+//             chatReceiver = models.ChatInfo{
+//                 AccountID:  friend.AccountID,
+//                 TargetID:   me.AccountID,
+//                 IsGroup:    false,
+//                 CreateTime: time.Now().Format("2006-01-02 15:04:05"),
+//             }
+//             if err := global.Db.Create(&chatReceiver).Error; err != nil {
+//                 c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "创建接收者聊天记录失败"})
+//                 return
+//             }
+//         }
+
+//         // 创建消息（接收者那条）
+//         message := models.MessageInfo{
+//             SendAccountID:  me.AccountID,
+//             TargetID:       friend.AccountID,
+//             SenderChatID:   chatSender.ChatID,
+//             ReceiverChatID: chatReceiver.ChatID,
+//             Content:        contentStr,
+//             Type:           "collab_doc",
+//             IsRead:         false,
+//             CreateTime:     time.Now().Format("2006-01-02 15:04:05"),
+//         }
+//         if err := global.Db.Create(&message).Error; err != nil {
+//             c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "保存消息失败"})
+//             return
+//         }
+
+//         avatarBase64, mimeType, err := utils.GetFileContentAndType(me.Avatar)
+//         if err != nil {
+//             c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": err.Error()})
+//             return
+//         }
+//         avatarBase64 = "data:" + mimeType + ";base64," + avatarBase64
+
+//         // 构造并广播
+//         msg := global.Message{
+//             MessageID:  message.MessageID,
+//             AccountID:  uint(accountID),
+//             TargetID:   input.Tid,
+//             Content:    contentStr,
+//             Type:       "collab_doc",
+//             IsGroup:    false,
+//             Avatar:     avatarBase64,
+//             CreateTime: time.Now().Format("2006-01-02 15:04:05"),
+//         }
+//         HandleMessages(msg)
+
+//         c.JSON(http.StatusOK, gin.H{
+//             "success": true,
+//             "message": "转发成功（单聊）",
+//             "data": gin.H{
+//                 "message_id":   message.MessageID,
+//                 "create_time":  message.CreateTime,
+//                 "send_account": message.SendAccountID,
+//                 "target_id":    message.TargetID,
+//                 "type":         message.Type,
+//             },
+//         })
+//         return
+//     }
+// }
+
+
 // GetMessages 获取聊天消息
 func GetMessages(c *gin.Context) {
 	userID := c.GetHeader("User-ID")
@@ -1464,7 +1758,7 @@ func GetMessages(c *gin.Context) {
 		for _, message := range messages {
 			// 查询GroupMemberInfo表
 			var senderGroupMember models.GroupMemberInfo
-			if err := global.Db.Where("account_id = ?", message.SendAccountID).First(&senderGroupMember).Error; err != nil {
+			if err := global.Db.Where("account_id = ? AND group_id = ?", message.SendAccountID, group.GroupID).First(&senderGroupMember).Error; err != nil {
 				c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "查询发送者失败"})
 				return
 			}

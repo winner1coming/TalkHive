@@ -448,6 +448,7 @@ export default {
       }
       this.showUpdateConfirm = false;
       this.itemToUpdate = null;
+      this.fetchDdlList();
     },
 
     // 删除某条 DDL

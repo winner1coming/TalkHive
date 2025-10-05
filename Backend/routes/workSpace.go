@@ -10,6 +10,14 @@ func workspaceRoutes(router *gin.Engine) *gin.RouterGroup {
 
 	// 工作区！！！
 
+	// 工作区 - 协作文档模块
+	r.GET("/collabdocs/list", workSpace.FetchAllCollabDocs)	   // 返回文档列表 √
+	r.POST("/collabdocs/newdoc", workSpace.CreateCollabDoc)	   // 新建文档	   √
+	r.POST("/collabdocs/savesnapshot", workSpace.SaveCollabSnapshot)  // 获取文档快照
+	r.POST("/collabdocs/getsnapshot", workSpace.GetCollabDoc)  // 获取文档快照
+	r.POST("/collabdocs/join", workSpace.JoinCollabDocMember)  // 邀请成员加入文档
+	// r.POST("/collabdocs/delete", workSpace.DeleteCollabDoc)    // 删除文档记录
+
 	// 工作区 - 笔记模块
 	r.GET("/notes/list", workSpace.GetNotesList)               // 返回笔记列表√
 	r.POST("/notes/get", workSpace.GetNote)                    // 获取笔记√

@@ -4,6 +4,32 @@ import (
 	"time"
 )
 
+// CollabDoc 协作文档元信息表
+type CollabDoc struct {
+    DocID     uint      `gorm:"primaryKey" json:"doc_id"`
+    DocName   string    `json:"doc_name"`
+    OwnerID   uint      `json:"owner_id"` // 创建者
+    IsShow    bool      `json:"is_show"`
+    CreatedAt time.Time `json:"created_at"`
+    UpdatedAt time.Time `json:"updated_at"`
+}
+
+// CollabDocSnapshot 协作文档快照（Yjs 二进制 blob）
+type CollabDocSnapshot struct {
+    DocID     uint      `gorm:"primaryKey" json:"doc_id"`
+    Snapshot  []byte    `gorm:"type:longblob" json:"snapshot"` // Yjs encodeStateAsUpdate() 生成的二进制
+    UpdatedAt time.Time `json:"updated_at"`
+}
+
+// CollabDocMember 协作文档成员表（谁参与了哪个文档）
+type CollabDocMember struct {
+    ID      uint `gorm:"primaryKey"`
+    DocID   uint `json:"doc_id"`
+    UserID  uint `json:"user_id"`
+    Role    string `json:"role"` // "owner", "editor", "viewer" 等，可扩展
+    JoinedAt time.Time `json:"joined_at"`
+}
+
 // MessageInfo 消息表
 type MessageInfo struct {
 	MessageID      uint   `gorm:"primaryKey" json:"message_id"`
@@ -111,10 +137,15 @@ type Notes struct {
 	NoteID    uint      `gorm:"primaryKey" json:"note_id"`
 	NoteName  string    `json:"note_name"`
 	Type      string    `json:"type"`
-	CachePath string    `json:"cache_path"`
 	AccountID uint      `json:"account_id"`
 	IsShow    bool      `json:"is_show"`
 	SaveTime  time.Time `json:"save_time"`
+}
+
+type NoteContent struct {
+	ID      uint   `gorm:"primaryKey" json:"id"`
+	NoteID  uint   `gorm:"uniqueIndex;not null" json:"note_id"` // 一对一关系
+	Content string `gorm:"type:longtext" json:"content"`        // 存 Quill Delta JSON 字符串
 }
 
 // Favorites 收藏表
@@ -169,8 +200,9 @@ type FriendDivide struct {
 
 // NoteDivide 笔记分类表
 type NoteDivide struct {
-	NDName    string `gorm:"primaryKey" json:"nd_name"`
-	AccountID uint   `json:"account_id"`
+	DivideID  uint   `gorm:"primaryKey" json:"id"`
+	NDName    string `gorm:"type:varchar(191);uniqueIndex:idx_nd_account" json:"nd_name"`
+	AccountID uint   `gorm:"uniqueIndex:idx_nd_account" json:"account_id"`
 }
 
 // Links 网页链接器表

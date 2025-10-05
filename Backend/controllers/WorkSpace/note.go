@@ -7,12 +7,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
-	"io"
-	"log"
 	"net/http"
-	"os"
-	"path/filepath"
-	"strings"
 	"time"
 )
 
@@ -20,88 +15,150 @@ import (
 
 // CreateNote - 创建笔记√
 func CreateNote(c *gin.Context) {
-
-	log.Printf("Received note_name:")
-
-	// 2. 接收表单其他参数
 	var temp struct {
 		NoteName string `json:"note_name" binding:"required"`
 		Type     string `json:"type" binding:"omitempty"`
+		Content  string `json:"content"`  // 前端传来的 JSON.stringify(delta)
 	}
 	if err := c.ShouldBindJSON(&temp); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid form data", "error": err.Error()})
 		return
 	}
-	log.Printf("Received note_name: %s, type: %s", temp.NoteName, temp.Type)
 
-	// 获取用户ID
-	//userID := c.Param("id")
 	userID := c.GetHeader("User-Id")
 	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
 		return
 	}
 
-	// 3. 检查该用户的分类是否存在
+	// ✅ 1. 分类逻辑保留
 	if temp.Type != "" {
 		var noteDivide models.NoteDivide
-		if err := global.Db.Model(&models.NoteDivide{}).Where("account_id = ? AND nd_name = ?",
-			global.ParseUint(userID),
-			temp.Type).First(&noteDivide).Error; err != nil {
-			// 如果没有找到分类，则插入新的分类
-			if err := global.Db.Create(&models.NoteDivide{
+		if err := global.Db.Where("account_id = ? AND nd_name = ?", 
+			global.ParseUint(userID), temp.Type).First(&noteDivide).Error; err != nil {
+			_ = global.Db.Create(&models.NoteDivide{
 				NDName:    temp.Type,
 				AccountID: global.ParseUint(userID),
-			}).Error; err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to create note category",
-					"error": err.Error()})
-				return
-			}
+			}).Error
 		}
 	}
 
-	// 4.确保文件路径安全并添加后缀
-	sanitizedNoteName := strings.ReplaceAll(temp.NoteName, "/", "_")
-	sanitizedNoteName = strings.ReplaceAll(sanitizedNoteName, "\\", "_")
-	rootDir := "D:/TalkHive/Notes/"
-	filePath := filepath.Join(rootDir, sanitizedNoteName+".md")
-
-	// 确保目录存在
-	if err := os.MkdirAll(rootDir, os.ModePerm); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to create directory", "error": err.Error()})
-		return
-	}
-
-	// 5.创建空白文件
-	file, err := os.Create(filePath)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to create blank note file", "error": err.Error()})
-		return
-	}
-	defer file.Close()
-
-	// 6.保存到数据库
+	// ✅ 2. 先插入 Notes 表
 	note := models.Notes{
 		NoteName:  temp.NoteName,
-		SaveTime:  time.Now(),
-		CachePath: sanitizedNoteName + ".md", //目标路径下的相对路径
 		Type:      temp.Type,
 		AccountID: global.ParseUint(userID),
 		IsShow:    true,
+		SaveTime:  time.Now(),
 	}
+
 	if err := global.Db.Create(&note).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to save note metadata", "error": err.Error()})
 		return
 	}
 
-	// 7.返回成功响应
+	// ✅ 3. 插入 NoteContent（内容可为空）
+	content := models.NoteContent{
+		NoteID:  note.NoteID,
+		Content: temp.Content, // "" 或 JSON.stringify(delta)
+	}
+	if err := global.Db.Create(&content).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to save note content", "error": err.Error()})
+		return
+	}
+
+	// ✅ 4. 返回响应
 	c.JSON(http.StatusOK, gin.H{
 		"note_id":   note.NoteID,
 		"note_name": note.NoteName,
-		"save_time": note.SaveTime.Format("2006-01-02 15:04"),
 		"type":      note.Type,
+		"save_time": note.SaveTime.Format("2006-01-02 15:04"),
 	})
 }
+
+// func CreateNote(c *gin.Context) {
+
+// 	log.Printf("Received note_name:")
+
+// 	// 2. 接收表单其他参数
+// 	var temp struct {
+// 		NoteName string `json:"note_name" binding:"required"`
+// 		Type     string `json:"type" binding:"omitempty"`
+// 	}
+// 	if err := c.ShouldBindJSON(&temp); err != nil {
+// 		c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid form data", "error": err.Error()})
+// 		return
+// 	}
+// 	log.Printf("Received note_name: %s, type: %s", temp.NoteName, temp.Type)
+
+// 	// 获取用户ID
+// 	//userID := c.Param("id")
+// 	userID := c.GetHeader("User-Id")
+// 	if userID == "" {
+// 		c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
+// 		return
+// 	}
+
+// 	// 3. 检查分类是否存在
+// 	if temp.Type != "" {
+// 		var noteDivide models.NoteDivide
+// 		if err := global.Db.Model(&models.NoteDivide{}).Where("account_id = ? AND nd_name = ?",
+// 			global.ParseUint(userID),
+// 			temp.Type).First(&noteDivide).Error; err != nil {
+// 			// 如果没有找到分类，则插入新的分类
+// 			if err := global.Db.Create(&models.NoteDivide{
+// 				NDName:    temp.Type,
+// 				AccountID: global.ParseUint(userID),
+// 			}).Error; err != nil {
+// 				c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to create note category",
+// 					"error": err.Error()})
+// 				return
+// 			}
+// 		}
+// 	}
+
+// 	// 4.确保文件路径安全并添加后缀
+// 	sanitizedNoteName := strings.ReplaceAll(temp.NoteName, "/", "_")
+// 	sanitizedNoteName = strings.ReplaceAll(sanitizedNoteName, "\\", "_")
+// 	rootDir := "D:/TalkHive/Notes/"
+// 	filePath := filepath.Join(rootDir, sanitizedNoteName+".md")
+
+// 	// 确保目录存在
+// 	if err := os.MkdirAll(rootDir, os.ModePerm); err != nil {
+// 		c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to create directory", "error": err.Error()})
+// 		return
+// 	}
+
+// 	// 5.创建空白文件
+// 	file, err := os.Create(filePath)
+// 	if err != nil {
+// 		c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to create blank note file", "error": err.Error()})
+// 		return
+// 	}
+// 	defer file.Close()
+
+// 	// 6.保存到数据库
+// 	note := models.Notes{
+// 		NoteName:  temp.NoteName,
+// 		SaveTime:  time.Now(),
+// 		CachePath: sanitizedNoteName + ".md", //目标路径下的相对路径
+// 		Type:      temp.Type,
+// 		AccountID: global.ParseUint(userID),
+// 		IsShow:    true,
+// 	}
+// 	if err := global.Db.Create(&note).Error; err != nil {
+// 		c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to save note metadata", "error": err.Error()})
+// 		return
+// 	}
+
+// 	// 7.返回成功响应
+// 	c.JSON(http.StatusOK, gin.H{
+// 		"note_id":   note.NoteID,
+// 		"note_name": note.NoteName,
+// 		"save_time": note.SaveTime.Format("2006-01-02 15:04"),
+// 		"type":      note.Type,
+// 	})
+// }
 
 // GetNotesList - 获取用户的笔记列表√
 func GetNotesList(c *gin.Context) {
@@ -147,9 +204,60 @@ func GetNotesList(c *gin.Context) {
 }
 
 // GetNote - 获取笔记
+// func GetNote(c *gin.Context) {
+// 	// 1. 从请求中获取 code_id 参数
+// 	//userID := c.Param("id") // 使用 c.Param 获取路径参数
+// 	userID := c.GetHeader("User-Id")
+// 	if userID == "" {
+// 		c.JSON(http.StatusBadRequest, gin.H{"message": "User ID is required"})
+// 		return
+// 	}
+
+// 	var req struct {
+// 		NoteID uint `json:"note_id" binding:"required"` // 修改为正确的 JSON 字段名
+// 	}
+
+// 	// 2. 绑定请求体中的数据到 req 结构体
+// 	if err := c.ShouldBindJSON(&req); err != nil {
+// 		c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid request body", "error": err.Error()})
+// 		return
+// 	}
+
+// 	// 3. 数据库查询：查找指定 NoteID 且 IsShow = true 的记录
+// 	var note models.Notes
+// 	if err := global.Db.Model(&models.Notes{}).Where("note_id = ? AND account_id = ? AND is_show = ?",
+// 		req.NoteID, global.ParseUint(userID), true).First(&note).Error; err != nil {
+// 		if errors.Is(err, gorm.ErrRecordNotFound) {
+// 			c.JSON(http.StatusNotFound, gin.H{"message": "Note not found or not visible"})
+// 			return
+// 		}
+// 		c.JSON(http.StatusInternalServerError, gin.H{"message": "Database error", "error": err.Error()})
+// 		return
+// 	}
+
+// 	// 4. 拼接文件的完整路径
+// 	rootDir := "D:/TalkHive/Notes/" // 默认根目录
+// 	filePath := filepath.Join(rootDir, note.CachePath)
+
+// 	// 5. 验证文件是否存在
+// 	file, err := os.Open(filePath)
+// 	if err != nil {
+// 		c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to open file", "error": err.Error()})
+// 		return
+// 	}
+// 	defer file.Close()
+
+// 	// 6. 设置正确的 HTTP 响应头
+// 	contentType := "text/markdown" // 对应md格式的文件
+// 	c.Header("Content-Type", contentType)
+
+// 	// 7. 返回文件流
+// 	if _, err := io.Copy(c.Writer, file); err != nil {
+// 		c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to send file", "error": err.Error()})
+// 		return
+// 	}
+// }
 func GetNote(c *gin.Context) {
-	// 1. 从请求中获取 code_id 参数
-	//userID := c.Param("id") // 使用 c.Param 获取路径参数
 	userID := c.GetHeader("User-Id")
 	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "User ID is required"})
@@ -157,61 +265,115 @@ func GetNote(c *gin.Context) {
 	}
 
 	var req struct {
-		NoteID uint `json:"note_id" binding:"required"` // 修改为正确的 JSON 字段名
+		NoteID uint `json:"note_id" binding:"required"`
 	}
-
-	// 2. 绑定请求体中的数据到 req 结构体
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid request body", "error": err.Error()})
 		return
 	}
 
-	// 3. 数据库查询：查找指定 NoteID 且 IsShow = true 的记录
 	var note models.Notes
-	if err := global.Db.Model(&models.Notes{}).Where("note_id = ? AND account_id = ? AND is_show = ?",
+	if err := global.Db.Where("note_id = ? AND account_id = ? AND is_show = ?", 
 		req.NoteID, global.ParseUint(userID), true).First(&note).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{"message": "Note not found or not visible"})
-			return
-		}
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "Database error", "error": err.Error()})
+		c.JSON(http.StatusNotFound, gin.H{"message": "Note not found"})
 		return
 	}
 
-	// 4. 拼接文件的完整路径
-	rootDir := "D:/TalkHive/Notes/" // 默认根目录
-	filePath := filepath.Join(rootDir, note.CachePath)
-
-	// 5. 验证文件是否存在
-	file, err := os.Open(filePath)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to open file", "error": err.Error()})
-		return
+	// ✅ 查询 NoteContent
+	var content models.NoteContent
+	if err := global.Db.Where("note_id = ?", note.NoteID).First(&content).Error; err != nil {
+		// 如果没有，至少给空内容
+		content.Content = ""
 	}
-	defer file.Close()
 
-	// 6. 设置正确的 HTTP 响应头
-	contentType := "text/markdown" // 对应md格式的文件
-	c.Header("Content-Type", contentType)
-
-	// 7. 返回文件流
-	if _, err := io.Copy(c.Writer, file); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to send file", "error": err.Error()})
-		return
-	}
+	c.JSON(http.StatusOK, gin.H{
+		"note_id":   note.NoteID,
+		"note_name": note.NoteName,
+		"type":      note.Type,
+		"content":   content.Content, // JSON 字符串
+	})
 }
 
 // EditNote - 编辑笔记
+// func EditNote(c *gin.Context) {
+// 	// 接收JSON数据
+// 	var requestData struct {
+// 		NoteID   uint   `json:"NoteID" binding:"required"`   // 笔记ID
+// 		NoteName string `json:"NoteName" binding:"required"` // 笔记名称
+// 		Type     string `json:"Type"`                        // 笔记类型，允许为空
+// 		Content  string `json:"Content" binding:"required"`  // 笔记内容
+// 	}
+
+// 	// 绑定JSON数据
+// 	if err := c.ShouldBindJSON(&requestData); err != nil {
+// 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request data"})
+// 		return
+// 	}
+
+// 	// 获取用户ID
+// 	userID := c.GetHeader("User-Id")
+// 	if userID == "" {
+// 		c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
+// 		return
+// 	}
+
+// 	// 检查数据库中是否有匹配的记录
+// 	var note models.Notes
+// 	if err := global.Db.Model(&models.Notes{}).Where("note_id = ? AND account_id = ? AND is_show = ?",
+// 		requestData.NoteID, global.ParseUint(userID), true).First(&note).Error; err != nil {
+// 		c.JSON(http.StatusNotFound, gin.H{"error": "Note not found"})
+// 		return
+// 	}
+
+// 	// 更新笔记名称
+// 	if err := global.Db.Model(&note).Update("note_name", requestData.NoteName).Error; err != nil {
+// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update note name"})
+// 		return
+// 	}
+
+// 	// 如果分类为空字符串，将其直接存储为分类字段值
+// 	if requestData.Type == "" {
+// 		requestData.Type = "" // 明确赋值空字符串，便于理解逻辑
+// 	}
+
+// 	// 更新 Notes 表，将 Type 修改为 Type
+// 	if err := global.Db.Model(&note).Update("type", requestData.Type).Error; err != nil {
+// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update note type"})
+// 		return
+// 	}
+
+// 	// 更新笔记内容到指定路径
+// 	savePath := fmt.Sprintf("D:/TalkHive/Notes/%s", note.CachePath)
+// 	err := os.WriteFile(savePath, []byte(requestData.Content), 0644)
+// 	if err != nil {
+// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save note content"})
+// 		return
+// 	}
+
+// 	// 更新数据库的保存时间
+// 	note.SaveTime = time.Now()
+// 	if err := global.Db.Save(&note).Error; err != nil {
+// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update note metadata"})
+// 		return
+// 	}
+
+// 	// 返回元信息给前端
+// 	c.JSON(http.StatusOK, gin.H{
+// 		"note_id":   note.NoteID,
+// 		"note_name": requestData.NoteName,
+// 		"save_time": note.SaveTime.Format("2006-01-02 15:04"),
+// 		"type":      requestData.Type,
+// 	})
+// }
+// EditNote - 编辑笔记（保存 Delta JSON 到数据库）
 func EditNote(c *gin.Context) {
-	// 接收JSON数据
 	var requestData struct {
 		NoteID   uint   `json:"NoteID" binding:"required"`   // 笔记ID
 		NoteName string `json:"NoteName" binding:"required"` // 笔记名称
-		Type     string `json:"Type"`                        // 笔记类型，允许为空
-		Content  string `json:"Content" binding:"required"`  // 笔记内容
+		Type     string `json:"Type"`                        // 分类，可为空
+		Content  string `json:"Content" binding:"required"`  // Quill Delta JSON 字符串
 	}
 
-	// 绑定JSON数据
 	if err := c.ShouldBindJSON(&requestData); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request data"})
 		return
@@ -224,51 +386,60 @@ func EditNote(c *gin.Context) {
 		return
 	}
 
-	// 检查数据库中是否有匹配的记录
+	// 1️⃣ 查找笔记元信息（Notes 表）
 	var note models.Notes
-	if err := global.Db.Model(&models.Notes{}).Where("note_id = ? AND account_id = ? AND is_show = ?",
-		requestData.NoteID, global.ParseUint(userID), true).First(&note).Error; err != nil {
+	if err := global.Db.Where(
+		"note_id = ? AND account_id = ? AND is_show = ?",
+		requestData.NoteID,
+		global.ParseUint(userID),
+		true,
+	).First(&note).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Note not found"})
 		return
 	}
 
-	// 更新笔记名称
-	if err := global.Db.Model(&note).Update("note_name", requestData.NoteName).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update note name"})
-		return
+	// 2️⃣ 更新名称 & 分类（空字符串也允许）
+	updateData := map[string]interface{}{
+		"note_name": requestData.NoteName,
+		"type":      requestData.Type, // 可为空
+		"save_time": time.Now(),
 	}
-
-	// 如果分类为空字符串，将其直接存储为分类字段值
-	if requestData.Type == "" {
-		requestData.Type = "" // 明确赋值空字符串，便于理解逻辑
-	}
-
-	// 更新 Notes 表，将 Type 修改为 Type
-	if err := global.Db.Model(&note).Update("type", requestData.Type).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update note type"})
-		return
-	}
-
-	// 更新笔记内容到指定路径
-	savePath := fmt.Sprintf("D:/TalkHive/Notes/%s", note.CachePath)
-	err := os.WriteFile(savePath, []byte(requestData.Content), 0644)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save note content"})
-		return
-	}
-
-	// 更新数据库的保存时间
-	note.SaveTime = time.Now()
-	if err := global.Db.Save(&note).Error; err != nil {
+	if err := global.Db.Model(&note).Updates(updateData).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update note metadata"})
 		return
 	}
 
-	// 返回元信息给前端
+	// 3️⃣ 更新 NoteContent 表
+	var noteContent models.NoteContent
+	err := global.Db.Where("note_id = ?", note.NoteID).First(&noteContent).Error
+	if err != nil {
+		// 没有内容则创建一条
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			noteContent = models.NoteContent{
+				NoteID:  note.NoteID,
+				Content: requestData.Content,
+			}
+			if err := global.Db.Create(&noteContent).Error; err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create note content"})
+				return
+			}
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to query note content"})
+			return
+		}
+	} else {
+		// 已存在内容则更新
+		if err := global.Db.Model(&noteContent).Update("content", requestData.Content).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update note content"})
+			return
+		}
+	}
+
+	// ✅ 返回结果
 	c.JSON(http.StatusOK, gin.H{
 		"note_id":   note.NoteID,
 		"note_name": requestData.NoteName,
-		"save_time": note.SaveTime.Format("2006-01-02 15:04"),
+		"save_time": time.Now().Format("2006-01-02 15:04"),
 		"type":      requestData.Type,
 	})
 }
@@ -316,7 +487,6 @@ func ShareNote(c *gin.Context) {
 		NoteName:  note.NoteName,
 		SaveTime:  time.Now(),
 		Type:      note.Type,
-		CachePath: note.CachePath,
 		AccountID: request.FdID, // 分享给好友
 		IsShow:    note.IsShow,  // 是否显示，通常是共享的状态
 	}

@@ -16,6 +16,7 @@
       <MessageItem 
         v-for="message in messages" 
         :message="message"
+        :key="message.message_id"
         @show-context-menu="showContextMenu"
         @show-profile-card="showProfileCard"
       />
@@ -77,7 +78,7 @@ export default {
       immediate: true,
       handler: function(newVar) {
         if(newVar) {
-          if(this.selectedChat && this.selectedChat.id === newVar.id) return;
+          if(this.selectedChat && this.selectedChat.id === newVar.id && this.selectedChat.tags === newVar.tags) return;
           this.selectedChat = newVar;
           this.selectNewChat(newVar.id);
         }
@@ -141,6 +142,7 @@ export default {
           if(type==='text') newChat.lastMessage = content;
           else if(type==='image')newChat.lastMessage = '[图片]';
           else if(type==='file')newChat.lastMessage = '[文件]';
+          else if(type==='collab_doc')newChat.lastMessage = '[共享文档]';
           else newChat.lastMessage = '[代码块]';
           this.$store.dispatch('setChat', newChat);
           this.scrollToBottom();
@@ -246,14 +248,14 @@ export default {
     this.boundD = this.$refs.chatBox.getBoundingClientRect().bottom;
     this.boundR = this.$refs.chatBox.getBoundingClientRect().right;
     EventBus.on('new-message', (newMessage) => {
-      this.messages.push(newMessage);
-      const messagesContainer = this.$refs.messages;
-      if(!messagesContainer) return;
-      //console.log(messagesContainer.scrollTop + 900, messagesContainer.scrollHeight - messagesContainer.clientHeight);
-      if(messagesContainer.scrollTop + 900 > messagesContainer.scrollHeight - messagesContainer.clientHeight){
-        this.scrollToBottom();
-      }
-      //this.fetchMessages(this.selectedChat.id);
+      // this.messages.push(newMessage);
+      // const messagesContainer = this.$refs.messages;
+      // if(!messagesContainer) return;
+      // //console.log(messagesContainer.scrollTop + 900, messagesContainer.scrollHeight - messagesContainer.clientHeight);
+      // if(messagesContainer.scrollTop + 900 > messagesContainer.scrollHeight - messagesContainer.clientHeight){
+      //   this.scrollToBottom();
+      // }
+      this.fetchMessages(this.selectedChat.id);
     });
   },
   beforeDestroy() {

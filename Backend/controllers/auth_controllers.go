@@ -30,10 +30,10 @@ func Login(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"success": false, "message": "账号名称或密码错误"})
 		return
 	}
-	if account.Status == "online" {
-		c.JSON(http.StatusUnauthorized, gin.H{"success": false, "message": "该账号已登录，请勿重复登录"})
-		return
-	}
+	// if account.Status == "online" {
+	// 	c.JSON(http.StatusUnauthorized, gin.H{"success": false, "message": "该账号已登录，请勿重复登录"})
+	// 	return
+	// }
 
 	// 生成 Token
 	token, err := utils.GenerateJWT(account.ID)

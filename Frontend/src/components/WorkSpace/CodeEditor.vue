@@ -96,6 +96,11 @@ export default {
       }
     });
     this.selectedLanguage=language;
+
+    // 计算可用高度
+    const vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
+
   },
   watch: {
     selectedLanguage(newLang) {
@@ -216,6 +221,8 @@ export default {
   text-align: left;
   background-color: var(--background-color);
   color: var(--text-color);
+  height: calc(var(--vh, 1vh) * 100 - 60px);
+  overflow: hidden;
 }
 
 .editor-toolbar {
@@ -247,7 +254,7 @@ input[type="text"] {
 }
 
 .monaco-editor-container {
-  height: 700px;
+  height: 100%;
   width: 100%;
   border: 1px solid #ccc;
 }

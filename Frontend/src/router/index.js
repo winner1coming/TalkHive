@@ -16,6 +16,9 @@ import CodeEditor from "@/components/WorkSpace/CodeEditor.vue";
 import Code from "@/components/WorkSpace/Code.vue"
 import DdlList from "@/components/WorkSpace/DdlList.vue"
 import Recycle from "@/components/WorkSpace/Recycle.vue"
+import OnlineCollaboration from '@/components/WorkSpace/OnlineCollaboration.vue';
+import CollabEditor from '@/components/WorkSpace/CollabEditor.vue';
+import QuillEditor from '@/components/WorkSpace/QuillEditor.vue'
 
 //import GroupChat from '@/components/GroupChat.vue';
 //import Profile from '@/components/Profile.vue';
@@ -49,37 +52,40 @@ const routes = [
         component: WorkSpace,
         children: [
           {
-            path: "/workspace/favorites",
+            path:"collabdocs",
+            component: OnlineCollaboration,
+          },
+          {
+            path:"collabdocs/editor",
+            component: CollabEditor,
+          },
+          {
+            path: "favorites",
             component: Favorites,
           },
           {
-            path: "/workspace/notes",
+            path: "notes",
             component: Notes, 
           },
           {
-            path: "/workspace/code",
+            path: "code",
             component: Code,
-            props: true,
           },
           {
-            path: "/workspace/ddl",
+            path: "ddl",
             component: DdlList,
-            props: true,
           },
           {
-            path: "/workspace/notes/editor",
-            component: NoteEditor,
-            props: true,
+            path: "notes/editor",
+            component: QuillEditor,
           },
           {
-            path: "/workspace/code/editor",
+            path: "code/editor",
             component: CodeEditor,
-            props: true,
           },
           {
-            path: "/workspace/recycle",
+            path: "recycle",
             component: Recycle,
-            props: true,
           },
           // 添加其他子路由
         ]

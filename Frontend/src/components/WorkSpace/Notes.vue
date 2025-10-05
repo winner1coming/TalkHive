@@ -3,7 +3,7 @@
     <div class="header">
       <h2>
         <div class="note_header">
-          <img src="@/assets/icon/edit.png" alt="笔记图标" class="icon"/>
+          <img src="@/assets/icon/notes.png" alt="笔记图标" class="icon"/>
           我的笔记
           <img
             src="@/assets/icon/create_note.png"
@@ -61,12 +61,12 @@
           placeholder="输入文件名"
         />
         
-        <label for="filetype">文件格式：</label>
+        <!-- <label for="filetype">文件格式：</label>
         <select v-model="newFile.filetype" id="filetype">
           <option value=".md">.md</option>
           <option value=".txt">.txt</option>
           <option value=".docx">.docx</option>
-        </select>
+        </select> -->
 
         <label for="category">分类：</label>
         <select v-model="newFile.category" id="category">
@@ -142,8 +142,9 @@
 
     <ul>
       <li v-for="note in filteredNotes" :key="note.id" class="note-item">
-        <span class="filename" @click="editNote(note)">{{ note.filename+".md" }}</span>
+        <span class="filename" @click="editNote(note)">{{ note.filename }}</span>
         <span class="modified"> - 上次修改时间: {{ note.lastModified }}</span>
+        <span class="category">{{ note.category }}</span>
         <button class="more-btn" @click="toggleDropdown(note.id)">...</button>
         <div v-if="note.showDropdown" class="dropdown">
           <button class="dropdown_delete_btn" @click="showFriendSelect(note.id,note.filename, '.md')">转发</button>
@@ -183,7 +184,7 @@ export default {
       fileToDelete: null, // 用于存储待删除文件的id
       newFile: {
         filename: '',
-        filetype: '.md',
+        //filetype: '.md',
         category: '',  // 选择的分类
       },
       categories: [],  // 模拟的分类列表
@@ -274,7 +275,7 @@ export default {
     //保存新建的文件
     async saveFile() {
       try {
-        const response = await WorkSpaceAPI.createNote(this.newFile.filename, this.newFile.category);
+        const response = await WorkSpaceAPI.createNote(this.newFile.filename, this.newFile.category, "");
 
         if (response.status === 200) {
           this.showCreateFile = false;
@@ -320,6 +321,40 @@ export default {
         console.error('无法转发笔记:', error);
       }
     },
+    // async forwardNote(tid) {
+    //   this.showFriendSelect = false;
+    //   try {
+    //     const response = await WorkSpaceAPI.getNoteContent(this.forwardCodeContent.code_id);
+    //     const content = response.data;
+
+    //     const mimeTypeMap = {
+    //       txt: 'text/plain',
+    //       md: 'text/markdown',
+    //       js: 'application/javascript',
+    //       json: 'application/json',
+    //       // 其他类型
+    //     };
+    //     const suffix = this.forwardCodeContent.Suffix.slice(1);
+    //     const type = mimeTypeMap[suffix] || 'application/octet-stream';
+
+    //     const blob = new Blob([content], { type });
+    //     const file = new File([blob], this.forwardCodeContent.name + this.forwardCodeContent.Suffix, { type });
+
+    //     const formData = new FormData();
+    //     formData.append('tid', tid);
+    //     formData.append('is_group', false);
+    //     formData.append('file', file); // 改成 file
+
+    //     const result = await chatListAPI.sendFile(formData);
+    //     if (result.status === 200) {
+    //       this.$root.notify('转发成功', 'success');
+    //     } else {
+    //       this.$root.notify(result.data.message, 'error');
+    //     }
+    //   } catch (error) {
+    //     console.error('无法转发笔记:', error);
+    //   }
+    // },
 
     // 编辑笔记
     editNote(note) {
@@ -327,6 +362,14 @@ export default {
       this.$store.dispatch('updateCurrentNote', {
         note_id: note.id,
         filename: note.filename,
+        category: note.category
+      });
+      this.$store.dispatch('updateCategories', this.categories);
+
+      // 使用 Vuex 更新 currentNote 对象
+      this.$store.dispatch('updateCurrentQuill', {
+        doc_id: note.id,
+        doc_name: note.filename,
         category: note.category
       });
       this.$store.dispatch('updateCategories', this.categories);
@@ -625,8 +668,13 @@ select {
 .note-item .modified {
   color: var(--text-color);
   opacity: 70%;
+  cursor: default;
 }
-
+.note-item .category {
+  color: var(--button-background-color2);
+  opacity: 70%;
+  cursor: default;
+}
 .more-btn {
   background: none;
   border: none;

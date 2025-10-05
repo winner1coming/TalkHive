@@ -636,8 +636,8 @@ func GetGroupRequests(c *gin.Context) {
 		var groupMember models.GroupMemberInfo
 		if applyInfo.ApplyType == "groupApply" {
 			if err = global.Db.Where("account_id = ? AND group_id = ?", applyInfo.SenderID, applyInfo.GroupID).First(&groupMember).Error; err == nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "申请人已经在群聊中"})
-				return
+				//c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "申请人已经在群聊中"})
+				continue
 			}
 
 			// 获取申请人的信息
@@ -887,7 +887,7 @@ func DealGroupApplyRequest(c *gin.Context) {
 
 		// 修改GroupMemberInfo表
 		groupMember := models.GroupMemberInfo{
-			AccountID:     uint(AccountID),
+			AccountID:     uint(input.AccountID),
 			GroupID:       input.GroupID,
 			GroupNickname: groupChat.GroupName,
 			IsBanned:      false,
@@ -987,7 +987,7 @@ func AddGroup(c *gin.Context) {
 
 	// 检查是否已发送过加入申请
 	var existingApply models.ApplyInfo
-	err = global.Db.Where("sender_id = ? AND group_id = ? AND apply_type = ?", user.AccountID, input.GroupID, "groupInvitation").First(&existingApply).Error
+	err = global.Db.Where("sender_id = ? AND group_id = ? AND apply_type = ?", user.AccountID, input.GroupID, "groupApply").First(&existingApply).Error
 	if err == nil {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "加入群组申请已发送，请勿重复申请"})
 		return
@@ -995,11 +995,12 @@ func AddGroup(c *gin.Context) {
 
 	// 构造新的群组申请记录
 	newApply := models.ApplyInfo{
-		ApplyType:  "groupInvitation", // 申请类型
+		ApplyType:  "groupApply", // 申请类型
 		SenderID:   user.AccountID,    // 申请者ID
 		ReceiverID: group.GroupOwner,  // 群主作为接收方
 		Status:     "pending",         // 初始状态
 		Reason:     input.Reason,      // 申请理由
+		GroupID:	input.GroupID,		// 一开始没加这行，群id
 	}
 
 	if err := global.Db.Create(&newApply).Error; err != nil {
@@ -1827,7 +1828,7 @@ func CreateGroup(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户已注销"})
 		return
 	}
-
+	// {"group_name":"水群","group_avatar":"","group_description":"水水水","allow_invite":true,"allow_id_search":true,"allow_name_search":true}
 	var input struct {
 		GroupName        string `json:"group_name"`
 		GroupAvatar      string `json:"group_avatar"`

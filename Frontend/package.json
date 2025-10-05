@@ -15,6 +15,7 @@
     "@fortawesome/free-solid-svg-icons": "^6.7.2",
     "@fortawesome/vue-fontawesome": "^3.0.8",
     "axios": "^0.21.1",
+    "buffer": "^6.0.3",
     "core-js": "^3.6.5",
     "cropperjs": "^1.6.2",
     "crypto-js": "^4.2.0",
@@ -23,6 +24,8 @@
     "mitt": "^3.0.1",
     "mockjs": "^1.1.0",
     "monaco-editor": "^0.52.2",
+    "quill": "2.0.3",
+    "quill-cursors": "latest",
     "vite-plugin-monaco-editor": "^1.1.0",
     "vue": "^3.2.25",
     "vue-contextmenu": "^1.5.11",
@@ -30,7 +33,11 @@
     "vue-monaco": "^1.2.2",
     "vue-router": "^4.0.0",
     "vue3-datepicker": "^0.4.0",
-    "vuex": "^4.0.0"
+    "vuex": "^4.0.0",
+    "y-indexeddb": "^9.0.12",
+    "y-quill": "latest",
+    "y-websocket": "^3.0.0",
+    "yjs": "^13.6.27"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.2.0",

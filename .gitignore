@@ -1,2 +1,5 @@
 .vscode/
 Redis/
+node_modules/
+dump.rdb
+Backend/go_build_TalkHive_main_go.exe

@@ -19,6 +19,19 @@
         <div v-else-if="message.type==='image'" @contextmenu.prevent="showContextMenu($event, message)">
           <img :src="message.content" alt="image" style="max-width: 100%; max-height: 200px;"/>
         </div>
+        <!--协作文档消息-->
+        <div class="message-collab-doc" 
+            v-else-if="message.type==='collab_doc'"
+            @contextmenu.prevent="showContextMenu($event, message)">
+          <div class="doc-card" @click="editCollabDoc">
+            <div class="doc-icon">
+              <img src="@/assets/icon/text.png" alt="文档" />
+            </div>
+            <div class="doc-info">
+              <div class="doc-name">{{ JSON.parse(message.content).doc_name }}</div>
+            </div>
+          </div>
+        </div>
         <!--文件消息-->
         <div class="message-file" v-else-if="message.type==='file'" @contextmenu.prevent="showContextMenu($event, message)">
           <div class="file-item">
@@ -58,6 +71,19 @@
         <div v-else-if="message.type==='image'" @contextmenu.prevent="showContextMenu($event, message)">
           <img :src="message.content" alt="image" style="max-width: 100%; max-height: 200px;"/>
         </div>
+        <!--协作文档消息-->
+        <div class="message-collab-doc" 
+            v-else-if="message.type==='collab_doc'"
+            @contextmenu.prevent="showContextMenu($event, message)">
+          <div class="doc-card" @click="editCollabDoc">
+            <div class="doc-icon">
+              <img src="@/assets/icon/text.png" alt="文档" />
+            </div>
+            <div class="doc-info">
+              <div class="doc-name">{{ JSON.parse(message.content).doc_name }}</div>
+            </div>
+          </div>
+        </div>
         <!--文件消息-->
         <div class="message-file" v-else-if="message.type==='file'" @contextmenu.prevent="showContextMenu($event, message)">
           <div class="file-item">
@@ -90,6 +116,7 @@
 
 <script>
 import * as monaco from 'monaco-editor';
+import * as WorkSpaceAPI from '@/services/workspace_api';
 export default {
   props: ['message'],
   data() {
@@ -112,6 +139,28 @@ export default {
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url); // 释放 URL 对象
+    },
+    async editCollabDoc()
+    {
+      // this.$router.push(`/workspace/doc/${id}`);
+      try{
+        // 先加入文档编辑成员
+        const response = await WorkSpaceAPI.joinMember(JSON.parse(this.message.content).doc_id);
+        if(response.status === 200)
+        {
+          // 使用 Vuex 更新 currentDoc 对象
+          this.$store.dispatch('updateCurrentDoc', {
+            doc_id: JSON.parse(this.message.content).doc_id,
+            doc_name: JSON.parse(this.message.content).doc_name,
+          });
+
+          // 跳转到编辑页面
+          this.$router.push(`/workspace/collabdocs/editor`);
+        }
+      }catch(err){
+        console.error('无法加入文档编辑:', err);
+        alert('加入文档编辑失败');
+      }
     },
     showContextMenu(event, message) {
       this.$emit('show-context-menu',event, message);
@@ -156,29 +205,36 @@ export default {
   },
 
   mounted() {
-    if(this.message.type=== 'text'||this.message.type=== 'file'||this.message.type==='image'){
+    if(this.message.type=== 'text'||this.message.type=== 'file'||this.message.type==='image' ||this.message.type==='collab_doc'){
       return;
     }
-    this.editor = monaco.editor.create(this.$refs.editor, {
-      value: this.message.content,
-      language: this.message.type,
-      automaticLayout: true,
-      readOnly: true,
-      lineNumbersMinChars: 2, // 设置行号的最小字符数
-      tabSize: 2, // 设置制表符宽度
-      minimap: {
-        enabled: false, // 禁用右侧的迷你地图
-      },
-      fontSize: 14, // 设置字体大小
-      lineHeight: 20, // 设置行高
-      padding: {
-        top: 10,
-        bottom: 10,
-      },
-    });
+    this.$nextTick(()=>{
+      if (!this.$refs.editor) {
+        console.log("message type:", this.message.type);
+        console.warn('Editor DOM 未渲染，无法初始化 monaco');
+        return;
+      }
+      this.editor = monaco.editor.create(this.$refs.editor, {
+        value: this.message.content,
+        language: this.message.type,
+        automaticLayout: true,
+        readOnly: true,
+        lineNumbersMinChars: 2, // 设置行号的最小字符数
+        tabSize: 2, // 设置制表符宽度
+        minimap: {
+          enabled: false, // 禁用右侧的迷你地图
+        },
+        fontSize: 14, // 设置字体大小
+        lineHeight: 20, // 设置行高
+        padding: {
+          top: 10,
+          bottom: 10,
+        },
+      });
 
-    this.editor.onDidChangeModelContent(() => {
-      this.$emit('input', this.editor.getValue());
+      this.editor.onDidChangeModelContent(() => {
+        this.$emit('input', this.editor.getValue());
+      });
     });
   },
   // watch: {
@@ -321,7 +377,7 @@ export default {
 }
 .editor {
   width: 100%;
-  height: 400px;
+  height: 200px;
   text-align: left;
 }
 .message-image {
@@ -331,5 +387,51 @@ export default {
 .img {
   max-width: 100%;
   border-radius: 5px;
+}
+
+/* 协作文档消息样式 */
+.message-collab-doc {
+  flex: 5;
+  /*background-color: var(--sidebar-background-color);*/
+  color: var(--sidebar-text-color);
+  padding: 12px;
+  border-radius: 8px;
+}
+
+.doc-card {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  align-items:center;
+  background-color: white;
+  gap: 12px;
+  padding-right:12px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.doc-icon {
+  flex-shrink: 0;
+}
+
+.doc-icon img {
+  width: 35px;
+  height: 35px;
+  border-radius: 6px;
+  margin: 5px;
+}
+
+.doc-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.doc-name {
+  font-size: var(--font-size-small);
+  font-weight: 500;
+  color: var(--sidebar-text-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 </style>

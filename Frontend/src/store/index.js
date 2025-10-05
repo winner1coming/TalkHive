@@ -42,6 +42,17 @@ export default createStore({
       code_id: null,
       filename: '',
     },
+    // 要编辑的协作文档
+    currentDoc: {
+      doc_id: null,
+      doc_name: '',
+    },
+    // 要编辑的笔记文档
+    currentQuill: {
+      doc_id: null,
+      doc_name: '', 
+      category: ''
+    }
   },
   
   // 同步修改状态的方法
@@ -126,6 +137,12 @@ export default createStore({
     setCurrentCode(state, code) {
       state.currentCode = { ...code };
     },
+    setCurrentDoc(state, doc){
+      state.currentDoc = { ...doc };
+    },
+    setCurrentQuill(state, quill){
+      state.currentQuill = { ...quill };
+    }
   },
   
   // 异步操作和提交 mutations 的方法
@@ -259,6 +276,12 @@ export default createStore({
     updateCurrentCode({ commit }, code) {
       commit('setCurrentCode', code);
     },
+    updateCurrentDoc({commit}, doc) {
+      commit('setCurrentDoc', doc);
+    },
+    updateCurrentQuill({commit}, quill) {
+      commit('setCurrentQuill', quill);
+    }
   },
 
   //获取用户信息.计算属性
@@ -269,6 +292,8 @@ export default createStore({
     getCurrentNote: (state) => state.currentNote,
     getCategories: (state) => state.notesCategories,
     getCurrentCode: (state) => state.currentCode,
+    getCurrentDoc: (state) => state.currentDoc,
+    getCurrentQuill: (state) => state.currentQuill,
   },
 
 });

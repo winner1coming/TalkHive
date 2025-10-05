@@ -47,6 +47,10 @@ func InitDB() {
 func autoMigrateTables() error {
 	// 自动迁移的表列表
 	tables := []interface{}{
+		&models.CollabDoc{},
+		&models.CollabDocSnapshot{},
+		&models.CollabDocMember{},
+		&models.NoteContent{},
 		&models.AccountInfo{},
 		&models.Contacts{},
 		&models.SystemSetting{},

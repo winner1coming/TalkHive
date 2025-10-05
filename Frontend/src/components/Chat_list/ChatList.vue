@@ -33,7 +33,7 @@
         :key="chat.id"
         @contextmenu.prevent="showChatMenu($event, chat)"
         @click = selectChat(chat)
-        :class="{pinned: chat.tags.includes('pinned'), selected: selectedChat && chat.id === selectedChat.id}"
+        :class="{pinned: chat.tags.includes('pinned'), selected: selectedChat && chat.id === selectedChat.id && chat.tags===selectedChat.tags}"
       >
         <div class="left-part">
           <!-- 头像-->
@@ -141,7 +141,7 @@ export default {
       handler: function(val) {
         if(val){
           if(this.selectedChat && val.id!==this.selectedChat.id) this.selectChat(val);
-          this.chats = this.chats.map(chat => chat.id === val.id? val : chat);
+          this.chats = this.chats.map(chat => chat.id === val.id&&chat.tags === val.tags? val : chat);
           if(val.unreadCount > 0){
             this.readMessages(val);
           }
@@ -559,8 +559,8 @@ export default {
         this.fetchChatList();
         return;
       }
-      this.chats = this.chats.filter(chat => chat.id !== newChat.id);
-      if(this.selectedChat&&newChat.id===this.selectedChat.id){
+      this.chats = this.chats.filter(chat => chat.id !== newChat.id&&chat.tags!==newChat.tags);
+      if(this.selectedChat&&newChat.id===this.selectedChat.id&&newChat.tags===this.selectedChat.tags){
         // chat.tags = newChat.tags.filter(tag => tag !== 'unread');
         // newChat.unreadCount = 0;
         // if(newChat.tags.includes('friend')){
@@ -578,7 +578,7 @@ export default {
       chat.lastMessage = newChat.lastMessage;
       chat.lastMessageTime = newChat.lastMessageTime;
       this.chats.unshift(chat); 
-      // this.fetchChatList();
+      this.fetchChatList();
     });
   },
   beforeUnmount() {

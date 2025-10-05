@@ -124,6 +124,7 @@ export default {
 
 .menu-item {
   display: flex;
+  flex-direction: column;
   align-items: center;
   cursor: pointer;
   width: 100%;
@@ -166,6 +167,7 @@ export default {
   width: 20px;
   height: 20px;
   margin-left: 30px;
+  margin-top: 10px;
 }
 
 .resizer {

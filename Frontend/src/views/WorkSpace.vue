@@ -3,12 +3,16 @@
     <!-- 左侧工具栏 -->
     <aside class="toolbar">
       <ul>
+        <li @click="navigateTo('/workspace/collabdocs')" :class="{ active: currentRoute === '/workspace/collabdocs' }">
+          <img src="@/assets/icon/edit.png" alt="在线协作" class="toolbar-icon" />
+          在线协作
+        </li>
         <li @click="navigateTo('/workspace/favorites')" :class="{ active: currentRoute === '/workspace/favorites' }">
           <img src="@/assets/icon/favorite.png" alt="收藏" class="toolbar-icon" />
           收藏
         </li>
         <li @click="navigateTo('/workspace/notes')" :class="{ active: currentRoute === '/workspace/notes' }">
-          <img src="@/assets/icon/edit.png" alt="笔记" class="toolbar-icon" />
+          <img src="@/assets/icon/notes.png" alt="笔记" class="toolbar-icon" />
           笔记
         </li>
         <li @click="navigateTo('/workspace/code')" :class="{ active: currentRoute === '/workspace/code' }">

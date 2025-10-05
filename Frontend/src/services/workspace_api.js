@@ -31,7 +31,7 @@ export const deleteDDL = (task_id) => {
   return apiClient.post('/workspace/ddl/delete',{task_id});
 };
 
-// 收藏—————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+// 收藏—————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 export const getFavorites = () => {
   return apiClient.get('/workspace/favorites/list');
 };
@@ -40,7 +40,7 @@ export const deleteFavorites = (msg_ids) => {
   return apiClient.post('/workspace/favorites/delete',msg_ids);
 };
 
-// 笔记—————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+// 笔记—————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 //获取分类列表
 export const getCategories = () => {
   return apiClient.get('/workspace/notes/categories');
@@ -72,8 +72,8 @@ export const deleteNote = (note_id) => {
 };
 
 // 新建笔记
-export const createNote = (note_name, type) => {
-  return apiClient.post('/workspace/notes/newnote',{note_name, type});
+export const createNote = (note_name, type, content) => {
+  return apiClient.post('/workspace/notes/newnote',{note_name, type, content});
 };
 
 // 获取笔记内容
@@ -87,14 +87,54 @@ export const saveEditNote = (NoteID, NoteName, Type, Content) => {
   return apiClient.post('/workspace/notes/editnote',{NoteID, NoteName, Type, Content});
 };
 
-// const response = await axios.post('/api/get-code', {
-//   code_id: codeID,
-//   is_preview: isPreview,
-// }, {
-//   responseType: 'blob', // 以 Blob 格式获取文件
-// });
+// 普通文档————————————————————————————————————————————————————————————————————————————————————————————————————
+// // 获取文档列表
+// export const getQuillDocs = () => {
+//   return apiClient.get('/workspace/docs/list');
+// };
 
-// 回收站—————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+// // 创建新文档
+// export const createQuillDoc = (doc_name) => {
+//   return apiClient.post('/workspace/docs/newdoc',{doc_name});
+// };
+
+// // 保存delta
+// export const saveQuillContent = (doc_id, delta) => {
+//   return apiClient.post('workspace/docs/savesnapshot', {doc_id, delta});
+// }
+
+// // 获取delta
+// export const getQuillContent = (doc_id) => {
+//   return apiClient.post('workspace/docs/getsnapshot', {doc_id});
+// }
+
+// 协作文档————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+// 获取参与过的文档列表
+export const getDocs = () => {
+  return apiClient.get('/workspace/collabdocs/list');
+};
+
+// 创建新文档
+export const createDoc = (doc_name) => {
+  return apiClient.post('/workspace/collabdocs/newdoc',{doc_name});
+};
+
+// 保存快照
+export const saveSnapshot = (doc_id, snapshot) => {
+  return apiClient.post('workspace/collabdocs/savesnapshot', {doc_id, snapshot});
+}
+
+// 获取快照
+export const getSnapshot = (doc_id) => {
+  return apiClient.post('workspace/collabdocs/getsnapshot', {doc_id});
+}
+
+// 邀请新成员
+export const joinMember = (doc_id) => {
+  return apiClient.post('workspace/collabdocs/join', {doc_id});
+}
+
+// 回收站————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 // 获取回收站列表
 export const getRecycles = () => {
   return apiClient.get('/workspace/recycle/files');

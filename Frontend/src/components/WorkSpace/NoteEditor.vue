@@ -38,7 +38,7 @@
       </div>
 
       <div class="actions">
-        <button @click="saveNote">保存</button>
+        <button @click="saveNote" style="padding:5px">保存</button>
         <button @click="cancelEdit">取消</button>
       </div>
     </div>
@@ -150,7 +150,6 @@ export default {
     async getNoteContent(noteID) {
       const response = await WorkSpaceAPI.getNoteContent(noteID);
       const data = response.data;
-      console.log(noteID);
       this.noteContent = data;
     },
 

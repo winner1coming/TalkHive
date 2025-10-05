@@ -51,6 +51,11 @@ export const sendFile = (formData) => {
     }
   });
 };
+
+export const sendForwardCollab = (tid, doc_id, is_group) => {
+  return apiClient.post(`/messages/sendForwardCollab`, {tid, doc_id, doc_name, is_group});
+}
+
 // 收藏消息
 export const collectMessage = (table_name, message_id) => {
   return apiClient.post(`/messages/collect`, { table_name, message_id });

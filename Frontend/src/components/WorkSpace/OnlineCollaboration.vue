@@ -1,44 +1,36 @@
 <template>
-  <div class="codes">
+  <div class="docs">
     <!-- 标题部分 -->
     <div class="header">
       <h2>
-        <div class="code_header">
-          <img src="@/assets/icon/code.png" alt="代码图标" class="icon"/>
-          我的代码
+        <div class="doc_header">
+          <img src="@/assets/icon/edit.png" alt="代码图标" class="icon"/>
+          共享文档
           <img
             src="@/assets/icon/create_note.png"
-            alt="添加代码"
+            alt="添加文档"
             class="create_note_icon"
-            @click="showCreateFile = true"
+            @click="showCreateDoc = true"
           />
         </div>
       </h2>
-      <!-- <button @click="showCreateFile = true" class="new-btn">+</button> -->
+      <!-- <button @click="showCreateDoc = true" class="new-btn">+</button> -->
     </div>
 
     <!-- 新建文件编辑框 -->
-    <div v-if="showCreateFile" class="create-file-modal">
+    <div v-if="showCreateDoc" class="create-doc-modal">
       <div class="modal-content">
         <h3>新建文件</h3>
-        <label for="filename">文件名：</label>
+        <label for="docname">文件名：</label>
         <input
           type="text"
-          id="filename"
-          v-model="newFile.filename"
+          id="docname"
+          v-model="newDoc.docname"
           placeholder="输入文件名"
         />
-        <label for="filetype">文件格式：</label>
-        <select v-model="newFile.filetype" id="filetype">
-          <option value=".cpp">.cpp</option>
-          <option value=".js">.js</option>
-          <option value=".html">.html</option>
-          <option value=".txt">.txt</option>
-          <!-- 可以根据需求继续添加文件类型 -->
-        </select>
 
         <div class="modal-actions">
-          <button @click="saveFile" class="save-btn">确定</button>
+          <button @click="saveDoc" class="save-btn">确定</button>
           <button @click="cancelCreate" class="cancel-btn">取消</button>
         </div>
       </div>
@@ -46,14 +38,22 @@
 
     <!-- 文件列表 -->
     <ul>
-      <li v-for="code in codes" :key="code.code_id" class="code-item">
-        <span class="filename" @click="editCode(code)">{{ code.code_name + code.Suffix }}</span>
-        <span class="modified"> - 上次修改时间: {{ code.last_modified_time }}</span>
-        <button class="more-btn" @click="toggleDropdown(code.code_id)">...</button>
-        <div v-if="code.showDropdown" class="dropdown">
-          <button class="dropdown_delete_btn" @click="showFriendSelect(code.code_id,code.code_name, code.Suffix)">转发</button>
-          <button class="dropdown_delete_btn" @click="confirmDelete(code.code_id)">删除</button>
-        </div>
+      <li v-for="doc in docs" :key="doc.doc_id" class="doc-item">
+        <div class="docname" @click="editDoc(doc)">{{ doc.doc_name }}</div>
+        <p class="modified"> - 修改时间: {{ doc.last_modified_time }}</p>
+        <p class="owner-name"> - 创建者：{{ doc.owner_name }}</p>
+        <!-- 展示下拉框（转发、删除等），目前只做了转发功能，美观起见就只放一个转发好了-->
+        <!-- <button class="more-btn" @click="toggleDropdown(doc.doc_id)">...</button>
+        <div v-if="doc.showDropdown" class="dropdown">
+          <button class="dropdown_delete_btn" @click="showFriendSelect(doc.doc_id,doc.doc_name)">转发</button>
+          <button class="dropdown_delete_btn" @click="confirmDelete(doc.doc_id)">删除</button>
+        </div> -->
+        <img
+          src="@/assets/icon/share.png"
+          alt="转发"
+          class="share_icon"
+          @click="showFriendSelect(doc.doc_id,doc.doc_name)"
+        />        
       </li>
     </ul>
 
@@ -62,7 +62,7 @@
       <div class="confirm-content">
         <p>是否确认删除此文件？</p>
         <div class="modal-actions">
-          <button @click="deleteFile" class="confirm-btn">确认</button>
+          <button @click="deleteDoc" class="confirm-btn">确认</button>
           <button @click="cancelDelete" class="cancel-btn">取消</button>
         </div>
       </div>
@@ -70,7 +70,7 @@
     <SelectFriend
       v-if="showSelectFriend"
       @close="showSelectFriend = false"
-      @forwordNote="forwardCode"
+      @forwordNote="forwardDoc"
     />
   </div>
   
@@ -82,52 +82,51 @@ import * as chatListAPI from '@/services/chatList';
 import SelectFriend from '@/components/WorkSpace/SelectFriend.vue';
 
 export default {
-  name: "Codes",
+  name: "Docs",
   components: {
     SelectFriend,
   },
   data() {
     return {
-      showCreateFile: false, // 控制新建文件编辑框的显示
-      newFile: {
-        filename: '', // 用户输入的文件名
-        filetype: '.md', // 默认文件格式
+      showCreateDoc: false, // 控制新建文件编辑框的显示
+      newDoc: {
+        docname: '', // 用户输入的文件名
+        doctype: '.md', // 默认文件格式
       },
-      // codes: [
-      //   { id: 1, filename: "Vue学习笔记.md", lastModified: "2024-12-01 10:30", showDropdown: false },
-      //   { id: 2, filename: "pythontest.py", lastModified: "2024-12-05 14:15", showDropdown: false },
-      //   { id: 3, filename: "javascripttest.js", lastModified: "2024-12-10 09:45", showDropdown: false }
+      // docs: [
+      //   { id: 1, docname: "Vue学习笔记.md", lastModified: "2024-12-01 10:30", showDropdown: false },
+      //   { id: 2, docname: "pythontest.py", lastModified: "2024-12-05 14:15", showDropdown: false },
+      //   { id: 3, docname: "javascripttest.js", lastModified: "2024-12-10 09:45", showDropdown: false }
       // ],
-      codes:[],
+      docs:[],
       showDeleteConfirm: false,
-      fileToDelete: null, // 用于存储待删除文件的id
+      docToDelete: null, // 用于存储待删除文件的id
       showSelectFriend: false,
-      forwardCodeContent:{
-        code_id: null,
-        name: null,
-        Suffix: null,
+      docToSend:{
+        doc_id: null,
+        doc_name: null,
       }
     };
   },
   mounted() {
-    this.fetchCodes();  // 获取笔记数据
+    this.fetchDocs();  // 获取笔记数据
   },
   methods: {
-    async fetchCodes() {
-      // 从后端获取代码列表
+    async fetchDocs() {
+      // 从后端获取列表
       try {
-        const response = await WorkSpaceAPI.getCodes();
+        const response = await WorkSpaceAPI.getDocs();
         if (response.status === 200) {
           if(!response.data)
           {
             return;
           }
-          this.codes = response.data.map(code => ({
-            ...code,       // 保留原来的属性
+          this.docs = response.data.map(doc => ({
+            ...doc,       // 保留原来的属性
             showDropdown: false // 添加新的属性
           }));
         } else {
-          alert('获取代码列表失败');
+          alert('获取协作文档列表失败');
         }
       } catch (error) {
         console.error('无法获取代码列表:', error);
@@ -136,40 +135,24 @@ export default {
     },
 
     // 显示新建文件编辑框
-    showCreateFileModal() {
-      this.showCreateFile = true;
+    showCreateDocModal() {
+      this.showCreateDoc = true;
     },
 
     // 取消新建文件
     cancelCreate() {
-      this.showCreateFile = false;
+      this.showCreateDoc = false;
     },
 
-    // 保存新建的文件
-    async saveFile() {
-      // try {
-      //   // 发送请求到后端，保存新建的文件
-      //   const response = await axios.post('/workspace/create-file', {
-      //     filename: this.newFile.filename + this.newFile.filetype,  // 文件名和文件格式拼接
-      //   });
-
-      //   if (response.status === 200) {
-      //     alert('文件创建成功');
-      //     this.showCreateFile = false; // 关闭编辑框
-      //   } else {
-      //     alert(response.data.message);
-      //   }
-      // } catch (error) {
-      //   console.error('无法创建文件:', error);
-      //   alert('创建文件失败！');
-      // }
+    // 新建文件
+    async saveDoc() {
       try {
-        const response = await WorkSpaceAPI.createCode(this.newFile.filename, this.newFile.filetype);
+        const response = await WorkSpaceAPI.createDoc(this.newDoc.docname);
 
         if (response.status === 200) {
 
-          this.showCreateFile = false;
-          this.fetchCodes();
+          this.showCreateDoc = false;
+          this.fetchDocs();
         } else {
           alert(response.data.message);
         }
@@ -177,67 +160,63 @@ export default {
         console.error('无法创建文件:', error);
         alert('创建文件失败！');
       }
-      // this.editCode(1);
+      // this.editDoc(1);
     },
 
     // 显示转发好友选择框
-    showFriendSelect(code_id, name, Suffix) {
-      this.forwardCodeContent.code_id = code_id;
-      this.forwardCodeContent.name = name;
-      this.forwardCodeContent.Suffix = Suffix;
+    showFriendSelect(doc_id, name) {
+      this.docToSend.doc_id = doc_id;
+      this.docToSend.doc_name = name;
       this.showSelectFriend = true;
     },
-
-    // 转发代码
-    async forwardCode(tid) {
+    // 转发文档
+    async forwardDoc(tid) {
       this.showSelectFriend = false;
       try {
-        // 获取转发者
-        // 获取文件
-        const response = await WorkSpaceAPI.getCodeContent(this.forwardCodeContent.code_id);
-        const content = response.data;
-        response = await chatListAPI.sendMessage(tid, content, this.forwardCodeContent.Suffix.slice(1), false);
+        // 构造json对象，包括docid，docname
+        const json_doc = JSON.stringify({doc_id: this.docToSend.doc_id, doc_name: this.docToSend.doc_name});
+        const response = await chatListAPI.sendMessage(tid, json_doc, "collab_doc", false);
         if (response.status === 200) {
           this.$root.notify('转发成功', 'success');
         } else {
           this.$root.notify(response.data.message, 'error');
         }
       } catch (error) {
-        console.error('无法转发代码:', error);
+        console.error('无法转发文档:', error);
       }
     },
 
     // 跳转到文件编辑页
-    editCode(code) {
-      // this.$router.push(`/workspace/code/${id}`);
+    editDoc(doc) {
+      // this.$router.push(`/workspace/doc/${id}`);
       
-      // 使用 Vuex 更新 currentCode 对象
-      this.$store.dispatch('updateCurrentCode', {
-        code_id: code.code_id,
-        filename: code.code_name + code.Suffix,
+      // 使用 Vuex 更新 currentDoc 对象
+      this.$store.dispatch('updateCurrentDoc', {
+        doc_id: doc.doc_id,
+        doc_name: doc.doc_name,
       });
 
       // 跳转到编辑页面
-      this.$router.push(`/workspace/code/editor`);
+      this.$router.push(`/workspace/collabdocs/editor`);
     },
 
     // 切换下拉框显示/隐藏
-    toggleDropdown(code_id) {
-      const code = this.codes.find(n => n.code_id === code_id);
-      code.showDropdown = !code.showDropdown;
+    toggleDropdown(doc_id) {
+      const doc = this.docs.find(n => n.doc_id === doc_id);
+      doc.showDropdown = !doc.showDropdown;
     },
 
     // 显示删除确认框
     confirmDelete(id) {
-      this.fileToDelete = id;
+      this.docToDelete = id;
       this.showDeleteConfirm = true;
     },
 
     // 删除文件
-    async deleteFile() {
+    async deleteDoc() {
       try {
         // 发送删除请求到后端
-        const response = await WorkSpaceAPI.deleteCode(this.fileToDelete);
+        const response = await WorkSpaceAPI.deleteDoc(this.docToDelete);
         if (response.status === 200) {
           console.log(response.data.message);
         } else {
@@ -248,16 +227,16 @@ export default {
         alert('删除文件失败');
       }
       this.showDeleteConfirm = false;
-      this.toggleDropdown(this.fileToDelete);
-      this.fileToDelete = null;
-      this.fetchCodes();
+      this.toggleDropdown(this.docToDelete);
+      this.docToDelete = null;
+      this.fetchDocs();
     },
 
     // 取消删除操作
     cancelDelete() {
       this.showDeleteConfirm = false;
-      this.toggleDropdown(this.fileToDelete);
-      this.fileToDelete = null;
+      this.toggleDropdown(this.docToDelete);
+      this.docToDelete = null;
     },
   },
 };
@@ -265,11 +244,11 @@ export default {
 
 <style scoped>
 /* 样式部分 */
-.codes {
+.docs {
   padding: 20px;
 }
 
-.codes h2 {
+.docs h2 {
   margin-bottom: 20px;
 }
 
@@ -296,7 +275,7 @@ export default {
   color: rgb(134, 154, 233);
 }
 
-.create-file-modal {
+.create-doc-modal {
   position: fixed;
   top: 0;
   left: 0;
@@ -343,12 +322,12 @@ input[type="text"], select {
   background-color: var(--button-background-color2);
 }
 
-.codes ul {
+.docs ul {
   list-style: none;
   padding: 0;
 }
 
-.code-item {
+.doc-item {
   display: flex;
   align-items: center;
   padding: 10px 0;
@@ -358,15 +337,17 @@ input[type="text"], select {
   color: var(--text-color);
 }
 
-.code-item .filename {
+.doc-item .docname {
   font-weight: bold;
   margin-right: 10px;
   cursor: pointer;
 }
 
-.code-item .modified {
+.doc-item .modified, 
+.doc-item .owner-name {
   color: var(--text-color);
   opacity: 80%;
+  cursor: default;
 }
 
 .more-btn {
@@ -457,14 +438,25 @@ input[type="text"], select {
   align-self: center;
 }
 
-.code_header {
+.doc_header {
   display: flex;
   align-items: center; /* 垂直居中图标和文字 */
   justify-content: center; /* 水平居中 */
 }
+
 .icon{
   width: 50px;
   height: 50px;
   margin-right: 5px;
+}
+
+.share_icon {
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
+}
+
+.share_icon:hover {
+  cursor: pointer;
 }
 </style>

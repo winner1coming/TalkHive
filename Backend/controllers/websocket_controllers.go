@@ -60,17 +60,22 @@ func HandleConnections(c *gin.Context) {
 func HandleMessages(msg global.Message) {
 	if msg.IsGroup {
 		var groupMembers []models.GroupMemberInfo
-		if err := global.Db.Where("group_id = ?", msg.AccountID).First(&groupMembers).Error; err != nil {
+		if err := global.Db.Where("group_id = ?", msg.TargetID).Find(&groupMembers).Error; err != nil {
 			log.Println("查询群成员失败:", err)
 		}
+
+		// ✅ 只推送一次给每个在线成员
+		sentUser := make(map[uint]bool) // 防止重复
 		for _, member := range groupMembers {
-			if targetConn, ok := global.
-				Clients[member.AccountID]; ok {
+			userID := member.AccountID
+			if sentUser[userID] {
+				continue
+			}
+			if targetConn, ok := global.Clients[userID]; ok {
 				if err := targetConn.WriteJSON(msg); err != nil {
 					log.Println("群聊消息发送失败:", err)
 				}
-			} else {
-				log.Println("目标用户未连接")
+				sentUser[userID] = true
 			}
 		}
 	} else {

@@ -1,19 +1,19 @@
 <template>
 	<HeaderToggle v-for="tag in tags" :previewText="tag" :manageable="tag==='全部'||tag==='我创建的'?false:true" @manage-divide="manageDivide($event, tag)">
-			<div 
-				v-for="item in filteredItemsByTag(tag)" 
-				:key="item.account_id" 
-				class="item" 
-				@click="showProfileCard($event, item.account_id)"
-				@contextmenu="showPersonContextMenu($event, item)"
-			>
-					<img :src="item.avatar" alt="avatar" width="50" height="50" />
-					<div class="left">
-						<p class="name">{{ item.remark }}</p>
-						<p class="remark" v-if="type === 'friendList'">{{ (`[${item.status}]签名：${item.signature}`) }}</p>
-						<p class="remark" v-else>{{ item.signature }}</p>
-					</div>
-			</div>
+		<div 
+			v-for="item in filteredItemsByTag(tag)" 
+			:key="item.account_id" 
+			class="item" 
+			@click="showProfileCard($event, item.account_id)"
+			@contextmenu="showPersonContextMenu($event, item)"
+		>
+				<img :src="item.avatar" alt="avatar" width="50" height="50" />
+				<div class="left">
+					<p class="name">{{ item.remark }}</p>
+					<p class="remark" v-if="type === 'friendList'">{{ (`[${item.status}]签名：${item.signature}`) }}</p>
+					<p class="remark" v-else>{{ item.signature }}</p>
+				</div>
+		</div>
 	</HeaderToggle>
 </template>
 
@@ -24,6 +24,7 @@ export default {
 		HeaderToggle
 	},
 	props:['items','type','tags'],
+	emits: ['show-profile-card', 'showPersonContextMenu', 'show-divide-context-menu'],
 	methods: {
 		filteredItemsByTag(tag) {
 			if(!this.items) return [];

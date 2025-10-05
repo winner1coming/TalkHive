@@ -5,7 +5,7 @@
       <img :src="profile.avatar" alt="avatar" />
     </div>
     <div class="info">
-      <div class="name">{{ profile.remark }}</div>    <!--我的备注-->
+      <div class="name">{{ profile.nickname }}</div>    <!--我的备注-->
       <div class="remark">昵称: {{ profile.nickname }}</div>   
       <div class="remark" v-show="profile.groupNickname">群昵称: {{ profile.groupNickname }}</div>
       <div class="remark" v-show="profile.tag">

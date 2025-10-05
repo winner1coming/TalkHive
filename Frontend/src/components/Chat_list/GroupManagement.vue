@@ -30,7 +30,8 @@
           @contextmenu="showContextMenu($event, member.account_id)"
         >
           <img :src="member.avatar" alt="avatar" class="avatar">
-          <p class="remark">{{ member.remark? member.remark : (member.group_nickname?member.group_nickname:member.nickname)}}</p>
+          <!-- <p class="remark">{{ member.remark? member.remark : (member.group_nickname?member.group_nickname:member.nickname)}}</p> -->
+          <p class="remark">{{ member.nickname? member.nickname : (member.group_nickname?member.group_nickname:member.id)}}</p>
         </div>
         <!--邀请成员-->
         <div class="member" @click="inviteMember">
@@ -119,7 +120,8 @@
           @contextmenu="showContextMenu($event, member.account_id)"
         >
           <img :src="member.avatar" alt="avatar" class="avatar">
-          <p class="remark">{{ member.remark? member.remark : (member.group_nickname?member.group_nickname:member.nickname)}}</p>
+          <!-- <p class="remark">{{ member.remark? member.remark : (member.group_nickname?member.group_nickname:member.nickname)}}</p> -->
+          <p class="remark">{{ member.nickname? member.nickname : (member.group_nickname?member.group_nickname:member.id)}}</p>
         </div>
         <div v-else class="no-result">
           <p>无搜索结果</p>

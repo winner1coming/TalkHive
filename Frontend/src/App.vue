@@ -81,13 +81,13 @@ export default {
     getBackgroundColor() {
       switch (this.settings.theme) {
         case 'light':
-          return '#ffffff';   //纯白色
+          return '#f5f5f5';   //白色
         case 'dark':
           return '#0b0c0f6a';
         case 'system':
-          return '#ffffff';
+          return '#f5f5f5';
         default:
-          return '#ffffff';
+          return '#f5f5f5';
       }
     },
     getBackgroundColor1() {
