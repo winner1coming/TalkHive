@@ -9,7 +9,7 @@ wss.on("connection", (ws, req) => {
   // 可选：解析房间名称（默认为 "default-room"）
   const url = req.url || "";
   const [, roomName] = url.split("?room=");  
-  setupWSConnection(ws, req, { docName: roomName || "miaoma-doc" });
+  setupWSConnection(ws, req, { docName: roomName || "default-room" });
 });
 
 console.log(`✅ WebSocket server running on ws://localhost:${port}`);
