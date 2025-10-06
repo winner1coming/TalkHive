@@ -119,14 +119,13 @@ cd TalkHive
 redis-server.exe
 redis-server
 ```
-#### 调整后端配置文件（ config 文件夹中的 config.yaml 文件）：
+#### 调整后端配置文件（ Backend/config 文件夹中的 config.yaml 文件）：
 ###### 调整 database 中的 dsn （只需调整这几个即可，其余默认）：
 root 为 Mysql 中的用户名称
 123456 为密码
 talkhive 为数据库名称
 
 ### 3.前端配置
-#### 安装前端依赖：
 ###### 切换到前端目录：
 ```bash
 cd Frontend
@@ -149,7 +148,7 @@ cd ..
 cd yjs-ws-server
 npm install
 ```
-### 3. 切换回根目录，安装依赖并启动： 
+### 4. 切换回根目录，安装依赖并启动： 
 ```bash
 npm install
 npm run dev
