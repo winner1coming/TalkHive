@@ -89,7 +89,7 @@ TalkHive 是一个专为学生与开发者设计的**网页版聊天工具**。�
 
 ## 🛠️ 技术栈
 
-- **前端**：Vue2 + Quill + Yjs
+- **前端**：Vue2 + Quill + Yjs，基于 Vite 构建
 - **后端**：go, Redis
 
 ---
