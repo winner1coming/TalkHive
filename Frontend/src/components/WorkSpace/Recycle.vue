@@ -167,6 +167,7 @@
   <style scoped>
   .recycle-bin {
     padding: 20px;
+    color: var(--text-color);
   }
   
   /* .recycle-bin h2 {
@@ -231,7 +232,8 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
+    color: var(--text-color);
+    background-color: var(--button-background-color);
     display: flex;
     justify-content: center;
     align-items: center;

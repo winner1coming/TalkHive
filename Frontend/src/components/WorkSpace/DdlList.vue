@@ -511,6 +511,7 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
+  color: var(--text-color);
 }
 
 .new-btn {
@@ -597,6 +598,7 @@ export default {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  color: var(--text-color);
 }
 
 .ddl-left, .ddl-right {
@@ -721,6 +723,7 @@ export default {
 }
 
 .confirm-content {
+  color: var(--text-color);
   background-color: var(--background-color);
   padding: 20px;
   border-radius: 10px;

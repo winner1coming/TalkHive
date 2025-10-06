@@ -277,6 +277,7 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
+  color: var(--text-color);
 }
 
 .new-btn {
@@ -424,6 +425,7 @@ input[type="text"], select {
 }
 
 .confirm-content {
+  color: var(--text-color);
   background-color: var(--background-color);
   padding: 20px;
   border-radius: 10px;

@@ -3,7 +3,11 @@
 
     <!-- 显示文件名、在线用户等信息 -->
     <div class="doc-info">
-      <img src="@/assets/icon/return.png" alt="返回图标" class="icon" @click="returnToWorkspace"/>
+      <div class="left-infos">
+        <img src="@/assets/icon/return.png" alt="返回图标" class="icon" @click="returnToWorkspace"/>
+        <button class="ql-undo" :disabled="!canUndo" @click="handleUndo">↶</button>
+        <button class="ql-redo" :disabled="!canRedo" @click="handleRedo">↷</button>
+      </div>
       <div class="doc_name">{{ currentDoc.doc_name }}</div>
       <!-- <button @click="saveSnapshot"> 保存快照</button>
       <button @click="loadSnapshot"> 获取快照</button> -->
@@ -149,28 +153,28 @@ export default {
         },
     });
 
-    // 加两个按钮在toolbar里
-    this.$nextTick(() => {
-        const toolbarEl = this.$el.querySelector('.ql-toolbar');
-        if (toolbarEl) {
-            // 创建撤销按钮
-            this.undoBtn = document.createElement('button');
-            this.undoBtn.className = 'ql-undo';
-            this.undoBtn.innerHTML = '↶';
-            this.undoBtn.onclick = () => this.handleUndo();
-            this.undoBtn.disabled = !this.canUndo;  // 初始状态
+    // // 加两个按钮在toolbar里
+    // this.$nextTick(() => {
+    //     const toolbarEl = this.$el.querySelector('.ql-toolbar');
+    //     if (toolbarEl) {
+    //         // 创建撤销按钮
+    //         this.undoBtn = document.createElement('button');
+    //         this.undoBtn.className = 'ql-undo';
+    //         this.undoBtn.innerHTML = '↶';
+    //         this.undoBtn.onclick = () => this.handleUndo();
+    //         this.undoBtn.disabled = !this.canUndo;  // 初始状态
 
-            // 创建恢复按钮
-            this.redoBtn = document.createElement('button');
-            this.redoBtn.className = 'ql-redo';
-            this.redoBtn.innerHTML = '↷';
-            this.redoBtn.onclick = () => this.handleRedo();
-            this.redoBtn.disabled = !this.canRedo;  // 初始状态
+    //         // 创建恢复按钮
+    //         this.redoBtn = document.createElement('button');
+    //         this.redoBtn.className = 'ql-redo';
+    //         this.redoBtn.innerHTML = '↷';
+    //         this.redoBtn.onclick = () => this.handleRedo();
+    //         this.redoBtn.disabled = !this.canRedo;  // 初始状态
 
-            toolbarEl.appendChild(this.undoBtn);
-            toolbarEl.appendChild(this.redoBtn);
-        }
-    });
+    //         toolbarEl.appendChild(this.undoBtn);
+    //         toolbarEl.appendChild(this.redoBtn);
+    //     }
+    // });
 
     // 只用 QuillBinding 自动处理内容 + 光标同步
     this.binding = new QuillBinding(yText, this.quill, this.provider.awareness);
@@ -358,6 +362,23 @@ export default {
     justify-content: space-between;
     background-color:lightgrey;
   }
+  .left-infos{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
+  }
+  .ql-undo, .ql-redo {
+    font-size: 18px;
+    padding: 4px 8px;
+    border: none;
+    background: none;
+    color:var(--button-text-color);
+    cursor: pointer;
+  }
+  .ql-undo:disabled, .ql-redo:disabled {
+    color:gray;
+  }
   .doc_name{
     font-size: 20px;
     margin-left: 20px;
@@ -376,13 +397,6 @@ export default {
     padding: 8px;
     margin-right: 5px;
     font-size: 16px;
-  }
-  .ql-undo, .ql-redo {
-    font-size: 18px;
-    padding: 4px 8px;
-    border: none;
-    background: none;
-    cursor: pointer;
   }
   .quill-editor{
     flex: 1;
