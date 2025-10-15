@@ -12,4 +12,4 @@ wss.on("connection", (ws, req) => {
   setupWSConnection(ws, req, { docName: roomName || "default-room" });
 });
 
-console.log(`✅ WebSocket server running on ws://localhost:${port}`);
+console.log(`WebSocket server running on ws://localhost:${port}`);
