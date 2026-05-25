@@ -3,28 +3,51 @@
     <!-- 左侧工具栏 -->
     <aside class="toolbar">
       <ul>
-        <li @click="navigateTo('/workspace/collabdocs')" :class="{ active: currentRoute === '/workspace/collabdocs' }">
-          <img src="@/assets/icon/edit.png" alt="在线协作" class="toolbar-icon" />
+        <li
+          @click="navigateTo('/workspace/collabdocs')"
+          :class="{ active: currentRoute === '/workspace/collabdocs' }"
+        >
+          <img :src="iconEdit" alt="在线协作" class="toolbar-icon" />
           在线协作
         </li>
-        <li @click="navigateTo('/workspace/favorites')" :class="{ active: currentRoute === '/workspace/favorites' }">
-          <img src="@/assets/icon/favorite.png" alt="收藏" class="toolbar-icon" />
+
+        <li
+          @click="navigateTo('/workspace/favorites')"
+          :class="{ active: currentRoute === '/workspace/favorites' }"
+        >
+          <img :src="iconFavorite" alt="收藏" class="toolbar-icon" />
           收藏
         </li>
-        <li @click="navigateTo('/workspace/notes')" :class="{ active: currentRoute === '/workspace/notes' }">
-          <img src="@/assets/icon/notes.png" alt="笔记" class="toolbar-icon" />
+
+        <li
+          @click="navigateTo('/workspace/notes')"
+          :class="{ active: currentRoute === '/workspace/notes' }"
+        >
+          <img :src="iconNotes" alt="笔记" class="toolbar-icon" />
           笔记
         </li>
-        <li @click="navigateTo('/workspace/code')" :class="{ active: currentRoute === '/workspace/code' }">
-          <img src="@/assets/icon/code.png" alt="代码" class="toolbar-icon" />
+
+        <li
+          @click="navigateTo('/workspace/code')"
+          :class="{ active: currentRoute === '/workspace/code' }"
+        >
+          <img :src="iconCode" alt="代码" class="toolbar-icon" />
           代码
         </li>
-        <li @click="navigateTo('/workspace/ddl')" :class="{ active: currentRoute === '/workspace/ddl' }">
-          <img src="@/assets/icon/date-icon.png" alt="DDL" class="toolbar-icon" />
+
+        <li
+          @click="navigateTo('/workspace/ddl')"
+          :class="{ active: currentRoute === '/workspace/ddl' }"
+        >
+          <img :src="iconDDL" alt="DDL" class="toolbar-icon" />
           DDL
         </li>
-        <li @click="navigateTo('/workspace/recycle')" :class="{ active: currentRoute === '/workspace/recycle' }">
-          <img src="@/assets/icon/trash.png" alt="回收站" class="toolbar-icon" />
+
+        <li
+          @click="navigateTo('/workspace/recycle')"
+          :class="{ active: currentRoute === '/workspace/recycle' }"
+        >
+          <img :src="iconTrash" alt="回收站" class="toolbar-icon" />
           回收站
         </li>
       </ul>
@@ -38,11 +61,24 @@
 </template>
 
 <script>
+import iconEdit from '@/assets/icon/edit.png?w=80&format=webp&imagetools';
+import iconFavorite from '@/assets/icon/favorite.png?w=80&format=webp&imagetools';
+import iconNotes from '@/assets/icon/notes.png?w=80&format=webp&imagetools';
+import iconCode from '@/assets/icon/code.png?w=80&format=webp&imagetools';
+import iconDDL from '@/assets/icon/date-icon.png?w=80&format=webp&imagetools';
+import iconTrash from '@/assets/icon/trash.png?w=80&format=webp&imagetools';
+
 export default {
-  name: "WorkSpace",
+  name: 'WorkSpace',
   data() {
     return {
-      currentRoute: "",
+      currentRoute: '',
+      iconEdit,
+      iconFavorite,
+      iconNotes,
+      iconCode,
+      iconDDL,
+      iconTrash,
     };
   },
   watch: {
@@ -102,7 +138,7 @@ export default {
 }
 
 .toolbar-icon {
-  width: 30px; /* 设置图标的大小 */
+  width: 30px;
   height: 30px;
 }
 

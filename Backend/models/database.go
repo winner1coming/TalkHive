@@ -207,7 +207,7 @@ type NoteDivide struct {
 
 // Links 网页链接器表
 type Links struct {
-	AccountID uint   `json:"account_id"`
+	AccountID uint   `gorm:"primaryKey" json:"account_id"`
 	URL       string `gorm:"primaryKey" json:"url"`
 	URLName   string `json:"url_name"`
 	Icon      string `json:"icon"`

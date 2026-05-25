@@ -1,7 +1,7 @@
 <template>
   <div class="accountlogin">
     <div class = "all">
-      <img  class="avatar" :src = "avatar"/>
+      <img class="avatar" :src = "avatar" fetchpriority="high" decoding="async"/>
       
       <div class="input-group">
         <label for="account">账号:</label>
@@ -49,7 +49,7 @@
 import { login } from '@/services/loginth.js'; // 导入登录 API
 import CryptoJS from 'crypto-js';
 import { mapActions, mapGetters} from 'vuex';
-import img from '@/assets/images/avatar.jpg';
+import img from '@/assets/images/avatar.jpg?w=125&format=webp&imagetools';
 
 export default {
   //数据的存储

@@ -2,6 +2,8 @@
   <div class="container">
 
     <!-- 显示文件名、在线用户等信息 -->
+    <button @click="offline">离线</button>
+    <button @click="online">连接</button>
     <div class="doc-info">
       <div class="left-infos">
         <img src="@/assets/icon/return.png" alt="返回图标" class="icon" @click="returnToWorkspace"/>
@@ -234,6 +236,38 @@ export default {
   // },
 
   methods: {
+    offline()
+    {
+      this.provider?.disconnect();
+    },
+    online()
+    {
+      this.provider = new WebsocketProvider(
+          `ws://localhost:1234?room=${this.currentDoc.doc_id}`,
+          this.currentDoc.doc_id,  // 这个参数可以随便，但建议保持同一个
+          this.ydoc
+      );
+      // 监听远程用户状态变化
+      this.provider.awareness.on("change", () => {
+          const states = this.provider.awareness.getStates();
+          const remote_users = new Map();
+          states.forEach((state, clientID)=>{
+              const user = state.user;
+              if(user.id!==this.currentUser.id && !remote_users.has(user.id))
+              {
+                  remote_users.set(user.id, user);
+              }
+          })
+          this.remoteUsers = remote_users;
+      });
+      // 设置本地用户状态，Yjs awareness 用于广播用户信息（姓名、颜色、头像）
+      this.provider.awareness.setLocalStateField("user", {
+        id: this.currentUser.id,
+        name: this.currentUser.username,
+        color: randomColor(),
+        userIcon: this.currentUser.avatar,
+      });
+    },
     // 让Go后端保存快照
     async saveSnapshot() {
         const update = Y.encodeStateAsUpdate(this.ydoc); // 用Y.encodeStateAsUpdate而不是Y.encodeSnapshot

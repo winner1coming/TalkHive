@@ -1,24 +1,25 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
-// 导入各个视图组件
-import Home from '@/views/Home.vue';
-import LoginTH from '@/views/LoginTH.vue';
-import Register from '@/components/Register.vue';
-import ChatView from '@/views/ChatView.vue';
-import ContactView from '@/views/ContactView.vue';
-import ForgetPassword from '@/components/ForgetPassword.vue';
-import ShowList from '@/views/SettingView.vue';
-import WorkSpace from '@/views/WorkSpace.vue';
-import Favorites from '@/components/WorkSpace/Favorites.vue';
-import Notes from "@/components/WorkSpace/Notes.vue";
-import NoteEditor from "@/components/WorkSpace/NoteEditor.vue";
-import CodeEditor from "@/components/WorkSpace/CodeEditor.vue";
-import Code from "@/components/WorkSpace/Code.vue"
-import DdlList from "@/components/WorkSpace/DdlList.vue"
-import Recycle from "@/components/WorkSpace/Recycle.vue"
-import OnlineCollaboration from '@/components/WorkSpace/OnlineCollaboration.vue';
-import CollabEditor from '@/components/WorkSpace/CollabEditor.vue';
-import QuillEditor from '@/components/WorkSpace/QuillEditor.vue'
+// 导入各个视图组件,懒加载
+const Home = () => import('@/views/Home.vue');
+const LoginTH = () => import('@/views/LoginTH.vue');
+const Register = () => import('@/components/Register.vue');
+const ChatView = () => import('@/views/ChatView.vue');
+const ContactView = () => import('@/views/ContactView.vue');
+const ForgetPassword = () => import('@/components/ForgetPassword.vue');
+const ShowList = () => import('@/views/SettingView.vue');
+const WorkSpace = () => import('@/views/WorkSpace.vue');
+const Favorites = () => import('@/components/WorkSpace/Favorites.vue');
+const Notes = () => import("@/components/WorkSpace/Notes.vue");
+const NoteEditor = () => import("@/components/WorkSpace/NoteEditor.vue");
+const CodeEditor = () => import("@/components/WorkSpace/CodeEditor.vue");
+const Code = () => import("@/components/WorkSpace/Code.vue");
+const DdlList = () => import("@/components/WorkSpace/DdlList.vue");
+const Recycle = () => import("@/components/WorkSpace/Recycle.vue");
+const OnlineCollaboration = () => import('@/components/WorkSpace/OnlineCollaboration.vue');
+const CollabEditor = () => import('@/components/WorkSpace/CollabEditor.vue');
+const QuillEditor = () => import('@/components/WorkSpace/QuillEditor.vue');
+
 
 //import GroupChat from '@/components/GroupChat.vue';
 //import Profile from '@/components/Profile.vue';
