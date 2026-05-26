@@ -1,447 +1,417 @@
 <template>
   <div class="container">
-
-    <!-- 显示文件名、在线用户等信息 -->
-    <button @click="offline">离线</button>
-    <button @click="online">连接</button>
+    <!-- 文档信息栏 -->
     <div class="doc-info">
       <div class="left-infos">
-        <img src="@/assets/icon/return.png" alt="返回图标" class="icon" @click="returnToWorkspace"/>
-        <button class="ql-undo" :disabled="!canUndo" @click="handleUndo">↶</button>
-        <button class="ql-redo" :disabled="!canRedo" @click="handleRedo">↷</button>
+        <img src="@/assets/icon/return.png" alt="返回" class="icon" @click="returnToWorkspace"/>
       </div>
-      <div class="doc_name">{{ currentDoc.doc_name }}</div>
-      <!-- <button @click="saveSnapshot"> 保存快照</button>
-      <button @click="loadSnapshot"> 获取快照</button> -->
+      <div class="doc_name">
+        {{ currentDoc.doc_name }}
+        <span v-if="loadingLargeDoc" class="loading-indicator">加载大型文档中...</span>
+      </div>
       <div class="user-info">
-        <div class="other-user">正在编辑：
-          <div class = "other-user"
+        <div class="other-users">正在编辑：
+          <div class="other-user"
             v-for="[key, user] in remoteUsers"
             :key="key"
             :style="{ color: user.color }"
           >
-            <!-- 用户头像 -->
             <img
-              :src="user.userIcon"
+              :src="user.userIcon || user.avatar"
               :alt="user.name"
               style="width: 18px; height: 18px; border-radius: 50%;"
             />
-            {{ user.name }}  <!-- 显示用户名 -->
+            {{ user.name }}
           </div>
         </div>
         <div class="me-user">
-            <img
-                :src="currentUser.avatar"
-                :alt="currentUser.username"
-                style="width: 18px; height: 18px; border-radius: 50%; margin-top:3px; margin-right:5px;"
-            />
-            <span>{{ currentUser.username }}</span>
+          <img
+            :src="currentUser.avatar"
+            :alt="currentUser.username"
+            style="width: 18px; height: 18px; border-radius: 50%; margin-top:3px; margin-right:5px;"
+          />
+          <span>{{ currentUser.username }}</span>
         </div>
       </div>
     </div>
-    <!--  Quill 编辑器 -->
-    <div ref="quillEditor" class="quill-editor"></div>
 
+    <!-- TipTap 工具栏 -->
+    <CollabToolbar :editor="editor" />
+
+    <!-- TipTap 编辑器 -->
+    <editor-content :editor="editor" class="tiptap-editor" />
   </div>
 </template>
-<script>
-import * as Y from "yjs";  // 导入 Yjs 核心库
-import { WebsocketProvider } from "y-websocket";  // 导入 Yjs WebSocket 提供者
-import { UndoManager } from 'yjs';
-import Quill from "quill";
-import { QuillBinding} from "y-quill";
-import QuillCursors from "quill-cursors";
-import 'quill/dist/quill.snow.css';
-import * as WorkSpaceAPI from '@/services/workspace_api';
-import { Buffer } from "buffer";
 
-if (!Quill.imports['modules/cursors']) {
-  Quill.register("modules/cursors", QuillCursors);
-}
+<script>
+import * as Y from "yjs"
+import { WebsocketProvider } from "y-websocket"
+import { Editor, EditorContent } from "@tiptap/vue-3"
+import pako from "pako"
+import { Buffer } from "buffer"
+import * as WorkSpaceAPI from "@/services/workspace_api"
+import { getCollabExtensions } from "@/utils/collab-schema"
+import { workerEpochCompact, terminateWorker } from "@/utils/collab-worker"
+import { getCachedSnapshot, setCachedSnapshot, deleteCachedSnapshot } from "@/utils/collab-cache"
+import CollabToolbar from "./CollabToolbar.vue"
 
 export default {
-  name: "CollaborativeInput",  // 组件名称
+  name: "CollabEditor",
+  components: { EditorContent, CollabToolbar },
+
   computed: {
     currentDoc() {
-        return this.$store.getters.getCurrentDoc;  // 从 Vuex 获取 currentDoc
-        // 格式如下：    
-        // currentDoc: {
-        //   doc_id: null,
-        //   doc_name: '',
-        // }
+      return this.$store.getters.getCurrentDoc
     },
     currentUser() {
-      return this.$store.state.user;
-    }
+      return this.$store.state.user
+    },
   },
+
   data() {
     return {
-      // currentUser: { name: "", color: "", userIcon: "" },  // 当前用户信息
-      remoteUsers: new Map(),  // 远程用户信息 Map，key: clientID, value: user对象
-      canUndo: false,
-      canRedo: false,
+      ydoc: null,
+      provider: null,
+      editor: null,
+      remoteUsers: new Map(),
       snapshotTimer: null,
-    };
+      loadingLargeDoc: false,
+      // 版本计数器变更检测：每次编辑递增，保存时对比，跳过未变更的保存
+      changeVersion: 0,
+      lastSavedVersion: 0,
+    }
   },
-  created() {
-    // 从Go后端获取快照
-    this.loadSnapshot();
-    
-    // 创建 Yjs 文档
-    this.ydoc = new Y.Doc();
 
-    // 创建 WebSocket provider，连接到本地服务器文档,唯一文档名是doc_id
-    // this.provider = new WebsocketProvider("ws://localhost:1234", this.currentDoc.doc_id, this.ydoc);
-    // console.log(this.currentDoc.doc_id);
+  async created() {
+    // 1. 创建 Yjs 文档
+    this.ydoc = new Y.Doc()
+
+    // 2. 连接 WebSocket 协作服务器
     this.provider = new WebsocketProvider(
-        `ws://localhost:1234?room=${this.currentDoc.doc_id}`,
-        this.currentDoc.doc_id,  // 这个参数可以随便，但建议保持同一个
-        this.ydoc
-    );
-    // 随机生成用户颜色
-    const randomColor = () => `rgb(${Math.random()*255|0},${Math.random()*255|0},${Math.random()*255|0})`;
+      `ws://localhost:1234?room=${this.currentDoc.doc_id}`,
+      this.currentDoc.doc_id,
+      this.ydoc
+    )
 
-    // 随机生成用户名
-    // const names = ["Alice", "Bob", "Charlie", "David", "Eve"];
-    // const randomName = () => names[Math.floor(Math.random()*names.length)] + Math.floor(Math.random()*100);
+    // 3. 设置 awareness（用户在线状态）
+    this.setupAwareness()
 
-    // const userName = randomName();
-
-    // 设置本地用户状态，Yjs awareness 用于广播用户信息（姓名、颜色、头像）
-    this.provider.awareness.setLocalStateField("user", {
-      id: this.currentUser.id,
-      name: this.currentUser.username,
-      color: randomColor(),
-      userIcon: this.currentUser.avatar,
-    });
-    
+    // 4. 先加载快照再创建编辑器（避免 ySyncPlugin observer 在 Y.XmlFragment
+    //    尚未完整时被远程更新触发导致 crash）
+    await this.loadSnapshot()
+    this.initEditor()
   },
+
   mounted() {
-    // 获取共享文本对象
-    const yText = this.ydoc.getText("shared-text");
-    this.yTextRef = yText;
-
-    const toolbarOptions = [
-      ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
-      ['blockquote', 'code-block'],
-      ['link', 'image', 'video', 'formula'],
-
-      [{ 'header': 1 }, { 'header': 2 }],               // custom button values
-      [{ 'list': 'ordered'}, { 'list': 'bullet' }, { 'list': 'check' }],
-      [{ 'script': 'sub'}, { 'script': 'super' }],      // superscript/subscript
-      [{ 'indent': '-1'}, { 'indent': '+1' }],          // outdent/indent
-      [{ 'direction': 'rtl' }],                         // text direction
-
-      [{ 'size': ['small', false, 'large', 'huge'] }],  // custom dropdown
-      [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-
-      [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
-      [{ 'font': [] }],
-      [{ 'align': [] }],
-
-      ['clean']                                         // remove formatting button
-    ];
-
-    // 获取可用视口的高度，用来在style里设置容器高度
-    const vh = window.innerHeight * 0.01;
-    document.documentElement.style.setProperty('--vh', `${vh}px`);
-
-    // quill初始化
-    this.quill = new Quill(this.$refs.quillEditor, {
-        theme: "snow",
-        modules: {
-        toolbar: toolbarOptions,
-        cursors: true, // 保留，但不自己控制
-        },
-    });
-
-    // // 加两个按钮在toolbar里
-    // this.$nextTick(() => {
-    //     const toolbarEl = this.$el.querySelector('.ql-toolbar');
-    //     if (toolbarEl) {
-    //         // 创建撤销按钮
-    //         this.undoBtn = document.createElement('button');
-    //         this.undoBtn.className = 'ql-undo';
-    //         this.undoBtn.innerHTML = '↶';
-    //         this.undoBtn.onclick = () => this.handleUndo();
-    //         this.undoBtn.disabled = !this.canUndo;  // 初始状态
-
-    //         // 创建恢复按钮
-    //         this.redoBtn = document.createElement('button');
-    //         this.redoBtn.className = 'ql-redo';
-    //         this.redoBtn.innerHTML = '↷';
-    //         this.redoBtn.onclick = () => this.handleRedo();
-    //         this.redoBtn.disabled = !this.canRedo;  // 初始状态
-
-    //         toolbarEl.appendChild(this.undoBtn);
-    //         toolbarEl.appendChild(this.redoBtn);
-    //     }
-    // });
-
-    // 只用 QuillBinding 自动处理内容 + 光标同步
-    this.binding = new QuillBinding(yText, this.quill, this.provider.awareness);
-
-    // 撤销
-    this.undoManager = new UndoManager(yText, {
-        captureTimeout: 500,
-        ignoreRemoteMapChanges: true,
-        trackedOrigins: new Set([this.binding]),
-    });
-    this.ydoc.on("update", this.updateUndoRedoState);
-
-    // 撤销/重做快捷键
-    this.quill.keyboard.addBinding({ key: 'z', shortKey: true }, () => this.handleUndo());
-    this.quill.keyboard.addBinding({ key: 'y', shortKey: true }, () => this.handleRedo());
-
-    // 删除了手动 selection-change 和 cursor 广播部分
-
-    // 使用 IndexedDB 持久化文档数据
-    //this.persistence = new IndexeddbPersistence("collab-input-db", this.ydoc);
-
-    // 获取本地用户信息
-    // this.currentUser = this.provider.awareness.getLocalState()?.user || {};
-
-    // 监听远程用户状态变化
-    this.provider.awareness.on("change", () => {
-        const states = this.provider.awareness.getStates();
-        const remote_users = new Map();
-        states.forEach((state, clientID)=>{
-            const user = state.user;
-            if(user.id!==this.currentUser.id && !remote_users.has(user.id))
-            {
-                remote_users.set(user.id, user);
-            }
-        })
-        this.remoteUsers = remote_users;
-    });
-
-    // 每隔30秒，保存文档快照到数据库
-    this.snapshotTimer = setInterval(()=>{
-        this.saveSnapshot();
-    }, 30000);
-
-    window.addEventListener("beforeunload", this.destroy_handler);
+    // 计算视口高度用于容器尺寸
+    const vh = window.innerHeight * 0.01
+    document.documentElement.style.setProperty("--vh", `${vh}px`)
   },
 
-  beforeUnmount(){
-    window.removeEventListener("beforeunload", this.destroy_handler);
-    this.destroy_handler();
-    console.log("进入了beforeUnmount");
+  beforeUnmount() {
+    window.removeEventListener("beforeunload", this.destroyHandler)
+    this.destroyHandler()
   },
-
-  // beforeRouteLeave() {
-  //   window.removeEventListener("beforeunload", this.destroy_handler);
-  //   this.destroy_handler();
-  //   console.log("进入了beforeRouteLeave");
-  // },
 
   methods: {
-    offline()
-    {
-      this.provider?.disconnect();
-    },
-    online()
-    {
-      this.provider = new WebsocketProvider(
-          `ws://localhost:1234?room=${this.currentDoc.doc_id}`,
-          this.currentDoc.doc_id,  // 这个参数可以随便，但建议保持同一个
-          this.ydoc
-      );
+    initEditor() {
+      // 创建 TipTap 编辑器（此时 Y.XmlFragment 已被快照填充）
+      this.editor = new Editor({
+        extensions: getCollabExtensions(this.ydoc, this.provider, {
+          id: this.currentUser.id,
+          username: this.currentUser.username,
+          avatar: this.currentUser.avatar,
+        }),
+      })
+
+      // 跟踪本地变更（用于跳过未变更的保存）
+      this.editor.on('update', () => { this.changeVersion++ })
+
       // 监听远程用户状态变化
-      this.provider.awareness.on("change", () => {
-          const states = this.provider.awareness.getStates();
-          const remote_users = new Map();
-          states.forEach((state, clientID)=>{
-              const user = state.user;
-              if(user.id!==this.currentUser.id && !remote_users.has(user.id))
-              {
-                  remote_users.set(user.id, user);
-              }
+      if (this.provider?.awareness) {
+        this.provider.awareness.on("change", () => {
+          const states = this.provider.awareness.getStates()
+          const remoteUsers = new Map()
+          states.forEach((state, clientID) => {
+            const user = state.user
+            if (user && user.id !== this.currentUser.id && !remoteUsers.has(user.id)) {
+              remoteUsers.set(user.id, user)
+            }
           })
-          this.remoteUsers = remote_users;
-      });
-      // 设置本地用户状态，Yjs awareness 用于广播用户信息（姓名、颜色、头像）
+          this.remoteUsers = remoteUsers
+        })
+      }
+
+      // 每 30 秒保存快照
+      this.snapshotTimer = setInterval(() => {
+        this.saveSnapshot()
+      }, 30000)
+
+      window.addEventListener("beforeunload", this.destroyHandler)
+    },
+
+    setupAwareness() {
+      const randomColor = () => `#${Math.floor(Math.random()*0xffffff).toString(16).padStart(6, '0')}`
       this.provider.awareness.setLocalStateField("user", {
         id: this.currentUser.id,
         name: this.currentUser.username,
         color: randomColor(),
         userIcon: this.currentUser.avatar,
-      });
+        avatar: this.currentUser.avatar,
+      })
     },
-    // 让Go后端保存快照
+
+    // 保存快照：变更检测 + Web Worker Epoch 压缩（回退主线程）+ gzip 上传
     async saveSnapshot() {
-        const update = Y.encodeStateAsUpdate(this.ydoc); // 用Y.encodeStateAsUpdate而不是Y.encodeSnapshot
-        const update_base64 = Buffer.from(update).toString('base64');
-        try{
-            const response = await WorkSpaceAPI.saveSnapshot(this.currentDoc.doc_id, update_base64);
-            if(response.status!=200){
-                console.log("保存协作文档快照失败");
-            }
-        }
-        catch(err){
-            console.log("保存快照出错：");
-            console.log(err);
-        }
-    },
+      if (this.changeVersion === this.lastSavedVersion) return
+      this.lastSavedVersion = this.changeVersion
 
-    // 从Go后端获取快照
-    async loadSnapshot() {
-        const response = await WorkSpaceAPI.getSnapshot(this.currentDoc.doc_id);
-        const data = response.data;
-        if (data.snapshot) {
-            const update = Uint8Array.from(atob(data.snapshot), c => c.charCodeAt(0));
-            Y.applyUpdate(this.ydoc, update);
-            console.log('Snapshot restored from server')
+      const fullState = Y.encodeStateAsUpdate(this.ydoc)
+
+      // 优先在 Web Worker 中做 epoch 压缩（不阻塞主线程），失败则回退到主线程
+      let compactState
+      try {
+        const buf = await workerEpochCompact(fullState)
+        compactState = new Uint8Array(buf)
+      } catch (err) {
+        // Worker 不可用（不支持、加载失败等），在主线程执行
+        const freshDoc = new Y.Doc()
+        Y.applyUpdate(freshDoc, fullState)
+        compactState = Y.encodeStateAsUpdate(freshDoc)
+        freshDoc.destroy()
+      }
+
+      const compressed = pako.gzip(compactState)
+      const base64 = Buffer.from(compressed).toString("base64")
+      try {
+        const response = await WorkSpaceAPI.saveSnapshot(this.currentDoc.doc_id, base64)
+        if (response.status !== 200) {
+          console.log("保存协作文档快照失败")
         } else {
-            console.log('ℹ️ No snapshot found, starting fresh')
+          // 更新本地缓存，下次打开无需重新下载
+          await setCachedSnapshot(this.currentDoc.doc_id, base64).catch(() => {})
         }
-    },
-
-    returnToWorkspace()
-    {
-      // 跳转到编辑页面
-      this.$router.push(`/workspace/collabdocs`);
-    },
-
-    destroy_handler()
-    {
-        // 路由变换/组件销毁/关闭标签页前，移除监听并断开连接
-        if (this.provider?.awareness) {
-            // 清空本地状态，通知其他客户端该用户已离开
-            this.provider.awareness.setLocalState(null);
-        }
-        this.provider?.disconnect();
-
-        // 清除 undoManager
-        if(this.undoManager)
-        {
-        this.undoManager.destroy();
-        this.undoManager = null;
-        }
-        if(this.binding)
-        {
-            this.binding.destroy();
-        }
-        // 清除定时器
-        if (this.snapshotTimer) {
-            clearInterval(this.snapshotTimer);
-            this.snapshotTimer = null;
-        }
-    },
-
-    updateUndoRedoState()
-    {
-      this.canUndo = this.undoManager.undoStack.length > 0;
-      this.canRedo = this.undoManager.redoStack.length > 0;
-      if (this.undoBtn) this.undoBtn.disabled = !this.canUndo;
-      if (this.redoBtn) this.redoBtn.disabled = !this.canRedo;
-    },
-
-    // 撤销
-    handleUndo(event)
-    {
-      // 快捷键的Ctrl Z事件，需要阻止浏览器的撤销文本行为
-      if(event)
-      {
-        event.preventDefault();
-        event.stopPropagation();
-      }
-      if(this.canUndo)
-      {
-        this.undoManager.undo();
+      } catch (err) {
+        console.log("保存快照出错：", err)
       }
     },
 
-    // 恢复
-    handleRedo(event)
-    {
-      // 快捷键的Ctrl Y事件，需要阻止浏览器的行为
-      if(event)
-      {
-        event.preventDefault();
-        event.stopPropagation();
+    // 从后端加载快照，使用 IndexedDB 缓存避免重复下载和解压
+    // 策略：stale-while-revalidate — 先应用缓存（即时），再异步刷新服务器版本
+    async loadSnapshot() {
+      // Phase 1: 从 IndexedDB 缓存加载（即时，无网络开销）
+      const cached = await getCachedSnapshot(this.currentDoc.doc_id).catch(() => null)
+      if (cached?.snapshot) {
+        try {
+          const compressed = Uint8Array.from(atob(cached.snapshot), c => c.charCodeAt(0))
+          const update = pako.ungzip(compressed)
+          // 大文档缓存也用 rAF 推迟，避免首次渲染卡顿
+          const LARGE_DOC_THRESHOLD = 500000
+          if (update.length > LARGE_DOC_THRESHOLD) {
+            await new Promise(resolve => requestAnimationFrame(resolve))
+          }
+          Y.applyUpdate(this.ydoc, update)
+          console.log("Snapshot restored from local cache")
+        } catch (err) {
+          console.log("Cache load failed, clearing corrupted cache:", err)
+          // 清除损坏的缓存，避免下次再加载同一份坏数据
+          deleteCachedSnapshot(this.currentDoc.doc_id).catch(() => {})
+        }
       }
-      if(this.canRedo)
-      {
-        this.undoManager.redo();
+
+      // Phase 2: 总是从服务器获取最新版本（stale-while-revalidate）
+      // 如果 Phase 1 已应用缓存，这次刷新在后台完成，用户无感知
+      try {
+        const response = await WorkSpaceAPI.getSnapshot(this.currentDoc.doc_id)
+        const data = response.data
+        if (!data.snapshot) {
+          if (!cached) console.log("No snapshot found, starting fresh")
+          return
+        }
+
+        // 将服务器响应写入缓存（下次打开直接走 Phase 1）
+        await setCachedSnapshot(this.currentDoc.doc_id, data.snapshot).catch(() => {})
+
+        let update
+        try {
+          const compressed = Uint8Array.from(atob(data.snapshot), c => c.charCodeAt(0))
+          update = pako.ungzip(compressed)
+        } catch {
+          // 兼容旧格式（未压缩）
+          update = Uint8Array.from(atob(data.snapshot), c => c.charCodeAt(0))
+        }
+
+        // 对大文档使用 rAF 推迟 Y.applyUpdate，让浏览器先渲染 UI 再处理重计算
+        // 注意：Yjs 更新是自包含二进制格式，不可在任意字节边界切片
+        const LARGE_DOC_THRESHOLD = 500000
+        if (update.length > LARGE_DOC_THRESHOLD) {
+          // 如果缓存已应用，用户已在编辑，不显示 loading 遮罩
+          if (!cached) {
+            this.loadingLargeDoc = true
+          }
+          await new Promise(resolve => requestAnimationFrame(resolve))
+          Y.applyUpdate(this.ydoc, update)
+          this.loadingLargeDoc = false
+        } else {
+          Y.applyUpdate(this.ydoc, update)
+        }
+        console.log("Snapshot restored from server")
+      } catch (err) {
+        console.log("Server snapshot decode failed, starting from current state:", err)
+        this.loadingLargeDoc = false
       }
-    }
+    },
+
+    returnToWorkspace() {
+      this.$router.push("/workspace/collabdocs")
+    },
+
+    destroyHandler() {
+      if (this.provider?.awareness) {
+        this.provider.awareness.setLocalState(null)
+      }
+      this.provider?.disconnect()
+
+      if (this.editor) {
+        this.editor.destroy()
+        this.editor = null
+      }
+      if (this.snapshotTimer) {
+        clearInterval(this.snapshotTimer)
+        this.snapshotTimer = null
+      }
+      terminateWorker()
+    },
   },
-};
+}
 </script>
-<style scoped>
-  html, body{
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    width: 100%;
-    overflow: hidden;   /* 防止全局滚动 */
-    box-sizing: border-box;
-  }
-  *{
-    box-sizing: inherit;
-  }
-  .container{
-    display: flex;
-    flex-direction: column;
-    height: calc(var(--vh, 1vh) * 100 - 40px);
-    width: 100%;
-    padding: 20px;
-  }
-  .doc-info{
-    display: flex;
-    flex-direction: row;
-    flex-shrink:0;
-    align-items: center;
-    justify-content: space-between;
-    background-color:lightgrey;
-  }
-  .left-infos{
-    display: flex;
-    flex-direction: row;
-    justify-content: space-evenly;
-    align-items: center;
-  }
-  .ql-undo, .ql-redo {
-    font-size: 18px;
-    padding: 4px 8px;
-    border: none;
-    background: none;
-    color:var(--button-text-color);
-    cursor: pointer;
-  }
-  .ql-undo:disabled, .ql-redo:disabled {
-    color:gray;
-  }
-  .doc_name{
-    font-size: 20px;
-    margin-left: 20px;
-  }
-  .user-info {
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-end;
-    align-items: center;
-  }
-  .other-user, .me-user{
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-end;
-    align-items: center;
-    padding: 8px;
-    margin-right: 5px;
-    font-size: 16px;
-  }
-  .quill-editor{
-    flex: 1;
-    min-height: 0;
-    padding: 20px;
-  }
-  .icon{
-    width: 25px;
-    height: 25px;
-    margin-left: 5px;
-    cursor: pointer;
-  }
 
+<style scoped>
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+* {
+  box-sizing: inherit;
+}
+.container {
+  display: flex;
+  flex-direction: column;
+  height: calc(var(--vh, 1vh) * 100 - 40px);
+  width: 100%;
+  padding: 20px;
+}
+.doc-info {
+  display: flex;
+  flex-direction: row;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-between;
+  background-color: lightgrey;
+  padding: 4px 8px;
+}
+.left-infos {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+.doc_name {
+  font-size: 20px;
+  margin-left: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.user-info {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: center;
+}
+.other-users {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+}
+.other-user, .me-user {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 4px 6px;
+  font-size: 14px;
+}
+.me-user {
+  margin-left: 10px;
+}
+.icon {
+  width: 25px;
+  height: 25px;
+  margin-left: 5px;
+  cursor: pointer;
+}
+.loading-indicator {
+  font-size: 13px;
+  color: #666;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+.tiptap-editor {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-top: none;
+}
+/* 让浏览器跳过离屏 DOM 的布局/绘制 */
+.tiptap-editor :deep(.ProseMirror) {
+  outline: none;
+  min-height: 100%;
+}
+/* 为每个块级节点启用 content-visibility，浏览器可跳过离屏节点的布局/绘制 */
+.tiptap-editor :deep(.ProseMirror > *) {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 1.5rem;
+}
+.tiptap-editor :deep(.ProseMirror p) {
+  margin: 0.5em 0;
+}
+.tiptap-editor :deep(.ProseMirror h1),
+.tiptap-editor :deep(.ProseMirror h2),
+.tiptap-editor :deep(.ProseMirror h3) {
+  margin: 0.8em 0 0.4em;
+}
+/* 远程用户光标：默认 cursorBuilder 只设了 border-color，需补全 border 样式 */
+.tiptap-editor :deep(.ProseMirror-yjs-cursor) {
+  border-left: 2px solid;
+  height: 1em;
+  position: relative;
+  content-visibility: visible;
+}
+/* 光标上的用户名标签 */
+.tiptap-editor :deep(.ProseMirror-yjs-cursor > div) {
+  position: absolute;
+  top: -1.4em;
+  left: -2px;
+  font-size: 11px;
+  color: #fff;
+  padding: 1px 4px;
+  white-space: nowrap;
+  border-radius: 2px 2px 2px 0;
+  pointer-events: none;
+}
+/* 远程用户选中区域半透明高亮 */
+.tiptap-editor :deep(.ProseMirror-yjs-selection) {
+  opacity: 0.3;
+  content-visibility: visible;
+}
 </style>

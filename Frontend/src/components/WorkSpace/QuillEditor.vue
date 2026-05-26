@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <!-- 工具栏 -->
+    <!-- 顶部工具栏 -->
     <div class="editor-toolbar">
       <div class="toolbar-item">
         <label for="noteFilename">文件名：</label>
@@ -15,186 +15,226 @@
         <button class="btn" @click="cancelEdit">返回</button>
       </div>
     </div>
-    <!--  Quill 编辑器 -->
-    <div ref="quillEditor" class="quill-editor"></div>
 
+    <!-- TipTap 工具栏 -->
+    <CollabToolbar :editor="editor" />
+
+    <!-- TipTap 编辑器 -->
+    <editor-content :editor="editor" class="tiptap-editor" />
   </div>
 </template>
-<script>
-import Quill from "quill";
-import 'quill/dist/quill.snow.css';
-import * as WorkSpaceAPI from '@/services/workspace_api';
 
-let quill = null;
+<script>
+import { Editor, EditorContent } from "@tiptap/vue-3"
+import * as WorkSpaceAPI from "@/services/workspace_api"
+import { getLocalExtensions } from "@/utils/collab-schema"
+import CollabToolbar from "./CollabToolbar.vue"
+
+// Quill Delta → HTML 简易转换（兼容旧笔记格式）
+function deltaToHtml(delta) {
+  if (!delta || !delta.ops || !Array.isArray(delta.ops)) {
+    return '<p></p>'
+  }
+  let html = ''
+  for (const op of delta.ops) {
+    const text = String(op.insert || '')
+    const attrs = op.attributes || {}
+
+    // 图片/嵌入内容
+    if (op.insert && typeof op.insert === 'object') {
+      if (op.insert.image) {
+        html += `<img src="${op.insert.image}" />`
+      }
+      continue
+    }
+
+    // 换行 = 段落结束
+    if (text === '\n') {
+      html += '</p><p>'
+      continue
+    }
+
+    let wrapped = text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+
+    if (attrs.bold) wrapped = `<strong>${wrapped}</strong>`
+    if (attrs.italic) wrapped = `<em>${wrapped}</em>`
+    if (attrs.underline) wrapped = `<u>${wrapped}</u>`
+    if (attrs.strike) wrapped = `<s>${wrapped}</s>`
+    if (attrs.code) wrapped = `<code>${wrapped}</code>`
+    if (attrs.link) wrapped = `<a href="${attrs.link}">${wrapped}</a>`
+
+    if (attrs.background) wrapped = `<span style="background:${attrs.background}">${wrapped}</span>`
+    if (attrs.color) wrapped = `<span style="color:${attrs.color}">${wrapped}</span>`
+
+    html += wrapped
+  }
+  return `<p>${html}</p>`
+}
+
 export default {
-  name: "QuillEditor",
+  name: "NoteEditor",
+  components: { EditorContent, CollabToolbar },
 
   computed: {
     currentNote() {
-      return this.$store.getters.getCurrentNote;
+      return this.$store.getters.getCurrentNote
     },
     categories() {
-      this.localCategory = this.$store.getters.getCategories;
-      this.localCategory.push('');
-      return this.localCategory; 
+      const cats = this.$store.getters.getCategories
+      cats.push('')
+      return cats
     },
   },
 
-  // data() {
-  //   return {
-  //     quill: null
-  //   }
-  // },
+  data() {
+    return {
+      editor: null,
+    }
+  },
 
   mounted() {
-    const toolbarOptions = [
-      ['bold', 'italic', 'underline', 'strike'],
-      ['blockquote', 'code-block'],
-      ['link', 'image', 'video', 'formula'],
-      [{ 'header': 1 }, { 'header': 2 }],
-      [{ 'list': 'ordered'}, { 'list': 'bullet' }, { 'list': 'check' }],
-      [{ 'script': 'sub'}, { 'script': 'super' }],
-      [{ 'indent': '-1'}, { 'indent': '+1' }],
-      [{ 'direction': 'rtl' }],
-      [{ 'size': ['small', false, 'large', 'huge'] }],
-      [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-      [{ 'color': [] }, { 'background': [] }],
-      [{ 'font': [] }],
-      [{ 'align': [] }],
-      ['clean']
-    ];
+    // 创建 TipTap 编辑器（无 Yjs，本地模式）
+    this.editor = new Editor({
+      extensions: getLocalExtensions(),
+      content: '',
+    })
 
-    quill = new Quill(this.$refs.quillEditor, {
-      theme: "snow",
-      modules: { toolbar: toolbarOptions }
-    });
+    // 加载笔记内容
+    this.loadContent()
+  },
 
-    // 初始化时加载内容
-    this.loadContent();
-  },
-  beforeRouteLeave(){
-    console.log("Quill Editor：触发 beforeRouteLeave");
-  },
-  beforeUnmount(){
-    //this.destroyQuill();
-    console.log("QuillEditor 触发 beforeUnmount");
+  beforeUnmount() {
+    if (this.editor) {
+      this.editor.destroy()
+      this.editor = null
+    }
   },
 
   methods: {
     async loadContent() {
-      // 从后端取内容
       try {
-        const res = await WorkSpaceAPI.getNoteContent(this.currentNote.note_id);
-        const content = res.data.content;   // 假设返回的是JSON字符串
-        if (content) {
-          quill.setContents(JSON.parse(content));
+        const res = await WorkSpaceAPI.getNoteContent(this.currentNote.note_id)
+        const content = res.data.content
+        if (!content) return
+
+        // 尝试解析：Quill Delta / TipTap JSON / HTML
+        let html = ''
+        try {
+          const parsed = JSON.parse(content)
+          if (parsed && parsed.ops) {
+            // 旧格式：Quill Delta → HTML
+            html = deltaToHtml(parsed)
+          } else if (parsed && parsed.type) {
+            // TipTap JSON 格式
+            this.editor.commands.setContent(parsed)
+            return
+          } else {
+            html = content
+          }
+        } catch {
+          // 纯文本或 HTML
+          html = content
+        }
+
+        if (html) {
+          this.editor.commands.setContent(html)
         }
       } catch (e) {
-        console.error("加载文档内容失败：", e);
+        console.error("加载文档内容失败：", e)
       }
     },
 
     async saveContent() {
-      // 获取 Delta 格式
-      const delta = quill.getContents();
+      // 以 HTML 格式保存（通用格式，兼容性强）
+      const html = this.editor.getHTML()
       try {
         await WorkSpaceAPI.saveEditNote(
           this.currentNote.note_id,
           this.currentNote.filename,
           this.currentNote.category,
-          JSON.stringify(delta)  // 存字符串
-        );
-        console.log("保存成功");
+          html,
+        )
+        console.log("保存成功")
       } catch (e) {
-        console.error("保存失败：", e);
+        console.error("保存失败：", e)
       }
     },
 
-    // 清理quill实例
-    destroyQuill() {
-        if (quill) {
-        // 移除编辑器 DOM
-          quill.off && quill.off(); // 某些 Quill 版本支持
-          quill = null;
-          const editor = this.$refs.quillEditor;
-          if (editor) {
-            editor.innerHTML = '';  // 清空 DOM
-          }
-        }
-    },
-
-    // 取消编辑
     cancelEdit() {
-      //this.destroyQuill();
-      this.$router.push("/workspace/notes");
+      this.$router.push("/workspace/notes")
     },
-  }
+  },
 }
 </script>
 
 <style scoped>
-  html, body{
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    width: 100%;
-    overflow: hidden;   /* 防止全局滚动 */
-    box-sizing: border-box;
-  }
-  *{
-    box-sizing: inherit;
-  }
-  .container{
-    display: flex;
-    flex-direction: column;
-    height: calc(var(--vh, 1vh) * 100 - 40px);
-    width: 100%;
-    padding: 20px;
-  }
-  .editor-toolbar {
-    display: flex;
-    gap: 10px;
-    justify-content: space-between;
-    margin-bottom: 6px;
-    align-items: center;
-  }
-  .toolbar-item {
-    display: flex;
-    align-items: center;
-  }
-
-  .toolbar-item label,
-  .toolbar-item input,
-  .toolbar-item select{
-    margin-right: 5px;
-    margin-left: 10px;
-    font-size: 14px;
-    color: var(--text-color);
-  }
-
-  .actions {
-    display: flex;
-    gap: 15px;
-    margin-right:10px;
-  }
-  .btn {
-    cursor: pointer;
-    padding-top: 2px;
-    padding-bottom: 2px;
-    padding-left: 5px;
-    padding-right:5px;
-  }
-  .ql-undo, .ql-redo {
-    font-size: 18px;
-    padding: 4px 8px;
-    border: none;
-    background: none;
-    cursor: pointer;
-  }
-  .quill-editor{
-    flex: 1;
-    min-height: 0;
-    padding: 20px;
-  }
-
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+* {
+  box-sizing: inherit;
+}
+.container {
+  display: flex;
+  flex-direction: column;
+  height: calc(var(--vh, 1vh) * 100 - 40px);
+  width: 100%;
+  padding: 20px;
+}
+.editor-toolbar {
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  align-items: center;
+}
+.toolbar-item {
+  display: flex;
+  align-items: center;
+}
+.toolbar-item label,
+.toolbar-item input,
+.toolbar-item select {
+  margin-right: 5px;
+  margin-left: 10px;
+  font-size: 14px;
+  color: var(--text-color);
+}
+.actions {
+  display: flex;
+  gap: 15px;
+  margin-right: 10px;
+}
+.btn {
+  cursor: pointer;
+  padding: 2px 5px;
+}
+.tiptap-editor {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-top: none;
+}
+.tiptap-editor :deep(.ProseMirror) {
+  outline: none;
+  min-height: 100%;
+}
+.tiptap-editor :deep(.ProseMirror p) {
+  margin: 0.5em 0;
+}
+.tiptap-editor :deep(.ProseMirror h1),
+.tiptap-editor :deep(.ProseMirror h2),
+.tiptap-editor :deep(.ProseMirror h3) {
+  margin: 0.8em 0 0.4em;
+}
 </style>
